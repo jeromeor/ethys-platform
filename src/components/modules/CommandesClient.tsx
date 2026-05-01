@@ -17,6 +17,7 @@ interface Commande {
   titre: string | null
   statut: StatutCommande
   type_coton: string
+  grammage: string | null
   volume_total_tonnes: number
   pct_recycle: number
   priorite: string
