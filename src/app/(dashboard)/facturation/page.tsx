@@ -18,7 +18,7 @@ export default async function FacturationPage() {
     `)
     .order('created_at', { ascending: false })
 
-  const { data: commandes } = await supabase
+  const { data: commandesRaw } = await supabase
     .from('commandes')
     .select(`
       id, reference, volume_total_tonnes, pct_recycle,
@@ -26,6 +26,12 @@ export default async function FacturationPage() {
       filature:entreprises!commandes_filature_id_fkey(id, nom)
     `)
     .in('statut', ['en_production', 'controle_qualite', 'qr_genere', 'livree'])
+
+  const commandes = (commandesRaw ?? []).map((c: Record<string, unknown>) => ({
+    ...c,
+    marque: Array.isArray(c.marque) ? c.marque[0] ?? null : c.marque,
+    filature: Array.isArray(c.filature) ? c.filature[0] ?? null : c.filature,
+  }))
 
   const { data: entreprises } = await supabase
     .from('entreprises')
