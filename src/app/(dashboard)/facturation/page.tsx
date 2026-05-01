@@ -20,28 +20,32 @@ export default async function FacturationPage() {
 
   const { data: commandesRaw } = await supabase
     .from('commandes')
-    .select(`
-      id, reference, volume_total_tonnes, pct_recycle,
-      marque:entreprises!commandes_marque_id_fkey(id, nom),
-      filature:entreprises!commandes_filature_id_fkey(id, nom)
-    `)
+    .select('id, reference, volume_total_tonnes, pct_recycle, marque_id, filature_id')
     .in('statut', ['en_production', 'controle_qualite', 'qr_genere', 'livree'])
-
-  const commandes = (commandesRaw ?? []).map((c: Record<string, unknown>) => ({
-    ...c,
-    marque: Array.isArray(c.marque) ? c.marque[0] ?? null : c.marque,
-    filature: Array.isArray(c.filature) ? c.filature[0] ?? null : c.filature,
-  }))
 
   const { data: entreprises } = await supabase
     .from('entreprises')
     .select('id, nom, type')
     .order('nom')
 
+  // Enrichir les commandes avec les noms d'entreprises
+  const commandes = (commandesRaw ?? []).map(c => {
+    const marque = (entreprises ?? []).find(e => e.id === c.marque_id)
+    const filature = (entreprises ?? []).find(e => e.id === c.filature_id)
+    return {
+      id: c.id,
+      reference: c.reference,
+      volume_total_tonnes: c.volume_total_tonnes,
+      pct_recycle: c.pct_recycle,
+      marque: marque ? { id: marque.id, nom: marque.nom } : null,
+      filature: filature ? { id: filature.id, nom: filature.nom } : null,
+    }
+  })
+
   return (
     <FacturationClient
       factures={factures ?? []}
-      commandes={commandes ?? []}
+      commandes={commandes}
       entreprises={entreprises ?? []}
       user={user}
     />
