@@ -74,6 +74,8 @@ const ROLES_DEF = [
     desc: 'Acces limite aux commandes et messagerie.',
     permissions: ['Dashboard', 'Profil', 'Messagerie', 'Commandes validation'],
   },
+]
+
 ]export default function AdminClient({ utilisateurs: initial = [], audit = [], entreprises = [], currentUserId }: Props) {
   const supabase = createClient()
   const [utilisateurs, setUtilisateurs] = useState<Utilisateur[]>(initial ?? [])
