@@ -91,9 +91,4 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
     { label: 'Backups chiffrés AES-256', actif: true, desc: 'Sauvegarde quotidienne' },
   ])
 
-  'use client'
-
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
 
