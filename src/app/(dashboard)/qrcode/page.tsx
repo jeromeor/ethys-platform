@@ -16,10 +16,18 @@ export default async function QRCodePage() {
         marque:entreprises!commandes_marque_id_fkey(nom),
         filature:entreprises!commandes_filature_id_fkey(nom),
         fournisseur:entreprises!commandes_fournisseur_id_fkey(nom)
-      ),
-      qr_codes(*)
+      )
     `)
     .order('created_at', { ascending: false })
 
-  return <QRCodeClient lots={lots ?? []} user={user} />
+  const { data: qrCodes } = await supabase
+    .from('qr_codes')
+    .select('*')
+
+  const lotsAvecQR = (lots ?? []).map(l => ({
+    ...l,
+    qr_codes: (qrCodes ?? []).filter(q => q.lot_id === l.id),
+  }))
+
+  return <QRCodeClient lots={lotsAvecQR} user={user} />
 }
