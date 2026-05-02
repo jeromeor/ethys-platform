@@ -76,6 +76,7 @@ const ROLES_DEF = [
   },
 ]
 
+
 ]export default function AdminClient({ utilisateurs: initial = [], audit = [], entreprises = [], currentUserId }: Props) {
   const supabase = createClient()
   const [utilisateurs, setUtilisateurs] = useState<Utilisateur[]>(initial ?? [])
