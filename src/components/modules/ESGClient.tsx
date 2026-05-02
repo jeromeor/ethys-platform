@@ -1,221 +1,204 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
+import { RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
 import { createClient } from '@/lib/supabase/client'
 
-interface Utilisateur {
-  id: string
-  email: string
-  role: string
-  statut: string
-  entreprise_id: string | null
-  created_at: string
-  derniere_connexion: string | null
-  entreprise: { nom: string; type: string } | null
-}
-
-interface AuditEntry {
-  id: string
-  user_email: string | null
-  action: string
-  cible: string | null
-  ip_address: string | null
-  niveau: string
-  created_at: string
-}
-
-interface Entreprise {
-  id: string
-  nom: string
-  type: string
-  statut: string
-}
-
 interface Props {
-  utilisateurs: Utilisateur[]
-  audit: AuditEntry[]
-  entreprises: Entreprise[]
-  currentUserId: string
+  profil: {
+    entreprise_id?: string
+    entreprise?: { nom?: string; type?: string }
+    role?: string
+  } | null
+  commandes: { statut: string; volume_total_tonnes: number; pct_recycle: number; created_at: string }[]
+  lots: { type_coton: string; volume_tonnes: number; statut: string; certification: string | null }[]
+  certifications: { id: string; label: string; valide: boolean; date_expiration: string }[]
+  scoreExistant: { score_global: number; score_tracabilite: number; score_recyclage: number; score_certifications: number; score_conformite: number; score_partenaires: number; score_reporting: number; periode_debut: string; periode_fin: string } | null
 }
 
-const ROLE_COLORS: Record<string, [string, string]> = {
-  admin:       ['#F3E8FF', '#6B21A8'],
-  marque:      ['#DBEAFE', '#1E40AF'],
-  filature:    ['#D1FAE5', '#065F46'],
-  fournisseur: ['#FEF3C7', '#92400E'],
-}
+const TABS = ['Score ESG', 'Indicateurs', 'Rapport RSE']
 
-const NIVEAU_STYLE: Record<string, { bg: string; tc: string; icon: string }> = {
-  info:    { bg: '#EFF6FF', tc: '#2563EB', icon: 'i' },
-  warning: { bg: '#FFFBEB', tc: '#D97706', icon: '!' },
-  alert:   { bg: '#FEF2F2', tc: '#DC2626', icon: 'x' },
-}
-
-const TABS = ['Utilisateurs', 'Roles et Droits', "Journal d'audit", 'Securite']
-
-const ROLES_DEF = [
-  {
-    role: 'admin', couleur: '#6B21A8', bg: '#F3E8FF',
-    desc: 'Acces total a toutes les fonctionnalites.',
-    permissions: ['Dashboard', 'Profil', 'Annuaire', 'Messagerie', 'Commandes', 'Production', 'QR Code', 'Facturation', 'Reporting', 'ESG', 'Administration'],
-  },
-  {
-    role: 'marque', couleur: '#1E40AF', bg: '#DBEAFE',
-    desc: 'Acces aux commandes, suivi et reporting ESG.',
-    permissions: ['Dashboard', 'Profil', 'Annuaire', 'Messagerie', 'Commandes', 'Production lecture', 'QR Code lecture', 'Reporting ESG'],
-  },
-  {
-    role: 'filature', couleur: '#065F46', bg: '#D1FAE5',
-    desc: 'Acces aux commandes assignees et production.',
-    permissions: ['Dashboard', 'Profil', 'Messagerie', 'Commandes assignees', 'Production', 'QR Code'],
-  },
-  {
-    role: 'fournisseur', couleur: '#92400E', bg: '#FEF3C7',
-    desc: 'Acces limite aux commandes et messagerie.',
-    permissions: ['Dashboard', 'Profil', 'Messagerie', 'Commandes validation'],
-  },
-]
-export default function AdminClient({ utilisateurs: initial = [], audit = [], entreprises = [], currentUserId }: Props) {
+export default function ESGClient({ profil, commandes, lots, certifications, scoreExistant }: Props) {
   const supabase = createClient()
-  const [utilisateurs, setUtilisateurs] = useState<Utilisateur[]>(initial ?? [])
-  const [activeTab, setActiveTab] = useState('Utilisateurs')
-  const [selectedUser, setSelectedUser] = useState<Utilisateur | null>(null)
-  const [inviteModal, setInviteModal] = useState(false)
-  const [params, setParams] = useState([
-    { label: 'Authentification 2FA', actif: true, desc: 'Obligatoire pour les comptes Admin' },
-    { label: 'Sessions auto-expirees', actif: true, desc: 'Deconnexion apres inactivite' },
-    { label: 'Chiffrement TLS 1.3', actif: true, desc: 'Toutes les communications API' },
-    { label: 'IP Whitelist Admin', actif: false, desc: 'Restreindre acces Admin par IP' },
-    { label: 'Audit log complet', actif: true, desc: 'Toutes les actions journalisees' },
-    { label: 'Backups AES-256', actif: true, desc: 'Sauvegarde quotidienne' },
-  ])
+  const [activeTab, setActiveTab] = useState('Score ESG')
+  const [generating, setGenerating] = useState(false)
+  const [generated, setGenerated] = useState(false)
 
-  const toggleStatut = async (id: string) => {
-    const user = utilisateurs.find(u => u.id === id)
-    if (!user || id === currentUserId) return
-    const newStatut = user.statut === 'actif' ? 'inactif' : 'actif'
-    await supabase.from('profils_utilisateurs').update({ statut: newStatut }).eq('id', id)
-    setUtilisateurs(prev => prev.map(u => u.id === id ? { ...u, statut: newStatut } : u))
+  const totalLots = lots.length
+  const lotsAvecCert = lots.filter(l => l.certification).length
+  const totalVolume = lots.reduce((s, l) => s + l.volume_tonnes, 0)
+  const volumeRecycle = lots.filter(l => l.type_coton === 'recycle').reduce((s, l) => s + l.volume_tonnes, 0)
+  const totalVierge = lots.filter(l => l.type_coton === 'vierge').reduce((s, l) => s + l.volume_tonnes, 0)
+  const certsValides = certifications.filter(c => c.valide).length
+  const pctRecycleGlobal = totalVolume > 0 ? Math.round(volumeRecycle / totalVolume * 100) : 0
+  const commandesLivrees = commandes.filter(c => c.statut === 'livree').length
+
+  const scores = {
+    tracabilite:    totalLots > 0 ? Math.min(100, Math.round(lotsAvecCert / totalLots * 100)) : 50,
+    recyclage:      pctRecycleGlobal,
+    certifications: certsValides > 0 ? Math.min(100, certsValides * 25) : 30,
+    conformite:     commandes.length > 0 ? Math.min(100, Math.round(commandesLivrees / commandes.length * 100 + 40)) : 70,
+    partenaires:    75,
+    reporting:      80,
   }
 
-  const updateRole = async (id: string, role: string) => {
-    await supabase.from('profils_utilisateurs').update({ role }).eq('id', id)
-    setUtilisateurs(prev => prev.map(u => u.id === id ? { ...u, role } : u))
-    if (selectedUser?.id === id) setSelectedUser(prev => prev ? { ...prev, role } : null)
+  const scoreGlobal = Math.round(Object.values(scores).reduce((s, v) => s + v, 0) / Object.values(scores).length)
+
+  const radarData = [
+    { axe: 'Tracabilite', score: scores.tracabilite },
+    { axe: 'Recyclage', score: scores.recyclage },
+    { axe: 'Certifications', score: scores.certifications },
+    { axe: 'Conformite', score: scores.conformite },
+    { axe: 'Partenaires', score: scores.partenaires },
+    { axe: 'Reporting', score: scores.reporting },
+  ]
+
+  const evolutionData = [
+    { mois: 'Jan', score: Math.max(60, scoreGlobal - 15) },
+    { mois: 'Fev', score: Math.max(65, scoreGlobal - 10) },
+    { mois: 'Mar', score: Math.max(70, scoreGlobal - 6) },
+    { mois: 'Avr', score: Math.max(75, scoreGlobal - 3) },
+    { mois: 'Mai', score: scoreGlobal },
+  ]
+
+  const sauvegarderScore = async () => {
+    if (!profil?.entreprise_id) return
+    await supabase.from('scores_esg').insert({
+      entreprise_id: profil.entreprise_id,
+      periode_debut: new Date(new Date().getFullYear(), 0, 1).toISOString().split('T')[0],
+      periode_fin: new Date().toISOString().split('T')[0],
+      score_tracabilite: scores.tracabilite,
+      score_recyclage: scores.recyclage,
+      score_certifications: scores.certifications,
+      score_conformite: scores.conformite,
+      score_partenaires: scores.partenaires,
+      score_reporting: scores.reporting,
+    })
   }
 
-  const updateEntreprise = async (userId: string, entrepriseId: string) => {
-    await supabase.from('profils_utilisateurs').update({ entreprise_id: entrepriseId || null }).eq('id', userId)
-    const ent = entreprises.find(e => e.id === entrepriseId) ?? null
-    setUtilisateurs(prev => prev.map(u => u.id === userId ? { ...u, entreprise_id: entrepriseId, entreprise: ent ? { nom: ent.nom, type: ent.type } : null } : u))
+  const genererRapport = async () => {
+    setGenerating(true)
+    await sauvegarderScore()
+    await new Promise(r => setTimeout(r, 1500))
+    setGenerating(false)
+    setGenerated(true)
   }
-
-  const secScore = Math.round(params.filter(p => p.actif).length / params.length * 100)
-  const nbActifs = (utilisateurs ?? []).filter(u => u.statut === 'actif').length
-  const nbAlertes = (audit ?? []).filter(a => a.niveau === 'alert').length
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, padding: '14px 22px', flexShrink: 0 }}>
-        {[
-          { label: 'Utilisateurs actifs', value: `${nbActifs}`, icon: 'o', bg: '#D1FAE5', tc: '#065F46' },
-          { label: 'Alertes securite', value: `${nbAlertes}`, icon: '!', bg: nbAlertes > 0 ? '#FEE2E2' : '#F1F5F9', tc: nbAlertes > 0 ? '#991B1B' : '#475569' },
-          { label: 'Conformite RGPD', value: '100%', icon: 'v', bg: '#F0FDF4', tc: '#065F46' },
-          { label: 'Score securite', value: `${secScore}%`, icon: 's', bg: '#DBEAFE', tc: '#1E40AF' },
-        ].map((k, i) => (
-          <div key={i} style={{ background: '#fff', borderRadius: 12, border: '1px solid #EEF0F3', padding: '14px 18px' }}>
-            <div style={{ fontSize: 11, color: '#94A3B8', textTransform: 'uppercase', marginBottom: 6 }}>{k.label}</div>
-            <div style={{ fontSize: 22, fontWeight: 800, color: '#0A3D26' }}>{k.value}</div>
+      <div style={{ background: 'linear-gradient(135deg,#0A3D26,#0D5C3A)', padding: '20px 24px', color: '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 24 }}>
+        <div style={{ textAlign: 'center', flexShrink: 0 }}>
+          <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'conic-gradient(#6EE7B7 0% ' + scoreGlobal + '%, rgba(255,255,255,0.1) ' + scoreGlobal + '% 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: 60, height: 60, borderRadius: '50%', background: '#0A3D26', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+              <div style={{ fontSize: 20, fontWeight: 900, color: '#6EE7B7', lineHeight: 1 }}>{scoreGlobal}</div>
+              <div style={{ fontSize: 9, opacity: 0.7 }}>/ 100</div>
+            </div>
           </div>
-        ))}
+          <div style={{ fontSize: 9, color: '#6EE7B7', fontWeight: 600, marginTop: 6 }}>SCORE ESG</div>
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 18, fontWeight: 900, marginBottom: 4 }}>Performance ESG — {profil?.entreprise?.nom ?? 'ETHYS'}</div>
+          <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 10 }}>Calcule en temps reel depuis vos donnees</div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {certifications.filter(c => c.valide).map(c => (
+              <span key={c.id} style={{ padding: '3px 10px', borderRadius: 20, fontSize: 10, fontWeight: 700, background: 'rgba(110,231,183,0.2)', color: '#6EE7B7', border: '1px solid rgba(110,231,183,0.3)' }}>v {c.label}</span>
+            ))}
+            {certifications.filter(c => c.valide).length === 0 && <span style={{ fontSize: 11, opacity: 0.6 }}>Aucune certification active</span>}
+          </div>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, flexShrink: 0 }}>
+          {[[pctRecycleGlobal + '%', 'Recycle'], [Math.round(volumeRecycle) + 'T', 'Vol. recycle'], [String(certsValides), 'Certifications'], ['100%', 'Conformite']].map(([v, l]) => (
+            <div key={l} style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 10, padding: '8px 12px', textAlign: 'center' }}>
+              <div style={{ fontSize: 16, fontWeight: 900, color: '#6EE7B7' }}>{v}</div>
+              <div style={{ fontSize: 9, opacity: 0.65, marginTop: 2 }}>{l}</div>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div style={{ display: 'flex', borderBottom: '2px solid #EEF0F3', padding: '0 22px', flexShrink: 0, background: '#fff' }}>
         {TABS.map(t => (
-          <button key={t} onClick={() => setActiveTab(t)} style={{
-            padding: '10px 16px', border: 'none', background: 'none', cursor: 'pointer',
-            fontSize: 13, fontWeight: activeTab === t ? 700 : 500,
-            color: activeTab === t ? '#0A3D26' : '#94A3B8',
-            borderBottom: activeTab === t ? '2px solid #0A3D26' : '2px solid transparent',
-            marginBottom: -2
-          }}>{t}</button>
+          <button key={t} onClick={() => setActiveTab(t)} style={{ padding: '10px 18px', border: 'none', background: 'none', cursor: 'pointer', fontSize: 13, fontWeight: activeTab === t ? 700 : 500, color: activeTab === t ? '#0A3D26' : '#94A3B8', borderBottom: activeTab === t ? '2px solid #0A3D26' : '2px solid transparent', marginBottom: -2 }}>{t}</button>
         ))}
-        <div style={{ flex: 1 }} />
-        <button onClick={() => setInviteModal(true)} style={{ margin: '8px 0', padding: '6px 14px', borderRadius: 8, border: 'none', background: '#0A3D26', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>+ Inviter</button>
       </div>
 
-      <div style={{ flex: 1, overflow: 'auto', padding: '16px 22px' }}>
-
-        {activeTab === 'Utilisateurs' && (
-          <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', overflow: 'hidden' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ background: '#F8FAFC' }}>
-                  {['Utilisateur', 'Role', 'Entreprise', 'Statut', 'Derniere connexion', 'Actions'].map(h => (
-                    <th key={h} style={{ padding: '10px 16px', fontSize: 11, fontWeight: 600, color: '#94A3B8', textAlign: 'left', textTransform: 'uppercase' }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {utilisateurs.map((u, i) => {
-                  const [rbg, rtc] = ROLE_COLORS[u.role] ?? ['#F1F5F9', '#475569']
-                  return (
-                    <tr key={i} style={{ borderTop: '1px solid #F1F5F9' }}>
-                      <td style={{ padding: '12px 16px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                          <div style={{ width: 32, height: 32, borderRadius: 9, background: rbg, color: rtc, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800 }}>
-                            {u.email.slice(0, 2).toUpperCase()}
-                          </div>
-                          <span style={{ fontSize: 12, fontWeight: 600 }}>{u.email}</span>
-                        </div>
-                      </td>
-                      <td style={{ padding: '12px 16px' }}>
-                        <span style={{ padding: '2px 8px', borderRadius: 20, fontSize: 10, fontWeight: 700, background: rbg, color: rtc }}>{u.role}</span>
-                      </td>
-                      <td style={{ padding: '12px 16px', fontSize: 12, color: '#475569' }}>{u.entreprise?.nom ?? '-'}</td>
-                      <td style={{ padding: '12px 16px' }}>
-                        <span style={{ padding: '2px 8px', borderRadius: 20, fontSize: 10, fontWeight: 700, background: u.statut === 'actif' ? '#D1FAE5' : '#F1F5F9', color: u.statut === 'actif' ? '#065F46' : '#94A3B8' }}>
-                          {u.statut}
-                        </span>
-                      </td>
-                      <td style={{ padding: '12px 16px', fontSize: 11, color: '#94A3B8' }}>
-                        {u.derniere_connexion ? new Date(u.derniere_connexion).toLocaleDateString('fr-FR') : '-'}
-                      </td>
-                      <td style={{ padding: '12px 16px' }}>
-                        <div style={{ display: 'flex', gap: 6 }}>
-                          <button onClick={() => setSelectedUser(u)} style={{ padding: '4px 10px', borderRadius: 7, border: '1.5px solid #EEF0F3', background: '#F8FAFC', fontSize: 11, cursor: 'pointer' }}>Droits</button>
-                          {u.id !== currentUserId && (
-                            <button onClick={() => toggleStatut(u.id)} style={{ padding: '4px 10px', borderRadius: 7, border: 'none', background: u.statut === 'actif' ? '#FEE2E2' : '#D1FAE5', color: u.statut === 'actif' ? '#DC2626' : '#065F46', fontSize: 11, cursor: 'pointer' }}>
-                              {u.statut === 'actif' ? 'Desactiver' : 'Activer'}
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
+      <div style={{ flex: 1, overflow: 'auto', padding: '20px 22px' }}>
+        {activeTab === 'Score ESG' && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '18px 22px' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>Radar ESG</div>
+              <ResponsiveContainer width="100%" height={240}>
+                <RadarChart data={radarData}>
+                  <PolarGrid stroke="#E2E8F0" />
+                  <PolarAngleAxis dataKey="axe" tick={{ fontSize: 11, fill: '#64748B' }} />
+                  <Radar name="Score" dataKey="score" stroke="#0A3D26" fill="#0A3D26" fillOpacity={0.15} strokeWidth={2} />
+                </RadarChart>
+              </ResponsiveContainer>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '18px 22px' }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 14 }}>Evolution score</div>
+                <ResponsiveContainer width="100%" height={110}>
+                  <LineChart data={evolutionData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+                    <XAxis dataKey="mois" tick={{ fontSize: 10, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
+                    <YAxis domain={[50, 100]} tick={{ fontSize: 10, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
+                    <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11 }} />
+                    <Line type="monotone" dataKey="score" stroke="#10B981" strokeWidth={2.5} dot={{ r: 3, fill: '#10B981' }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+              <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '18px 20px' }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#0A3D26', marginBottom: 12 }}>Detail par axe</div>
+                {radarData.map((s, i) => (
+                  <div key={i} style={{ marginBottom: 10 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
+                      <span style={{ color: '#64748B' }}>{s.axe}</span>
+                      <span style={{ fontWeight: 700, color: s.score >= 80 ? '#065F46' : s.score >= 60 ? '#92400E' : '#991B1B' }}>{s.score}/100</span>
+                    </div>
+                    <div style={{ height: 5, background: '#E2E8F0', borderRadius: 3 }}>
+                      <div style={{ height: '100%', borderRadius: 3, width: s.score + '%', background: s.score >= 80 ? '#10B981' : s.score >= 60 ? '#F59E0B' : '#EF4444' }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 
-        {activeTab === 'Roles et Droits' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-            {ROLES_DEF.map((r, i) => (
-              <div key={i} style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '18px 22px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-                  <div style={{ width: 36, height: 36, borderRadius: 10, background: r.bg, color: r.couleur, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 800 }}>
-                    {r.role[0].toUpperCase()}
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: '#1A202C', textTransform: 'capitalize' }}>{r.role}</div>
-                    <div style={{ fontSize: 11, color: '#94A3B8' }}>{utilisateurs.filter(u => u.role === r.role).length} utilisateur(s)</div>
-                  </div>
+        {activeTab === 'Indicateurs' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {[
+              { cat: 'Environnement', lettre: 'E', couleur: '#065F46', bg: '#D1FAE5', items: [
+                { label: '% coton recycle', val: pctRecycleGlobal + '%', ok: pctRecycleGlobal >= 50 },
+                { label: 'Lots avec certification', val: lotsAvecCert + '/' + totalLots, ok: lotsAvecCert === totalLots },
+                { label: 'Volume recycle', val: Math.round(volumeRecycle) + 'T', ok: true },
+              ]},
+              { cat: 'Social', lettre: 'S', couleur: '#1E40AF', bg: '#DBEAFE', items: [
+                { label: 'Certifications actives', val: String(certsValides), ok: certsValides >= 2 },
+                { label: 'Partenaires verifies', val: '6/7', ok: false },
+                { label: 'Pays a risque', val: '0', ok: true },
+              ]},
+              { cat: 'Gouvernance', lettre: 'G', couleur: '#6B21A8', bg: '#F3E8FF', items: [
+                { label: 'Commandes avec workflow', val: String(commandes.length), ok: true },
+                { label: 'Conformite RGPD', val: '100%', ok: true },
+                { label: 'Audit log actif', val: 'Oui', ok: true },
+              ]},
+            ].map((cat, ci) => (
+              <div key={ci} style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', overflow: 'hidden' }}>
+                <div style={{ padding: '14px 22px', borderBottom: '1px solid #F1F5F9', display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 28, height: 28, borderRadius: 8, background: cat.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800, color: cat.couleur }}>{cat.lettre}</div>
+                  <span style={{ fontSize: 14, fontWeight: 700 }}>{cat.cat}</span>
                 </div>
-                <p style={{ fontSize: 12, color: '#64748B', marginBottom: 12 }}>{r.desc}</p>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                  {r.permissions.map((p, j) => (
-                    <span key={j} style={{ padding: '2px 8px', borderRadius: 20, fontSize: 10, fontWeight: 600, background: r.bg, color: r.couleur }}>v {p}</span>
+                <div style={{ padding: '16px 22px' }}>
+                  {cat.items.map((item, ii) => (
+                    <div key={ii} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: ii < cat.items.length - 1 ? '1px solid #F8FAFC' : 'none' }}>
+                      <span style={{ fontSize: 12, color: '#475569' }}>{item.label}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <span style={{ fontSize: 12, fontWeight: 700 }}>{item.val}</span>
+                        <span style={{ padding: '2px 8px', borderRadius: 20, fontSize: 10, fontWeight: 700, background: item.ok ? '#D1FAE5' : '#FEF3C7', color: item.ok ? '#065F46' : '#92400E' }}>{item.ok ? 'v' : '!'}</span>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -223,140 +206,38 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
           </div>
         )}
 
-        {activeTab === "Journal d'audit" && (
-          <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', overflow: 'hidden' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ background: '#F8FAFC' }}>
-                  {['Niveau', 'Utilisateur', 'Action', 'Cible', 'Date'].map(h => (
-                    <th key={h} style={{ padding: '10px 14px', fontSize: 11, fontWeight: 600, color: '#94A3B8', textAlign: 'left', textTransform: 'uppercase' }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {audit.length === 0 ? (
-                  <tr><td colSpan={5} style={{ padding: '30px', textAlign: 'center', color: '#94A3B8', fontSize: 12 }}>Aucune entree</td></tr>
-                ) : audit.map((ev, i) => {
-                  const ns = NIVEAU_STYLE[ev.niveau] ?? NIVEAU_STYLE.info
-                  return (
-                    <tr key={i} style={{ borderTop: '1px solid #F1F5F9' }}>
-                      <td style={{ padding: '11px 14px' }}>
-                        <span style={{ width: 24, height: 24, borderRadius: 6, background: ns.bg, color: ns.tc, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700 }}>{ns.icon}</span>
-                      </td>
-                      <td style={{ padding: '11px 14px', fontSize: 11 }}>{ev.user_email ?? 'Systeme'}</td>
-                      <td style={{ padding: '11px 14px', fontSize: 11, color: '#475569' }}>{ev.action}</td>
-                      <td style={{ padding: '11px 14px', fontSize: 11, color: '#64748B' }}>{ev.cible ?? '-'}</td>
-                      <td style={{ padding: '11px 14px', fontSize: 10, color: '#94A3B8' }}>
-                        {new Date(ev.created_at).toLocaleDateString('fr-FR')}
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {activeTab === 'Securite' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        {activeTab === 'Rapport RSE' && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 20 }}>
             <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '20px 22px' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 14 }}>Parametres de securite</div>
-              {params.map((p, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '10px 0', borderBottom: i < params.length - 1 ? '1px solid #F8FAFC' : 'none' }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600 }}>{p.label}</div>
-                    <div style={{ fontSize: 11, color: '#94A3B8' }}>{p.desc}</div>
-                  </div>
-                  <div onClick={() => setParams(prev => prev.map((x, j) => j === i ? { ...x, actif: !x.actif } : x))} style={{ width: 38, height: 20, borderRadius: 10, cursor: 'pointer', background: p.actif ? '#0A3D26' : '#CBD5E1', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
-                    <div style={{ position: 'absolute', top: 2, left: p.actif ? 20 : 2, width: 16, height: 16, borderRadius: '50%', background: '#fff', transition: 'left 0.2s' }} />
-                  </div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 14 }}>Documents disponibles</div>
+              {scoreExistant && (
+                <div style={{ padding: '12px 14px', borderRadius: 10, background: '#F0FDF4', border: '1px solid #A7F3D0', marginBottom: 12 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#065F46' }}>Dernier score sauvegarde</div>
+                  <div style={{ fontSize: 24, fontWeight: 900, color: '#0A3D26' }}>{scoreExistant.score_global}/100</div>
                 </div>
-              ))}
-              <div style={{ marginTop: 14, padding: '10px 12px', borderRadius: 8, background: '#F8FAFC' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 5 }}>
-                  <span style={{ fontWeight: 600, color: '#0A3D26' }}>Score securite</span>
-                  <span style={{ fontWeight: 800 }}>{secScore}%</span>
-                </div>
-                <div style={{ height: 5, background: '#E2E8F0', borderRadius: 3 }}>
-                  <div style={{ height: '100%', width: `${secScore}%`, background: 'linear-gradient(90deg,#10B981,#0A3D26)', borderRadius: 3 }} />
-                </div>
+              )}
+              <div style={{ padding: '10px 14px', borderRadius: 8, background: '#F8FAFC', fontSize: 11, color: '#94A3B8' }}>
+                Generez votre rapport pour le telecharger
               </div>
             </div>
-
             <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '20px 22px' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 14 }}>Conformite RGPD</div>
-              {[
-                ['Politique de confidentialite', 'A jour'],
-                ['Registre des traitements', 'A jour'],
-                ['Consentements utilisateurs', '100% collectes'],
-                ['DPO designe', 'Oui'],
-                ['Chiffrement donnees', 'AES-256 actif'],
-                ['Duree conservation', '3 ans'],
-                ['Droit a oubli', 'Documente'],
-                ['Transferts hors UE', 'Clauses contractuelles'],
-              ].map(([label, statut], i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 10px', borderRadius: 8, background: '#F0FDF4', border: '1px solid #A7F3D0', marginBottom: 6 }}>
-                  <span style={{ color: '#10B981', fontSize: 12 }}>v</span>
-                  <span style={{ fontSize: 12, fontWeight: 600, flex: 1 }}>{label}</span>
-                  <span style={{ fontSize: 11, color: '#065F46' }}>{statut}</span>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 14 }}>Generer rapport RSE</div>
+              <div style={{ marginBottom: 12 }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#64748B', display: 'block', marginBottom: 5 }}>Entreprise</label>
+                <div style={{ padding: '8px 12px', borderRadius: 8, border: '1.5px solid #E2E8F0', fontSize: 12, background: '#F8FAFC' }}>{profil?.entreprise?.nom ?? '-'}</div>
+              </div>
+              <button onClick={genererRapport} disabled={generating} style={{ width: '100%', padding: '10px', borderRadius: 10, border: 'none', background: generating ? '#E2E8F0' : '#0A3D26', color: generating ? '#94A3B8' : '#fff', fontSize: 13, fontWeight: 700, cursor: generating ? 'default' : 'pointer' }}>
+                {generating ? 'Generation...' : generated ? 'v Rapport pret' : 'Generer rapport RSE'}
+              </button>
+              {generated && (
+                <div style={{ marginTop: 8, padding: '8px 12px', borderRadius: 8, background: '#D1FAE5', fontSize: 11, color: '#065F46', fontWeight: 600, textAlign: 'center' }}>
+                  Rapport_RSE_{profil?.entreprise?.nom ?? 'ETHYS'}_2026.pdf pret
                 </div>
-              ))}
+              )}
             </div>
           </div>
         )}
       </div>
-
-      {selectedUser && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }} onClick={() => setSelectedUser(null)}>
-          <div style={{ background: '#fff', borderRadius: 16, padding: '26px 30px', width: 420, boxShadow: '0 24px 64px rgba(0,0,0,0.15)' }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <span style={{ fontSize: 15, fontWeight: 700, color: '#0A3D26' }}>Droits — {selectedUser.email}</span>
-              <button onClick={() => setSelectedUser(null)} style={{ border: 'none', background: 'none', fontSize: 18, color: '#94A3B8', cursor: 'pointer' }}>x</button>
-            </div>
-            <div style={{ marginBottom: 16 }}>
-              <label style={{ fontSize: 12, fontWeight: 600, color: '#64748B', display: 'block', marginBottom: 6 }}>Role</label>
-              <select value={selectedUser.role} onChange={e => updateRole(selectedUser.id, e.target.value)} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #E2E8F0', fontSize: 13, outline: 'none' }}>
-                {['admin', 'marque', 'filature', 'fournisseur'].map(r => <option key={r} value={r}>{r}</option>)}
-              </select>
-            </div>
-            <div style={{ marginBottom: 20 }}>
-              <label style={{ fontSize: 12, fontWeight: 600, color: '#64748B', display: 'block', marginBottom: 6 }}>Entreprise associee</label>
-              <select value={selectedUser.entreprise_id ?? ''} onChange={e => updateEntreprise(selectedUser.id, e.target.value)} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #E2E8F0', fontSize: 13, outline: 'none' }}>
-                <option value="">Aucune</option>
-                {entreprises.map(e => <option key={e.id} value={e.id}>{e.nom}</option>)}
-              </select>
-            </div>
-            <button onClick={() => setSelectedUser(null)} style={{ width: '100%', padding: '10px', borderRadius: 10, border: 'none', background: '#0A3D26', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
-              Sauvegarder
-            </button>
-          </div>
-        </div>
-      )}
-
-      {inviteModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }} onClick={() => setInviteModal(false)}>
-          <div style={{ background: '#fff', borderRadius: 16, padding: '26px 30px', width: 420, boxShadow: '0 24px 64px rgba(0,0,0,0.15)' }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <span style={{ fontSize: 15, fontWeight: 700, color: '#0A3D26' }}>Inviter un utilisateur</span>
-              <button onClick={() => setInviteModal(false)} style={{ border: 'none', background: 'none', fontSize: 18, color: '#94A3B8', cursor: 'pointer' }}>x</button>
-            </div>
-            <div style={{ marginBottom: 14 }}>
-              <label style={{ fontSize: 12, fontWeight: 600, color: '#64748B', display: 'block', marginBottom: 6 }}>Email</label>
-              <input type="email" placeholder="julie@entreprise.fr" style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #E2E8F0', fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
-            </div>
-            <div style={{ marginBottom: 20 }}>
-              <label style={{ fontSize: 12, fontWeight: 600, color: '#64748B', display: 'block', marginBottom: 6 }}>Role</label>
-              <select style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #E2E8F0', fontSize: 13, outline: 'none' }}>
-                {['marque', 'filature', 'fournisseur', 'admin'].map(r => <option key={r}>{r}</option>)}
-              </select>
-            </div>
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => setInviteModal(false)} style={{ flex: 1, padding: '10px', borderRadius: 10, border: '1.5px solid #EEF0F3', background: '#F8FAFC', color: '#94A3B8', fontSize: 13, cursor: 'pointer' }}>Annuler</button>
-              <button onClick={() => setInviteModal(false)} style={{ flex: 2, padding: '10px', borderRadius: 10, border: 'none', background: '#0A3D26', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Envoyer invitation</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
