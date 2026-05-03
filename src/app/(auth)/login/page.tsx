@@ -35,7 +35,19 @@ export default function LoginPage() {
       <div style={{ width: 400 }}>
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <div style={{
-            width: 52, height: 52, borderRadius: 14, background: '#0A3D26',
+            <div style={{ textAlign: 'center', marginBottom: 32 }}>
+  <img
+    src="/logo.png"
+    alt="TEXTILE LOOP"
+    style={{
+      width: 160,
+      height: 'auto',
+      margin: '0 auto 12px',
+      display: 'block'
+    }}
+  />
+  <div style={{ fontSize: 13, color: '#94A3B8', marginTop: 4 }}>Plateforme ETHYS</div>
+</div>
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 24, fontWeight: 900, color: '#fff', margin: '0 auto 12px'
           }}>T</div>
