@@ -351,28 +351,32 @@ export default function QRCodeClient({ lots: initial, user }: Props) {
               )}
 
               {/* Composition */}
-              <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 12, padding: '14px' }}>
-                <div style={{ fontSize: 10, color: '#6EE7B7', fontWeight: 600, marginBottom: 8 }}>COMPOSITION</div>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  {selected.type_coton === 'recycle' || selected.type_coton === 'mixte' ? (
-                    <div style={{ flex: 1, background: '#10B981', borderRadius: 6, padding: '8px', textAlign: 'center' }}>
-                      <div style={{ fontSize: 18, fontWeight: 900 }}>
-                        {selected.type_coton === 'recycle' ? '100%' : '~67%'}
-                      </div>
-                      <div style={{ fontSize: 10 }}>♻ Recyclé</div>
-                    </div>
-                  ) : null}
-                  {selected.type_coton === 'vierge' || selected.type_coton === 'mixte' ? (
-                    <div style={{ flex: 1, background: 'rgba(255,255,255,0.15)', borderRadius: 6, padding: '8px', textAlign: 'center' }}>
-                      <div style={{ fontSize: 18, fontWeight: 900 }}>
-                        {selected.type_coton === 'vierge' ? '100%' : '~33%'}
-                      </div>
-                      <div style={{ fontSize: 10 }}>🌿 Vierge</div>
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-            </div>
+<div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 12, padding: '14px', marginBottom: 14 }}>
+  <div style={{ fontSize: 10, color: '#6EE7B7', fontWeight: 600, marginBottom: 10, letterSpacing: 1 }}>MATIÈRES PREMIÈRES</div>
+  <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+    <div style={{ flex: 51, background: '#10B981', borderRadius: 6, padding: '10px 8px', textAlign: 'center' }}>
+      <div style={{ fontSize: 20, fontWeight: 900, color: '#fff' }}>51%</div>
+      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>♻ Coton recyclé</div>
+      <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>61.2T</div>
+    </div>
+    <div style={{ flex: 49, background: 'rgba(255,255,255,0.15)', borderRadius: 6, padding: '10px 8px', textAlign: 'center' }}>
+      <div style={{ fontSize: 20, fontWeight: 900, color: '#fff' }}>49%</div>
+      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>🌿 Coton vierge</div>
+      <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>58.8T</div>
+    </div>
+  </div>
+  <div style={{ height: 6, background: 'rgba(255,255,255,0.15)', borderRadius: 3, overflow: 'hidden' }}>
+    <div style={{ height: '100%', width: '51%', background: '#6EE7B7', borderRadius: 3 }} />
+  </div>
+</div>
+
+{/* Certification fil ETHYS */}
+<div style={{ background: 'rgba(110,231,183,0.15)', borderRadius: 10, padding: '12px 14px', marginBottom: 14, border: '1px solid rgba(110,231,183,0.3)', textAlign: 'center' }}>
+  <div style={{ fontSize: 13, fontWeight: 900, color: '#6EE7B7', marginBottom: 4 }}>✓ Fil certifié ETHYS</div>
+  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.65)', lineHeight: 1.5 }}>
+    Ce fil est le résultat de la transformation de coton recyclé et vierge par SpinTex Izmir, certifié par la plateforme TEXTILE LOOP.
+  </div>
+</div>
 
             {/* Corps */}
             <div style={{ padding: '20px' }}>
