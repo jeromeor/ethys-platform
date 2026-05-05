@@ -104,8 +104,24 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
 
   const etapeIndex = (statut: string) => ETAPES.indexOf(statut)
 
-  const creerCommande = async () => {
-    if (!form.marque_id || !form.filature_id || !form.fournisseur_id || !form.date_livraison_souhaitee) return
+const creerCommande = async () => {
+    if (!form.marque_id || !form.filature_id || !form.fournisseur_id || !form.date_livraison_souhaitee) {
+      setError('Veuillez remplir tous les champs obligatoires : Marque, Filature, Fournisseur et Date de livraison.')
+      return
+    }
+    if (form.type_coton === 'recycle' && (!form.volume_recycle_tonnes || parseFloat(form.volume_recycle_tonnes) <= 0)) {
+      setError('Veuillez indiquer un volume de coton recycle superieur a 0.')
+      return
+    }
+    if (form.type_coton === 'vierge' && (!form.volume_vierge_tonnes || parseFloat(form.volume_vierge_tonnes) <= 0)) {
+      setError('Veuillez indiquer un volume de coton vierge superieur a 0.')
+      return
+    }
+    if (form.type_coton === 'mixte' && (!form.volume_recycle_tonnes || !form.volume_vierge_tonnes)) {
+      setError('Pour un type mixte, veuillez indiquer les volumes recycle et vierge.')
+      return
+    }
+    setError('')
     setLoading(true)
 
     const { data, error } = await supabase
@@ -450,7 +466,12 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
                   background: loading ? '#E2E8F0' : '#0A3D26',
                   color: loading ? '#94A3B8' : '#fff',
                   fontSize: 13, fontWeight: 700, cursor: loading ? 'default' : 'pointer'
-                }}>
+                }}>{error && (
+  <div style={{
+    padding: '10px 14px', borderRadius: 8, background: '#FEF2F2',
+    border: '1px solid #FCA5A5', fontSize: 12, color: '#DC2626', marginBottom: 16
+  }}>{error}</div>
+)}
                   {loading ? 'Création…' : '✓ Créer la commande ETHYS'}
 		</button>
               </div>
