@@ -250,7 +250,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                               background: fait ? '#0A3D26' : enCours ? '#10B981' : '#E2E8F0',
                               color: fait || enCours ? '#fff' : '#94A3B8',
                               boxShadow: enCours ? '0 0 0 3px rgba(16,185,129,0.25)' : 'none'
-                            }}>{fait ? 'âœ“' : i + 1}</div>
+                            }}>{fait ? 'v' : i + 1}</div>
                             <div style={{ fontSize: 9, color: fait ? '#0A3D26' : enCours ? '#10B981' : '#94A3B8', fontWeight: enCours ? 700 : 400, textAlign: 'center', marginTop: 4, lineHeight: 1.3 }}>
                               {etape}
                             </div>
@@ -339,7 +339,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                         <label style={{ fontSize: 11, color: '#64748B', display: 'block', marginBottom: 4 }}>Certification</label>
                         <select value={newLot.certification} onChange={e => setNewLot(p => ({ ...p, certification: e.target.value }))}
                           style={{ width: '100%', padding: '7px 10px', borderRadius: 8, border: '1.5px solid #E2E8F0', fontSize: 12, outline: 'none' }}>
-                          <option value="">â€”</option>
+                          <option value="">-</option>
                           {['GRS', 'GOTS', 'OCS 100', 'BCI'].map(c => <option key={c}>{c}</option>)}
                         </select>
                       </div>
@@ -348,7 +348,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                       <button onClick={ajouterLot} style={{
                         flex: 2, padding: '8px', borderRadius: 8, border: 'none',
                         background: '#0A3D26', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer'
-                      }}>âœ“ Ajouter</button>
+                      }}>v Ajouter</button>
                       <button onClick={() => setShowAddLot(false)} style={{
                         flex: 1, padding: '8px', borderRadius: 8,
                         border: '1.5px solid #EEF0F3', background: '#fff', fontSize: 12, cursor: 'pointer'
@@ -364,7 +364,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {selected.lots?.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: '40px', color: '#94A3B8', fontSize: 12 }}>
-                    Aucun lot â€” ajoutez-en un depuis l'onglet Avancement
+                    Aucun lot - ajoutez-en un depuis l'onglet Avancement
                   </div>
                 ) : selected.lots?.map(lot => {
                   const [bg, tc] = STATUT_LOT_COLORS[lot.statut] ?? ['#F1F5F9', '#475569']
@@ -436,7 +436,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                                   padding: '2px 8px', borderRadius: 20, fontSize: 10, fontWeight: 700,
                                   background: cq.conforme ? '#D1FAE5' : '#FEE2E2',
                                   color: cq.conforme ? '#065F46' : '#991B1B'
-                                }}>{cq.conforme ? 'âœ“ Conforme' : 'âœ• Non conforme'}</span>
+                                }}>{cq.conforme ? 'v Conforme' : 'x Non conforme'}</span>
                               </td>
                               <td style={{ padding: '11px 14px', fontSize: 11, color: '#94A3B8' }}>
                                 {new Date(cq.date_controle).toLocaleDateString('fr-FR')}
@@ -455,7 +455,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
       ) : (
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8' }}>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 40, marginBottom: 12 }}>â¬¡</div>
+            <div style={{ fontSize: 40, marginBottom: 12 }}>section</div>
             <div style={{ fontSize: 14, fontWeight: 600 }}>Aucune production active</div>
             <div style={{ fontSize: 12, marginTop: 4 }}>Les commandes soumises apparaîtront ici</div>
           </div>
