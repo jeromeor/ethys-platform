@@ -19,7 +19,7 @@ export default function LoginPage() {
     setError('')
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
-      setError('Email ou mot de passe incorrect. Verifiez votre saisie.')
+      setError('Email ou mot de passe incorrect. Vérifiez votre saisie.')
       setLoading(false)
       return
     }
@@ -40,7 +40,7 @@ export default function LoginPage() {
         </div>
         <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #EEF0F3', padding: '32px', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
           <div style={{ fontSize: 18, fontWeight: 700, color: '#1A202C', marginBottom: 6 }}>Connexion</div>
-          <div style={{ fontSize: 13, color: '#94A3B8', marginBottom: 24 }}>Accedez a votre espace ETHYS</div>
+          <div style={{ fontSize: 13, color: '#94A3B8', marginBottom: 24 }}>Accédez à votre espace ETHYS</div>
           <form onSubmit={handleLogin}>
             <div style={{ marginBottom: 16 }}>
               <label style={{ fontSize: 12, fontWeight: 600, color: '#64748B', display: 'block', marginBottom: 6 }}>Email professionnel</label>
@@ -69,9 +69,7 @@ export default function LoginPage() {
               </div>
             </div>
             <div style={{ textAlign: 'right', marginBottom: 20 }}>
-              <a href="/forgot-password" style={{ fontSize: 12, color: '#64748B', textDecoration: 'none' }}>
-                Mot de passe oublie ?
-              </a>
+              <a href="/forgot-password" style={{ fontSize: 12, color: '#64748B', textDecoration: 'none' }}>Mot de passe oublié ?</a>
             </div>
             {error && (
               <div style={{ padding: '10px 14px', borderRadius: 8, background: '#FEF2F2', border: '1px solid #FCA5A5', fontSize: 12, color: '#DC2626', marginBottom: 16 }}>{error}</div>
@@ -82,7 +80,7 @@ export default function LoginPage() {
           </form>
           <div style={{ textAlign: 'center', marginTop: 20, fontSize: 13, color: '#94A3B8' }}>
             Pas encore de compte ?{' '}
-            <a href="/register" style={{ color: '#0A3D26', fontWeight: 600, textDecoration: 'none' }}>Creer un compte</a>
+            <a href="/register" style={{ color: '#0A3D26', fontWeight: 600, textDecoration: 'none' }}>Créer un compte</a>
           </div>
         </div>
       </div>
