@@ -117,7 +117,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
         type_coton: newLot.type_coton,
         volume_tonnes: parseFloat(newLot.volume_tonnes),
         origine: newLot.origine || null,
-        certification: newlot.certification || null,
+        certification: newLot.certification || null,
         statut: 'en_attente',
         avancement_pct: 0,
       })
@@ -337,7 +337,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                       </div>
                       <div>
                         <label style={{ fontSize: 11, color: '#64748B', display: 'block', marginBottom: 4 }}>Certification</label>
-                        <select value={newlot.certification} onChange={e => setNewLot(p => ({ ...p, certification: e.target.value }))}
+                        <select value={newLot.certification} onChange={e => setNewLot(p => ({ ...p, certification: e.target.value }))}
                           style={{ width: '100%', padding: '7px 10px', borderRadius: 8, border: '1.5px solid #E2E8F0', fontSize: 12, outline: 'none' }}>
                           <option value="">â€”</option>
                           {['GRS', 'GOTS', 'OCS 100', 'BCI'].map(c => <option key={c}>{c}</option>)}
@@ -464,6 +464,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
     </div>
   )
 }
+
 
 
 
