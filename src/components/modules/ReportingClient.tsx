@@ -298,7 +298,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
                   <XAxis dataKey="mois" tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} tickFormatter={v => `${v / 1000}k`} />
                   <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} formatter={(v) => fmt(Number(v))} />
-                  <Bar dataKey="ca" name="CA (€)" fill="#0A3D26" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="ca" name="CA (EUR)" fill="#0A3D26" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
