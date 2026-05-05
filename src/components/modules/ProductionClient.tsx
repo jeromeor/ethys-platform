@@ -33,7 +33,7 @@ interface Commande {
   statut: string
   priorite: string
   volume_total_tonnes: number
-  pct_Recyclé: number
+  pct_recycle: number
   date_livraison_souhaitee: string
   marque: { nom: string } | null
   filature: { nom: string } | null
@@ -199,7 +199,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
               <div>
                 <div style={{ fontSize: 18, fontWeight: 900, marginBottom: 2 }}>{selected.reference}</div>
                 <div style={{ fontSize: 12, opacity: 0.75 }}>
-                  {selected.marque?.nom} Â· {selected.filature?.nom} Â· {selected.volume_total_tonnes}T Â· {Math.round(selected.pct_Recyclé)}% recyclÃ©
+                  {selected.marque?.nom} Â· {selected.filature?.nom} Â· {selected.volume_total_tonnes}T Â· {Math.round(selected.pct_recycle)}% recyclÃ©
                 </div>
               </div>
               <div style={{ textAlign: 'right' }}>
@@ -464,4 +464,5 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
     </div>
   )
 }
+
 
