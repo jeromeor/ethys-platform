@@ -46,8 +46,8 @@ interface Props {
 }
 
 const ETAPES_PROD = [
-  'RÃ©ception matiÃ¨re', 'PrÃ©paration fibres', 'Filage',
-  'Bobinage', 'ContrÃ´le qualitÃ©', 'Conditionnement', 'ExpÃ©dition'
+  'Réception matière', 'Préparation fibres', 'Filage',
+  'Bobinage', 'Contrôle qualité', 'Conditionnement', 'Expédition'
 ]
 
 const STATUT_LOT_COLORS: Record<string, [string, string]> = {
@@ -174,7 +174,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                   }}>â— {cmd.priorite}</span>
                 </div>
                 <div style={{ fontSize: 11, color: '#64748B', marginBottom: 6 }}>
-                  {cmd.marque?.nom} Â· {cmd.volume_total_tonnes}T
+                  {cmd.marque?.nom} · {cmd.volume_total_tonnes}T
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#94A3B8', marginBottom: 4 }}>
                   <span>{cmd.filature?.nom}</span>
@@ -189,7 +189,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
         </div>
       </div>
 
-      {/* DÃ©tail production */}
+      {/* Détail production */}
       {selected ? (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
@@ -199,7 +199,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
               <div>
                 <div style={{ fontSize: 18, fontWeight: 900, marginBottom: 2 }}>{selected.reference}</div>
                 <div style={{ fontSize: 12, opacity: 0.75 }}>
-                  {selected.marque?.nom} Â· {selected.filature?.nom} Â· {selected.volume_total_tonnes}T Â· {Math.round(selected.pct_recycle)}% recyclÃ©
+                  {selected.marque?.nom} · {selected.filature?.nom} · {selected.volume_total_tonnes}T · {Math.round(selected.pct_recycle)}% recyclÃ©
                 </div>
               </div>
               <div style={{ textAlign: 'right' }}>
@@ -213,7 +213,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
 
             {/* Tabs */}
             <div style={{ display: 'flex', gap: 0, marginTop: 14 }}>
-              {[['Avancement', 'Avancement'], ['lots', 'Lots'], ['qualite', 'ContrÃ´les qualitÃ©']].map(([val, label]) => (
+              {[['Avancement', 'Avancement'], ['lots', 'Lots'], ['qualite', 'Contrôles qualité']].map(([val, label]) => (
                 <button key={val} onClick={() => setActiveTab(val as typeof activeTab)} style={{
                   padding: '7px 16px', border: 'none', background: 'none', cursor: 'pointer',
                   fontSize: 12, fontWeight: activeTab === val ? 700 : 400,
@@ -232,7 +232,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
               <div>
                 <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '20px 24px', marginBottom: 16 }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 18 }}>
-                    Ã‰tapes de production
+                    Étapes de production
                   </div>
                   <div style={{ display: 'flex', alignItems: 'flex-start' }}>
                     {ETAPES_PROD.map((etape, i) => {
@@ -271,8 +271,8 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                       <div>
                         <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26' }}>{lot.reference}</div>
                         <div style={{ fontSize: 11, color: '#64748B' }}>
-                          {Math.round((lot.volume_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg Â· {lot.type_coton === 'Recyclé' ? 'Recyclé' : 'Vierge'} Â· {lot.type_coton === 'Recyclé' ? 'â™» RecyclÃ©' : 'ðŸŒ¿ Vierge'}
-                          {lot.machine && ` Â· ${lot.machine}`}
+                          {Math.round((lot.volume_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg · {lot.type_coton === 'recycle' ? 'Recyclé' : 'Vierge'} · {lot.type_coton === 'recycle' ? '♻ RecyclÃ©' : '🌿 Vierge'}
+                          {lot.machine && ` · ${lot.machine}`}
                         </div>
                       </div>
                       <select
@@ -321,8 +321,8 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                         <label style={{ fontSize: 11, color: '#64748B', display: 'block', marginBottom: 4 }}>Type coton</label>
                         <select value={newLot.type_coton} onChange={e => setNewLot(p => ({ ...p, type_coton: e.target.value }))}
                           style={{ width: '100%', padding: '7px 10px', borderRadius: 8, border: '1.5px solid #E2E8F0', fontSize: 12, outline: 'none' }}>
-                          <option value="Recyclé">â™» RecyclÃ©</option>
-                          <option value="vierge">ðŸŒ¿ Vierge</option>
+                          <option value='recycle'>♻ RecyclÃ©</option>
+                          <option value="vierge">🌿 Vierge</option>
                         </select>
                       </div>
                       <div>
@@ -374,9 +374,9 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                           <div style={{
                             width: 38, height: 38, borderRadius: 10,
-                            background: lot.type_coton === 'Recyclé' ? '#D1FAE5' : '#DBEAFE',
+                            background: lot.type_coton === 'recycle' ? '#D1FAE5' : '#DBEAFE',
                             display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18
-                          }}>{lot.type_coton === 'Recyclé' ? 'â™»' : 'ðŸŒ¿'}</div>
+                          }}>{lot.type_coton === 'recycle' ? '♻' : '🌿'}</div>
                           <div>
                             <div style={{ fontSize: 14, fontWeight: 800, color: '#0A3D26' }}>{lot.reference}</div>
                             <div style={{ fontSize: 11, color: '#64748B' }}>{Math.round((lot.volume_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg - {lot.origine ?? '-'}</div>
@@ -406,19 +406,19 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
               </div>
             )}
 
-            {/* Tab ContrÃ´les qualitÃ© */}
+            {/* Tab Contrôles qualité */}
             {activeTab === 'qualite' && (
               <div>
                 {selected.lots?.every(l => l.controles_qualite?.length === 0) ? (
                   <div style={{ textAlign: 'center', padding: '40px', color: '#94A3B8', fontSize: 12 }}>
-                    Aucun contrÃ´le qualitÃ© enregistrÃ©
+                    Aucun Contrôle qualité enregistré
                   </div>
                 ) : (
                   <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', overflow: 'hidden' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                       <thead>
                         <tr style={{ background: '#F8FAFC' }}>
-                          {['Lot', 'ParamÃ¨tre', 'Valeur', 'Seuil', 'RÃ©sultat', 'Date'].map(h => (
+                          {['Lot', 'Paramètre', 'Valeur', 'Seuil', 'Résultat', 'Date'].map(h => (
                             <th key={h} style={{ padding: '10px 14px', fontSize: 11, fontWeight: 600, color: '#94A3B8', textAlign: 'left', textTransform: 'uppercase' }}>{h}</th>
                           ))}
                         </tr>
@@ -464,6 +464,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
     </div>
   )
 }
+
 
 
 

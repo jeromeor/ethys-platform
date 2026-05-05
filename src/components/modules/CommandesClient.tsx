@@ -43,11 +43,11 @@ const STATUT_LABELS: Record<StatutCommande, string> = {
   validation_filature:    'Val. filature',
   validation_finale:      'Val. finale',
   en_production:          'En production',
-  controle_qualite:       'ContrÃ´le qualitÃ©',
-  qr_genere:              'QR gÃ©nÃ©rÃ©',
-  expediee:               'ExpÃ©diÃ©e',
+  controle_qualite:       'Contrôle qualité',
+  qr_genere:              'QR généré',
+  expediee:               'Expédiée',
   livree:                 'Livrée',
-  annulee:                'AnnulÃ©e',
+  annulee:                'Annulée',
 }
 
 const STATUT_COLORS: Record<string, [string, string, string]> = {
@@ -280,7 +280,7 @@ const CréerCommande = async () => {
         </div>
       </div>
 
-      {/* Panneau dÃ©tail */}
+      {/* Panneau détail */}
       {selected && (
         <div style={{
           width: 320, minWidth: 320, background: '#fff',
@@ -301,7 +301,7 @@ const CréerCommande = async () => {
                 {[
                   ['Volume', `${Math.round((selected.volume_total_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg`],
                   ['Recyclé', `${Math.round(selected.pct_recycle ?? 0)}%`],
-                  ['PrioritÃ©', selected.Priorité],
+                  ['Priorité', selected.priorite],
                   ['Livraison', new Date(selected.date_livraison_souhaitee).toLocaleDateString('fr-FR')],
                 ].map(([l, v]) => (
                   <div key={l} style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 10px' }}>
@@ -365,7 +365,7 @@ const CréerCommande = async () => {
             <div style={{ padding: '22px 28px', display: 'flex', flexDirection: 'column', gap: 14 }}>
 
               <div>
-                {labelInput('Titre / rÃ©fÃ©rence interne')}
+                {labelInput('Titre / référence interne')}
                 <input value={form.titre} onChange={e => set('titre', e.target.value)}
                   placeholder="Ex : Collection Printemps 2024" style={inputStyle} />
               </div>
@@ -374,21 +374,21 @@ const CréerCommande = async () => {
                 <div>
                   {labelInput('Marque *')}
                   <select value={form.marque_id} onChange={e => set('marque_id', e.target.value)} style={selectStyle}>
-                    <option value="">SÃ©lectionnerâ€¦</option>
+                    <option value="">Sélectionnerâ€¦</option>
                     {marques.map(m => <option key={m.id} value={m.id}>{m.nom}</option>)}
                   </select>
                 </div>
                 <div>
                   {labelInput('Filature *')}
                   <select value={form.filature_id} onChange={e => set('filature_id', e.target.value)} style={selectStyle}>
-                    <option value="">SÃ©lectionnerâ€¦</option>
+                    <option value="">Sélectionnerâ€¦</option>
                     {filatures.map(f => <option key={f.id} value={f.id}>{f.nom}</option>)}
                   </select>
                 </div>
                 <div>
                   {labelInput('Fournisseur *')}
                   <select value={form.fournisseur_id} onChange={e => set('fournisseur_id', e.target.value)} style={selectStyle}>
-                    <option value="">SÃ©lectionnerâ€¦</option>
+                    <option value="">Sélectionnerâ€¦</option>
                     {fournisseurs.map(f => <option key={f.id} value={f.id}>{f.nom}</option>)}
                   </select>
                 </div>
@@ -439,12 +439,12 @@ const CréerCommande = async () => {
                   </select>
                 </div>
                 <div>
-                  {labelInput('Livraison souhaitÃ©e *')}
+                  {labelInput('Livraison souhaitée *')}
                   <input type="date" value={form.date_livraison_souhaitee}
                     onChange={e => set('date_livraison_souhaitee', e.target.value)} style={inputStyle} />
                 </div>
                 <div>
-                  {labelInput('PrioritÃ©')}
+                  {labelInput('Priorité')}
                   <select value={form.Priorité} onChange={e => set('Priorité', e.target.value)} style={selectStyle}>
                     <option value="normale">Normale</option>
                     <option value="haute">Haute</option>
@@ -456,7 +456,7 @@ const CréerCommande = async () => {
               <div>
                 {labelInput('Notes')}
                 <textarea value={form.notes} onChange={e => set('notes', e.target.value)}
-                  placeholder="Instructions particuliÃ¨resâ€¦" rows={3}
+                  placeholder="Instructions particulièresâ€¦" rows={3}
                   style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit' }} />
               </div>
 
@@ -477,7 +477,7 @@ const CréerCommande = async () => {
     border: '1px solid #FCA5A5', fontSize: 12, color: '#DC2626', marginBottom: 16
   }}>{error}</div>
 )}
-                  {loading ? 'CrÃ©ationâ€¦' : 'âœ“ CrÃ©er la commande ETHYS'}
+                  {loading ? 'Créationâ€¦' : 'âœ“ Créer la commande ETHYS'}
 		</button>
               </div>
             </div>
@@ -487,5 +487,6 @@ const CréerCommande = async () => {
     </div>
   )
 }
+
 
 
