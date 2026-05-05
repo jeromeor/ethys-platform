@@ -76,7 +76,7 @@ export default function SidebarLayout({ user, profil, children }: Props) {
 
         {/* Nav */}
         <nav style={{ flex: 1, padding: '10px 8px', display: 'flex', flexDirection: 'column', gap: 2, overflowY: 'auto' }}>
-          {navItems.map(item => {
+          {navItems.filter(item => item.route !== '/admin' || profil?.role === 'admin').map(item => {
             const active = pathname === item.route || pathname.startsWith(item.route + '/')
             return (
               <button key={item.route}
