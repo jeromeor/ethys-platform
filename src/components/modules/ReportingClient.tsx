@@ -61,7 +61,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
     commandes.forEach(c => {
       const mois = new Date(c.created_at).toLocaleDateString('fr-FR', { month: 'short', year: '2-digit' })
       if (!map[mois]) map[mois] = { mois, volume: 0, ca: 0, commandes: 0 }
-      map[mois].volume += Math.round((c.volume_total_tonnes ?? 0) * 1000)
+      map[mois].volume += (c.volume_total_tonnes ?? 0)
       map[mois].commandes += 1
     })
     factures.forEach(f => {
@@ -146,7 +146,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
                   <BarChart data={parMois}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
                     <XAxis dataKey="mois" tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} tickFormatter={v => `${Math.round(v * 1000 / 1000)} k`} />
                     <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid #EEF0F3', fontSize: 12 }} />
                     <Bar dataKey="volume" name="Volume (T)" fill="#0A3D26" radius={[4, 4, 0, 0]} />
                   </BarChart>
