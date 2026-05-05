@@ -295,7 +295,7 @@ export default function MessagerieClient({ user, profil, conversationsInitiales 
                       {msg.contenu}
                     </div>
                     <div style={{ fontSize: 10, color: '#94A3B8', marginTop: 3, textAlign: isMoi ? 'right' : 'left' }}>
-                      {new Date(msg.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                      {new Date(msg.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })} · {new Date(msg.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                       {isMoi && <span style={{ marginLeft: 4, color: '#10B981' }}>✓✓</span>}
                     </div>
                   </div>
