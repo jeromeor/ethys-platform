@@ -382,11 +382,13 @@ export default function AnnuaireClient({ partenaires, paysList, userRole }: Prop
             <div style={{ padding: '12px 18px', borderTop: '1px solid #F1F5F9' }}>
               <button style={{ width: '100%', padding: '9px', borderRadius: 10, border: 'none', background: '#0A3D26', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
                 Contacter
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  )
-}
+              <button
+  onClick={() => {
+    if (selected?.email_contact) {
+      window.location.href = `mailto:${selected.email_contact}?cc=contact@textile-loop.fr&subject=Contact via plateforme ETHYS - ${selected.nom}&body=Bonjour,%0D%0A%0D%0AJe vous contacte via la plateforme ETHYS de TEXTILE LOOP.%0D%0A%0D%0ACordialement`
+    }
+  }}
+  style={{ width: '100%', padding: '9px', borderRadius: 10, border: 'none', background: selected?.email_contact ? '#0A3D26' : '#E2E8F0', color: selected?.email_contact ? '#fff' : '#94A3B8', fontSize: 12, fontWeight: 700, cursor: selected?.email_contact ? 'pointer' : 'default' }}
+>
+  {selected?.email_contact ? 'Contacter' : 'Pas de contact disponible'}
+</button>
