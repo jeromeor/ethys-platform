@@ -10,7 +10,7 @@ interface Props {
     entreprise?: { nom?: string; type?: string }
     role?: string
   } | null
-  commandes: { statut: string; volume_total_tonnes: number; pct_Recyclé: number; created_at: string }[]
+  commandes: { statut: string; volume_total_tonnes: number; pct_recycle: number; created_at: string }[]
   lots: { type_coton: string; volume_tonnes: number; statut: string; certification: string | null }[]
   certifications: { id: string; label: string; valide: boolean; date_expiration: string }[]
   scoreExistant: { score_global: number; score_Traçabilité: number; score_recyclage: number; score_certifications: number; score_conformite: number; score_partenaires: number; score_reporting: number; Période_debut: string; Période_fin: string } | null
@@ -241,4 +241,5 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
     </div>
   )
 }
+
 
