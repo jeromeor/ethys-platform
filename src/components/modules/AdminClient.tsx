@@ -65,6 +65,7 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
   const [selectedUser, setSelectedUser] = useState<Utilisateur | null>(null)
   const [demandes, setDemandes] = useState<DemandeModification[]>([])
   const [demandeForm, setDemandeForm] = useState({ role: '', entreprise_id: '' })
+  const [showInvite, setShowInvite] = useState(false)
   const [sending, setSending] = useState(false)
   const [confirming, setConfirming] = useState(false)
   const [message, setMessage] = useState('')
@@ -172,6 +173,30 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
             <div style={{ fontSize: 22, fontWeight: 800, color: '#0A3D26' }}>{k.value}</div>
           </div>
         ))}
+{showInvite && (
+  <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }} onClick={() => setShowInvite(false)}>
+    <div style={{ background: '#fff', borderRadius: 16, padding: '26px 30px', width: 420, boxShadow: '0 24px 64px rgba(0,0,0,0.15)' }} onClick={e => e.stopPropagation()}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+        <span style={{ fontSize: 15, fontWeight: 700, color: '#0A3D26' }}>Inviter un utilisateur</span>
+        <button onClick={() => setShowInvite(false)} style={{ border: 'none', background: 'none', fontSize: 18, cursor: 'pointer' }}>x</button>
+      </div>
+      <div style={{ marginBottom: 14 }}>
+        <label style={{ fontSize: 12, fontWeight: 600, color: '#64748B', display: 'block', marginBottom: 6 }}>Email</label>
+        <input type="email" placeholder="julie@entreprise.fr" style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #E2E8F0', fontSize: 13, boxSizing: 'border-box', outline: 'none', color: '#1A202C' }} />
+      </div>
+      <div style={{ marginBottom: 20 }}>
+        <label style={{ fontSize: 12, fontWeight: 600, color: '#64748B', display: 'block', marginBottom: 6 }}>Role</label>
+        <select style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #E2E8F0', fontSize: 13, outline: 'none' }}>
+          {['marque', 'filature', 'fournisseur', 'admin'].map(r => <option key={r}>{r}</option>)}
+        </select>
+      </div>
+      <div style={{ display: 'flex', gap: 10 }}>
+        <button onClick={() => setShowInvite(false)} style={{ flex: 1, padding: '10px', borderRadius: 10, border: '1.5px solid #EEF0F3', background: '#F8FAFC', color: '#94A3B8', fontSize: 13, cursor: 'pointer' }}>Annuler</button>
+        <button onClick={() => setShowInvite(false)} style={{ flex: 2, padding: '10px', borderRadius: 10, border: 'none', background: '#0A3D26', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Envoyer invitation</button>
+      </div>
+    </div>
+  </div>
+)}
       </div>
 
       <div style={{ display: 'flex', borderBottom: '2px solid #EEF0F3', padding: '0 22px', background: '#fff', flexShrink: 0 }}>
@@ -185,6 +210,8 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
           }}>{t}</button>
         ))}
       </div>
+<div style={{ flex: 1 }} />
+<button onClick={() => setShowInvite(true)} style={{ margin: '8px 0', padding: '6px 14px', borderRadius: 8, border: 'none', background: '#0A3D26', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>+ Inviter</button>
 
       {message && (
         <div style={{ margin: '12px 22px 0', padding: '10px 14px', borderRadius: 8, background: message.includes('Erreur') ? '#FEF2F2' : '#F0FDF4', border: `1px solid ${message.includes('Erreur') ? '#FCA5A5' : '#A7F3D0'}`, fontSize: 12, color: message.includes('Erreur') ? '#DC2626' : '#065F46' }}>
