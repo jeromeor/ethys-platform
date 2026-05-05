@@ -19,7 +19,7 @@ interface Commande {
   type_coton: string
   grammage: string | null
   volume_total_tonnes: number
-  pct_recyclé: number
+  pct_recycle: number
   Priorité: string
   date_livraison_souhaitee: string
   created_at: string
@@ -46,7 +46,7 @@ const STATUT_LABELS: Record<StatutCommande, string> = {
   controle_qualite:       'ContrÃ´le qualitÃ©',
   qr_genere:              'QR gÃ©nÃ©rÃ©',
   expediee:               'ExpÃ©diÃ©e',
-  livree:                 'LivrÃ©e',
+  livree:                 'Livrée',
   annulee:                'AnnulÃ©e',
 }
 
@@ -243,7 +243,7 @@ const CréerCommande = async () => {
                         <td style={{ padding: '12px 14px', fontSize: 12, fontWeight: 600 }}>{Math.round((c.volume_total_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg</td>
                         <td style={{ padding: '12px 14px' }}>
                           <span style={{ fontSize: 11, fontWeight: 600, color: '#059669' }}>
-                            {Math.round(c.pct_recyclé)}% â™»
+                            {Math.round(c.pct_recycle ?? 0)}% ♻
                           </span>
                         </td>
                         <td style={{ padding: '12px 14px' }}>
@@ -300,7 +300,7 @@ const CréerCommande = async () => {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                 {[
                   ['Volume', `${Math.round((selected.volume_total_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg`],
-                  ['RecyclÃ©', `${Math.round(selected.pct_recyclé)}%`],
+                  ['Recyclé', `${Math.round(selected.pct_recycle ?? 0)}%`],
                   ['PrioritÃ©', selected.Priorité],
                   ['Livraison', new Date(selected.date_livraison_souhaitee).toLocaleDateString('fr-FR')],
                 ].map(([l, v]) => (
@@ -397,7 +397,7 @@ const CréerCommande = async () => {
               <div>
                 {labelInput('Type de coton')}
                 <div style={{ display: 'flex', gap: 8 }}>
-                  {[['recyclé', 'â™» 100% RecyclÃ©'], ['mixte', 'âš– Mixte'], ['vierge', 'ðŸŒ¿ 100% Vierge']].map(([v, l]) => (
+                  {[['recyclé', '♻ 100% Recyclé'], ['mixte', 'âš– Mixte'], ['vierge', 'ðŸŒ¿ 100% Vierge']].map(([v, l]) => (
                     <button key={v} onClick={() => set('type_coton', v)} style={{
                       flex: 1, padding: '8px', borderRadius: 10, cursor: 'pointer',
                       border: `2px solid ${form.type_coton === v ? '#0A3D26' : '#EEF0F3'}`,
@@ -487,3 +487,5 @@ const CréerCommande = async () => {
     </div>
   )
 }
+
+
