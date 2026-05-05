@@ -18,7 +18,7 @@ interface Lot {
   type_coton: string
   volume_tonnes: number
   statut: string
-  Avancement_pct: number
+  avancement_pct: number
   machine: string | null
   origine: string | null
   Certification: string | null
@@ -73,18 +73,18 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
     setUpdatingLot(lotId)
     const { error } = await supabase
       .from('lots')
-      .update({ Avancement_pct: pct })
+      .update({ avancement_pct: pct })
       .eq('id', lotId)
 
     if (!error) {
       setCommandes(prev => prev.map(c => ({
         ...c,
-        lots: c.lots.map(l => l.id === lotId ? { ...l, Avancement_pct: pct } : l)
+        lots: c.lots.map(l => l.id === lotId ? { ...l, avancement_pct: pct } : l)
       })))
       if (selected) {
         setSelected(prev => prev ? {
           ...prev,
-          lots: prev.lots.map(l => l.id === lotId ? { ...l, Avancement_pct: pct } : l)
+          lots: prev.lots.map(l => l.id === lotId ? { ...l, avancement_pct: pct } : l)
         } : null)
       }
     }
@@ -119,7 +119,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
         origine: newLot.origine || null,
         Certification: newLot.Certification || null,
         statut: 'en_attente',
-        Avancement_pct: 0,
+        avancement_pct: 0,
       })
       .select('*, controles_qualite(*)')
       .single()
@@ -137,7 +137,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
 
   const AvancementGlobal = (cmd: Commande) => {
     if (!cmd.lots?.length) return 0
-    return Math.round(cmd.lots.reduce((s, l) => s + l.Avancement_pct, 0) / cmd.lots.length)
+    return Math.round(cmd.lots.reduce((s, l) => s + l.avancement_pct, 0) / cmd.lots.length)
   }
 
   return (
@@ -292,11 +292,11 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                       <div style={{ flex: 1 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 4 }}>
                           <span style={{ color: '#64748B' }}>Avancement</span>
-                          <span style={{ fontWeight: 700, color: '#0A3D26' }}>{lot.Avancement_pct}%</span>
+                          <span style={{ fontWeight: 700, color: '#0A3D26' }}>{lot.avancement_pct}%</span>
                         </div>
                         <input
                           type="range" min="0" max="100" step="5"
-                          value={lot.Avancement_pct}
+                          value={lot.avancement_pct}
                           onChange={e => updateAvancement(lot.id, parseInt(e.target.value))}
                           disabled={updatingLot === lot.id}
                           style={{ width: '100%', accentColor: '#0A3D26' }}
@@ -389,10 +389,10 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                       <div style={{ marginBottom: 8 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 4 }}>
                           <span style={{ color: '#64748B' }}>Avancement</span>
-                          <span style={{ fontWeight: 700, color: '#0A3D26' }}>{lot.Avancement_pct}%</span>
+                          <span style={{ fontWeight: 700, color: '#0A3D26' }}>{lot.avancement_pct}%</span>
                         </div>
                         <div style={{ height: 6, background: '#E2E8F0', borderRadius: 3 }}>
-                          <div style={{ height: '100%', width: `${lot.Avancement_pct}%`, background: lot.Avancement_pct === 100 ? '#10B981' : '#0A3D26', borderRadius: 3 }} />
+                          <div style={{ height: '100%', width: `${lot.avancement_pct}%`, background: lot.avancement_pct === 100 ? '#10B981' : '#0A3D26', borderRadius: 3 }} />
                         </div>
                       </div>
                       {lot.Certification && (
@@ -464,5 +464,6 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
     </div>
   )
 }
+
 
 
