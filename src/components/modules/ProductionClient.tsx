@@ -171,7 +171,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                   <span style={{
                     fontSize: 10, fontWeight: 700,
                     color: cmd.priorite === 'urgente' ? '#DC2626' : cmd.priorite === 'haute' ? '#D97706' : '#94A3B8'
-                  }}>● {cmd.priorite}</span>
+                  }}>{cmd.priorite}</span>
                 </div>
                 <div style={{ fontSize: 11, color: '#64748B', marginBottom: 6 }}>
                   {cmd.marque?.nom} · {cmd.volume_total_tonnes}T
