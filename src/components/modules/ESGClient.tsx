@@ -48,7 +48,7 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
     { axe: 'Traçabilité', score: scores.Traçabilité },
     { axe: 'Recyclage', score: scores.recyclage },
     { axe: 'Certifications', score: scores.certifications },
-    { axe: 'Conformite', score: scores.conformite },
+    { axe: 'Conformité', score: scores.conformite },
     { axe: 'Partenaires', score: scores.partenaires },
     { axe: 'Reporting', score: scores.reporting },
   ]
@@ -98,7 +98,7 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
         </div>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 18, fontWeight: 900, marginBottom: 4 }}>Performance ESG — {profil?.entreprise?.nom ?? 'ETHYS'}</div>
-          <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 10 }}>Calculé en temps reel depuis vos Données</div>
+          <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 10 }}>Calculé en temps réel depuis vos données</div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {certifications.filter(c => c.valide).map(c => (
               <span key={c.id} style={{ padding: '3px 10px', borderRadius: 20, fontSize: 10, fontWeight: 700, background: 'rgba(110,231,183,0.2)', color: '#6EE7B7', border: '1px solid rgba(110,231,183,0.3)' }}>v {c.label}</span>
@@ -107,7 +107,7 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
           </div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, flexShrink: 0 }}>
-          {[[pctRecycléGlobal + '%', 'Recyclé'], [(Math.round(volumeRecyclé * 1000)).toLocaleString('fr-FR') + ' kg', 'Vol. Recyclé'], [String(certsValides), 'Certifications'], ['100%', 'Conformite']].map(([v, l]) => (
+          {[[pctRecycleGlobal + '%', 'Recyclé'], [(Math.round(volumeRecycle * 1000)).toLocaleString('fr-FR') + ' kg', 'Vol. recyclé'], [String(certsValides), 'Certifications'], ['100%', 'Conformité']].map(([v, l]) => (
             <div key={l} style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 10, padding: '8px 12px', textAlign: 'center' }}>
               <div style={{ fontSize: 16, fontWeight: 900, color: '#6EE7B7' }}>{v}</div>
               <div style={{ fontSize: 9, opacity: 0.65, marginTop: 2 }}>{l}</div>
@@ -176,12 +176,12 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
               ]},
               { cat: 'Social', lettre: 'S', couleur: '#1E40AF', bg: '#DBEAFE', items: [
                 { label: 'Certifications actives', val: String(certsValides), ok: certsValides >= 2 },
-                { label: 'Partenaires verifies', val: '6/7', ok: false },
-                { label: 'Pays a risque', val: '0', ok: true },
+                { label: 'Partenaires vérifiés', val: '6/7', ok: false },
+                { label: 'Pays à risque', val: '0', ok: true },
               ]},
               { cat: 'Gouvernance', lettre: 'G', couleur: '#6B21A8', bg: '#F3E8FF', items: [
                 { label: 'Commandes avec workflow', val: String(commandes.length), ok: true },
-                { label: 'Conformite RGPD', val: '100%', ok: true },
+                { label: 'Conformité RGPD', val: '100%', ok: true },
                 { label: 'Audit log actif', val: 'Oui', ok: true },
               ]},
             ].map((cat, ci) => (
@@ -217,7 +217,7 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
                 </div>
               )}
               <div style={{ padding: '10px 14px', borderRadius: 8, background: '#F8FAFC', fontSize: 11, color: '#94A3B8' }}>
-                Generez votre rapport pour le telecharger
+              Générez votre rapport pour le télécharger
               </div>
             </div>
             <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '20px 22px' }}>
