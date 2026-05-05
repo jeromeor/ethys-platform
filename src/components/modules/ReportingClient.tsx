@@ -273,10 +273,10 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
             </div>
 
             {[
-              { label: 'Volume total', value: ${Math.round(totalVolume * 1000).toLocaleString('fr-FR')} kg`, badge: `${commandes.length} commandes`, bg: '#D1FAE5', tc: '#065F46' },
-              { label: 'Volume recyclé', value: `${Math.round(totalRecycle * 1000).toLocaleString('fr-FR')} kg`, badge: `${pctRecycleGlobal}% du total`, bg: '#D1FAE5', tc: '#065F46' },
-              { label: 'Volume vierge', value: `${Math.round(totalVierge)} T`, badge: `${100 - pctRecycleGlobal}% du total`, bg: '#F1F5F9', tc: '#475569' },
-              { label: 'Lots actifs', value: `${lots.filter(l => l.statut !== 'livre').length}`, badge: `${lots.length} lots total`, bg: '#DBEAFE', tc: '#1E40AF' },
+              { label: 'Volume total', value: `${Math.round(totalVolume * 1000).toLocaleString('fr-FR')} kg`, badge: `${commandes.length} commandes`, bg: '#D1FAE5', tc: '#065F46' },
+          { label: 'Volume recycle', value: `${Math.round(totalRecycle * 1000).toLocaleString('fr-FR')} kg`, badge: `${pctRecycleGlobal}% du total`, bg: '#D1FAE5', tc: '#065F46' },
+          { label: 'Volume vierge', value: `${Math.round(totalVierge * 1000).toLocaleString('fr-FR')} kg`, badge: `${100 - pctRecycleGlobal}% du total`, bg: '#F1F5F9', tc: '#475569' },
+          { label: 'Lots actifs', value: `${lots.filter(l => l.statut !== 'livre').length}`, badge: `${lots.length} lots total`, bg: '#DBEAFE', tc: '#1E40AF' },
             ].map((s, i) => (
               <div key={i} style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '16px 20px' }}>
                 <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 6 }}>{s.label}</div>
