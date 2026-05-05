@@ -288,7 +288,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
         )}
 
         {/* Financier */}
-        {activeTab === 'Financier' && (
+        {activeTab === "Chiffre d'Affaires" && (
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
             <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '18px 22px' }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>CA mensuel (€)</div>
