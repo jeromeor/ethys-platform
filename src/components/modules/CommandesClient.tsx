@@ -238,7 +238,7 @@ const creerCommande = async () => {
                         <td style={{ padding: '12px 14px', fontSize: 12, fontWeight: 800, color: '#0A3D26', whiteSpace: 'nowrap' }}>{c.reference}</td>
                         <td style={{ padding: '12px 14px', fontSize: 12, color: '#475569' }}>{c.marque?.nom ?? '—'}</td>
                         <td style={{ padding: '12px 14px', fontSize: 12, color: '#475569' }}>{c.filature?.nom ?? '—'}</td>
-                        <td style={{ padding: '12px 14px', fontSize: 12, fontWeight: 600 }}>{c.volume_total_tonnes}T</td>
+                        <td style={{ padding: '12px 14px', fontSize: 12, fontWeight: 600 }}>{Math.round((c.volume_total_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg</td>
                         <td style={{ padding: '12px 14px' }}>
                           <span style={{ fontSize: 11, fontWeight: 600, color: '#059669' }}>
                             {Math.round(c.pct_recycle)}% ♻
@@ -295,7 +295,7 @@ const creerCommande = async () => {
               {selected.titre && <div style={{ fontSize: 11, opacity: 0.75, marginBottom: 10 }}>{selected.titre}</div>}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                 {[
-                  ['Volume', `${selected.volume_total_tonnes}T`],
+                  ['Volume', `${Math.round((selected.volume_total_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg`],
                   ['Recyclé', `${Math.round(selected.pct_recycle)}%`],
                   ['Priorité', selected.priorite],
                   ['Livraison', new Date(selected.date_livraison_souhaitee).toLocaleDateString('fr-FR')],
@@ -408,7 +408,7 @@ const creerCommande = async () => {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 {form.type_coton !== 'vierge' && (
                   <div>
-                    {labelInput('Volume recyclé (T)')}
+                    {labelInput('Volume recycle (kg)')}
                     <input type="number" min="0" value={form.volume_recycle_tonnes}
                       onChange={e => set('volume_recycle_tonnes', e.target.value)}
                       placeholder="Ex : 80" style={inputStyle} />
@@ -416,7 +416,7 @@ const creerCommande = async () => {
                 )}
                 {form.type_coton !== 'recycle' && (
                   <div>
-                    {labelInput('Volume vierge (T)')}
+                    {labelInput('Volume vierge (kg)')}
                     <input type="number" min="0" value={form.volume_vierge_tonnes}
                       onChange={e => set('volume_vierge_tonnes', e.target.value)}
                       placeholder="Ex : 40" style={inputStyle} />

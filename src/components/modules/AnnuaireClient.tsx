@@ -164,7 +164,7 @@ export default function AnnuaireClient({ partenaires, paysList, userRole }: Prop
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
                     {note ? <span style={{ color: '#F59E0B', fontWeight: 700 }}>★ {note}</span> : <span style={{ color: '#CBD5E1' }}>Non note</span>}
-                    {p.capacite_annuelle_tonnes && <span style={{ color: '#64748B' }}>{p.capacite_annuelle_tonnes}T/an</span>}
+                    {p.capacite_annuelle_tonnes && <span style={{ color: '#64748B' }}>{p.capacite_annuelle_tonnes ? (p.capacite_annuelle_tonnes * 1000).toLocaleString('fr-FR') + ' kg/an' : ''}</span>}
                   </div>
                 </div>
               )
@@ -193,7 +193,7 @@ export default function AnnuaireClient({ partenaires, paysList, userRole }: Prop
                   <div style={{ fontSize: 11, opacity: 0.75 }}>{typeLabels[selected.type] ?? selected.type} · {selected.ville}, {selected.pays}</div>
                   {selected.capacite_annuelle_tonnes && (
                     <div style={{ marginTop: 10, background: 'rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 12px' }}>
-                      <div style={{ fontSize: 16, fontWeight: 800, color: '#6EE7B7' }}>{selected.capacite_annuelle_tonnes}T</div>
+                      <div style={{ fontSize: 16, fontWeight: 800, color: '#6EE7B7' }}>{selected.capacite_annuelle_tonnes ? (selected.capacite_annuelle_tonnes * 1000).toLocaleString('fr-FR') + ' kg' : ''}</div>
                       <div style={{ fontSize: 10, opacity: 0.65 }}>Capacite annuelle</div>
                     </div>
                   )}

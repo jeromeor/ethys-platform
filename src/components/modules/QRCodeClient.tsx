@@ -143,7 +143,7 @@ export default function QRCodeClient({ lots: initial, user }: Props) {
                 ['Filature', selected.commande?.filature?.nom ?? '-'],
                 ['Fournisseur', selected.commande?.fournisseur?.nom ?? '-'],
                 ['Type coton', selected.type_coton === 'recycle' ? 'Recycle' : 'Vierge'],
-                ['Volume', `${selected.volume_tonnes} T`],
+                ['Volume', `${Math.round((selected.volume_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg`],
                 ['Origine', selected.origine ?? '-'],
                 ['Certification fil', 'ETHYS'],
                 ['Avancement', `${selected.avancement_pct}%`],
@@ -254,12 +254,12 @@ export default function QRCodeClient({ lots: initial, user }: Props) {
                   <div style={{ flex: 51, background: '#10B981', borderRadius: 6, padding: '10px 8px', textAlign: 'center' }}>
                     <div style={{ fontSize: 20, fontWeight: 900, color: '#fff' }}>51%</div>
                     <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>Coton recycle</div>
-                    <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>61.2T</div>
+                    <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>61 200 kg</div>
                   </div>
                   <div style={{ flex: 49, background: 'rgba(255,255,255,0.15)', borderRadius: 6, padding: '10px 8px', textAlign: 'center' }}>
                     <div style={{ fontSize: 20, fontWeight: 900, color: '#fff' }}>49%</div>
                     <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>Coton vierge</div>
-                    <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>58.8T</div>
+                    <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>58 800 kg</div>
                   </div>
                 </div>
                 <div style={{ height: 6, background: 'rgba(255,255,255,0.15)', borderRadius: 3, overflow: 'hidden' }}>

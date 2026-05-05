@@ -102,7 +102,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
       {/* KPIs */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, padding: '16px 22px', flexShrink: 0 }}>
         {[
-          { label: 'Volume total', value: `${Math.round(totalVolume)} T`, delta: `${commandes.length} commandes` },
+          { label: 'Volume total', value: ${Math.round(totalVolume * 1000).toLocaleString('fr-FR')} kg`, delta: `${commandes.length} commandes` },
           { label: 'CA total', value: fmt(totalCA), delta: `${factures.length} factures` },
           { label: '% Coton recyclé', value: `${pctRecycleGlobal}%`, delta: `${Math.round(totalRecycle)} T recyclé` },
           { label: 'Partenaires', value: `${entreprises.length}`, delta: `${entreprises.filter(e => e.statut === 'verifie').length} vérifiés` },
@@ -223,7 +223,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
                             {s.name.replace(/_/g, ' ')}
                           </td>
                           <td style={{ padding: '11px 16px', fontSize: 12 }}>{s.value}</td>
-                          <td style={{ padding: '11px 16px', fontSize: 12, fontWeight: 600 }}>{Math.round(vol)} T</td>
+                          <td style={{ padding: '11px 16px', fontSize: 12, fontWeight: 600 }}>{Math.round(vol * 1000).toLocaleString('fr-FR')} kg</td>
                           <td style={{ padding: '11px 16px', fontSize: 12, color: '#059669', fontWeight: 600 }}>{pct}% ♻</td>
                         </tr>
                       )
@@ -273,8 +273,8 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
             </div>
 
             {[
-              { label: 'Volume total', value: `${Math.round(totalVolume)} T`, badge: `${commandes.length} commandes`, bg: '#D1FAE5', tc: '#065F46' },
-              { label: 'Volume recyclé', value: `${Math.round(totalRecycle)} T`, badge: `${pctRecycleGlobal}% du total`, bg: '#D1FAE5', tc: '#065F46' },
+              { label: 'Volume total', value: ${Math.round(totalVolume * 1000).toLocaleString('fr-FR')} kg`, badge: `${commandes.length} commandes`, bg: '#D1FAE5', tc: '#065F46' },
+              { label: 'Volume recyclé', value: `${Math.round(totalRecycle * 1000).toLocaleString('fr-FR')} kg`, badge: `${pctRecycleGlobal}% du total`, bg: '#D1FAE5', tc: '#065F46' },
               { label: 'Volume vierge', value: `${Math.round(totalVierge)} T`, badge: `${100 - pctRecycleGlobal}% du total`, bg: '#F1F5F9', tc: '#475569' },
               { label: 'Lots actifs', value: `${lots.filter(l => l.statut !== 'livre').length}`, badge: `${lots.length} lots total`, bg: '#DBEAFE', tc: '#1E40AF' },
             ].map((s, i) => (
