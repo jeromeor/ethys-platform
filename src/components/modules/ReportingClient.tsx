@@ -104,7 +104,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
         {[
           { label: 'Volume total', value: `${Math.round(totalVolume * 1000).toLocaleString('fr-FR')} kg`, delta: `${commandes.length} commandes` },
           { label: 'CA total', value: fmt(totalCA), delta: `${factures.length} factures` },
-          { label: '% Coton recyclé', value: `${pctRecycleGlobal}%`, delta: `${Math.round(totalRecycle * 1000).toLocaleString('fr-FR')} kg recyclées` },
+          { label: '% Coton recyclé', value: `${pctRecycleGlobal}%`, delta: `${Math.round(totalRecycle * 1000).toLocaleString('fr-FR')} kg recyclés` },
           { label: 'Partenaires', value: `${entreprises.length}`, delta: `${entreprises.filter(e => e.statut === 'Vérifié').length} Vérifiés` },
         ].map((k, i) => (
           <div key={i} style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '16px 18px' }}>
@@ -137,7 +137,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
 
             <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '18px 22px' }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>
-                Volumes mensuels (T)
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>Volumes mensuels (kg)</div>
               </div>
               {parMois.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '40px', color: '#94A3B8', fontSize: 12 }}>Aucune donnée</div>
@@ -180,7 +180,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
                 <div style={{ display: 'flex', gap: 12, marginBottom: 10 }}>
                   <div style={{ flex: 1, background: 'rgba(255,255,255,0.1)', borderRadius: 8, padding: '10px', textAlign: 'center' }}>
                 <div style={{ fontSize: 18, fontWeight: 900, color: '#6EE7B7' }}>{Math.round(totalRecycle * 1000).toLocaleString('fr-FR')} kg</div>
-                <div style={{ fontSize: 10, opacity: 0.7 }}>♻ recyclées</div>
+                <div style={{ fontSize: 10, opacity: 0.7 }}>♻ recyclés</div>
                   </div>
                   <div style={{ flex: 1, background: 'rgba(255,255,255,0.1)', borderRadius: 8, padding: '10px', textAlign: 'center' }}>
                     <div style={{ fontSize: 18, fontWeight: 900, color: '#fff' }}>{Math.round(totalVierge)}T</div>
@@ -257,7 +257,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
                 <PieChart>
                   <Pie
                     data={[
-                    { name: '♻ Recyclées', value: Math.round(totalRecycle * 1000) },
+                    { name: '♻ Recyclés', value: Math.round(totalRecycle * 1000) },
                       { name: '🌿 Vierge', value: Math.round(totalVierge) },
                     ]}
                     cx="50%" cy="50%" innerRadius={60} outerRadius={90}
@@ -298,7 +298,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
                   <XAxis dataKey="mois" tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} tickFormatter={v => `${v / 1000}k`} />
                   <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} formatter={(v) => fmt(Number(v))} />
-                  <Bar dataKey="ca" name="CA (â‚¬)" fill="#0A3D26" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="ca" name="CA (€)" fill="#0A3D26" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
