@@ -38,7 +38,7 @@ interface Props {
 
 const STATUT_LABELS: Record<StatutCommande, string> = {
   brouillon:              'Brouillon',
-  Soumise:                'soumise',
+  soumise:                'Soumise',
   validation_fournisseur: 'Val. fournisseur',
   validation_filature:    'Val. filature',
   validation_finale:      'Val. finale',
