@@ -21,7 +21,7 @@ interface Lot {
   avancement_pct: number
   machine: string | null
   origine: string | null
-  Certification: string | null
+  certification: string | null
   date_debut: string | null
   date_fin_prevue: string | null
   controles_qualite: ControleQualite[]
@@ -66,7 +66,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
   const [updatingLot, setUpdatingLot] = useState<string | null>(null)
   const [showAddLot, setShowAddLot] = useState(false)
   const [newLot, setNewLot] = useState({
-    type_coton: 'Recyclé', volume_tonnes: '', origine: '', Certification: ''
+    type_coton: 'recycle', volume_tonnes: '', origine: '', certification: ''
   })
 
   const updateAvancement = async (lotId: string, pct: number) => {
@@ -117,7 +117,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
         type_coton: newLot.type_coton,
         volume_tonnes: parseFloat(newLot.volume_tonnes),
         origine: newLot.origine || null,
-        Certification: newLot.Certification || null,
+        certification: newlot.certification || null,
         statut: 'en_attente',
         avancement_pct: 0,
       })
@@ -131,7 +131,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
       ))
       setSelected(prev => prev ? { ...prev, lots: [...prev.lots, updatedLot] } : null)
       setShowAddLot(false)
-      setNewLot({ type_coton: 'Recyclé', volume_tonnes: '', origine: '', Certification: '' })
+      setNewLot({ type_coton: 'recycle', volume_tonnes: '', origine: '', certification: '' })
     }
   }
 
@@ -337,7 +337,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                       </div>
                       <div>
                         <label style={{ fontSize: 11, color: '#64748B', display: 'block', marginBottom: 4 }}>Certification</label>
-                        <select value={newLot.Certification} onChange={e => setNewLot(p => ({ ...p, Certification: e.target.value }))}
+                        <select value={newlot.certification} onChange={e => setNewLot(p => ({ ...p, certification: e.target.value }))}
                           style={{ width: '100%', padding: '7px 10px', borderRadius: 8, border: '1.5px solid #E2E8F0', fontSize: 12, outline: 'none' }}>
                           <option value="">â€”</option>
                           {['GRS', 'GOTS', 'OCS 100', 'BCI'].map(c => <option key={c}>{c}</option>)}
@@ -395,9 +395,9 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                           <div style={{ height: '100%', width: `${lot.avancement_pct}%`, background: lot.avancement_pct === 100 ? '#10B981' : '#0A3D26', borderRadius: 3 }} />
                         </div>
                       </div>
-                      {lot.Certification && (
+                      {lot.certification && (
                         <span style={{ padding: '2px 8px', borderRadius: 20, fontSize: 10, fontWeight: 700, background: '#DBEAFE', color: '#1E40AF' }}>
-                          {lot.Certification}
+                          {lot.certification}
                         </span>
                       )}
                     </div>
@@ -464,6 +464,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
     </div>
   )
 }
+
 
 
 
