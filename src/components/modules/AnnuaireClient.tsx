@@ -311,8 +311,8 @@ export default function AnnuaireClient({ partenaires, paysList, userRole }: Prop
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
                   <button onClick={() => setEditMode(false)} style={{ flex: 1, padding: '8px', borderRadius: 8, border: '1.5px solid #EEF0F3', background: '#F8FAFC', fontSize: 12, cursor: 'pointer' }}>Annuler</button>
-                  <button onClick={Sauvegarde...disabled={saving} style={{ flex: 2, padding: '8px', borderRadius: 8, border: 'none', background: saving ? '#E2E8F0' : '#0A3D26', color: saving ? '#94A3B8' : '#fff', fontSize: 12, fontWeight: 700, cursor: saving ? 'default' : 'pointer' }}>
-                    {saving ? 'Sauvegarde...' : 'Sauvegarder'
+                  <button onClick={sauvegarder} disabled={saving} style={{ flex: 2, padding: '8px', borderRadius: 8, border: 'none', background: saving ? '#E2E8F0' : '#0A3D26', color: saving ? '#94A3B8' : '#fff', fontSize: 12, fontWeight: 700, cursor: saving ? 'default' : 'pointer' }}>
+                    {saving ? 'Sauvegarde...' : 'Sauvegarder'}
                   </button>
                 </div>
               </div>
