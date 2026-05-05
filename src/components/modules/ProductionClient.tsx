@@ -271,7 +271,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                       <div>
                         <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26' }}>{lot.reference}</div>
                         <div style={{ fontSize: 11, color: '#64748B' }}>
-                          {lot.Math.round((lot.volume_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg · {lot.type_coton === 'recycle' ? '♻ Recyclé' : '🌿 Vierge'}
+                          {Math.round((lot.volume_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg ?? 0) * 1000).toLocaleString('fr-FR')} kg · {lot.type_coton === 'recycle' ? '♻ Recyclé' : '🌿 Vierge'}
                           {lot.machine && ` · ${lot.machine}`}
                         </div>
                       </div>
