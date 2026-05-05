@@ -9,7 +9,7 @@ import {
 interface Commande {
   statut: string
   volume_total_tonnes: number
-  pct_Recyclé: number
+  pct_recycle: number
   created_at: string
   priorite: string
 }
@@ -53,7 +53,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
   const totalCA = factures.reduce((s, f) => s + f.montant_ttc, 0)
   const totalRecyclé = lots.filter(l => l.type_coton === 'Recyclé').reduce((s, l) => s + l.volume_tonnes, 0)
   const totalVierge = lots.filter(l => l.type_coton === 'Vierge').reduce((s, l) => s + l.volume_tonnes, 0)
-  const pctRecycléGlobal = totalVolume > 0 ? Math.round(commandes.reduce((s, c) => s + c.pct_Recyclé, 0) / commandes.length) : 0
+  const pctRecycléGlobal = totalVolume > 0 ? Math.round(commandes.reduce((s, c) => s + c.pct_recycle, 0) / commandes.length) : 0
 
   // DonnÃ©es par mois
   const parMois = useMemo(() => {
@@ -216,7 +216,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
                     {statutsData.map((s, i) => {
                       const cmds = commandes.filter(c => c.statut === s.name)
                       const vol = cmds.reduce((sum, c) => sum + (c.volume_total_tonnes ?? 0), 0)
-                      const pct = cmds.length > 0 ? Math.round(cmds.reduce((sum, c) => sum + c.pct_Recyclé, 0) / cmds.length) : 0
+                      const pct = cmds.length > 0 ? Math.round(cmds.reduce((sum, c) => sum + c.pct_recycle, 0) / cmds.length) : 0
                       return (
                         <tr key={i} style={{ borderTop: '1px solid #F1F5F9' }}>
                           <td style={{ padding: '11px 16px', fontSize: 12, fontWeight: 600, color: '#0A3D26', textTransform: 'capitalize' }}>
@@ -364,3 +364,4 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
     </div>
   )
 }
+
