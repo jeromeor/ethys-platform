@@ -79,8 +79,13 @@ export default function LoginPage() {
               {loading ? 'Connexion...' : 'Se connecter'}
             </button>
           </form>
+<div style={{ textAlign: 'center', marginBottom: 12 }}>
+  <a href="/forgot-password" style={{ fontSize: 12, color: '#64748B', textDecoration: 'none' }}>
+    Mot de passe oublie ?
+  </a>
+</div>
           <div style={{ textAlign: 'center', marginTop: 20, fontSize: 13, color: '#94A3B8' }}>
-            Pas encore de compte ?{' '}
+            Mot de passe oublie ?{' '}<a href="/forgot-password" style={{ color: '#94A3B8', textDecoration: 'none', fontSize: 13 }}>Reinitialiser</a><br/>Pas encore de compte ?{' '}
             <a href="/register" style={{ color: '#0A3D26', fontWeight: 600, textDecoration: 'none' }}>Creer un compte</a>
           </div>
         </div>
@@ -88,5 +93,6 @@ export default function LoginPage() {
     </div>
   )
 }
+
 
 
