@@ -379,7 +379,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                           }}>{lot.type_coton === 'recycle' ? '♻' : '🌿'}</div>
                           <div>
                             <div style={{ fontSize: 14, fontWeight: 800, color: '#0A3D26' }}>{lot.reference}</div>
-                            <div style={{ fontSize: 11, color: '#64748B' }}>{lot.Math.round((lot.volume_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg · {lot.origine ?? '—'}</div>
+                            <div style={{ fontSize: 11, color: '#64748B' }}>{{Math.round((lot.volume_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg ?? 0) * 1000).toLocaleString('fr-FR')} kg · {lot.origine ?? '—'}</div>
                           </div>
                         </div>
                         <span style={{ padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: bg, color: tc }}>
