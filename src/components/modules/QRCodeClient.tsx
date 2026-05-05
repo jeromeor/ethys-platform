@@ -130,7 +130,7 @@ export default function QRCodeClient({ lots: initial, user }: Props) {
                   </span>
                 </div>
                 <div style={{ fontSize: 11, color: '#64748B', marginBottom: 2 }}>{lot.commande?.reference} · {lot.commande?.marque?.nom}</div>
-                <div style={{ fontSize: 11, color: '#94A3B8' }}>{lot.volume_tonnes}T · {lot.type_coton === 'recycle' ? 'Recycle' : 'Vierge'}</div>
+                <div style={{ fontSize: 11, color: '#94A3B8' }}>{lot.volume_tonnes}T · {lot.type_coton === 'recycle' ? 'Recyclé' : 'Vierge'}</div>
                 {hasQR && <div style={{ fontSize: 10, color: '#94A3B8', marginTop: 4 }}>{lot.qr_codes[0].nb_scans} scan(s)</div>}
               </div>
             )
@@ -149,7 +149,7 @@ export default function QRCodeClient({ lots: initial, user }: Props) {
                 ['Marque', selected.commande?.marque?.nom ?? '-'],
                 ['Filature', selected.commande?.filature?.nom ?? '-'],
                 ['Fournisseur', selected.commande?.fournisseur?.nom ?? '-'],
-                ['Type coton', selected.type_coton === 'recycle' ? 'Recycle' : 'Vierge'],
+              ['Type coton', selected.type_coton === 'recycle' ? 'Recyclé' : 'Vierge'],
                 ['Volume', `${Math.round((selected.volume_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg`],
                 ['Origine', selected.origine ?? '-'],
                 ['Certification fil', 'ETHYS'],
@@ -194,7 +194,7 @@ export default function QRCodeClient({ lots: initial, user }: Props) {
                 {[
                   ['Origine', selected.origine ?? '-'],
                   ['Filature', selected.commande?.filature?.nom ?? '-'],
-                  ['Type coton', selected.type_coton === 'recycle' ? 'Recycle' : 'Vierge'],
+              ['Type coton', selected.type_coton === 'recycle' ? 'Recyclé' : 'Vierge'],
                   ['Certification fil', 'ETHYS'],
                 ].map(([label, val]) => (
                   <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 10px', borderRadius: 8, background: '#F8FAFC', marginBottom: 6 }}>
@@ -269,7 +269,7 @@ export default function QRCodeClient({ lots: initial, user }: Props) {
                 <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
                   <div style={{ flex: 51, background: '#10B981', borderRadius: 6, padding: '10px 8px', textAlign: 'center' }}>
                     <div style={{ fontSize: 20, fontWeight: 900, color: '#fff' }}>51%</div>
-                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>Coton recycle</div>
+                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>Coton recyclé</div>
                     <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>61 200 kg</div>
                   </div>
                   <div style={{ flex: 49, background: 'rgba(255,255,255,0.15)', borderRadius: 6, padding: '10px 8px', textAlign: 'center' }}>
@@ -287,7 +287,7 @@ export default function QRCodeClient({ lots: initial, user }: Props) {
               <div style={{ background: 'rgba(110,231,183,0.2)', borderRadius: 10, padding: '12px 14px', border: '1px solid rgba(110,231,183,0.4)', textAlign: 'center' }}>
                 <div style={{ fontSize: 14, fontWeight: 900, color: '#6EE7B7', marginBottom: 4 }}>v Fil Certifié ETHYS</div>
                 <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
-                  Ce fil est le resultat de la transformation de coton recycle et vierge par {selected.commande?.filature?.nom ?? 'la filature'}, certifié par la plateforme TEXTILE LOOP.
+              Ce fil est le résultat de la transformation de coton recyclé et vierge par {selected.commande?.filature?.nom ?? 'la filature'}, certifié par la plateforme TEXTILE LOOP.
                 </div>
               </div>
             </div>
