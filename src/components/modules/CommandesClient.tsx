@@ -200,10 +200,12 @@ const creerCommande = async () => {
               </button>
             ))}
           </div>
-          <button onClick={() => setShowForm(true)} style={{
-            padding: '8px 16px', borderRadius: 10, border: 'none',
-            background: '#0A3D26', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer'
-          }}>＋ Nouvelle commande</button>
+          {(profil?.role === 'admin' || profil?.role === 'marque') && (
+  <button onClick={() => setShowForm(true)} style={{
+    padding: '8px 16px', borderRadius: 10, border: 'none',
+    background: '#0A3D26', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer'
+  }}>+ Nouvelle commande</button>
+)}
         </div>
 
         {/* Table */}
