@@ -1,11 +1,11 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
 type StatutCommande =
-  | 'brouillon' | 'soumise' | 'validation_fournisseur'
+  | 'brouillon' | 'Soumise' | 'validation_fournisseur'
   | 'validation_filature' | 'validation_finale' | 'en_production'
   | 'controle_qualite' | 'qr_genere' | 'expediee' | 'livree' | 'annulee'
 
@@ -13,14 +13,14 @@ interface Entreprise { id: string; nom: string; type: string }
 
 interface Commande {
   id: string
-  reference: string
+  Référence: string
   titre: string | null
   statut: StatutCommande
   type_coton: string
   grammage: string | null
   volume_total_tonnes: number
-  pct_recycle: number
-  priorite: string
+  pct_recyclé: number
+  Priorité: string
   date_livraison_souhaitee: string
   created_at: string
   marque: { nom: string } | null
@@ -38,21 +38,21 @@ interface Props {
 
 const STATUT_LABELS: Record<StatutCommande, string> = {
   brouillon:              'Brouillon',
-  soumise:                'Soumise',
+  Soumise:                'Soumise',
   validation_fournisseur: 'Val. fournisseur',
   validation_filature:    'Val. filature',
   validation_finale:      'Val. finale',
   en_production:          'En production',
-  controle_qualite:       'Contrôle qualité',
-  qr_genere:              'QR généré',
-  expediee:               'Expédiée',
-  livree:                 'Livrée',
-  annulee:                'Annulée',
+  controle_qualite:       'ContrÃ´le qualitÃ©',
+  qr_genere:              'QR gÃ©nÃ©rÃ©',
+  expediee:               'ExpÃ©diÃ©e',
+  livree:                 'LivrÃ©e',
+  annulee:                'AnnulÃ©e',
 }
 
 const STATUT_COLORS: Record<string, [string, string, string]> = {
   brouillon:              ['#F1F5F9', '#475569', '#94A3B8'],
-  soumise:                ['#DBEAFE', '#1E40AF', '#3B82F6'],
+  Soumise:                ['#DBEAFE', '#1E40AF', '#3B82F6'],
   validation_fournisseur: ['#FEF3C7', '#92400E', '#F59E0B'],
   validation_filature:    ['#FEF3C7', '#92400E', '#F59E0B'],
   validation_finale:      ['#FEF3C7', '#92400E', '#F59E0B'],
@@ -65,7 +65,7 @@ const STATUT_COLORS: Record<string, [string, string, string]> = {
 }
 
 const ETAPES = [
-  'soumise', 'validation_fournisseur', 'validation_filature',
+  'Soumise', 'validation_fournisseur', 'validation_filature',
   'validation_finale', 'en_production', 'qr_genere', 'livree'
 ]
 
@@ -85,11 +85,11 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
     filature_id: '',
     fournisseur_id: '',
     type_coton: 'mixte',
-    volume_recycle_tonnes: '',
+    volume_recyclé_tonnes: '',
     volume_vierge_tonnes: '',
     grammage: '',
     date_livraison_souhaitee: '',
-    priorite: 'normale',
+    Priorité: 'normale',
     notes: '',
   })
 
@@ -105,21 +105,21 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
 
   const etapeIndex = (statut: string) => ETAPES.indexOf(statut)
 
-const creerCommande = async () => {
+const CréerCommande = async () => {
     if (!form.marque_id || !form.filature_id || !form.fournisseur_id || !form.date_livraison_souhaitee) {
       setError('Veuillez remplir tous les champs obligatoires : Marque, Filature, Fournisseur et Date de livraison.')
       return
     }
-    if (form.type_coton === 'recycle' && (!form.volume_recycle_tonnes || parseFloat(form.volume_recycle_tonnes) <= 0)) {
-      setError('Veuillez indiquer un volume de coton recycle superieur a 0.')
+    if (form.type_coton === 'recyclé' && (!form.volume_recyclé_tonnes || parseFloat(form.volume_recyclé_tonnes) <= 0)) {
+      setError('Veuillez indiquer un volume de coton recyclé supérieur a 0.')
       return
     }
     if (form.type_coton === 'vierge' && (!form.volume_vierge_tonnes || parseFloat(form.volume_vierge_tonnes) <= 0)) {
-      setError('Veuillez indiquer un volume de coton vierge superieur a 0.')
+      setError('Veuillez indiquer un volume de coton vierge supérieur a 0.')
       return
     }
-    if (form.type_coton === 'mixte' && (!form.volume_recycle_tonnes || !form.volume_vierge_tonnes)) {
-      setError('Pour un type mixte, veuillez indiquer les volumes recycle et vierge.')
+    if (form.type_coton === 'mixte' && (!form.volume_recyclé_tonnes || !form.volume_vierge_tonnes)) {
+      setError('Pour un type mixte, Veuillez indiquer les volumes recyclé et vierge.')
       return
     }
     setError('')
@@ -133,13 +133,13 @@ const creerCommande = async () => {
         filature_id: form.filature_id,
         fournisseur_id: form.fournisseur_id,
         type_coton: form.type_coton,
-        volume_recycle_tonnes: parseFloat(form.volume_recycle_tonnes) || 0,
+        volume_recyclé_tonnes: parseFloat(form.volume_recyclé_tonnes) || 0,
         volume_vierge_tonnes: parseFloat(form.volume_vierge_tonnes) || 0,
         grammage: form.grammage || null,
         date_livraison_souhaitee: form.date_livraison_souhaitee,
-        priorite: form.priorite,
+        Priorité: form.Priorité,
         notes: form.notes || null,
-        statut: 'soumise',
+        statut: 'Soumise',
         created_by: user.id,
       })
       .select(`
@@ -156,8 +156,8 @@ const creerCommande = async () => {
       setShowForm(false)
       setForm({
         titre: '', marque_id: '', filature_id: '', fournisseur_id: '',
-        type_coton: 'mixte', volume_recycle_tonnes: '', volume_vierge_tonnes: '',
-        grammage: '', date_livraison_souhaitee: '', priorite: 'normale', notes: '',
+        type_coton: 'mixte', volume_recyclé_tonnes: '', volume_vierge_tonnes: '',
+        grammage: '', date_livraison_souhaitee: '', Priorité: 'normale', notes: '',
       })
     }
     setLoading(false)
@@ -189,7 +189,7 @@ const creerCommande = async () => {
           display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexShrink: 0
         }}>
           <div style={{ display: 'flex', gap: 6 }}>
-            {['tous', 'soumise', 'en_production', 'livree'].map(s => (
+            {['tous', 'Soumise', 'en_production', 'livree'].map(s => (
               <button key={s} onClick={() => setFilterStatut(s)} style={{
                 padding: '5px 12px', borderRadius: 20, border: 'none', cursor: 'pointer',
                 fontSize: 11, fontWeight: filterStatut === s ? 700 : 500,
@@ -212,7 +212,7 @@ const creerCommande = async () => {
         <div style={{ flex: 1, overflow: 'auto', padding: '16px 22px' }}>
           {filtrees.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '60px 0', color: '#94A3B8' }}>
-              <div style={{ fontSize: 32, marginBottom: 10 }}>◈</div>
+              <div style={{ fontSize: 32, marginBottom: 10 }}>â—ˆ</div>
               <div style={{ fontSize: 14, fontWeight: 600 }}>Aucune commande</div>
               <div style={{ fontSize: 12, marginTop: 4 }}>Cliquez sur "+ Nouvelle commande" pour commencer</div>
             </div>
@@ -221,7 +221,7 @@ const creerCommande = async () => {
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ background: '#F8FAFC' }}>
-                    {['Reference', 'Marque', 'Filature', 'Volume', 'Composition', 'Statut', 'Livraison'].concat(selected ? [] : ['Avancement']).map(h => (
+                    {['Référence', 'Marque', 'Filature', 'Volume', 'Composition', 'Statut', 'Livraison'].concat(selected ? [] : ['Avancement']).map(h => (
                       <th key={h} style={{ padding: '10px 14px', fontSize: 11, fontWeight: 600, color: '#94A3B8', textAlign: 'left', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{h}</th>
                     ))}
                   </tr>
@@ -237,13 +237,13 @@ const creerCommande = async () => {
                         onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = '#F8FAFC'}
                         onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = 'transparent'}
                       >
-                        <td style={{ padding: '12px 14px', fontSize: 12, fontWeight: 800, color: '#0A3D26', whiteSpace: 'nowrap' }}>{c.reference}</td>
-                        <td style={{ padding: '12px 14px', fontSize: 12, color: '#475569' }}>{c.marque?.nom ?? '—'}</td>
-                        <td style={{ padding: '12px 14px', fontSize: 12, color: '#475569' }}>{c.filature?.nom ?? '—'}</td>
+                        <td style={{ padding: '12px 14px', fontSize: 12, fontWeight: 800, color: '#0A3D26', whiteSpace: 'nowrap' }}>{c.Référence}</td>
+                        <td style={{ padding: '12px 14px', fontSize: 12, color: '#475569' }}>{c.marque?.nom ?? 'â€”'}</td>
+                        <td style={{ padding: '12px 14px', fontSize: 12, color: '#475569' }}>{c.filature?.nom ?? 'â€”'}</td>
                         <td style={{ padding: '12px 14px', fontSize: 12, fontWeight: 600 }}>{Math.round((c.volume_total_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg</td>
                         <td style={{ padding: '12px 14px' }}>
                           <span style={{ fontSize: 11, fontWeight: 600, color: '#059669' }}>
-                            {Math.round(c.pct_recycle)}% ♻
+                            {Math.round(c.pct_recyclé)}% â™»
                           </span>
                         </td>
                         <td style={{ padding: '12px 14px' }}>
@@ -280,7 +280,7 @@ const creerCommande = async () => {
         </div>
       </div>
 
-      {/* Panneau détail */}
+      {/* Panneau dÃ©tail */}
       {selected && (
         <div style={{
           width: 320, minWidth: 320, background: '#fff',
@@ -290,18 +290,18 @@ const creerCommande = async () => {
             padding: '14px 18px', borderBottom: '1px solid #F1F5F9',
             display: 'flex', justifyContent: 'space-between', alignItems: 'center'
           }}>
-            <span style={{ fontWeight: 700, fontSize: 13, color: '#0A3D26' }}>{selected.reference}</span>
-            <button onClick={() => setSelected(null)} style={{ border: 'none', background: 'none', fontSize: 16, color: '#94A3B8', cursor: 'pointer' }}>✕</button>
+            <span style={{ fontWeight: 700, fontSize: 13, color: '#0A3D26' }}>{selected.Référence}</span>
+            <button onClick={() => setSelected(null)} style={{ border: 'none', background: 'none', fontSize: 16, color: '#94A3B8', cursor: 'pointer' }}>âœ•</button>
           </div>
           <div style={{ flex: 1, overflow: 'auto', padding: '18px' }}>
             <div style={{ background: 'linear-gradient(135deg,#0A3D26,#0D5C3A)', borderRadius: 12, padding: '16px', color: '#fff', marginBottom: 16 }}>
-              <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 4 }}>{selected.reference}</div>
+              <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 4 }}>{selected.Référence}</div>
               {selected.titre && <div style={{ fontSize: 11, opacity: 0.75, marginBottom: 10 }}>{selected.titre}</div>}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                 {[
                   ['Volume', `${Math.round((selected.volume_total_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg`],
-                  ['Recyclé', `${Math.round(selected.pct_recycle)}%`],
-                  ['Priorité', selected.priorite],
+                  ['RecyclÃ©', `${Math.round(selected.pct_recyclé)}%`],
+                  ['PrioritÃ©', selected.Priorité],
                   ['Livraison', new Date(selected.date_livraison_souhaitee).toLocaleDateString('fr-FR')],
                 ].map(([l, v]) => (
                   <div key={l} style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 10px' }}>
@@ -317,12 +317,12 @@ const creerCommande = async () => {
               ['Filature', selected.filature?.nom],
               ['Fournisseur', selected.fournisseur?.nom],
               ['Type coton', selected.type_coton],
-              ['Grammage', selected.grammage ?? '—'],
+              ['Grammage', selected.grammage ?? 'â€”'],
               ['Statut', STATUT_LABELS[selected.statut]],
             ].map(([l, v]) => (
               <div key={l} style={{ display: 'flex', gap: 12, marginBottom: 10 }}>
                 <span style={{ fontSize: 12, color: '#94A3B8', width: 100, flexShrink: 0 }}>{l}</span>
-                <span style={{ fontSize: 12, fontWeight: 600, color: '#1A202C' }}>{v ?? '—'}</span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: '#1A202C' }}>{v ?? 'â€”'}</span>
               </div>
             ))}
 
@@ -360,12 +360,12 @@ const creerCommande = async () => {
           }}>
             <div style={{ padding: '22px 28px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: 16, fontWeight: 700, color: '#0A3D26' }}>Nouvelle commande ETHYS</span>
-              <button onClick={() => setShowForm(false)} style={{ border: 'none', background: 'none', fontSize: 18, color: '#94A3B8', cursor: 'pointer' }}>✕</button>
+              <button onClick={() => setShowForm(false)} style={{ border: 'none', background: 'none', fontSize: 18, color: '#94A3B8', cursor: 'pointer' }}>âœ•</button>
             </div>
             <div style={{ padding: '22px 28px', display: 'flex', flexDirection: 'column', gap: 14 }}>
 
               <div>
-                {labelInput('Titre / référence interne')}
+                {labelInput('Titre / rÃ©fÃ©rence interne')}
                 <input value={form.titre} onChange={e => set('titre', e.target.value)}
                   placeholder="Ex : Collection Printemps 2024" style={inputStyle} />
               </div>
@@ -374,21 +374,21 @@ const creerCommande = async () => {
                 <div>
                   {labelInput('Marque *')}
                   <select value={form.marque_id} onChange={e => set('marque_id', e.target.value)} style={selectStyle}>
-                    <option value="">Sélectionner…</option>
+                    <option value="">SÃ©lectionnerâ€¦</option>
                     {marques.map(m => <option key={m.id} value={m.id}>{m.nom}</option>)}
                   </select>
                 </div>
                 <div>
                   {labelInput('Filature *')}
                   <select value={form.filature_id} onChange={e => set('filature_id', e.target.value)} style={selectStyle}>
-                    <option value="">Sélectionner…</option>
+                    <option value="">SÃ©lectionnerâ€¦</option>
                     {filatures.map(f => <option key={f.id} value={f.id}>{f.nom}</option>)}
                   </select>
                 </div>
                 <div>
                   {labelInput('Fournisseur *')}
                   <select value={form.fournisseur_id} onChange={e => set('fournisseur_id', e.target.value)} style={selectStyle}>
-                    <option value="">Sélectionner…</option>
+                    <option value="">SÃ©lectionnerâ€¦</option>
                     {fournisseurs.map(f => <option key={f.id} value={f.id}>{f.nom}</option>)}
                   </select>
                 </div>
@@ -397,7 +397,7 @@ const creerCommande = async () => {
               <div>
                 {labelInput('Type de coton')}
                 <div style={{ display: 'flex', gap: 8 }}>
-                  {[['recycle', '♻ 100% Recyclé'], ['mixte', '⚖ Mixte'], ['vierge', '🌿 100% Vierge']].map(([v, l]) => (
+                  {[['recyclé', 'â™» 100% RecyclÃ©'], ['mixte', 'âš– Mixte'], ['vierge', 'ðŸŒ¿ 100% Vierge']].map(([v, l]) => (
                     <button key={v} onClick={() => set('type_coton', v)} style={{
                       flex: 1, padding: '8px', borderRadius: 10, cursor: 'pointer',
                       border: `2px solid ${form.type_coton === v ? '#0A3D26' : '#EEF0F3'}`,
@@ -412,13 +412,13 @@ const creerCommande = async () => {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 {form.type_coton !== 'vierge' && (
                   <div>
-                    {labelInput('Volume recycle (kg)')}
-                    <input type="number" min="0" value={form.volume_recycle_tonnes}
-                      onChange={e => set('volume_recycle_tonnes', e.target.value)}
+                    {labelInput('Volume recyclé (kg)')}
+                    <input type="number" min="0" value={form.volume_recyclé_tonnes}
+                      onChange={e => set('volume_recyclé_tonnes', e.target.value)}
                       placeholder="Ex : 80" style={inputStyle} />
                   </div>
                 )}
-                {form.type_coton !== 'recycle' && (
+                {form.type_coton !== 'recyclé' && (
                   <div>
                     {labelInput('Volume vierge (kg)')}
                     <input type="number" min="0" value={form.volume_vierge_tonnes}
@@ -432,20 +432,20 @@ const creerCommande = async () => {
                 <div>
                   {labelInput('Grammage')}
                   <select value={form.grammage} onChange={e => set('grammage', e.target.value)} style={selectStyle}>
-                    <option value="">—</option>
+                    <option value="">â€”</option>
                     {['Ne 10/1','Ne 20/1','Ne 30/1','Ne 40/1','Ne 50/1','Ne 20/2','Ne 30/2'].map(g => (
                       <option key={g}>{g}</option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  {labelInput('Livraison souhaitée *')}
+                  {labelInput('Livraison souhaitÃ©e *')}
                   <input type="date" value={form.date_livraison_souhaitee}
                     onChange={e => set('date_livraison_souhaitee', e.target.value)} style={inputStyle} />
                 </div>
                 <div>
-                  {labelInput('Priorité')}
-                  <select value={form.priorite} onChange={e => set('priorite', e.target.value)} style={selectStyle}>
+                  {labelInput('PrioritÃ©')}
+                  <select value={form.Priorité} onChange={e => set('Priorité', e.target.value)} style={selectStyle}>
                     <option value="normale">Normale</option>
                     <option value="haute">Haute</option>
                     <option value="urgente">Urgente</option>
@@ -456,7 +456,7 @@ const creerCommande = async () => {
               <div>
                 {labelInput('Notes')}
                 <textarea value={form.notes} onChange={e => set('notes', e.target.value)}
-                  placeholder="Instructions particulières…" rows={3}
+                  placeholder="Instructions particuliÃ¨resâ€¦" rows={3}
                   style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit' }} />
               </div>
 
@@ -466,7 +466,7 @@ const creerCommande = async () => {
                   border: '1.5px solid #EEF0F3', background: '#F8FAFC',
                   color: '#94A3B8', fontSize: 13, cursor: 'pointer'
                 }}>Annuler</button>
-                <button onClick={creerCommande} disabled={loading} style={{
+                <button onClick={CréerCommande} disabled={loading} style={{
                   flex: 2, padding: '10px', borderRadius: 10, border: 'none',
                   background: loading ? '#E2E8F0' : '#0A3D26',
                   color: loading ? '#94A3B8' : '#fff',
@@ -477,7 +477,7 @@ const creerCommande = async () => {
     border: '1px solid #FCA5A5', fontSize: 12, color: '#DC2626', marginBottom: 16
   }}>{error}</div>
 )}
-                  {loading ? 'Création…' : '✓ Créer la commande ETHYS'}
+                  {loading ? 'CrÃ©ationâ€¦' : 'âœ“ CrÃ©er la commande ETHYS'}
 		</button>
               </div>
             </div>

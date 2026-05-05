@@ -56,7 +56,7 @@ const ROLE_COLORS: Record<string, [string, string]> = {
   fournisseur: ['#FEF3C7', '#92400E'],
 }
 
-const TABS = ['Utilisateurs', 'Demandes en attente', 'Securite']
+const TABS = ['Utilisateurs', 'Demandes en attente', 'Sécurité']
 
 export default function AdminClient({ utilisateurs: initial = [], audit = [], entreprises = [], currentUserId }: Props) {
   const supabase = createClient()
@@ -164,9 +164,9 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, padding: '14px 22px', flexShrink: 0 }}>
         {[
           { label: 'Utilisateurs actifs', value: String(nbActifs), bg: '#D1FAE5', tc: '#065F46' },
-          { label: 'Alertes securite', value: String(nbAlertes), bg: nbAlertes > 0 ? '#FEE2E2' : '#F1F5F9', tc: nbAlertes > 0 ? '#991B1B' : '#475569' },
-          { label: 'Conformite RGPD', value: '100%', bg: '#F0FDF4', tc: '#065F46' },
-          { label: 'Score securite', value: secScore + '%', bg: '#DBEAFE', tc: '#1E40AF' },
+          { label: 'Alertes Sécurité', value: String(nbAlertes), bg: nbAlertes > 0 ? '#FEE2E2' : '#F1F5F9', tc: nbAlertes > 0 ? '#991B1B' : '#475569' },
+          { label: 'Conformité RGPD', value: '100%', bg: '#F0FDF4', tc: '#065F46' },
+          { label: 'Score Sécurité', value: secScore + '%', bg: '#DBEAFE', tc: '#1E40AF' },
         ].map((k, i) => (
           <div key={i} style={{ background: '#fff', borderRadius: 12, border: '1px solid #EEF0F3', padding: '14px 18px' }}>
             <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 6 }}>{k.label}</div>
@@ -226,7 +226,7 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: '#F8FAFC' }}>
-                  {['Email', 'Role', 'Entreprise', 'Statut', 'Derniere connexion', 'Actions'].map(h => (
+                  {['Email', 'Role', 'Entreprise', 'Statut', 'Dernière connexion', 'Actions'].map(h => (
                     <th key={h} style={{ padding: '10px 16px', fontSize: 11, fontWeight: 600, color: '#94A3B8', textAlign: 'left', textTransform: 'uppercase' }}>{h}</th>
                   ))}
                 </tr>
@@ -254,7 +254,7 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
                           </button>
                           {u.id !== currentUserId && (
                             <button onClick={() => toggleStatut(u.id)} style={{ padding: '4px 10px', borderRadius: 7, border: 'none', background: u.statut === 'actif' ? '#FEE2E2' : '#D1FAE5', color: u.statut === 'actif' ? '#DC2626' : '#065F46', fontSize: 11, cursor: 'pointer' }}>
-                              {u.statut === 'actif' ? 'Desactiver' : 'Activer'}
+                              {u.statut === 'actif' ? 'Désactiver' : 'Activer'}
                             </button>
                           )}
                         </div>
@@ -273,7 +273,7 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
               <div style={{ textAlign: 'center', padding: '60px', color: '#94A3B8' }}>
                 <div style={{ fontSize: 32, marginBottom: 12 }}>v</div>
                 <div style={{ fontSize: 14, fontWeight: 600 }}>Aucune demande en attente</div>
-                <div style={{ fontSize: 12, marginTop: 4 }}>Toutes les modifications de droits ont ete traitees.</div>
+                <div style={{ fontSize: 12, marginTop: 4 }}>Toutes les modifications de droits ont été traitées.</div>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -290,7 +290,7 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
                             Modification droits — {cible?.email ?? d.cible_user_id}
                           </div>
                           <div style={{ fontSize: 11, color: '#94A3B8' }}>
-                            Demande par {demandeur?.email ?? 'Admin'} · {new Date(d.date_demande).toLocaleDateString('fr-FR')}
+                            demandée par {demandeur?.email ?? 'Admin'} · {new Date(d.date_demande).toLocaleDateString('fr-FR')}
                           </div>
                         </div>
                         {estMaDemande && (
@@ -336,10 +336,10 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
           </div>
         )}
 
-        {activeTab === 'Securite' && (
+        {activeTab === 'Sécurité' && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '20px 22px' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 14 }}>Parametres</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 14 }}>Paramètres</div>
               {params.map((p, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '10px 0', borderBottom: i < params.length - 1 ? '1px solid #F8FAFC' : 'none' }}>
                   <span style={{ flex: 1, fontSize: 12, fontWeight: 600 }}>{p.label}</span>
@@ -350,7 +350,7 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
               ))}
             </div>
             <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '20px 22px' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 14 }}>Journal audit recent</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 14 }}>Journal d'audit récent</div>
               {audit.slice(0, 10).map((ev, i) => (
                 <div key={i} style={{ display: 'flex', gap: 10, padding: '8px 0', borderBottom: '1px solid #F8FAFC', fontSize: 11 }}>
                   <span style={{ color: ev.niveau === 'alert' ? '#DC2626' : '#94A3B8', flexShrink: 0 }}>
@@ -360,7 +360,7 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
                   <span style={{ color: '#CBD5E1' }}>{new Date(ev.created_at).toLocaleDateString('fr-FR')}</span>
                 </div>
               ))}
-              {audit.length === 0 && <div style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', padding: '20px' }}>Aucune entree</div>}
+              {audit.length === 0 && <div style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', padding: '20px' }}>Aucune entrée</div>}
             </div>
           </div>
         )}
@@ -374,7 +374,7 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
               <button onClick={() => setSelectedUser(null)} style={{ border: 'none', background: 'none', fontSize: 18, cursor: 'pointer' }}>x</button>
             </div>
             <div style={{ padding: '10px 14px', borderRadius: 8, background: '#FEF3C7', border: '1px solid #FCD34D', fontSize: 12, color: '#92400E', marginBottom: 16 }}>
-              Cette modification necessite la validation d'un second administrateur avant d'etre appliquee.
+              Cette modification nécessite la validation d'un second administrateur avant d'être appliquée.
             </div>
             <div style={{ fontSize: 12, color: '#64748B', marginBottom: 16 }}>
               Utilisateur : <strong>{selectedUser.email}</strong>
@@ -404,3 +404,4 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
     </div>
   )
 }
+

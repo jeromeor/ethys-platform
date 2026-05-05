@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useMemo } from 'react'
 import {
@@ -9,7 +9,7 @@ import {
 interface Commande {
   statut: string
   volume_total_tonnes: number
-  pct_recycle: number
+  pct_Recyclé: number
   created_at: string
   priorite: string
 }
@@ -51,11 +51,11 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
 
   const totalVolume = commandes.reduce((s, c) => s + (c.volume_total_tonnes ?? 0), 0)
   const totalCA = factures.reduce((s, f) => s + f.montant_ttc, 0)
-  const totalRecycle = lots.filter(l => l.type_coton === 'recycle').reduce((s, l) => s + l.volume_tonnes, 0)
-  const totalVierge = lots.filter(l => l.type_coton === 'vierge').reduce((s, l) => s + l.volume_tonnes, 0)
-  const pctRecycleGlobal = totalVolume > 0 ? Math.round(commandes.reduce((s, c) => s + c.pct_recycle, 0) / commandes.length) : 0
+  const totalRecyclé = lots.filter(l => l.type_coton === 'Recyclé').reduce((s, l) => s + l.volume_tonnes, 0)
+  const totalVierge = lots.filter(l => l.type_coton === 'Vierge').reduce((s, l) => s + l.volume_tonnes, 0)
+  const pctRecycléGlobal = totalVolume > 0 ? Math.round(commandes.reduce((s, c) => s + c.pct_Recyclé, 0) / commandes.length) : 0
 
-  // Données par mois
+  // DonnÃ©es par mois
   const parMois = useMemo(() => {
     const map: Record<string, { mois: string; volume: number; ca: number; commandes: number }> = {}
     commandes.forEach(c => {
@@ -72,21 +72,21 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
     return Object.values(map)
   }, [commandes, factures])
 
-  // Répartition statuts commandes
+  // RÃ©partition Statuts commandes
   const statutsData = useMemo(() => {
     const map: Record<string, number> = {}
     commandes.forEach(c => { map[c.statut] = (map[c.statut] ?? 0) + 1 })
     return Object.entries(map).map(([name, value]) => ({ name, value }))
   }, [commandes])
 
-  // Répartition pays partenaires
+  // RÃ©partition pays partenaires
   const paysData = useMemo(() => {
     const map: Record<string, number> = {}
     entreprises.forEach(e => { map[e.pays] = (map[e.pays] ?? 0) + 1 })
     return Object.entries(map).map(([name, value]) => ({ name, value }))
   }, [entreprises])
 
-  // Répartition types partenaires
+  // RÃ©partition types partenaires
   const typesData = useMemo(() => {
     const map: Record<string, number> = {}
     entreprises.forEach(e => { map[e.type] = (map[e.type] ?? 0) + 1 })
@@ -104,8 +104,8 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
         {[
           { label: 'Volume total', value: `${Math.round(totalVolume * 1000).toLocaleString('fr-FR')} kg`, delta: `${commandes.length} commandes` },
           { label: 'CA total', value: fmt(totalCA), delta: `${factures.length} factures` },
-          { label: '% Coton recyclé', value: `${pctRecycleGlobal}%`, delta: `${Math.round(totalRecycle)} T recyclé` },
-          { label: 'Partenaires', value: `${entreprises.length}`, delta: `${entreprises.filter(e => e.statut === 'verifie').length} vérifiés` },
+          { label: '% Coton recyclÃ©', value: `${pctRecycléGlobal}%`, delta: `${Math.round(totalRecyclé)} T recyclÃ©` },
+          { label: 'Partenaires', value: `${entreprises.length}`, delta: `${entreprises.filter(e => e.statut === 'Vérifié').length} vÃ©rifiÃ©s` },
         ].map((k, i) => (
           <div key={i} style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '16px 18px' }}>
             <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.3 }}>{k.label}</div>
@@ -140,7 +140,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
                 Volumes mensuels (T)
               </div>
               {parMois.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '40px', color: '#94A3B8', fontSize: 12 }}>Aucune donnée</div>
+                <div style={{ textAlign: 'center', padding: '40px', color: '#94A3B8', fontSize: 12 }}>Aucune donnÃ©e</div>
               ) : (
                 <ResponsiveContainer width="100%" height={200}>
                   <BarChart data={parMois}>
@@ -160,7 +160,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
                   Statuts commandes
                 </div>
                 {statutsData.length === 0 ? (
-                  <div style={{ textAlign: 'center', color: '#94A3B8', fontSize: 12 }}>Aucune donnée</div>
+                  <div style={{ textAlign: 'center', color: '#94A3B8', fontSize: 12 }}>Aucune donnÃ©e</div>
                 ) : (
                   <ResponsiveContainer width="100%" height={130}>
                     <PieChart>
@@ -179,27 +179,27 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
                 </div>
                 <div style={{ display: 'flex', gap: 12, marginBottom: 10 }}>
                   <div style={{ flex: 1, background: 'rgba(255,255,255,0.1)', borderRadius: 8, padding: '10px', textAlign: 'center' }}>
-                    <div style={{ fontSize: 18, fontWeight: 900, color: '#6EE7B7' }}>{Math.round(totalRecycle)}T</div>
-                    <div style={{ fontSize: 10, opacity: 0.7 }}>♻ Recyclé</div>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: '#6EE7B7' }}>{Math.round(totalRecyclé)}T</div>
+                    <div style={{ fontSize: 10, opacity: 0.7 }}>â™» RecyclÃ©</div>
                   </div>
                   <div style={{ flex: 1, background: 'rgba(255,255,255,0.1)', borderRadius: 8, padding: '10px', textAlign: 'center' }}>
                     <div style={{ fontSize: 18, fontWeight: 900, color: '#fff' }}>{Math.round(totalVierge)}T</div>
-                    <div style={{ fontSize: 10, opacity: 0.7 }}>🌿 Vierge</div>
+                    <div style={{ fontSize: 10, opacity: 0.7 }}>ðŸŒ¿ Vierge</div>
                   </div>
                 </div>
                 <div style={{ height: 6, background: 'rgba(255,255,255,0.15)', borderRadius: 3 }}>
                   <div style={{
                     height: '100%', borderRadius: 3, background: '#6EE7B7',
-                    width: totalRecycle + totalVierge > 0 ? `${Math.round(totalRecycle / (totalRecycle + totalVierge) * 100)}%` : '0%'
+                    width: totalRecyclé + totalVierge > 0 ? `${Math.round(totalRecyclé / (totalRecyclé + totalVierge) * 100)}%` : '0%'
                   }} />
                 </div>
               </div>
             </div>
 
-            {/* Table commandes récentes */}
+            {/* Table commandes rÃ©centes */}
             <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', overflow: 'hidden', gridColumn: '1 / -1' }}>
               <div style={{ padding: '14px 20px', borderBottom: '1px solid #F1F5F9', fontSize: 13, fontWeight: 700, color: '#0A3D26' }}>
-                Résumé des commandes
+                RÃ©sumÃ© des commandes
               </div>
               {commandes.length === 0 ? (
                 <div style={{ padding: '30px', textAlign: 'center', color: '#94A3B8', fontSize: 12 }}>Aucune commande</div>
@@ -207,7 +207,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ background: '#F8FAFC' }}>
-                      {['Statut', 'Nb commandes', 'Volume total', '% Recyclé moy.'].map(h => (
+                      {['Statut', 'Nb commandes', 'Volume total', '% RecyclÃ© moy.'].map(h => (
                         <th key={h} style={{ padding: '9px 16px', fontSize: 11, fontWeight: 600, color: '#94A3B8', textAlign: 'left', textTransform: 'uppercase' }}>{h}</th>
                       ))}
                     </tr>
@@ -216,7 +216,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
                     {statutsData.map((s, i) => {
                       const cmds = commandes.filter(c => c.statut === s.name)
                       const vol = cmds.reduce((sum, c) => sum + (c.volume_total_tonnes ?? 0), 0)
-                      const pct = cmds.length > 0 ? Math.round(cmds.reduce((sum, c) => sum + c.pct_recycle, 0) / cmds.length) : 0
+                      const pct = cmds.length > 0 ? Math.round(cmds.reduce((sum, c) => sum + c.pct_Recyclé, 0) / cmds.length) : 0
                       return (
                         <tr key={i} style={{ borderTop: '1px solid #F1F5F9' }}>
                           <td style={{ padding: '11px 16px', fontSize: 12, fontWeight: 600, color: '#0A3D26', textTransform: 'capitalize' }}>
@@ -224,7 +224,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
                           </td>
                           <td style={{ padding: '11px 16px', fontSize: 12 }}>{s.value}</td>
                           <td style={{ padding: '11px 16px', fontSize: 12, fontWeight: 600 }}>{Math.round(vol * 1000).toLocaleString('fr-FR')} kg</td>
-                          <td style={{ padding: '11px 16px', fontSize: 12, color: '#059669', fontWeight: 600 }}>{pct}% ♻</td>
+                          <td style={{ padding: '11px 16px', fontSize: 12, color: '#059669', fontWeight: 600 }}>{pct}% â™»</td>
                         </tr>
                       )
                     })}
@@ -239,7 +239,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
         {activeTab === 'Volumes' && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '18px 22px' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>Évolution volumes</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>Ã‰volution volumes</div>
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart data={parMois}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
@@ -252,13 +252,13 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
             </div>
 
             <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '18px 22px' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>Recyclé vs Vierge</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>RecyclÃ© vs Vierge</div>
               <ResponsiveContainer width="100%" height={220}>
                 <PieChart>
                   <Pie
                     data={[
-                      { name: '♻ Recyclé', value: Math.round(totalRecycle) },
-                      { name: '🌿 Vierge', value: Math.round(totalVierge) },
+                      { name: 'â™» RecyclÃ©', value: Math.round(totalRecyclé) },
+                      { name: 'ðŸŒ¿ Vierge', value: Math.round(totalVierge) },
                     ]}
                     cx="50%" cy="50%" innerRadius={60} outerRadius={90}
                     dataKey="value" paddingAngle={4}
@@ -274,8 +274,8 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
 
             {[
               { label: 'Volume total', value: `${Math.round(totalVolume * 1000).toLocaleString('fr-FR')} kg`, badge: `${commandes.length} commandes`, bg: '#D1FAE5', tc: '#065F46' },
-          { label: 'Volume recycle', value: `${Math.round(totalRecycle * 1000).toLocaleString('fr-FR')} kg`, badge: `${pctRecycleGlobal}% du total`, bg: '#D1FAE5', tc: '#065F46' },
-          { label: 'Volume vierge', value: `${Math.round(totalVierge * 1000).toLocaleString('fr-FR')} kg`, badge: `${100 - pctRecycleGlobal}% du total`, bg: '#F1F5F9', tc: '#475569' },
+          { label: 'Volume Recyclé', value: `${Math.round(totalRecyclé * 1000).toLocaleString('fr-FR')} kg`, badge: `${pctRecycléGlobal}% du total`, bg: '#D1FAE5', tc: '#065F46' },
+          { label: 'Volume Vierge', value: `${Math.round(totalVierge * 1000).toLocaleString('fr-FR')} kg`, badge: `${100 - pctRecycléGlobal}% du total`, bg: '#F1F5F9', tc: '#475569' },
           { label: 'Lots actifs', value: `${lots.filter(l => l.statut !== 'livre').length}`, badge: `${lots.length} lots total`, bg: '#DBEAFE', tc: '#1E40AF' },
             ].map((s, i) => (
               <div key={i} style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '16px 20px' }}>
@@ -291,23 +291,23 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
         {activeTab === "Chiffre d'Affaires" && (
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
             <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '18px 22px' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>CA mensuel (€)</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>CA mensuel (â‚¬)</div>
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={parMois}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
                   <XAxis dataKey="mois" tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} tickFormatter={v => `${v / 1000}k`} />
                   <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} formatter={(v) => fmt(Number(v))} />
-                  <Bar dataKey="ca" name="CA (€)" fill="#0A3D26" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="ca" name="CA (â‚¬)" fill="#0A3D26" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {[
                 { label: 'CA total', value: fmt(totalCA) },
-                { label: 'Factures payées', value: `${factures.filter(f => f.statut === 'payee').length}` },
+                { label: 'Factures payÃ©es', value: `${factures.filter(f => f.statut === 'payee').length}` },
                 { label: 'Factures en attente', value: `${factures.filter(f => f.statut === 'en_attente' || f.statut === 'emise').length}` },
-                { label: 'Taux encaissement', value: totalCA > 0 ? `${Math.round(factures.filter(f => f.statut === 'payee').reduce((s, f) => s + f.montant_ttc, 0) / totalCA * 100)}%` : '—' },
+                { label: 'Taux encaissement', value: totalCA > 0 ? `${Math.round(factures.filter(f => f.statut === 'payee').reduce((s, f) => s + f.montant_ttc, 0) / totalCA * 100)}%` : 'â€”' },
               ].map((k, i) => (
                 <div key={i} style={{ background: '#fff', borderRadius: 12, border: '1px solid #EEF0F3', padding: '14px 18px' }}>
                   <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 4 }}>{k.label}</div>
@@ -322,7 +322,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
         {activeTab === 'Partenaires' && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '18px 22px' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>Répartition par pays</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>RÃ©partition par pays</div>
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={paysData} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
@@ -335,7 +335,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
             </div>
 
             <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '18px 22px' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>Répartition par type</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>RÃ©partition par type</div>
               <ResponsiveContainer width="100%" height={200}>
                 <PieChart>
                   <Pie data={typesData} cx="50%" cy="50%" outerRadius={80} dataKey="value" paddingAngle={3}>
@@ -349,7 +349,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
 
             {[
               { label: 'Total partenaires', value: `${entreprises.length}` },
-              { label: 'Vérifiés', value: `${entreprises.filter(e => e.statut === 'verifie').length}` },
+              { label: 'VÃ©rifiÃ©s', value: `${entreprises.filter(e => e.statut === 'Vérifié').length}` },
               { label: 'En cours', value: `${entreprises.filter(e => e.statut === 'en_cours').length}` },
               { label: 'Pays couverts', value: `${new Set(entreprises.map(e => e.pays)).size}` },
             ].map((k, i) => (

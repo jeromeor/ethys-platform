@@ -10,10 +10,10 @@ interface Props {
     entreprise?: { nom?: string; type?: string }
     role?: string
   } | null
-  commandes: { statut: string; volume_total_tonnes: number; pct_recycle: number; created_at: string }[]
+  commandes: { statut: string; volume_total_tonnes: number; pct_Recyclé: number; created_at: string }[]
   lots: { type_coton: string; volume_tonnes: number; statut: string; certification: string | null }[]
   certifications: { id: string; label: string; valide: boolean; date_expiration: string }[]
-  scoreExistant: { score_global: number; score_tracabilite: number; score_recyclage: number; score_certifications: number; score_conformite: number; score_partenaires: number; score_reporting: number; periode_debut: string; periode_fin: string } | null
+  scoreExistant: { score_global: number; score_Traçabilité: number; score_recyclage: number; score_certifications: number; score_conformite: number; score_partenaires: number; score_reporting: number; Période_debut: string; Période_fin: string } | null
 }
 
 const TABS = ['Score ESG', 'Indicateurs', 'Rapport RSE']
@@ -27,15 +27,15 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
   const totalLots = lots.length
   const lotsAvecCert = lots.filter(l => l.certification).length
   const totalVolume = lots.reduce((s, l) => s + l.volume_tonnes, 0)
-  const volumeRecycle = lots.filter(l => l.type_coton === 'recycle').reduce((s, l) => s + l.volume_tonnes, 0)
+  const volumeRecyclé = lots.filter(l => l.type_coton === 'Recyclé').reduce((s, l) => s + l.volume_tonnes, 0)
   const totalVierge = lots.filter(l => l.type_coton === 'vierge').reduce((s, l) => s + l.volume_tonnes, 0)
   const certsValides = certifications.filter(c => c.valide).length
-  const pctRecycleGlobal = totalVolume > 0 ? Math.round(volumeRecycle / totalVolume * 100) : 0
+  const pctRecycléGlobal = totalVolume > 0 ? Math.round(volumeRecyclé / totalVolume * 100) : 0
   const commandesLivrees = commandes.filter(c => c.statut === 'livree').length
 
   const scores = {
-    tracabilite:    totalLots > 0 ? Math.min(100, Math.round(lotsAvecCert / totalLots * 100)) : 50,
-    recyclage:      pctRecycleGlobal,
+    Traçabilité:    totalLots > 0 ? Math.min(100, Math.round(lotsAvecCert / totalLots * 100)) : 50,
+    recyclage:      pctRecycléGlobal,
     certifications: certsValides > 0 ? Math.min(100, certsValides * 25) : 30,
     conformite:     commandes.length > 0 ? Math.min(100, Math.round(commandesLivrees / commandes.length * 100 + 40)) : 70,
     partenaires:    75,
@@ -45,7 +45,7 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
   const scoreGlobal = Math.round(Object.values(scores).reduce((s, v) => s + v, 0) / Object.values(scores).length)
 
   const radarData = [
-    { axe: 'Tracabilite', score: scores.tracabilite },
+    { axe: 'Traçabilité', score: scores.Traçabilité },
     { axe: 'Recyclage', score: scores.recyclage },
     { axe: 'Certifications', score: scores.certifications },
     { axe: 'Conformite', score: scores.conformite },
@@ -61,13 +61,13 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
     { mois: 'Mai', score: scoreGlobal },
   ]
 
-  const sauvegarderScore = async () => {
+  const SauvegarderScore = async () => {
     if (!profil?.entreprise_id) return
     await supabase.from('scores_esg').insert({
       entreprise_id: profil.entreprise_id,
-      periode_debut: new Date(new Date().getFullYear(), 0, 1).toISOString().split('T')[0],
-      periode_fin: new Date().toISOString().split('T')[0],
-      score_tracabilite: scores.tracabilite,
+      Période_debut: new Date(new Date().getFullYear(), 0, 1).toISOString().split('T')[0],
+      Période_fin: new Date().toISOString().split('T')[0],
+      score_Traçabilité: scores.Traçabilité,
       score_recyclage: scores.recyclage,
       score_certifications: scores.certifications,
       score_conformite: scores.conformite,
@@ -76,9 +76,9 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
     })
   }
 
-  const genererRapport = async () => {
+  const GénérerRapport = async () => {
     setGenerating(true)
-    await sauvegarderScore()
+    await SauvegarderScore()
     await new Promise(r => setTimeout(r, 1500))
     setGenerating(false)
     setGenerated(true)
@@ -98,7 +98,7 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
         </div>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 18, fontWeight: 900, marginBottom: 4 }}>Performance ESG — {profil?.entreprise?.nom ?? 'ETHYS'}</div>
-          <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 10 }}>Calcule en temps reel depuis vos donnees</div>
+          <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 10 }}>Calculé en temps reel depuis vos Données</div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {certifications.filter(c => c.valide).map(c => (
               <span key={c.id} style={{ padding: '3px 10px', borderRadius: 20, fontSize: 10, fontWeight: 700, background: 'rgba(110,231,183,0.2)', color: '#6EE7B7', border: '1px solid rgba(110,231,183,0.3)' }}>v {c.label}</span>
@@ -107,7 +107,7 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
           </div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, flexShrink: 0 }}>
-          {[[pctRecycleGlobal + '%', 'Recycle'], [(Math.round(volumeRecycle * 1000)).toLocaleString('fr-FR') + ' kg', 'Vol. recycle'], [String(certsValides), 'Certifications'], ['100%', 'Conformite']].map(([v, l]) => (
+          {[[pctRecycléGlobal + '%', 'Recyclé'], [(Math.round(volumeRecyclé * 1000)).toLocaleString('fr-FR') + ' kg', 'Vol. Recyclé'], [String(certsValides), 'Certifications'], ['100%', 'Conformite']].map(([v, l]) => (
             <div key={l} style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 10, padding: '8px 12px', textAlign: 'center' }}>
               <div style={{ fontSize: 16, fontWeight: 900, color: '#6EE7B7' }}>{v}</div>
               <div style={{ fontSize: 9, opacity: 0.65, marginTop: 2 }}>{l}</div>
@@ -170,9 +170,9 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {[
               { cat: 'Environnement', lettre: 'E', couleur: '#065F46', bg: '#D1FAE5', items: [
-                { label: '% coton recycle', val: pctRecycleGlobal + '%', ok: pctRecycleGlobal >= 50 },
+                { label: '% coton Recyclé', val: pctRecycléGlobal + '%', ok: pctRecycléGlobal >= 50 },
                 { label: 'Lots avec certification', val: lotsAvecCert + '/' + totalLots, ok: lotsAvecCert === totalLots },
-                { label: 'Volume recycle', val: (Math.round(volumeRecycle * 1000)).toLocaleString('fr-FR') + ' kg', ok: true },
+                { label: 'Volume Recyclé', val: (Math.round(volumeRecyclé * 1000)).toLocaleString('fr-FR') + ' kg', ok: true },
               ]},
               { cat: 'Social', lettre: 'S', couleur: '#1E40AF', bg: '#DBEAFE', items: [
                 { label: 'Certifications actives', val: String(certsValides), ok: certsValides >= 2 },
@@ -212,7 +212,7 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
               <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 14 }}>Documents disponibles</div>
               {scoreExistant && (
                 <div style={{ padding: '12px 14px', borderRadius: 10, background: '#F0FDF4', border: '1px solid #A7F3D0', marginBottom: 12 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#065F46' }}>Dernier score sauvegarde</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#065F46' }}>Dernier score Sauvegarde</div>
                   <div style={{ fontSize: 24, fontWeight: 900, color: '#0A3D26' }}>{scoreExistant.score_global}/100</div>
                 </div>
               )}
@@ -221,17 +221,17 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
               </div>
             </div>
             <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '20px 22px' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 14 }}>Generer rapport RSE</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 14 }}>Générer rapport RSE</div>
               <div style={{ marginBottom: 12 }}>
                 <label style={{ fontSize: 12, fontWeight: 600, color: '#64748B', display: 'block', marginBottom: 5 }}>Entreprise</label>
                 <div style={{ padding: '8px 12px', borderRadius: 8, border: '1.5px solid #E2E8F0', fontSize: 12, background: '#F8FAFC' }}>{profil?.entreprise?.nom ?? '-'}</div>
               </div>
-              <button onClick={genererRapport} disabled={generating} style={{ width: '100%', padding: '10px', borderRadius: 10, border: 'none', background: generating ? '#E2E8F0' : '#0A3D26', color: generating ? '#94A3B8' : '#fff', fontSize: 13, fontWeight: 700, cursor: generating ? 'default' : 'pointer' }}>
-                {generating ? 'Generation...' : generated ? 'v Rapport pret' : 'Generer rapport RSE'}
+              <button onClick={GénérerRapport} disabled={generating} style={{ width: '100%', padding: '10px', borderRadius: 10, border: 'none', background: generating ? '#E2E8F0' : '#0A3D26', color: generating ? '#94A3B8' : '#fff', fontSize: 13, fontWeight: 700, cursor: generating ? 'default' : 'pointer' }}>
+                {generating ? 'Generation...' : generated ? 'v Rapport prêt' : 'Générer rapport RSE'}
               </button>
               {generated && (
                 <div style={{ marginTop: 8, padding: '8px 12px', borderRadius: 8, background: '#D1FAE5', fontSize: 11, color: '#065F46', fontWeight: 600, textAlign: 'center' }}>
-                  Rapport_RSE_{profil?.entreprise?.nom ?? 'ETHYS'}_2026.pdf pret
+                  Rapport_RSE_{profil?.entreprise?.nom ?? 'ETHYS'}_2026.pdf prêt
                 </div>
               )}
             </div>
@@ -241,3 +241,4 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
     </div>
   )
 }
+

@@ -33,7 +33,7 @@ interface Partenaire {
   email_contact: string | null; telephone: string | null; telephone_indicatif: string | null
   site_web: string | null; contact_nom: string | null; contact_prenom: string | null
   contact_fonction: string | null; contact_visible: boolean
-  certifications: { label: string; valide: boolean }[]
+  Certifications: { label: string; valide: boolean }[]
   notations: { note_moyenne: number }[]
 }
 
@@ -80,7 +80,7 @@ export default function AnnuaireClient({ partenaires, paysList, userRole }: Prop
     setEditMode(true)
   }
 
-  const sauvegarder = async () => {
+  const Sauvegarde... async () => {
     if (!selected) return
     setSaving(true)
     const { createClient } = await import('@/lib/supabase/client')
@@ -131,7 +131,7 @@ export default function AnnuaireClient({ partenaires, paysList, userRole }: Prop
           <option>Tous</option>
           {paysList.map(p => <option key={p}>{p}</option>)}
         </select>
-        <div style={{ fontSize: 11, color: '#94A3B8' }}><span style={{ fontWeight: 700, color: '#0A3D26' }}>{filtered.length}</span> resultat(s)</div>
+        <div style={{ fontSize: 11, color: '#94A3B8' }}><span style={{ fontWeight: 700, color: '#0A3D26' }}>{filtered.length}</span> résultat(s)</div>
       </div>
 
       <div style={{ flex: 1, overflow: 'auto', padding: '16px 18px' }}>
@@ -151,19 +151,19 @@ export default function AnnuaireClient({ partenaires, paysList, userRole }: Prop
                       <div style={{ fontSize: 13, fontWeight: 700, color: '#1A202C' }}>{p.nom}</div>
                       <div style={{ fontSize: 11, color: '#94A3B8' }}>{p.ville}, {p.pays}</div>
                     </div>
-                    <span style={{ padding: '2px 8px', borderRadius: 20, fontSize: 10, fontWeight: 700, background: p.statut === 'verifie' ? '#D1FAE5' : '#FEF3C7', color: p.statut === 'verifie' ? '#065F46' : '#92400E', height: 'fit-content' }}>
-                      {p.statut === 'verifie' ? 'Verifie' : 'En cours'}
+                    <span style={{ padding: '2px 8px', borderRadius: 20, fontSize: 10, fontWeight: 700, background: p.statut === 'Vérifié' ? '#D1FAE5' : '#FEF3C7', color: p.statut === 'Vérifié' ? '#065F46' : '#92400E', height: 'fit-content' }}>
+                      {p.statut === 'Vérifié' ? 'Vérifié' : 'En cours'}
                     </span>
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 8 }}>
                     <span style={{ padding: '2px 8px', borderRadius: 20, fontSize: 10, fontWeight: 700, background: tbg, color: ttc }}>{typeLabels[p.type] ?? p.type}</span>
-                    {p.certifications?.filter(c => c.valide).slice(0, 3).map(c => {
+                    {p.Certifications?.filter(c => c.valide).slice(0, 3).map(c => {
                       const [bg, tc] = certColors[c.label] ?? ['#F1F5F9', '#475569']
                       return <span key={c.label} style={{ padding: '2px 8px', borderRadius: 20, fontSize: 10, fontWeight: 700, background: bg, color: tc }}>{c.label}</span>
                     })}
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
-                    {note ? <span style={{ color: '#F59E0B', fontWeight: 700 }}>★ {note}</span> : <span style={{ color: '#CBD5E1' }}>Non note</span>}
+                    {note ? <span style={{ color: '#F59E0B', fontWeight: 700 }}>★ {note}</span> : <span style={{ color: '#CBD5E1' }}>Non noté</span>}
                     {p.capacite_annuelle_tonnes && <span style={{ color: '#64748B' }}>{p.capacite_annuelle_tonnes ? (p.capacite_annuelle_tonnes * 1000).toLocaleString('fr-FR') + ' kg/an' : ''}</span>}
                   </div>
                 </div>
@@ -194,7 +194,7 @@ export default function AnnuaireClient({ partenaires, paysList, userRole }: Prop
                   {selected.capacite_annuelle_tonnes && (
                     <div style={{ marginTop: 10, background: 'rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 12px' }}>
                       <div style={{ fontSize: 16, fontWeight: 800, color: '#6EE7B7' }}>{selected.capacite_annuelle_tonnes ? (selected.capacite_annuelle_tonnes * 1000).toLocaleString('fr-FR') + ' kg' : ''}</div>
-                      <div style={{ fontSize: 10, opacity: 0.65 }}>Capacite annuelle</div>
+                      <div style={{ fontSize: 10, opacity: 0.65 }}>Capacité annuelle</div>
                     </div>
                   )}
                 </div>
@@ -244,9 +244,9 @@ export default function AnnuaireClient({ partenaires, paysList, userRole }: Prop
                 <div style={{ marginBottom: 14 }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: '#0A3D26', marginBottom: 8, textTransform: 'uppercase' }}>Certifications</div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                    {!selected.certifications?.length ? (
+                    {!selected.Certifications?.length ? (
                       <span style={{ fontSize: 11, color: '#94A3B8' }}>Aucune certification</span>
-                    ) : selected.certifications.filter(c => c.valide).map(c => {
+                    ) : selected.Certifications.filter(c => c.valide).map(c => {
                       const [bg, tc] = certColors[c.label] ?? ['#F1F5F9', '#475569']
                       return <span key={c.label} style={{ padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: bg, color: tc }}>v {c.label}</span>
                     })}
@@ -311,8 +311,8 @@ export default function AnnuaireClient({ partenaires, paysList, userRole }: Prop
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
                   <button onClick={() => setEditMode(false)} style={{ flex: 1, padding: '8px', borderRadius: 8, border: '1.5px solid #EEF0F3', background: '#F8FAFC', fontSize: 12, cursor: 'pointer' }}>Annuler</button>
-                  <button onClick={sauvegarder} disabled={saving} style={{ flex: 2, padding: '8px', borderRadius: 8, border: 'none', background: saving ? '#E2E8F0' : '#0A3D26', color: saving ? '#94A3B8' : '#fff', fontSize: 12, fontWeight: 700, cursor: saving ? 'default' : 'pointer' }}>
-                    {saving ? 'Sauvegarde...' : 'Sauvegarder'}
+                  <button onClick={Sauvegarde...disabled={saving} style={{ flex: 2, padding: '8px', borderRadius: 8, border: 'none', background: saving ? '#E2E8F0' : '#0A3D26', color: saving ? '#94A3B8' : '#fff', fontSize: 12, fontWeight: 700, cursor: saving ? 'default' : 'pointer' }}>
+                    {saving ? 'Sauvegarde...' : 'Sauvegarde...
                   </button>
                 </div>
               </div>
@@ -334,3 +334,4 @@ export default function AnnuaireClient({ partenaires, paysList, userRole }: Prop
     </div>
   )
 }
+

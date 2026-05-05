@@ -56,11 +56,11 @@ export default function QRCodeClient({ lots: initial, user }: Props) {
     }).then(setQrDataUrl)
   }, [qrActif?.id])
 
-  const genererQR = async () => {
+  const GénérerQR = async () => {
     if (!selected) return
     setGenerating(true)
     const reference = `ETHYS-QR-${selected.commande?.reference ?? 'CMD'}-${selected.reference.split('-').pop()}`
-    const urlPublique = `${window.location.origin}/tracabilite/${reference}`
+    const urlPublique = `${window.location.origin}/Traçabilité/${reference}`
     const dataEncodee = {
       lot_id: selected.id,
       lot_reference: selected.reference,
@@ -96,7 +96,7 @@ export default function QRCodeClient({ lots: initial, user }: Props) {
   }
 }
 
-  const telechargerQR = () => {
+  const TéléchargerQR = () => {
     if (!qrDataUrl) return
     const a = document.createElement('a')
     a.href = qrDataUrl
@@ -110,7 +110,7 @@ export default function QRCodeClient({ lots: initial, user }: Props) {
         <div style={{ padding: '14px 16px', borderBottom: '1px solid #F1F5F9' }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 2 }}>Lots de production</div>
           <div style={{ fontSize: 11, color: '#94A3B8' }}>
-            <span style={{ fontWeight: 700, color: '#0A3D26' }}>{lots.filter(l => l.qr_codes?.length > 0).length}</span> QR generes
+            <span style={{ fontWeight: 700, color: '#0A3D26' }}>{lots.filter(l => l.qr_codes?.length > 0).length}</span> QR générés
             {' · '}
             <span style={{ fontWeight: 700, color: '#D97706' }}>{lots.filter(l => !l.qr_codes?.length).length}</span> en attente
           </div>
@@ -164,13 +164,13 @@ export default function QRCodeClient({ lots: initial, user }: Props) {
 
             <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '22px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 20, alignSelf: 'flex-start' }}>
-                {qrActif ? 'QR Code actif' : 'Generer le QR Code ETHYS'}
+                {qrActif ? 'QR Code actif' : 'Générer le QR Code ETHYS'}
               </div>
               <div style={{ padding: 16, borderRadius: 14, marginBottom: 16, border: `2px solid ${qrActif ? '#D1FAE5' : '#EEF0F3'}`, background: qrActif ? '#fff' : '#F8FAFC', position: 'relative' }}>
                 {generating ? (
                   <div style={{ width: 180, height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 10 }}>
                     <div style={{ fontSize: 32 }}>⏳</div>
-                    <div style={{ fontSize: 12, color: '#94A3B8' }}>Generation...</div>
+                    <div style={{ fontSize: 12, color: '#94A3B8' }}>Génération...</div>
                   </div>
                 ) : qrDataUrl ? (
                   <img src={qrDataUrl} alt="QR Code ETHYS" style={{ width: 180, height: 180, display: 'block' }} />
@@ -190,7 +190,7 @@ export default function QRCodeClient({ lots: initial, user }: Props) {
                 </div>
               )}
               <div style={{ width: '100%', marginBottom: 16 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#0A3D26', marginBottom: 8, textTransform: 'uppercase' }}>Donnees encodees</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#0A3D26', marginBottom: 8, textTransform: 'uppercase' }}>Données encodées</div>
                 {[
                   ['Origine', selected.origine ?? '-'],
                   ['Filature', selected.commande?.filature?.nom ?? '-'],
@@ -207,8 +207,8 @@ export default function QRCodeClient({ lots: initial, user }: Props) {
                 ))}
               </div>
               {!qrActif ? (
-                <button onClick={genererQR} disabled={generating} style={{ width: '100%', padding: '11px', borderRadius: 10, border: 'none', background: generating ? '#E2E8F0' : '#0A3D26', color: generating ? '#94A3B8' : '#fff', fontSize: 13, fontWeight: 700, cursor: generating ? 'default' : 'pointer' }}>
-                  {generating ? 'Generation...' : 'Generer le QR Code ETHYS'}
+                <button onClick={GénérerQR} disabled={generating} style={{ width: '100%', padding: '11px', borderRadius: 10, border: 'none', background: generating ? '#E2E8F0' : '#0A3D26', color: generating ? '#94A3B8' : '#fff', fontSize: 13, fontWeight: 700, cursor: generating ? 'default' : 'pointer' }}>
+                  {generating ? 'Génération...' : 'Générer le QR Code ETHYS'}
                 </button>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%' }}>
@@ -216,7 +216,7 @@ export default function QRCodeClient({ lots: initial, user }: Props) {
                     Voir page publique consommateur
                   </button>
                   <div style={{ display: 'flex', gap: 8 }}>
-                    <button onClick={telechargerQR} style={{ flex: 1, padding: '8px', borderRadius: 8, border: '1.5px solid #EEF0F3', background: '#F8FAFC', fontSize: 12, cursor: 'pointer', color: '#475569' }}>Telecharger</button>
+                    <button onClick={TéléchargerQR} style={{ flex: 1, padding: '8px', borderRadius: 8, border: '1.5px solid #EEF0F3', background: '#F8FAFC', fontSize: 12, cursor: 'pointer', color: '#475569' }}>Télécharger</button>
                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
   <button onClick={copierURL} style={{ width: '100%', padding: '8px', borderRadius: 8, border: '1.5px solid #EEF0F3', background: urlCopied ? '#D1FAE5' : '#F8FAFC', fontSize: 12, cursor: 'pointer', color: urlCopied ? '#065F46' : '#475569', fontWeight: urlCopied ? 700 : 400 }}>
     {urlCopied ? 'URL copiee !' : 'Copier URL'}
@@ -248,7 +248,7 @@ export default function QRCodeClient({ lots: initial, user }: Props) {
             <div style={{ background: 'linear-gradient(135deg,#0A3D26,#0D5C3A)', borderRadius: '20px 20px 0 0', padding: '24px', color: '#fff' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
                 <div>
-                  <div style={{ fontSize: 10, color: '#6EE7B7', fontWeight: 600, letterSpacing: 1, marginBottom: 4 }}>ETHYS · TRACABILITE TOTALE</div>
+                  <div style={{ fontSize: 10, color: '#6EE7B7', fontWeight: 600, letterSpacing: 1, marginBottom: 4 }}>ETHYS · Traçabilité TOTALE</div>
                   <div style={{ fontSize: 20, fontWeight: 900 }}>Votre fil ETHYS</div>
                   <div style={{ fontSize: 11, opacity: 0.7 }}>Lot #{selected.reference}</div>
                 </div>
@@ -285,9 +285,9 @@ export default function QRCodeClient({ lots: initial, user }: Props) {
 
               {/* Certification fil ETHYS */}
               <div style={{ background: 'rgba(110,231,183,0.2)', borderRadius: 10, padding: '12px 14px', border: '1px solid rgba(110,231,183,0.4)', textAlign: 'center' }}>
-                <div style={{ fontSize: 14, fontWeight: 900, color: '#6EE7B7', marginBottom: 4 }}>v Fil certifie ETHYS</div>
+                <div style={{ fontSize: 14, fontWeight: 900, color: '#6EE7B7', marginBottom: 4 }}>v Fil Certifié ETHYS</div>
                 <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
-                  Ce fil est le resultat de la transformation de coton recycle et vierge par {selected.commande?.filature?.nom ?? 'la filature'}, certifie par la plateforme TEXTILE LOOP.
+                  Ce fil est le resultat de la transformation de coton recycle et vierge par {selected.commande?.filature?.nom ?? 'la filature'}, certifié par la plateforme TEXTILE LOOP.
                 </div>
               </div>
             </div>
@@ -310,7 +310,7 @@ export default function QRCodeClient({ lots: initial, user }: Props) {
                 </div>
               ))}
               <div style={{ marginTop: 14, padding: '10px 14px', borderRadius: 10, background: '#F8FAFC', fontSize: 10, color: '#94A3B8', textAlign: 'center' }}>
-                Donnees verifiees et certifiees par TEXTILE LOOP
+                Données vérifiées et certifiees par TEXTILE LOOP
                 <br />Plateforme ETHYS · {qrActif.reference}
               </div>
             </div>
@@ -320,3 +320,4 @@ export default function QRCodeClient({ lots: initial, user }: Props) {
     </div>
   )
 }
+

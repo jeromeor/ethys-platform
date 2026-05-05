@@ -18,10 +18,10 @@ interface Lot {
   type_coton: string
   volume_tonnes: number
   statut: string
-  avancement_pct: number
+  Avancement_pct: number
   machine: string | null
   origine: string | null
-  certification: string | null
+  Certification: string | null
   date_debut: string | null
   date_fin_prevue: string | null
   controles_qualite: ControleQualite[]
@@ -33,7 +33,7 @@ interface Commande {
   statut: string
   priorite: string
   volume_total_tonnes: number
-  pct_recycle: number
+  pct_Recyclé: number
   date_livraison_souhaitee: string
   marque: { nom: string } | null
   filature: { nom: string } | null
@@ -62,29 +62,29 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
   const supabase = createClient()
   const [commandes, setCommandes] = useState<Commande[]>(initial)
   const [selected, setSelected] = useState<Commande | null>(initial[0] ?? null)
-  const [activeTab, setActiveTab] = useState<'avancement' | 'lots' | 'qualite'>('avancement')
+  const [activeTab, setActiveTab] = useState<'Avancement' | 'lots' | 'qualite'>('Avancement')
   const [updatingLot, setUpdatingLot] = useState<string | null>(null)
   const [showAddLot, setShowAddLot] = useState(false)
   const [newLot, setNewLot] = useState({
-    type_coton: 'recycle', volume_tonnes: '', origine: '', certification: ''
+    type_coton: 'Recyclé', volume_tonnes: '', origine: '', Certification: ''
   })
 
   const updateAvancement = async (lotId: string, pct: number) => {
     setUpdatingLot(lotId)
     const { error } = await supabase
       .from('lots')
-      .update({ avancement_pct: pct })
+      .update({ Avancement_pct: pct })
       .eq('id', lotId)
 
     if (!error) {
       setCommandes(prev => prev.map(c => ({
         ...c,
-        lots: c.lots.map(l => l.id === lotId ? { ...l, avancement_pct: pct } : l)
+        lots: c.lots.map(l => l.id === lotId ? { ...l, Avancement_pct: pct } : l)
       })))
       if (selected) {
         setSelected(prev => prev ? {
           ...prev,
-          lots: prev.lots.map(l => l.id === lotId ? { ...l, avancement_pct: pct } : l)
+          lots: prev.lots.map(l => l.id === lotId ? { ...l, Avancement_pct: pct } : l)
         } : null)
       }
     }
@@ -117,9 +117,9 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
         type_coton: newLot.type_coton,
         volume_tonnes: parseFloat(newLot.volume_tonnes),
         origine: newLot.origine || null,
-        certification: newLot.certification || null,
+        Certification: newLot.Certification || null,
         statut: 'en_attente',
-        avancement_pct: 0,
+        Avancement_pct: 0,
       })
       .select('*, controles_qualite(*)')
       .single()
@@ -131,13 +131,13 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
       ))
       setSelected(prev => prev ? { ...prev, lots: [...prev.lots, updatedLot] } : null)
       setShowAddLot(false)
-      setNewLot({ type_coton: 'recycle', volume_tonnes: '', origine: '', certification: '' })
+      setNewLot({ type_coton: 'Recyclé', volume_tonnes: '', origine: '', Certification: '' })
     }
   }
 
-  const avancementGlobal = (cmd: Commande) => {
+  const AvancementGlobal = (cmd: Commande) => {
     if (!cmd.lots?.length) return 0
-    return Math.round(cmd.lots.reduce((s, l) => s + l.avancement_pct, 0) / cmd.lots.length)
+    return Math.round(cmd.lots.reduce((s, l) => s + l.Avancement_pct, 0) / cmd.lots.length)
   }
 
   return (
@@ -157,7 +157,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
               Aucune production active.<br />Soumettez d'abord une commande.
             </div>
           ) : commandes.map(cmd => {
-            const av = avancementGlobal(cmd)
+            const av = AvancementGlobal(cmd)
             const isActive = selected?.id === cmd.id
             return (
               <div key={cmd.id} onClick={() => setSelected(cmd)} style={{
@@ -199,21 +199,21 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
               <div>
                 <div style={{ fontSize: 18, fontWeight: 900, marginBottom: 2 }}>{selected.reference}</div>
                 <div style={{ fontSize: 12, opacity: 0.75 }}>
-                  {selected.marque?.nom} Â· {selected.filature?.nom} Â· {selected.volume_total_tonnes}T Â· {Math.round(selected.pct_recycle)}% recyclÃ©
+                  {selected.marque?.nom} Â· {selected.filature?.nom} Â· {selected.volume_total_tonnes}T Â· {Math.round(selected.pct_Recyclé)}% recyclÃ©
                 </div>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: 28, fontWeight: 900, color: '#6EE7B7' }}>{avancementGlobal(selected)}%</div>
-                <div style={{ fontSize: 10, opacity: 0.65 }}>avancement global</div>
+                <div style={{ fontSize: 28, fontWeight: 900, color: '#6EE7B7' }}>{AvancementGlobal(selected)}%</div>
+                <div style={{ fontSize: 10, opacity: 0.65 }}>Avancement global</div>
               </div>
             </div>
             <div style={{ height: 6, background: 'rgba(255,255,255,0.15)', borderRadius: 3 }}>
-              <div style={{ height: '100%', width: `${avancementGlobal(selected)}%`, background: '#6EE7B7', borderRadius: 3, transition: 'width 0.3s' }} />
+              <div style={{ height: '100%', width: `${AvancementGlobal(selected)}%`, background: '#6EE7B7', borderRadius: 3, transition: 'width 0.3s' }} />
             </div>
 
             {/* Tabs */}
             <div style={{ display: 'flex', gap: 0, marginTop: 14 }}>
-              {[['avancement', 'Avancement'], ['lots', 'Lots'], ['qualite', 'ContrÃ´les qualitÃ©']].map(([val, label]) => (
+              {[['Avancement', 'Avancement'], ['lots', 'Lots'], ['qualite', 'ContrÃ´les qualitÃ©']].map(([val, label]) => (
                 <button key={val} onClick={() => setActiveTab(val as typeof activeTab)} style={{
                   padding: '7px 16px', border: 'none', background: 'none', cursor: 'pointer',
                   fontSize: 12, fontWeight: activeTab === val ? 700 : 400,
@@ -228,7 +228,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
           <div style={{ flex: 1, overflow: 'auto', padding: '20px 24px' }}>
 
             {/* Tab Avancement */}
-            {activeTab === 'avancement' && (
+            {activeTab === 'Avancement' && (
               <div>
                 <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '20px 24px', marginBottom: 16 }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 18 }}>
@@ -236,7 +236,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'flex-start' }}>
                     {ETAPES_PROD.map((etape, i) => {
-                      const av = avancementGlobal(selected)
+                      const av = AvancementGlobal(selected)
                       const etapeIdx = Math.floor(av / (100 / ETAPES_PROD.length))
                       const fait = i < etapeIdx
                       const enCours = i === etapeIdx
@@ -264,14 +264,14 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                   </div>
                 </div>
 
-                {/* Mise Ã  jour avancement par lot */}
+                {/* Mise Ã  jour Avancement par lot */}
                 {selected.lots?.map(lot => (
                   <div key={lot.id} style={{ background: '#fff', borderRadius: 12, border: '1px solid #EEF0F3', padding: '16px 20px', marginBottom: 12 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                       <div>
                         <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26' }}>{lot.reference}</div>
                         <div style={{ fontSize: 11, color: '#64748B' }}>
-                          {Math.round((lot.volume_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg Â· {lot.type_coton === 'recycle' ? 'Recycle' : 'Vierge'} Â· {lot.type_coton === 'recycle' ? 'â™» RecyclÃ©' : 'ðŸŒ¿ Vierge'}
+                          {Math.round((lot.volume_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg Â· {lot.type_coton === 'Recyclé' ? 'Recyclé' : 'Vierge'} Â· {lot.type_coton === 'Recyclé' ? 'â™» RecyclÃ©' : 'ðŸŒ¿ Vierge'}
                           {lot.machine && ` Â· ${lot.machine}`}
                         </div>
                       </div>
@@ -292,11 +292,11 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                       <div style={{ flex: 1 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 4 }}>
                           <span style={{ color: '#64748B' }}>Avancement</span>
-                          <span style={{ fontWeight: 700, color: '#0A3D26' }}>{lot.avancement_pct}%</span>
+                          <span style={{ fontWeight: 700, color: '#0A3D26' }}>{lot.Avancement_pct}%</span>
                         </div>
                         <input
                           type="range" min="0" max="100" step="5"
-                          value={lot.avancement_pct}
+                          value={lot.Avancement_pct}
                           onChange={e => updateAvancement(lot.id, parseInt(e.target.value))}
                           disabled={updatingLot === lot.id}
                           style={{ width: '100%', accentColor: '#0A3D26' }}
@@ -321,7 +321,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                         <label style={{ fontSize: 11, color: '#64748B', display: 'block', marginBottom: 4 }}>Type coton</label>
                         <select value={newLot.type_coton} onChange={e => setNewLot(p => ({ ...p, type_coton: e.target.value }))}
                           style={{ width: '100%', padding: '7px 10px', borderRadius: 8, border: '1.5px solid #E2E8F0', fontSize: 12, outline: 'none' }}>
-                          <option value="recycle">â™» RecyclÃ©</option>
+                          <option value="Recyclé">â™» RecyclÃ©</option>
                           <option value="vierge">ðŸŒ¿ Vierge</option>
                         </select>
                       </div>
@@ -337,7 +337,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                       </div>
                       <div>
                         <label style={{ fontSize: 11, color: '#64748B', display: 'block', marginBottom: 4 }}>Certification</label>
-                        <select value={newLot.certification} onChange={e => setNewLot(p => ({ ...p, certification: e.target.value }))}
+                        <select value={newLot.Certification} onChange={e => setNewLot(p => ({ ...p, Certification: e.target.value }))}
                           style={{ width: '100%', padding: '7px 10px', borderRadius: 8, border: '1.5px solid #E2E8F0', fontSize: 12, outline: 'none' }}>
                           <option value="">â€”</option>
                           {['GRS', 'GOTS', 'OCS 100', 'BCI'].map(c => <option key={c}>{c}</option>)}
@@ -374,9 +374,9 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                           <div style={{
                             width: 38, height: 38, borderRadius: 10,
-                            background: lot.type_coton === 'recycle' ? '#D1FAE5' : '#DBEAFE',
+                            background: lot.type_coton === 'Recyclé' ? '#D1FAE5' : '#DBEAFE',
                             display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18
-                          }}>{lot.type_coton === 'recycle' ? 'â™»' : 'ðŸŒ¿'}</div>
+                          }}>{lot.type_coton === 'Recyclé' ? 'â™»' : 'ðŸŒ¿'}</div>
                           <div>
                             <div style={{ fontSize: 14, fontWeight: 800, color: '#0A3D26' }}>{lot.reference}</div>
                             <div style={{ fontSize: 11, color: '#64748B' }}>{Math.round((lot.volume_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg - {lot.origine ?? '-'}</div>
@@ -389,15 +389,15 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                       <div style={{ marginBottom: 8 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 4 }}>
                           <span style={{ color: '#64748B' }}>Avancement</span>
-                          <span style={{ fontWeight: 700, color: '#0A3D26' }}>{lot.avancement_pct}%</span>
+                          <span style={{ fontWeight: 700, color: '#0A3D26' }}>{lot.Avancement_pct}%</span>
                         </div>
                         <div style={{ height: 6, background: '#E2E8F0', borderRadius: 3 }}>
-                          <div style={{ height: '100%', width: `${lot.avancement_pct}%`, background: lot.avancement_pct === 100 ? '#10B981' : '#0A3D26', borderRadius: 3 }} />
+                          <div style={{ height: '100%', width: `${lot.Avancement_pct}%`, background: lot.Avancement_pct === 100 ? '#10B981' : '#0A3D26', borderRadius: 3 }} />
                         </div>
                       </div>
-                      {lot.certification && (
+                      {lot.Certification && (
                         <span style={{ padding: '2px 8px', borderRadius: 20, fontSize: 10, fontWeight: 700, background: '#DBEAFE', color: '#1E40AF' }}>
-                          {lot.certification}
+                          {lot.Certification}
                         </span>
                       )}
                     </div>
@@ -464,3 +464,4 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
     </div>
   )
 }
+
