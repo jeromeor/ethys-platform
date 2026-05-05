@@ -391,7 +391,8 @@ export default function AnnuaireClient({ partenaires, paysList, userRole }: Prop
   style={{ width: '100%', padding: '9px', borderRadius: 10, border: 'none', background: selected?.email_contact ? '#0A3D26' : '#E2E8F0', color: selected?.email_contact ? '#fff' : '#94A3B8', fontSize: 12, fontWeight: 700, cursor: selected?.email_contact ? 'pointer' : 'default' }}
 >
   {selected?.email_contact ? 'Contacter' : 'Pas de contact disponible'}
-</button></div>
+	</button>
+          </div>
         )}
       </div>
     </div>
