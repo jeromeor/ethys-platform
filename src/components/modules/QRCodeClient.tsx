@@ -60,7 +60,7 @@ export default function QRCodeClient({ lots: initial, user }: Props) {
     if (!selected) return
     setGenerating(true)
     const reference = `ETHYS-QR-${selected.commande?.reference ?? 'CMD'}-${selected.reference.split('-').pop()}`
-    const urlPublique = `${window.location.origin}/Traçabilité/${reference}`
+    const urlPublique = `${window.location.origin}/tracabilite/${reference}`
     const dataEncodee = {
       lot_id: selected.id,
       lot_reference: selected.reference,
@@ -144,7 +144,7 @@ export default function QRCodeClient({ lots: initial, user }: Props) {
             <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '22px 24px' }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>Informations du lot</div>
               {[
-                ['Reference lot', selected.reference],
+              ['Référence lot', selected.reference],
                 ['Commande', selected.commande?.reference ?? '-'],
                 ['Marque', selected.commande?.marque?.nom ?? '-'],
                 ['Filature', selected.commande?.filature?.nom ?? '-'],
