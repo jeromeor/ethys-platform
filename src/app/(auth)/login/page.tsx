@@ -19,7 +19,7 @@ export default function LoginPage() {
     setError('')
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
-      setError('Email ou mot de passe incorrect')
+      setError(error.message.includes('Invalid') ? 'Email ou mot de passe incorrect. Verifiez votre saisie.' : 'Cet email nest pas enregistre. Verifiez la saisie ou creez un compte.')
       setLoading(false)
       return
     }
@@ -88,4 +88,5 @@ export default function LoginPage() {
     </div>
   )
 }
+
 
