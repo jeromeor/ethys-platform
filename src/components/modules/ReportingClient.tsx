@@ -61,7 +61,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
     commandes.forEach(c => {
       const mois = new Date(c.created_at).toLocaleDateString('fr-FR', { month: 'short', year: '2-digit' })
       if (!map[mois]) map[mois] = { mois, volume: 0, ca: 0, commandes: 0 }
-      map[mois].volume += c.volume_total_tonnes ?? 0
+      map[mois].volume += Math.round((c.volume_total_tonnes ?? 0) * 1000)
       map[mois].commandes += 1
     })
     factures.forEach(f => {
@@ -137,7 +137,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
 
             <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '18px 22px' }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>Volumes mensuels (kg)</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>Volumes mensuels (milliers de kg)</div>
               </div>
               {parMois.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '40px', color: '#94A3B8', fontSize: 12 }}>Aucune donnée</div>
