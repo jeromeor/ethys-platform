@@ -76,6 +76,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
   const [showForm, setShowForm] = useState(false)
   const [selected, setSelected] = useState<Commande | null>(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const [filterStatut, setFilterStatut] = useState('tous')
 
   const [form, setForm] = useState({
