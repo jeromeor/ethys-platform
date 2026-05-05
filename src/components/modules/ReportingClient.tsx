@@ -43,7 +43,7 @@ function fmt(n: number) {
   return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n)
 }
 
-const TABS = ['Vue globale', 'Volumes', 'Financier', 'Partenaires']
+const TABS = ['Vue globale', 'Volumes', 'Finances', 'Partenaires']
 const COLORS = ['#0A3D26', '#10B981', '#6EE7B7', '#CBD5E1', '#F59E0B']
 
 export default function ReportingClient({ commandes, factures, entreprises, lots }: Props) {
@@ -104,7 +104,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
         {[
           { label: 'Volume total', value: `${Math.round(totalVolume * 1000).toLocaleString('fr-FR')} kg`, delta: `${commandes.length} commandes` },
           { label: 'CA total', value: fmt(totalCA), delta: `${factures.length} factures` },
-          { label: '% Coton recyclé', value: `${pctRecycleGlobal}%`, delta: `${Math.round(totalRecycle)} T recyclé` },
+          { label: '% Coton recyclé', value: `${pctRecycleGlobal}%`, delta: `${Math.round(totalRecycle * 1000).toLocaleString('fr-FR')} kg recyclées` },
           { label: 'Partenaires', value: `${entreprises.length}`, delta: `${entreprises.filter(e => e.statut === 'Vérifié').length} Vérifiés` },
         ].map((k, i) => (
           <div key={i} style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '16px 18px' }}>
@@ -179,8 +179,8 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
                 </div>
                 <div style={{ display: 'flex', gap: 12, marginBottom: 10 }}>
                   <div style={{ flex: 1, background: 'rgba(255,255,255,0.1)', borderRadius: 8, padding: '10px', textAlign: 'center' }}>
-                    <div style={{ fontSize: 18, fontWeight: 900, color: '#6EE7B7' }}>{Math.round(totalRecycle)}T</div>
-                    <div style={{ fontSize: 10, opacity: 0.7 }}>♻ recyclé</div>
+                <div style={{ fontSize: 18, fontWeight: 900, color: '#6EE7B7' }}>{Math.round(totalRecycle * 1000).toLocaleString('fr-FR')} kg</div>
+                <div style={{ fontSize: 10, opacity: 0.7 }}>♻ recyclées</div>
                   </div>
                   <div style={{ flex: 1, background: 'rgba(255,255,255,0.1)', borderRadius: 8, padding: '10px', textAlign: 'center' }}>
                     <div style={{ fontSize: 18, fontWeight: 900, color: '#fff' }}>{Math.round(totalVierge)}T</div>
@@ -252,12 +252,12 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
             </div>
 
             <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '18px 22px' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>recyclé vs Vierge</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>Recyclé vs Vierge</div>
               <ResponsiveContainer width="100%" height={220}>
                 <PieChart>
                   <Pie
                     data={[
-                      { name: '♻ recyclé', value: Math.round(totalRecycle) },
+                    { name: '♻ Recyclées', value: Math.round(totalRecycle * 1000) },
                       { name: '🌿 Vierge', value: Math.round(totalVierge) },
                     ]}
                     cx="50%" cy="50%" innerRadius={60} outerRadius={90}
@@ -287,8 +287,8 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
           </div>
         )}
 
-        {/* Financier */}
-        {activeTab === "Chiffre d'Affaires" && (
+{/* Finances */}
+{activeTab === 'Finances' && (
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
             <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '18px 22px' }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>CA mensuel (â‚¬)</div>
