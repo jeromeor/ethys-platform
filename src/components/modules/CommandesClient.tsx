@@ -20,7 +20,7 @@ interface Commande {
   grammage: string | null
   volume_total_tonnes: number
   pct_recycle: number
-  Priorité: string
+  priorite: string
   date_livraison_souhaitee: string
   created_at: string
   marque: { nom: string } | null
@@ -89,7 +89,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
     volume_vierge_tonnes: '',
     grammage: '',
     date_livraison_souhaitee: '',
-    Priorité: 'normale',
+    priorite: 'normale',
     notes: '',
   })
 
@@ -137,7 +137,7 @@ const CréerCommande = async () => {
         volume_vierge_tonnes: parseFloat(form.volume_vierge_tonnes) || 0,
         grammage: form.grammage || null,
         date_livraison_souhaitee: form.date_livraison_souhaitee,
-        Priorité: form.Priorité,
+        priorite: form.priorite,
         notes: form.notes || null,
         statut: 'Soumise',
         created_by: user.id,
@@ -157,7 +157,7 @@ const CréerCommande = async () => {
       setForm({
         titre: '', marque_id: '', filature_id: '', fournisseur_id: '',
         type_coton: 'mixte', volume_recyclé_tonnes: '', volume_vierge_tonnes: '',
-        grammage: '', date_livraison_souhaitee: '', Priorité: 'normale', notes: '',
+        grammage: '', date_livraison_souhaitee: '', priorite: 'normale', notes: '',
       })
     }
     setLoading(false)
@@ -301,7 +301,7 @@ const CréerCommande = async () => {
                 {[
                   ['Volume', `${Math.round((selected.volume_total_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg`],
                   ['Recyclé', `${Math.round(selected.pct_recycle ?? 0)}%`],
-                  ['Priorité', selected.priorite],
+                  ['priorite', selected.priorite],
                   ['Livraison', new Date(selected.date_livraison_souhaitee).toLocaleDateString('fr-FR')],
                 ].map(([l, v]) => (
                   <div key={l} style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 10px' }}>
@@ -444,8 +444,8 @@ const CréerCommande = async () => {
                     onChange={e => set('date_livraison_souhaitee', e.target.value)} style={inputStyle} />
                 </div>
                 <div>
-                  {labelInput('Priorité')}
-                  <select value={form.Priorité} onChange={e => set('Priorité', e.target.value)} style={selectStyle}>
+                  {labelInput('priorite')}
+                  <select value={form.priorite} onChange={e => set('priorite', e.target.value)} style={selectStyle}>
                     <option value="normale">Normale</option>
                     <option value="haute">Haute</option>
                     <option value="urgente">Urgente</option>
@@ -487,6 +487,8 @@ const CréerCommande = async () => {
     </div>
   )
 }
+
+
 
 
 
