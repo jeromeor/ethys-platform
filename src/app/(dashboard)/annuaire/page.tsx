@@ -4,6 +4,14 @@ import AnnuaireClient from '@/components/modules/AnnuaireClient'
 export default async function AnnuairePage() {
   const supabase = await createClient()
 
+  const { data: { user } } = await supabase.auth.getUser()
+
+  const { data: profil } = await supabase
+    .from('profils_utilisateurs')
+    .select('role')
+    .eq('id', user!.id)
+    .single()
+
   const { data: partenaires } = await supabase
     .from('entreprises')
     .select('*')
@@ -30,6 +38,7 @@ export default async function AnnuairePage() {
     <AnnuaireClient
       partenaires={partenairesAvecCerts}
       paysList={paysList}
+      userRole={profil?.role ?? 'marque'}
     />
   )
 }
