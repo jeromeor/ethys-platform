@@ -291,7 +291,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
 {activeTab === 'Finances' && (
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
             <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '18px 22px' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>CA mensuel (â‚¬)</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>CA mensuel</div>
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={parMois}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
