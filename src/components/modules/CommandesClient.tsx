@@ -374,21 +374,21 @@ const CréerCommande = async () => {
                 <div>
                   {labelInput('Marque *')}
                   <select value={form.marque_id} onChange={e => set('marque_id', e.target.value)} style={selectStyle}>
-                    <option value="">Sélectionnerâ€¦</option>
+                    <option value="">Sélectionner…</option>
                     {marques.map(m => <option key={m.id} value={m.id}>{m.nom}</option>)}
                   </select>
                 </div>
                 <div>
                   {labelInput('Filature *')}
                   <select value={form.filature_id} onChange={e => set('filature_id', e.target.value)} style={selectStyle}>
-                    <option value="">Sélectionnerâ€¦</option>
+                    <option value="">Sélectionner…</option>
                     {filatures.map(f => <option key={f.id} value={f.id}>{f.nom}</option>)}
                   </select>
                 </div>
                 <div>
                   {labelInput('Fournisseur *')}
                   <select value={form.fournisseur_id} onChange={e => set('fournisseur_id', e.target.value)} style={selectStyle}>
-                    <option value="">Sélectionnerâ€¦</option>
+                    <option value="">Sélectionner…</option>
                     {fournisseurs.map(f => <option key={f.id} value={f.id}>{f.nom}</option>)}
                   </select>
                 </div>
@@ -397,7 +397,7 @@ const CréerCommande = async () => {
               <div>
                 {labelInput('Type de coton')}
                 <div style={{ display: 'flex', gap: 8 }}>
-                  {[['recyclé', '♻ 100% Recyclé'], ['mixte', 'âš– Mixte'], ['vierge', 'ðŸŒ¿ 100% Vierge']].map(([v, l]) => (
+                  {[['recyclé', '♻ 100% Recyclé'], ['mixte', 'âš– Mixte'], ['vierge', '🌿 100% Vierge']].map(([v, l]) => (
                     <button key={v} onClick={() => set('type_coton', v)} style={{
                       flex: 1, padding: '8px', borderRadius: 10, cursor: 'pointer',
                       border: `2px solid ${form.type_coton === v ? '#0A3D26' : '#EEF0F3'}`,
@@ -456,7 +456,7 @@ const CréerCommande = async () => {
               <div>
                 {labelInput('Notes')}
                 <textarea value={form.notes} onChange={e => set('notes', e.target.value)}
-                  placeholder="Instructions particulièresâ€¦" rows={3}
+                  placeholder="Instructions particulières…" rows={3}
                   style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit' }} />
               </div>
 
@@ -477,7 +477,7 @@ const CréerCommande = async () => {
     border: '1px solid #FCA5A5', fontSize: 12, color: '#DC2626', marginBottom: 16
   }}>{error}</div>
 )}
-                  {loading ? 'Créationâ€¦' : 'âœ“ Créer la commande ETHYS'}
+                  {loading ? 'Création…' : 'âœ“ Créer la commande ETHYS'}
 		</button>
               </div>
             </div>

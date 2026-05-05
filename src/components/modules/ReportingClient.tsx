@@ -140,7 +140,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
                 Volumes mensuels (T)
               </div>
               {parMois.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '40px', color: '#94A3B8', fontSize: 12 }}>Aucune donnÃ©e</div>
+                <div style={{ textAlign: 'center', padding: '40px', color: '#94A3B8', fontSize: 12 }}>Aucune donnée</div>
               ) : (
                 <ResponsiveContainer width="100%" height={200}>
                   <BarChart data={parMois}>
@@ -160,7 +160,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
                   Statuts commandes
                 </div>
                 {statutsData.length === 0 ? (
-                  <div style={{ textAlign: 'center', color: '#94A3B8', fontSize: 12 }}>Aucune donnÃ©e</div>
+                  <div style={{ textAlign: 'center', color: '#94A3B8', fontSize: 12 }}>Aucune donnée</div>
                 ) : (
                   <ResponsiveContainer width="100%" height={130}>
                     <PieChart>
@@ -184,7 +184,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
                   </div>
                   <div style={{ flex: 1, background: 'rgba(255,255,255,0.1)', borderRadius: 8, padding: '10px', textAlign: 'center' }}>
                     <div style={{ fontSize: 18, fontWeight: 900, color: '#fff' }}>{Math.round(totalVierge)}T</div>
-                    <div style={{ fontSize: 10, opacity: 0.7 }}>ðŸŒ¿ Vierge</div>
+                    <div style={{ fontSize: 10, opacity: 0.7 }}>🌿 Vierge</div>
                   </div>
                 </div>
                 <div style={{ height: 6, background: 'rgba(255,255,255,0.15)', borderRadius: 3 }}>
@@ -239,7 +239,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
         {activeTab === 'Volumes' && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '18px 22px' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>Ã‰volution volumes</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>Évolution volumes</div>
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart data={parMois}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
@@ -258,7 +258,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
                   <Pie
                     data={[
                       { name: '♻ recyclé', value: Math.round(totalRecycle) },
-                      { name: 'ðŸŒ¿ Vierge', value: Math.round(totalVierge) },
+                      { name: '🌿 Vierge', value: Math.round(totalVierge) },
                     ]}
                     cx="50%" cy="50%" innerRadius={60} outerRadius={90}
                     dataKey="value" paddingAngle={4}
