@@ -61,9 +61,9 @@ const STATUT_COLORS: Record<StatutFacture, [string, string, string]> = {
 
 const STATUT_LABELS: Record<StatutFacture, string> = {
   brouillon:  'Brouillon',
-  emise:      'Émise',
+  emise:      'Émises',
   en_attente: 'En attente',
-  payee:      'Payée',
+  payee:      'Payées',
   en_retard:  'En retard',
   annulee:    'Annulée',
 }
