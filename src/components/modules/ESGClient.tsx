@@ -107,7 +107,7 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
           </div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, flexShrink: 0 }}>
-          {[[pctRecycleGlobal + '%', 'Recyclé'], [(Math.round(volumeRecycle * 1000)).toLocaleString('fr-FR') + ' kg', 'Vol. recyclé'], [String(certsValides), 'Certifications'], ['100%', 'Conformité']].map(([v, l]) => (
+          {[[pctRecycléGlobal + '%', 'Recyclé'], [(Math.round(volumeRecyclé * 1000)).toLocaleString('fr-FR') + ' kg', 'Vol. recyclé'], [String(certsValides), 'Certifications'], ['100%', 'Conformité']].map(([v, l]) => (
             <div key={l} style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 10, padding: '8px 12px', textAlign: 'center' }}>
               <div style={{ fontSize: 16, fontWeight: 900, color: '#6EE7B7' }}>{v}</div>
               <div style={{ fontSize: 9, opacity: 0.65, marginTop: 2 }}>{l}</div>
