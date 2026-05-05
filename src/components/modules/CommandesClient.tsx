@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
 type StatutCommande =
-  | 'brouillon' | 'Soumise' | 'validation_fournisseur'
+  | 'brouillon' | 'soumise' | 'validation_fournisseur'
   | 'validation_filature' | 'validation_finale' | 'en_production'
   | 'controle_qualite' | 'qr_genere' | 'expediee' | 'livree' | 'annulee'
 
@@ -38,7 +38,7 @@ interface Props {
 
 const STATUT_LABELS: Record<StatutCommande, string> = {
   brouillon:              'Brouillon',
-  Soumise:                'Soumise',
+  Soumise:                'soumise',
   validation_fournisseur: 'Val. fournisseur',
   validation_filature:    'Val. filature',
   validation_finale:      'Val. finale',
@@ -65,7 +65,7 @@ const STATUT_COLORS: Record<string, [string, string, string]> = {
 }
 
 const ETAPES = [
-  'Soumise', 'validation_fournisseur', 'validation_filature',
+  'soumise', 'validation_fournisseur', 'validation_filature',
   'validation_finale', 'en_production', 'qr_genere', 'livree'
 ]
 
@@ -139,7 +139,7 @@ const CréerCommande = async () => {
         date_livraison_souhaitee: form.date_livraison_souhaitee,
         priorite: form.priorite,
         notes: form.notes || null,
-        statut: 'Soumise',
+        statut: 'soumise',
         created_by: user.id,
       })
       .select(`
@@ -189,7 +189,7 @@ const CréerCommande = async () => {
           display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexShrink: 0
         }}>
           <div style={{ display: 'flex', gap: 6 }}>
-            {['tous', 'Soumise', 'en_production', 'livree'].map(s => (
+            {['tous', 'soumise', 'en_production', 'livree'].map(s => (
               <button key={s} onClick={() => setFilterStatut(s)} style={{
                 padding: '5px 12px', borderRadius: 20, border: 'none', cursor: 'pointer',
                 fontSize: 11, fontWeight: filterStatut === s ? 700 : 500,
@@ -212,7 +212,7 @@ const CréerCommande = async () => {
         <div style={{ flex: 1, overflow: 'auto', padding: '16px 22px' }}>
           {filtrees.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '60px 0', color: '#94A3B8' }}>
-              <div style={{ fontSize: 32, marginBottom: 10 }}>â—ˆ</div>
+              <div style={{ fontSize: 32, marginBottom: 10 }}>◈</div>
               <div style={{ fontSize: 14, fontWeight: 600 }}>Aucune commande</div>
               <div style={{ fontSize: 12, marginTop: 4 }}>Cliquez sur "+ Nouvelle commande" pour commencer</div>
             </div>
@@ -317,12 +317,12 @@ const CréerCommande = async () => {
               ['Filature', selected.filature?.nom],
               ['Fournisseur', selected.fournisseur?.nom],
               ['Type coton', selected.type_coton],
-              ['Grammage', selected.grammage ?? 'â€”'],
+              ['Grammage', selected.grammage ?? '-'],
               ['Statut', STATUT_LABELS[selected.statut]],
             ].map(([l, v]) => (
               <div key={l} style={{ display: 'flex', gap: 12, marginBottom: 10 }}>
                 <span style={{ fontSize: 12, color: '#94A3B8', width: 100, flexShrink: 0 }}>{l}</span>
-                <span style={{ fontSize: 12, fontWeight: 600, color: '#1A202C' }}>{v ?? 'â€”'}</span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: '#1A202C' }}>{v ?? '-'}</span>
               </div>
             ))}
 
@@ -397,7 +397,7 @@ const CréerCommande = async () => {
               <div>
                 {labelInput('Type de coton')}
                 <div style={{ display: 'flex', gap: 8 }}>
-                  {[['recyclé', '♻ 100% Recyclé'], ['mixte', 'âš– Mixte'], ['vierge', '🌿 100% Vierge']].map(([v, l]) => (
+                  {[['recycle', '♻ 100% Recycle'], ['mixte', '⚖ Mixte'], ['vierge', '🌿 100% Vierge']].map(([v, l]) => (
                     <button key={v} onClick={() => set('type_coton', v)} style={{
                       flex: 1, padding: '8px', borderRadius: 10, cursor: 'pointer',
                       border: `2px solid ${form.type_coton === v ? '#0A3D26' : '#EEF0F3'}`,
@@ -432,7 +432,7 @@ const CréerCommande = async () => {
                 <div>
                   {labelInput('Grammage')}
                   <select value={form.grammage} onChange={e => set('grammage', e.target.value)} style={selectStyle}>
-                    <option value="">â€”</option>
+                    <option value="">-</option>
                     {['Ne 10/1','Ne 20/1','Ne 30/1','Ne 40/1','Ne 50/1','Ne 20/2','Ne 30/2'].map(g => (
                       <option key={g}>{g}</option>
                     ))}
@@ -477,7 +477,7 @@ const CréerCommande = async () => {
     border: '1px solid #FCA5A5', fontSize: 12, color: '#DC2626', marginBottom: 16
   }}>{error}</div>
 )}
-                  {loading ? 'Création…' : 'âœ“ Créer la commande ETHYS'}
+                  {loading ? 'Creation...' : '✓ Creer la commande ETHYS'}
 		</button>
               </div>
             </div>
