@@ -44,6 +44,7 @@ export default function QRCodeClient({ lots: initial, user }: Props) {
   const [generating, setGenerating] = useState(false)
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
   const [previewPublic, setPreviewPublic] = useState(false)
+  const [urlCopied, setUrlCopied] = useState(false)
 
   const qrActif = selected?.qr_codes?.[0]
 
@@ -87,7 +88,13 @@ export default function QRCodeClient({ lots: initial, user }: Props) {
     setGenerating(false)
   }
 
-  const copierURL = () => { if (qrActif) navigator.clipboard.writeText(qrActif.url_publique) }
+  const copierURL = () => {
+  if (qrActif) {
+    navigator.clipboard.writeText(qrActif.url_publique)
+    setUrlCopied(true)
+    setTimeout(() => setUrlCopied(false), 3000)
+  }
+}
 
   const telechargerQR = () => {
     if (!qrDataUrl) return
@@ -210,7 +217,16 @@ export default function QRCodeClient({ lots: initial, user }: Props) {
                   </button>
                   <div style={{ display: 'flex', gap: 8 }}>
                     <button onClick={telechargerQR} style={{ flex: 1, padding: '8px', borderRadius: 8, border: '1.5px solid #EEF0F3', background: '#F8FAFC', fontSize: 12, cursor: 'pointer', color: '#475569' }}>Telecharger</button>
-                    <button onClick={copierURL} style={{ flex: 1, padding: '8px', borderRadius: 8, border: '1.5px solid #EEF0F3', background: '#F8FAFC', fontSize: 12, cursor: 'pointer', color: '#475569' }}>Copier URL</button>
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
+  <button onClick={copierURL} style={{ width: '100%', padding: '8px', borderRadius: 8, border: '1.5px solid #EEF0F3', background: urlCopied ? '#D1FAE5' : '#F8FAFC', fontSize: 12, cursor: 'pointer', color: urlCopied ? '#065F46' : '#475569', fontWeight: urlCopied ? 700 : 400 }}>
+    {urlCopied ? 'URL copiee !' : 'Copier URL'}
+  </button>
+  {urlCopied && (
+    <div style={{ fontSize: 10, color: '#065F46', textAlign: 'center' }}>
+      Lien copie dans le presse-papier
+    </div>
+  )}
+</div>
                   </div>
                 </div>
               )}
