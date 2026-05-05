@@ -219,7 +219,7 @@ const creerCommande = async () => {
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ background: '#F8FAFC' }}>
-                    {['Référence', 'Marque', 'Filature', 'Volume', 'Composition', 'Statut', 'Livraison', 'Avancement'].map(h => (
+                    {['Reference', 'Marque', 'Filature', 'Volume', 'Composition', 'Statut', 'Livraison'].concat(selected ? [] : ['Avancement']).map(h => (
                       <th key={h} style={{ padding: '10px 14px', fontSize: 11, fontWeight: 600, color: '#94A3B8', textAlign: 'left', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{h}</th>
                     ))}
                   </tr>
@@ -256,9 +256,18 @@ const creerCommande = async () => {
                         <td style={{ padding: '12px 14px', fontSize: 11, color: '#94A3B8', whiteSpace: 'nowrap' }}>
                           {new Date(c.date_livraison_souhaitee).toLocaleDateString('fr-FR')}
                         </td>
-                        <td style={{ padding: '12px 14px' }}>
-                          <div style={{ display: 'flex', gap: 3 }}>
-                            {ETAPES.map((_, idx) => (
+                        {!selected && (
+  <td style={{ padding: '12px 14px' }}>
+    <div style={{ display: 'flex', gap: 3 }}>
+      {ETAPES.map((_, idx) => (
+        <div key={idx} style={{
+          width: 14, height: 4, borderRadius: 2,
+          background: idx <= etape ? '#0A3D26' : '#E2E8F0'
+        }} />
+      ))}
+    </div>
+  </td>
+)}
                               <div key={idx} style={{
                                 width: 14, height: 4, borderRadius: 2,
                                 background: idx <= etape ? '#0A3D26' : '#E2E8F0'
