@@ -80,7 +80,7 @@ export default function AnnuaireClient({ partenaires, paysList, userRole }: Prop
     setEditMode(true)
   }
 
-  const Sauvegarde... async () => {
+  const sauvegarder = async () => {
     if (!selected) return
     setSaving(true)
     const { createClient } = await import('@/lib/supabase/client')
@@ -334,4 +334,5 @@ export default function AnnuaireClient({ partenaires, paysList, userRole }: Prop
     </div>
   )
 }
+
 
