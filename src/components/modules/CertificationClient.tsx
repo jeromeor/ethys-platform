@@ -163,7 +163,7 @@ export default function CertificationClient({ declarations: initial, userRole, e
       setDeclarations(prev => [data, ...prev])
       setShowForm(false)
       setMessage(statut === 'soumise' ? 'Déclaration soumise avec succès. TEXTILE LOOP va examiner votre demande.' : 'Brouillon sauvegardé.')
-      setForm({ type_produit: 'fil', volume_recycle_kg: '', volume_vierge_kg: '', provenance_pays: '', filature_nom: '', tisseur_nom: '', description: '', declaration_honneur: false })
+      setForm({ type_produit: 'fil', volume_recycle_kg: '', volume_vierge_kg: '', provenance_pays: '', filature_nom: '', filature_pays: '', tisseur_nom: '', description: '', declaration_honneur: false })
     } else {
       setMessage('Erreur lors de la soumission.')
     }
