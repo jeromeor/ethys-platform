@@ -80,7 +80,18 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
     }).then(setQrDataUrl)
   }, [qrActif?.id])
 
-  const GénérerQR = async () => {
+  const genererQR = async () => {
+    if (!selected) return
+    setGenerating(true)
+    const reference = `ETHYS-QR-${selected.commande?.reference ?? 'CMD'}-${selected.reference.split('-').pop()}`
+    const { data: existing } = await supabase.from('qr_codes').select('*').eq('reference', reference).single()
+    if (existing) {
+      const updatedLot = { ...selected, qr_codes: [existing as QRCodeData] }
+      setLots(prev => prev.map(l => l.id === selected.id ? updatedLot : l))
+      setSelected(updatedLot)
+      setGenerating(false)
+      return
+    }
     if (!selected) return
     setGenerating(true)
     const reference = `ETHYS-QR-${selected.commande?.reference ?? 'CMD'}-${selected.reference.split('-').pop()}`
@@ -262,7 +273,7 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
                 ))}
               </div>
               {!qrActif ? (
-                <button onClick={GénérerQR} disabled={generating} style={{ width: '100%', padding: '11px', borderRadius: 10, border: 'none', background: generating ? '#E2E8F0' : '#0A3D26', color: generating ? '#94A3B8' : '#fff', fontSize: 13, fontWeight: 700, cursor: generating ? 'default' : 'pointer' }}>
+                <button onClick={genererQR} disabled={generating} style={{ width: '100%', padding: '11px', borderRadius: 10, border: 'none', background: generating ? '#E2E8F0' : '#0A3D26', color: generating ? '#94A3B8' : '#fff', fontSize: 13, fontWeight: 700, cursor: generating ? 'default' : 'pointer' }}>
                   {generating ? 'Génération...' : 'Générer le QR Code ETHYS'}
                 </button>
               ) : (
