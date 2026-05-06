@@ -64,7 +64,7 @@ export default function QRCodeClient({ lots: initial, user, certifications, cert
   const [generating, setGenerating] = useState(false)
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
   const [previewPublic, setPreviewPublic] = useState(false)
-const [source, setSource] = useState<'lots' | 'certs'>(certificationIdActif ? 'certs' : 'lots')
+const [source, setSource] = useState console.log('certifications reçues:', certifications?.length, certifications) <'lots' | 'certs'>(certificationIdActif ? 'certs' : 'lots')
 const [selectedCert, setSelectedCert] = useState<Certification | null>(
     certificationIdActif ? (certifications.find(c => c.declaration?.type_produit && c.id === certificationIdActif) ?? null) : null
   )
