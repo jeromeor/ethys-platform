@@ -514,11 +514,21 @@ function DetailDeclaration({ declaration: d, isAdmin, onCertifier, onRefuser, sa
       )}
 
       {d.statut === 'certifiee' && (
-        <div style={{ padding: '14px 16px', borderRadius: 10, background: '#D1FAE5', border: '1px solid #A7F3D0', textAlign: 'center' }}>
-          <div style={{ fontSize: 14, fontWeight: 900, color: '#065F46', marginBottom: 4 }}>🏆 Certification ETHYS obtenue</div>
-          <div style={{ fontSize: 11, color: '#065F46' }}>Vous pouvez maintenant générer votre QR code depuis le module QR Code.</div>
+        <div style={{ padding: '14px 16px', borderRadius: 10, background: '#D1FAE5', border: '1px solid #A7F3D0' }}>
+          <div style={{ fontSize: 14, fontWeight: 900, color: '#065F46', marginBottom: 8, textAlign: 'center' }}>🏆 Certification ETHYS obtenue</div>
+          {d.certification ? (
+            <div style={{ textAlign: 'center', marginBottom: 12 }}>
+              <div style={{ fontSize: 12, color: '#065F46', fontWeight: 700 }}>{d.certification.numero}</div>
+              <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>
+                Valide jusqu'au {new Date(d.certification.date_validite).toLocaleDateString('fr-FR')}
+              </div>
+            </div>
+          ) : null}
+          <button
+            onClick={() => window.location.href = `/qrcode?certification_id=${d.id}`}
+            style={{ width: '100%', padding: '10px', borderRadius: 10, border: 'none', background: '#0A3D26', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
+          >
+            Générer le QR Code consommateur
+          </button>
         </div>
       )}
-    </div>
-  )
-}

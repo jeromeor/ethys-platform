@@ -32,18 +32,42 @@ interface Lot {
   qr_codes: QRCodeData[]
 }
 
+interface Certification {
+  id: string
+  numero: string
+  date_emission: string
+  date_validite: string
+  declaration: {
+    type_produit: string
+    volume_recycle_kg: number
+    volume_vierge_kg: number
+    pct_recycle: number
+    provenance_pays: string | null
+    filature_nom: string | null
+    filature_pays: string | null
+    description: string | null
+    entreprise: { nom: string; pays: string } | null
+  } | null
+  qr_codes: QRCodeData[]
+}
+
 interface Props {
   lots: Lot[]
   user: { id: string }
+  certifications: Certification[]
+  certificationIdActif: string | null
 }
-
-export default function QRCodeClient({ lots: initial, user }: Props) {
+export default function QRCodeClient({ lots: initial, user, certifications, certificationIdActif }: Props) {
   const supabase = createClient()
   const [lots, setLots] = useState<Lot[]>(initial)
   const [selected, setSelected] = useState<Lot | null>(initial[0] ?? null)
   const [generating, setGenerating] = useState(false)
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
   const [previewPublic, setPreviewPublic] = useState(false)
+const [source, setSource] = useState<'lots' | 'certs'>(certificationIdActif ? 'certs' : 'lots')
+const [selectedCert, setSelectedCert] = useState<Certification | null>(
+    certificationIdActif ? (certifications.find(c => c.declaration?.type_produit && c.id === certificationIdActif) ?? null) : null
+  )
   const [urlCopied, setUrlCopied] = useState(false)
 
   const qrActif = selected?.qr_codes?.[0]
@@ -107,8 +131,16 @@ export default function QRCodeClient({ lots: initial, user }: Props) {
   return (
     <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
       <div style={{ width: 280, minWidth: 280, background: '#fff', borderRight: '1px solid #EEF0F3', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ padding: '14px 16px', borderBottom: '1px solid #F1F5F9' }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 2 }}>Lots de production</div>
+        <div style={{ padding: '10px 16px', borderBottom: '1px solid #F1F5F9' }}>
+          <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
+            <button onClick={() => setSource('lots')} style={{ flex: 1, padding: '6px', borderRadius: 8, border: 'none', cursor: 'pointer', background: source === 'lots' ? '#0A3D26' : '#F8FAFC', color: source === 'lots' ? '#fff' : '#64748B', fontSize: 11, fontWeight: 700 }}>
+              Lots
+            </button>
+            <button onClick={() => setSource('certs')} style={{ flex: 1, padding: '6px', borderRadius: 8, border: 'none', cursor: 'pointer', background: source === 'certs' ? '#0A3D26' : '#F8FAFC', color: source === 'certs' ? '#fff' : '#64748B', fontSize: 11, fontWeight: 700 }}>
+              Certifications
+            </button>
+          </div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 2 }}>{source === 'lots' ? 'Lots de production' : 'Certifications ETHYS'}</div>
           <div style={{ fontSize: 11, color: '#94A3B8' }}>
             <span style={{ fontWeight: 700, color: '#0A3D26' }}>{lots.filter(l => l.qr_codes?.length > 0).length}</span> QR générés
             {' · '}
@@ -116,7 +148,30 @@ export default function QRCodeClient({ lots: initial, user }: Props) {
           </div>
         </div>
         <div style={{ flex: 1, overflowY: 'auto' }}>
-          {lots.length === 0 ? (
+{source === 'certs' && (
+            <>
+              {certifications.length === 0 ? (
+                <div style={{ padding: '40px 16px', textAlign: 'center', color: '#94A3B8', fontSize: 12 }}>Aucune certification disponible.</div>
+              ) : certifications.map(cert => {
+                const hasQR = cert.qr_codes?.length > 0
+                const isActive = selectedCert?.id === cert.id
+                return (
+                  <div key={cert.id} onClick={() => setSelectedCert(cert)} style={{ padding: '12px 16px', cursor: 'pointer', background: isActive ? '#F0FDF4' : 'transparent', borderLeft: `3px solid ${isActive ? '#0A3D26' : 'transparent'}`, borderBottom: '1px solid #F8FAFC' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: '#0A3D26' }}>{cert.numero}</span>
+                      <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: hasQR ? '#D1FAE5' : '#FEF3C7', color: hasQR ? '#065F46' : '#92400E' }}>
+                        {hasQR ? 'QR actif' : 'Sans QR'}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: 11, color: '#64748B' }}>{cert.declaration?.type_produit === 'fil' ? 'Fil ETHYS' : cert.declaration?.type_produit === 'tissu' ? 'Tissu ETHYS' : 'Produit fini ETHYS'}</div>
+                    <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>{cert.declaration?.entreprise?.nom}</div>
+                  </div>
+                )
+              })}
+            </>
+          )}
+          {source === 'lots' && (
+          {lots.length === 0 ? ()
             <div style={{ padding: '40px 16px', textAlign: 'center', color: '#94A3B8', fontSize: 12 }}>Aucun lot disponible.</div>
           ) : lots.map(lot => {
             const hasQR = lot.qr_codes?.length > 0
