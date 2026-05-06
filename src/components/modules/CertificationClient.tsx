@@ -3,6 +3,55 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
+
+const ZONES: Record<string, number[]> = {
+  'France': [1], 'Espagne': [1], 'Italie': [1], 'Portugal': [1],
+  'Allemagne': [1], 'Belgique': [1], 'Pays-Bas': [1], 'Royaume-Uni': [1],
+  'Suisse': [1], 'Autriche': [1], 'Pologne': [1], 'Roumanie': [1],
+  'Turquie': [1, 5],
+  'Maroc': [1, 4], 'Tunisie': [1, 4], 'Algerie': [1, 4], 'Egypte': [1, 4], 'Libye': [1, 4],
+  'Senegal': [4], 'Mali': [4], 'Burkina Faso': [4], 'Cote Ivoire': [4],
+  'Nigeria': [4], 'Ethiopie': [4], 'Kenya': [4], 'Tanzanie': [4],
+  'Afrique du Sud': [4], 'Zimbabwe': [4], 'Mozambique': [4],
+  'Etats-Unis': [2], 'Canada': [2], 'Mexique': [2],
+  'Bresil': [3], 'Argentine': [3], 'Colombie': [3], 'Perou': [3],
+  'Inde': [5], 'Bangladesh': [5], 'Chine': [5], 'Vietnam': [5],
+  'Pakistan': [5], 'Indonesie': [5], 'Cambodge': [5], 'Myanmar': [5],
+  'Sri Lanka': [5], 'Nepal': [5],
+  'Australie': [6], 'Nouvelle-Zelande': [6],
+}
+
+const ZONE_LABELS: Record<number, string> = {
+  1: 'Europe', 2: 'Amerique du Nord', 3: 'Amerique du Sud',
+  4: 'Afrique', 5: 'Asie', 6: 'Oceanie',
+}
+
+const PAYS_CODES: Record<string, string> = {
+  'France': 'FR', 'Espagne': 'ES', 'Italie': 'IT', 'Portugal': 'PT',
+  'Allemagne': 'DE', 'Belgique': 'BE', 'Pays-Bas': 'NL', 'Royaume-Uni': 'GB',
+  'Suisse': 'CH', 'Autriche': 'AT', 'Pologne': 'PL', 'Roumanie': 'RO',
+  'Turquie': 'TR', 'Maroc': 'MA', 'Tunisie': 'TN', 'Algerie': 'DZ',
+  'Egypte': 'EG', 'Libye': 'LY', 'Senegal': 'SN', 'Mali': 'ML',
+  'Nigeria': 'NG', 'Ethiopie': 'ET', 'Kenya': 'KE', 'Afrique du Sud': 'ZA',
+  'Etats-Unis': 'US', 'Canada': 'CA', 'Mexique': 'MX',
+  'Bresil': 'BR', 'Argentine': 'AR', 'Colombie': 'CO', 'Perou': 'PE',
+  'Inde': 'IN', 'Bangladesh': 'BD', 'Chine': 'CN', 'Vietnam': 'VN',
+  'Pakistan': 'PK', 'Indonesie': 'ID', 'Cambodge': 'KH',
+  'Australie': 'AU', 'Nouvelle-Zelande': 'NZ',
+}
+
+const zonesCompatibles = (pays1: string, pays2: string): boolean => {
+  const z1 = ZONES[pays1] ?? []
+  const z2 = ZONES[pays2] ?? []
+  return z1.some(z => z2.includes(z))
+}
+
+const getZoneLabel = (pays: string): string => {
+  const zones = ZONES[pays]
+  if (!zones) return 'Zone inconnue'
+  return zones.map(z => ZONE_LABELS[z]).join(' / ')
+}
+
 interface Declaration {
   id: string
   type_produit: string
@@ -63,6 +112,7 @@ export default function CertificationClient({ declarations: initial, userRole, e
     volume_vierge_kg: '',
     provenance_pays: '',
     filature_nom: '',
+    filature_pays: '',
     tisseur_nom: '',
     description: '',
     declaration_honneur: false,
@@ -79,8 +129,10 @@ export default function CertificationClient({ declarations: initial, userRole, e
       setMessage('Vous devez cocher la déclaration sur l\'honneur pour soumettre.')
       return
     }
-    if (!form.volume_recycle_kg || !form.volume_vierge_kg) {
-      setMessage('Veuillez indiquer les volumes recyclé et vierge.')
+    if (form.provenance_pays && form.filature_pays && !zonesCompatibles(form.provenance_pays, form.filature_pays)) {
+      const zoneCoton = getZoneLabel(form.provenance_pays)
+      const zoneFilature = getZoneLabel(form.filature_pays)
+      setMessage(`Incompatibilité géographique : le coton recyclé (${form.provenance_pays} — ${zoneCoton}) ne peut pas être transformé par une filature en ${form.filature_pays} (${zoneFilature}). Le coton recyclé doit être transformé dans la même zone géographique.`)
       return
     }
     if (!eligible && statut === 'soumise') {
@@ -99,6 +151,7 @@ export default function CertificationClient({ declarations: initial, userRole, e
         volume_vierge_kg: parseFloat(form.volume_vierge_kg),
         provenance_pays: form.provenance_pays || null,
         filature_nom: form.filature_nom || null,
+        filature_pays: form.filature_pays || null,
         tisseur_nom: form.tisseur_nom || null,
         description: form.description || null,
         declaration_honneur: form.declaration_honneur,
@@ -240,7 +293,18 @@ export default function CertificationClient({ declarations: initial, userRole, e
               </div>
             </div>
 
-            {/* Indicateur temps réel */}
+        {/* Vérification compatibilité zones */}
+            {form.provenance_pays && form.filature_pays && (
+              <div style={{ padding: '10px 14px', borderRadius: 8, marginBottom: 12, background: zonesCompatibles(form.provenance_pays, form.filature_pays) ? '#F0FDF4' : '#FEF2F2', border: `1px solid ${zonesCompatibles(form.provenance_pays, form.filature_pays) ? '#A7F3D0' : '#FCA5A5'}` }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: zonesCompatibles(form.provenance_pays, form.filature_pays) ? '#065F46' : '#DC2626' }}>
+                  {zonesCompatibles(form.provenance_pays, form.filature_pays)
+                    ? `✓ Compatible — ${form.provenance_pays} et ${form.filature_pays} sont dans la même zone`
+                    : `✗ Incompatible — ${form.provenance_pays} (${getZoneLabel(form.provenance_pays)}) et ${form.filature_pays} (${getZoneLabel(form.filature_pays)}) sont dans des zones différentes`
+                  }
+                </div>
+              </div>
+            )}    
+	{/* Indicateur temps réel */}
             {(form.volume_recycle_kg || form.volume_vierge_kg) && (
               <div style={{ padding: '14px 16px', borderRadius: 10, background: eligible ? '#F0FDF4' : '#FEF3C7', border: `1px solid ${eligible ? '#A7F3D0' : '#FCD34D'}`, marginBottom: 16 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -266,6 +330,16 @@ export default function CertificationClient({ declarations: initial, userRole, e
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: '#64748B', display: 'block', marginBottom: 6 }}>Filature *</label>
+                <input value={form.filature_nom} onChange={e => setForm(f => ({ ...f, filature_nom: e.target.value }))} style={inputStyle} placeholder="Nom de la filature" />
+                <div style={{ marginTop: 8 }}>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: '#64748B', display: 'block', marginBottom: 6 }}>Pays de la filature *</label>
+                  <select value={form.filature_pays} onChange={e => setForm(f => ({ ...f, filature_pays: e.target.value }))} style={inputStyle}>
+                    <option value="">Sélectionner...</option>
+                    {Object.keys(PAYS_CODES).sort().map(p => (
+                      <option key={p} value={p}>{p} — {getZoneLabel(p)}</option>
+                    ))}
+                  </select>
+                </div>
                 <input value={form.filature_nom} onChange={e => setForm(f => ({ ...f, filature_nom: e.target.value }))} style={inputStyle} placeholder="Nom de la filature" />
               </div>
               {(form.type_produit === 'tissu' || form.type_produit === 'produit_fini') && (
