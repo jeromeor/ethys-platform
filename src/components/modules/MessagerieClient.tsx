@@ -107,7 +107,7 @@ export default function MessagerieClient({ currentUser, currentRole, adminId, ut
         contenu: newMessage.trim(),
         lu: false,
       })
-      .select('*, auteur:profils_utilisateurs!messages_auteur_id_fkey(email, prenom, nom)')
+      .select('*')
       .single()
     if (data) {
       setMessages(prev => [...prev, data])
