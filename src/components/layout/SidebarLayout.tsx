@@ -15,6 +15,7 @@ const navItems = [
   { icon: '◫', label: 'Facturation',  route: '/facturation' },
   { icon: '◉', label: 'Reporting',    route: '/reporting' },
   { icon: '◦', label: 'ESG',          route: '/esg' },
+  { icon: '⚡', label: 'Certification', route: '/certification' },
   { icon: '⚙', label: 'Admin',        route: '/admin' },
 ]
 
