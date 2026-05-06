@@ -170,10 +170,10 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
               })}
             </>
           )}
-          {source === 'lots' && (
-          {lots.length === 0 ? (
+          {source === 'lots' && lots.length === 0 && (
             <div style={{ padding: '40px 16px', textAlign: 'center', color: '#94A3B8', fontSize: 12 }}>Aucun lot disponible.</div>
-          ) : lots.map(lot => {
+          )}
+          {source === 'lots' && lots.length > 0 && lots.map(lot => {
             const hasQR = lot.qr_codes?.length > 0
             const isActive = selected?.id === lot.id
             return (
