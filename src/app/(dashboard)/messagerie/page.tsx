@@ -1,6 +1,6 @@
-import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
+﻿import { createClient } from '@/lib/supabase/server'
 import MessagerieClient from '@/components/modules/MessagerieClient'
+import { redirect } from 'next/navigation'
 
 export default async function MessageriePage() {
   const supabase = await createClient()
@@ -9,29 +9,29 @@ export default async function MessageriePage() {
 
   const { data: profil } = await supabase
     .from('profils_utilisateurs')
-    .select('*, entreprise:entreprises(*)')
+    .select('*, entreprise:entreprises(nom)')
     .eq('id', user.id)
     .single()
 
-  const { data: conversations } = await supabase
-    .from('conversations')
-    .select(`
-      *,
-      participants:participants_conversation(
-        *,
-        entreprise:entreprises(nom, type)
-      ),
-      messages(
-        id, contenu, created_at, auteur_id, lu
-      )
-    `)
-    .order('updated_at', { ascending: false })
+  const { data: admin } = await supabase
+    .from('profils_utilisateurs')
+    .select('id')
+    .eq('role', 'admin')
+    .limit(1)
+    .single()
+
+  const { data: utilisateurs } = await supabase
+    .from('profils_utilisateurs')
+    .select('id, email, prenom, nom, role, entreprise:entreprises(nom)')
+    .neq('id', user.id)
+    .order('email')
 
   return (
     <MessagerieClient
-      user={user}
-      profil={profil}
-      conversationsInitiales={conversations ?? []}
+      currentUser={{ id: user.id, email: user.email ?? '' }}
+      currentRole={profil?.role ?? 'marque'}
+      adminId={admin?.id ?? ''}
+      utilisateurs={utilisateurs ?? []}
     />
   )
 }

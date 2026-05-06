@@ -1,343 +1,279 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 interface Message {
   id: string
-  contenu: string
   auteur_id: string
+  destinataire_id: string | null
+  contenu: string
   lu: boolean
   created_at: string
+  auteur?: { email: string; prenom?: string; nom?: string }
 }
 
-interface Conversation {
+interface Utilisateur {
   id: string
-  sujet: string
-  updated_at: string
-  participants: {
-    user_id: string
-    entreprise: { nom: string; type: string }
-  }[]
-  messages: Message[]
+  email: string
+  prenom?: string
+  nom?: string
+  role: string
+  entreprise?: { nom: string }
 }
 
 interface Props {
-  user: { id: string; email?: string }
-  profil: { entreprise?: { nom?: string }; role?: string } | null
-  conversationsInitiales: Conversation[]
+  currentUser: { id: string; email: string }
+  currentRole: string
+  adminId: string
+  utilisateurs: Utilisateur[]
 }
 
-const typeColors: Record<string, [string, string]> = {
-  marque:            ['#DBEAFE', '#1E40AF'],
-  filature:          ['#D1FAE5', '#065F46'],
-  fournisseur_coton: ['#FEF3C7', '#92400E'],
-  plateforme:        ['#F3E8FF', '#6B21A8'],
-}
-
-export default function MessagerieClient({ user, profil, conversationsInitiales }: Props) {
+export default function MessagerieClient({ currentUser, currentRole, adminId, utilisateurs }: Props) {
   const supabase = createClient()
-  const [conversations, setConversations] = useState<Conversation[]>(conversationsInitiales)
-  const [active, setActive] = useState<Conversation | null>(conversationsInitiales[0] ?? null)
-  const [messages, setMessages] = useState<Message[]>(conversationsInitiales[0]?.messages ?? [])
-  const [input, setInput] = useState('')
+  const [dossier, setDossier] = useState<'recus' | 'envoyes'>('recus')
+  const [messages, setMessages] = useState<Message[]>([])
+  const [selectedUser, setSelectedUser] = useState<Utilisateur | null>(null)
+  const [conversation, setConversation] = useState<Message[]>([])
+  const [newMessage, setNewMessage] = useState('')
   const [sending, setSending] = useState(false)
-  const [showNewConv, setShowNewConv] = useState(false)
-  const [newSujet, setNewSujet] = useState('')
-  const endRef = useRef<HTMLDivElement>(null)
+  const [loading, setLoading] = useState(true)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  // Scroll automatique vers le bas
+  const isAdmin = currentRole === 'admin'
+
+  const nomAffiche = (u?: Utilisateur | null) => {
+    if (!u) return 'Inconnu'
+    if (u.prenom && u.nom) return `${u.prenom} ${u.nom}`
+    return u.email
+  }
+
+  const nomExpediteur = (msg: Message) => {
+    if (msg.auteur?.prenom && msg.auteur?.nom) return `${msg.auteur.prenom} ${msg.auteur.nom}`
+    return msg.auteur?.email ?? 'Inconnu'
+  }
+
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
-
-  // Realtime — écouter les nouveaux messages
-  useEffect(() => {
-    if (!active) return
-
+    chargerMessages()
     const channel = supabase
-      .channel(`messages:${active.id}`)
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'messages',
-        filter: `conversation_id=eq.${active.id}`
-      }, (payload) => {
-        const newMsg = payload.new as Message
-        setMessages(prev => {
-          if (prev.find(m => m.id === newMsg.id)) return prev
-          return [...prev, newMsg]
-        })
+      .channel('messages_realtime')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => {
+        chargerMessages()
       })
       .subscribe()
-
     return () => { supabase.removeChannel(channel) }
-  }, [active?.id])
+  }, [])
 
-  const ouvrirConversation = async (conv: Conversation) => {
-    setActive(conv)
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [conversation])
 
-    const { data: msgs } = await supabase
+  const chargerMessages = async () => {
+    setLoading(true)
+    const { data } = await supabase
       .from('messages')
-      .select('*')
-      .eq('conversation_id', conv.id)
+      .select('*, auteur:profils_utilisateurs!messages_auteur_id_fkey(email, prenom, nom)')
+      .or(`auteur_id.eq.${currentUser.id},destinataire_id.eq.${currentUser.id}`)
       .order('created_at', { ascending: true })
+    setMessages(data ?? [])
+    setLoading(false)
+  }
 
-    setMessages(msgs ?? [])
+  const ouvrirConversation = async (user: Utilisateur) => {
+    setSelectedUser(user)
+    const conv = messages.filter(m =>
+      (m.auteur_id === currentUser.id && m.destinataire_id === user.id) ||
+      (m.auteur_id === user.id && m.destinataire_id === currentUser.id)
+    )
+    setConversation(conv)
+    const nonLus = conv.filter(m => !m.lu && m.auteur_id === user.id).map(m => m.id)
+    if (nonLus.length > 0) {
+      await supabase.from('messages').update({ lu: true }).in('id', nonLus)
+      setMessages(prev => prev.map(m => nonLus.includes(m.id) ? { ...m, lu: true } : m))
+    }
   }
 
   const envoyerMessage = async () => {
-    if (!input.trim() || !active || sending) return
+    if (!newMessage.trim() || !selectedUser) return
     setSending(true)
-
-    const { error } = await supabase
+    const destinataireId = isAdmin ? selectedUser.id : adminId
+    const { data } = await supabase
       .from('messages')
       .insert({
-        conversation_id: active.id,
-        auteur_id: user.id,
-        contenu: input.trim(),
+        auteur_id: currentUser.id,
+        destinataire_id: destinataireId,
+        contenu: newMessage.trim(),
         lu: false,
       })
-
-    if (!error) {
-      setInput('')
-      // Mettre à jour updated_at de la conversation
-      await supabase
-        .from('conversations')
-        .update({ updated_at: new Date().toISOString() })
-        .eq('id', active.id)
+      .select('*, auteur:profils_utilisateurs!messages_auteur_id_fkey(email, prenom, nom)')
+      .single()
+    if (data) {
+      setMessages(prev => [...prev, data])
+      setConversation(prev => [...prev, data])
+      setNewMessage('')
     }
     setSending(false)
   }
 
-  const creerConversation = async () => {
-    if (!newSujet.trim()) return
+  const messagesRecus = messages.filter(m => m.destinataire_id === currentUser.id)
+  const messagesEnvoyes = messages.filter(m => m.auteur_id === currentUser.id)
 
-    const { data: conv, error } = await supabase
-      .from('conversations')
-      .insert({
-        sujet: newSujet.trim(),
-        created_by: user.id,
-      })
-      .select()
-      .single()
+  const nonLusTotal = messagesRecus.filter(m => !m.lu).length
 
-    if (!error && conv) {
-      // Ajouter le créateur comme participant
-      await supabase
-        .from('participants_conversation')
-        .insert({
-          conversation_id: conv.id,
-          user_id: user.id,
-          entreprise_id: profil?.entreprise?.nom ? conv.id : conv.id,
-        })
+  const interlocuteursRecus = isAdmin
+    ? utilisateurs.filter(u => messagesRecus.some(m => m.auteur_id === u.id))
+    : [utilisateurs.find(u => u.id === adminId)].filter(Boolean) as Utilisateur[]
 
-      setConversations(prev => [{ ...conv, participants: [], messages: [] }, ...prev])
-      setActive({ ...conv, participants: [], messages: [] })
-      setMessages([])
-      setNewSujet('')
-      setShowNewConv(false)
-    }
-  }
+  const interlocuteursEnvoyes = isAdmin
+    ? utilisateurs.filter(u => messagesEnvoyes.some(m => m.destinataire_id === u.id))
+    : [utilisateurs.find(u => u.id === adminId)].filter(Boolean) as Utilisateur[]
 
-  const getInitiales = (conv: Conversation) => {
-    const autre = conv.participants?.find(p => p.user_id !== user.id)
-    return autre?.entreprise?.nom?.slice(0, 2).toUpperCase() ?? 'TL'
-  }
+  const interlocuteurs = dossier === 'recus' ? interlocuteursRecus : interlocuteursEnvoyes
 
-  const getTypeColor = (conv: Conversation): [string, string] => {
-    const autre = conv.participants?.find(p => p.user_id !== user.id)
-    return typeColors[autre?.entreprise?.type ?? 'plateforme'] ?? ['#F1F5F9', '#475569']
-  }
-
-  const nbNonLus = (conv: Conversation) =>
-    conv.messages?.filter(m => !m.lu && m.auteur_id !== user.id).length ?? 0
+  const nonLusPourUser = (userId: string) =>
+    messagesRecus.filter(m => m.auteur_id === userId && !m.lu).length
 
   return (
     <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
 
-      {/* Liste conversations */}
-      <div style={{
-        width: 280, minWidth: 280, background: '#fff',
-        borderRight: '1px solid #EEF0F3', display: 'flex', flexDirection: 'column'
-      }}>
-        <div style={{
-          padding: '14px 16px', borderBottom: '1px solid #F1F5F9',
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center'
-        }}>
-          <span style={{ fontSize: 14, fontWeight: 700, color: '#0A3D26' }}>
-            Messages
-          </span>
-          <button onClick={() => setShowNewConv(true)} style={{
-            width: 28, height: 28, borderRadius: 8, border: 'none',
-            background: '#F1F5F9', cursor: 'pointer', fontSize: 16, color: '#64748B'
-          }}>＋</button>
+      {/* Sidebar gauche */}
+      <div style={{ width: 260, minWidth: 260, background: '#fff', borderRight: '1px solid #EEF0F3', display: 'flex', flexDirection: 'column' }}>
+
+        {/* Dossiers */}
+        <div style={{ padding: '12px 14px', borderBottom: '1px solid #F1F5F9' }}>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <button onClick={() => { setDossier('recus'); setSelectedUser(null) }} style={{ flex: 1, padding: '7px 10px', borderRadius: 8, border: 'none', cursor: 'pointer', background: dossier === 'recus' ? '#F0FDF4' : '#F8FAFC', color: dossier === 'recus' ? '#0A3D26' : '#64748B', fontWeight: dossier === 'recus' ? 700 : 400, fontSize: 12, position: 'relative' }}>
+              Reçus
+              {nonLusTotal > 0 && (
+                <span style={{ position: 'absolute', top: -4, right: -4, width: 16, height: 16, borderRadius: '50%', background: '#DC2626', color: '#fff', fontSize: 9, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {nonLusTotal}
+                </span>
+              )}
+            </button>
+            <button onClick={() => { setDossier('envoyes'); setSelectedUser(null) }} style={{ flex: 1, padding: '7px 10px', borderRadius: 8, border: 'none', cursor: 'pointer', background: dossier === 'envoyes' ? '#F0FDF4' : '#F8FAFC', color: dossier === 'envoyes' ? '#0A3D26' : '#64748B', fontWeight: dossier === 'envoyes' ? 700 : 400, fontSize: 12 }}>
+              Envoyés
+            </button>
+          </div>
         </div>
 
-        {/* Modal nouvelle conversation */}
-        {showNewConv && (
-          <div style={{ padding: '12px 16px', borderBottom: '1px solid #F1F5F9', background: '#F8FAFC' }}>
-            <input
-              value={newSujet}
-              onChange={e => setNewSujet(e.target.value)}
-              placeholder="Sujet de la conversation…"
-              style={{
-                width: '100%', padding: '7px 10px', borderRadius: 8,
-                border: '1.5px solid #E2E8F0', fontSize: 12,
-                boxSizing: 'border-box', outline: 'none', marginBottom: 8
-              }}
-              onKeyDown={e => e.key === 'Enter' && creerConversation()}
-            />
-            <div style={{ display: 'flex', gap: 6 }}>
-              <button onClick={creerConversation} style={{
-                flex: 1, padding: '6px', borderRadius: 8, border: 'none',
-                background: '#0A3D26', color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer'
-              }}>Créer</button>
-              <button onClick={() => setShowNewConv(false)} style={{
-                flex: 1, padding: '6px', borderRadius: 8,
-                border: '1.5px solid #EEF0F3', background: '#fff',
-                fontSize: 11, cursor: 'pointer'
-              }}>Annuler</button>
-            </div>
-          </div>
-        )}
-
-        {/* Liste */}
+        {/* Liste interlocuteurs */}
         <div style={{ flex: 1, overflowY: 'auto' }}>
-          {conversations.length === 0 ? (
-            <div style={{ padding: '40px 16px', textAlign: 'center', color: '#94A3B8', fontSize: 12 }}>
-              Aucune conversation.<br />Cliquez sur ＋ pour commencer.
+          {!isAdmin && dossier === 'recus' && interlocuteursRecus.length === 0 && (
+            <div style={{ padding: '20px 14px', textAlign: 'center', color: '#94A3B8', fontSize: 12 }}>
+              Aucun message reçu de l'administration.
             </div>
-          ) : conversations.map(conv => {
-            const [bg, tc] = getTypeColor(conv)
-            const nonLus = nbNonLus(conv)
-            const dernierMsg = conv.messages?.[conv.messages.length - 1]
+          )}
+          {interlocuteurs.map(user => {
+            const nonLus = nonLusPourUser(user.id)
+            const dernierMsg = messages
+              .filter(m => (m.auteur_id === user.id && m.destinataire_id === currentUser.id) || (m.auteur_id === currentUser.id && m.destinataire_id === user.id))
+              .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0]
+            const isSelected = selectedUser?.id === user.id
             return (
-              <div key={conv.id} onClick={() => ouvrirConversation(conv)} style={{
-                padding: '12px 16px', cursor: 'pointer',
-                background: active?.id === conv.id ? '#F0FDF4' : 'transparent',
-                borderLeft: `3px solid ${active?.id === conv.id ? '#0A3D26' : 'transparent'}`,
-                borderBottom: '1px solid #F8FAFC'
-              }}
-                onMouseEnter={e => { if (active?.id !== conv.id) (e.currentTarget as HTMLDivElement).style.background = '#F8FAFC' }}
-                onMouseLeave={e => { if (active?.id !== conv.id) (e.currentTarget as HTMLDivElement).style.background = 'transparent' }}
-              >
-                <div style={{ display: 'flex', gap: 10 }}>
-                  <div style={{
-                    width: 36, height: 36, borderRadius: 10, flexShrink: 0,
-                    background: bg, color: tc,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 11, fontWeight: 800
-                  }}>{getInitiales(conv)}</div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
-                      <span style={{ fontSize: 12, fontWeight: nonLus > 0 ? 700 : 600, color: '#1A202C', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 140 }}>
-                        {conv.sujet}
-                      </span>
-                      {nonLus > 0 && (
-                        <span style={{ background: '#0A3D26', color: '#fff', borderRadius: 20, fontSize: 9, fontWeight: 700, padding: '1px 5px', flexShrink: 0 }}>
-                          {nonLus}
-                        </span>
-                      )}
-                    </div>
-                    {dernierMsg && (
-                      <div style={{ fontSize: 10, color: '#94A3B8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {dernierMsg.contenu.slice(0, 40)}
-                      </div>
-                    )}
-                  </div>
+              <div key={user.id} onClick={() => ouvrirConversation(user)} style={{ padding: '12px 14px', cursor: 'pointer', background: isSelected ? '#F0FDF4' : 'transparent', borderLeft: `3px solid ${isSelected ? '#0A3D26' : 'transparent'}`, borderBottom: '1px solid #F8FAFC' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
+                  <div style={{ fontSize: 12, fontWeight: nonLus > 0 ? 800 : 600, color: '#1A202C' }}>{nomAffiche(user)}</div>
+                  {nonLus > 0 && (
+                    <span style={{ width: 18, height: 18, borderRadius: '50%', background: '#DC2626', color: '#fff', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{nonLus}</span>
+                  )}
                 </div>
+                <div style={{ fontSize: 11, color: '#64748B', marginBottom: 2 }}>{user.entreprise?.nom ?? user.role}</div>
+                {dernierMsg && (
+                  <div style={{ fontSize: 11, color: '#94A3B8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {dernierMsg.contenu.slice(0, 40)}{dernierMsg.contenu.length > 40 ? '...' : ''}
+                  </div>
+                )}
               </div>
             )
           })}
+
+          {/* Bouton nouveau message pour admin */}
+          {isAdmin && (
+            <div style={{ padding: '12px 14px', borderTop: '1px solid #F1F5F9', marginTop: 'auto' }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', marginBottom: 8, textTransform: 'uppercase' }}>Contacter un utilisateur</div>
+              <select onChange={e => {
+                const user = utilisateurs.find(u => u.id === e.target.value)
+                if (user) { setDossier('envoyes'); ouvrirConversation(user) }
+              }} style={{ width: '100%', padding: '7px 10px', borderRadius: 8, border: '1.5px solid #E2E8F0', fontSize: 12, outline: 'none', color: '#1A202C' }}>
+                <option value="">Sélectionner un utilisateur...</option>
+                {utilisateurs.filter(u => u.id !== currentUser.id).map(u => (
+                  <option key={u.id} value={u.id}>{nomAffiche(u)} — {u.entreprise?.nom ?? u.role}</option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
+
+        {/* Bouton contacter admin pour non-admin */}
+        {!isAdmin && (
+          <div style={{ padding: '12px 14px', borderTop: '1px solid #F1F5F9' }}>
+            <button onClick={() => {
+              const admin = utilisateurs.find(u => u.id === adminId)
+              if (admin) ouvrirConversation(admin)
+            }} style={{ width: '100%', padding: '8px', borderRadius: 8, border: 'none', background: '#0A3D26', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+              + Contacter l'administration
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Zone chat */}
-      {active ? (
+      {/* Zone de conversation */}
+      {selectedUser ? (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-          {/* Header */}
-          <div style={{
-            height: 56, background: '#fff', borderBottom: '1px solid #EEF0F3',
-            display: 'flex', alignItems: 'center', gap: 14, padding: '0 20px', flexShrink: 0
-          }}>
+          <div style={{ padding: '14px 20px', borderBottom: '1px solid #EEF0F3', background: '#fff', display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#D1FAE5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: '#065F46' }}>
+              {nomAffiche(selectedUser).slice(0, 1).toUpperCase()}
+            </div>
             <div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#1A202C' }}>{active.sujet}</div>
-              <div style={{ fontSize: 10, color: '#94A3B8' }}>
-                🔒 Conversation chiffrée · {messages.length} message(s)
-              </div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#1A202C' }}>{nomAffiche(selectedUser)}</div>
+              <div style={{ fontSize: 11, color: '#94A3B8' }}>{selectedUser.entreprise?.nom ?? selectedUser.role}</div>
             </div>
           </div>
 
-          {/* Messages */}
-          <div style={{ flex: 1, overflow: 'auto', padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {messages.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '40px 0', color: '#94A3B8', fontSize: 12 }}>
-                Aucun message — commencez la conversation
+          <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
+            {conversation.length === 0 ? (
+              <div style={{ textAlign: 'center', color: '#94A3B8', fontSize: 13, marginTop: 60 }}>
+                Aucun message — démarrez la conversation.
               </div>
-            ) : messages.map(msg => {
-              const isMoi = msg.auteur_id === user.id
+            ) : conversation.map(msg => {
+              const estMoi = msg.auteur_id === currentUser.id
               return (
-                <div key={msg.id} style={{
-                  display: 'flex',
-                  flexDirection: isMoi ? 'row-reverse' : 'row',
-                  alignItems: 'flex-end', gap: 8
-                }}>
-                  <div style={{ maxWidth: '65%' }}>
-                    <div style={{
-                      padding: '10px 14px',
-                      borderRadius: isMoi ? '14px 14px 4px 14px' : '14px 14px 14px 4px',
-                      background: isMoi ? '#0A3D26' : '#fff',
-                      color: isMoi ? '#fff' : '#1A202C',
-                      fontSize: 13, lineHeight: 1.5,
-                      border: isMoi ? 'none' : '1px solid #EEF0F3'
-                    }}>
-                      {msg.contenu}
-                    </div>
-                    <div style={{ fontSize: 10, color: '#94A3B8', marginTop: 3, textAlign: isMoi ? 'right' : 'left' }}>
-                      {new Date(msg.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })} · {new Date(msg.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-                      {isMoi && <span style={{ marginLeft: 4, color: '#10B981' }}>✓✓</span>}
-                    </div>
+                <div key={msg.id} style={{ display: 'flex', flexDirection: 'column', alignItems: estMoi ? 'flex-end' : 'flex-start', marginBottom: 16 }}>
+                  <div style={{ maxWidth: '70%', padding: '10px 14px', borderRadius: estMoi ? '12px 12px 4px 12px' : '12px 12px 12px 4px', background: estMoi ? '#0A3D26' : '#F1F5F9', color: estMoi ? '#fff' : '#1A202C', fontSize: 13, lineHeight: 1.5 }}>
+                    {msg.contenu}
+                  </div>
+                  <div style={{ fontSize: 10, color: '#94A3B8', marginTop: 4, display: 'flex', gap: 6 }}>
+                    <span style={{ fontWeight: 600 }}>{nomExpediteur(msg)}</span>
+                    <span>·</span>
+                    <span>{new Date(msg.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })} {new Date(msg.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
                 </div>
               )
             })}
-            <div ref={endRef} />
+            <div ref={messagesEndRef} />
           </div>
 
-          {/* Saisie */}
-          <div style={{ padding: '12px 20px', background: '#fff', borderTop: '1px solid #EEF0F3', flexShrink: 0 }}>
-            <div style={{
-              display: 'flex', gap: 10, background: '#F8FAFC',
-              borderRadius: 12, border: '1.5px solid #E2E8F0', padding: '8px 12px',
-              alignItems: 'flex-end'
-            }}>
-              <input
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); envoyerMessage() } }}
-                placeholder="Écrivez un message… (Entrée pour envoyer)"
-                style={{ flex: 1, border: 'none', background: 'none', outline: 'none', fontSize: 13, fontFamily: 'inherit' }}
-              />
-              <button onClick={envoyerMessage} disabled={!input.trim() || sending} style={{
-                width: 34, height: 34, borderRadius: 9, border: 'none',
-                background: input.trim() && !sending ? '#0A3D26' : '#E2E8F0',
-                color: input.trim() && !sending ? '#fff' : '#94A3B8',
-                cursor: input.trim() && !sending ? 'pointer' : 'default',
-                fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center'
-              }}>➤</button>
-            </div>
-            <div style={{ fontSize: 10, color: '#CBD5E1', textAlign: 'center', marginTop: 4 }}>
-              🔒 Messages sécurisés · Plateforme ETHYS
-            </div>
+          <div style={{ padding: '14px 20px', borderTop: '1px solid #EEF0F3', background: '#fff', display: 'flex', gap: 10 }}>
+            <input
+              value={newMessage}
+              onChange={e => setNewMessage(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && !e.shiftKey && envoyerMessage()}
+              placeholder={`Écrire à ${nomAffiche(selectedUser)}...`}
+              style={{ flex: 1, padding: '10px 14px', borderRadius: 10, border: '1.5px solid #E2E8F0', fontSize: 13, outline: 'none', color: '#1A202C' }}
+            />
+            <button onClick={envoyerMessage} disabled={sending || !newMessage.trim()} style={{ padding: '10px 18px', borderRadius: 10, border: 'none', background: sending || !newMessage.trim() ? '#E2E8F0' : '#0A3D26', color: sending || !newMessage.trim() ? '#94A3B8' : '#fff', fontSize: 13, fontWeight: 700, cursor: sending || !newMessage.trim() ? 'default' : 'pointer' }}>
+              {sending ? '...' : 'Envoyer'}
+            </button>
           </div>
         </div>
       ) : (
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8' }}>
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: 40, marginBottom: 12 }}>✉</div>
-            <div style={{ fontSize: 14, fontWeight: 600 }}>Sélectionnez une conversation</div>
-            <div style={{ fontSize: 12, marginTop: 4 }}>ou créez-en une nouvelle avec ＋</div>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>Sélectionnez une conversation</div>
+            <div style={{ fontSize: 12 }}>
+              {isAdmin ? 'Choisissez un utilisateur pour démarrer.' : "Cliquez sur \"+ Contacter l'administration\"."}
+            </div>
           </div>
         </div>
       )}
