@@ -92,9 +92,6 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
       setGenerating(false)
       return
     }
-    if (!selected) return
-    setGenerating(true)
-    const reference = `ETHYS-QR-${selected.commande?.reference ?? 'CMD'}-${selected.reference.split('-').pop()}`
     const urlPublique = `${window.location.origin}/tracabilite/${reference}`
     const dataEncodee = {
       lot_id: selected.id,
