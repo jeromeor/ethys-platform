@@ -212,6 +212,7 @@ export default function MessagerieClient({ currentUser, currentRole, adminId, ad
           <div style={{ padding: '12px 14px', borderTop: '1px solid #F1F5F9' }}>
             <button onClick={() => {
               const admin = adminUser ?? utilisateurs.find(u => u.id === adminId)
+    console.log('adminUser:', adminUser, 'adminId:', adminId, 'found:', admin)
     if (admin) ouvrirConversation(admin)
             }} style={{ width: '100%', padding: '8px', borderRadius: 8, border: 'none', background: '#0A3D26', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
               + Contacter l'administration
