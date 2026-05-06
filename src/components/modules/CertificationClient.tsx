@@ -532,3 +532,6 @@ function DetailDeclaration({ declaration: d, isAdmin, onCertifier, onRefuser, sa
           </button>
         </div>
       )}
+    </div>
+  )
+}
