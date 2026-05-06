@@ -180,7 +180,7 @@ export default function CertificationClient({ declarations: initial, userRole, e
     const month = String(now.getMonth() + 1).padStart(2, '0')
     const zones = ZONES[declaration.filature_pays ?? ''] ?? [1]
     const zoneCode = String(zones[0]).padStart(3, '0')
-    const paysCode = PAYS_CODES[declaration.entreprise_pays ?? ''] ?? 'XX'
+    const paysCode = PAYS_CODES[(declaration as any).entreprise?.pays ?? ''] ?? 'XX'
     const seq = String(declarations.filter(d => d.statut === 'certifiee').length + 1).padStart(4, '0')
     const numero = `ETHYS-${year}-${month}-${zoneCode}-${paysCode}-${seq}`
     await supabase.from('certifications_ethys').insert({
