@@ -20,18 +20,23 @@ export default async function MessageriePage() {
     .limit(1)
     .single()
 
-  const { data: utilisateurs } = await supabase
+  const { data: utilisateursRaw } = await supabase
     .from('profils_utilisateurs')
     .select('id, email, prenom, nom, role, entreprise:entreprises(nom)')
     .neq('id', user.id)
     .order('email')
+
+  const utilisateurs = (utilisateursRaw ?? []).map(u => ({
+    ...u,
+    entreprise: Array.isArray(u.entreprise) ? u.entreprise[0] : u.entreprise,
+  }))
 
   return (
     <MessagerieClient
       currentUser={{ id: user.id, email: user.email ?? '' }}
       currentRole={profil?.role ?? 'marque'}
       adminId={admin?.id ?? ''}
-      utilisateurs={utilisateurs ?? []}
+      utilisateurs={utilisateurs}
     />
   )
 }
