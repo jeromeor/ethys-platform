@@ -15,7 +15,7 @@ export default async function MessageriePage() {
 
   const { data: admin } = await supabase
     .from('profils_utilisateurs')
-    .select('id')
+    .select('id, email, prenom, nom, role, entreprise:entreprises(nom)')
     .eq('role', 'admin')
     .limit(1)
     .single()
@@ -23,7 +23,6 @@ export default async function MessageriePage() {
   const { data: utilisateursRaw } = await supabase
     .from('profils_utilisateurs')
     .select('id, email, prenom, nom, role, entreprise:entreprises(nom)')
-    .neq('id', user.id)
     .order('email')
 
   const utilisateurs = (utilisateursRaw ?? []).map(u => ({
@@ -31,12 +30,18 @@ export default async function MessageriePage() {
     entreprise: Array.isArray(u.entreprise) ? u.entreprise[0] : u.entreprise,
   }))
 
+  const adminData = admin ? {
+    ...admin,
+    entreprise: Array.isArray(admin.entreprise) ? admin.entreprise[0] : admin.entreprise,
+  } : null
+
   return (
     <MessagerieClient
       currentUser={{ id: user.id, email: user.email ?? '' }}
       currentRole={profil?.role ?? 'marque'}
-      adminId={admin?.id ?? ''}
-      utilisateurs={utilisateurs}
+      adminId={adminData?.id ?? ''}
+      adminUser={adminData}
+      utilisateurs={utilisateurs.filter(u => u.id !== user.id)}
     />
   )
 }

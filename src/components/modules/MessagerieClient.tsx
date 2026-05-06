@@ -26,10 +26,11 @@ interface Props {
   currentUser: { id: string; email: string }
   currentRole: string
   adminId: string
+  adminUser: Utilisateur | null
   utilisateurs: Utilisateur[]
 }
 
-export default function MessagerieClient({ currentUser, currentRole, adminId, utilisateurs }: Props) {
+export default function MessagerieClient({ currentUser, currentRole, adminId, adminUser, utilisateurs }: Props) {
   const supabase = createClient()
   const [dossier, setDossier] = useState<'recus' | 'envoyes'>('recus')
   const [messages, setMessages] = useState<Message[]>([])
@@ -210,8 +211,8 @@ export default function MessagerieClient({ currentUser, currentRole, adminId, ut
         {!isAdmin && (
           <div style={{ padding: '12px 14px', borderTop: '1px solid #F1F5F9' }}>
             <button onClick={() => {
-              const admin = utilisateurs.find(u => u.id === adminId)
-              if (admin) ouvrirConversation(admin)
+              const admin = adminUser ?? utilisateurs.find(u => u.id === adminId)
+    if (admin) ouvrirConversation(admin)
             }} style={{ width: '100%', padding: '8px', borderRadius: 8, border: 'none', background: '#0A3D26', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
               + Contacter l'administration
             </button>
