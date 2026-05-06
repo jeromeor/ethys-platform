@@ -49,8 +49,10 @@ export default function MessagerieClient({ currentUser, currentRole, adminId, ut
   }
 
   const nomExpediteur = (msg: Message) => {
-    if (msg.auteur?.prenom && msg.auteur?.nom) return `${msg.auteur.prenom} ${msg.auteur.nom}`
-    return msg.auteur?.email ?? 'Inconnu'
+    const auteur = utilisateurs.find(u => u.id === msg.auteur_id) ?? 
+      (msg.auteur_id === currentUser.id ? { email: currentUser.email, prenom: undefined, nom: undefined } : null)
+    if (auteur?.prenom && auteur?.nom) return `${auteur.prenom} ${auteur.nom}`
+    return auteur?.email ?? 'Inconnu'
   }
 
   useEffect(() => {
@@ -72,7 +74,7 @@ export default function MessagerieClient({ currentUser, currentRole, adminId, ut
     setLoading(true)
     const { data } = await supabase
       .from('messages')
-      .select('*, auteur:profils_utilisateurs!messages_auteur_id_fkey(email, prenom, nom)')
+      .select('*')
       .or(`auteur_id.eq.${currentUser.id},destinataire_id.eq.${currentUser.id}`)
       .order('created_at', { ascending: true })
     setMessages(data ?? [])
