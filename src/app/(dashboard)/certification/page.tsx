@@ -15,7 +15,7 @@ export default async function CertificationPage() {
 
   const { data: declarations } = await supabase
     .from('declarations_ethys')
-    .select('*, certification:certifications_ethys(numero, date_emission, date_validite)')
+    .select('*, certification:certifications_ethys(numero, date_emission, date_validite), entreprise:entreprises(pays)')
     .order('created_at', { ascending: false })
 
   return (
