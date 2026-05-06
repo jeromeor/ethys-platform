@@ -1,5 +1,4 @@
 ﻿import { createClient } from '@/lib/supabase/server'
-import { createClient as createAdminClient } from '@supabase/supabase-js'
 import MessagerieClient from '@/components/modules/MessagerieClient'
 import { redirect } from 'next/navigation'
 
@@ -24,15 +23,22 @@ export default async function MessageriePage() {
     entreprise: Array.isArray(u.entreprise) ? u.entreprise[0] : u.entreprise,
   }))
 
-  const admins = utilisateurs.filter(u => u.role === 'admin')
-  const adminPrincipal = admins.find(u => u.email === 'jeromeoriol1964@gmail.com') ?? admins[0] ?? null
+  const adminId = process.env.NEXT_PUBLIC_ADMIN_ID ?? 'fd1f7942-fee6-4ae0-b1f0-1c5c0e23f4dd'
+  const adminUser = utilisateurs.find(u => u.id === adminId) ?? {
+    id: adminId,
+    email: 'jeromeoriol1964@gmail.com',
+    prenom: 'Jerome',
+    nom: 'Oriol',
+    role: 'admin',
+    entreprise: { nom: 'TEXTILE LOOP' }
+  }
 
   return (
     <MessagerieClient
       currentUser={{ id: user.id, email: user.email ?? '' }}
       currentRole={profil?.role ?? 'marque'}
-      adminId={adminPrincipal?.id ?? ''}
-      adminUser={adminPrincipal}
+      adminId={adminId}
+      adminUser={adminUser}
       utilisateurs={utilisateurs.filter(u => u.id !== user.id)}
     />
   )
