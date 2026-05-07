@@ -44,6 +44,7 @@ export default async function QRCodePage({ searchParams }: { searchParams: Promi
     }
   })
 
+console.log('certifications count:', certificationsEnrichies.length, 'error:', certError)
   return (
     <QRCodeClient
       lots={lots ?? []}
