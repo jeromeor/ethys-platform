@@ -161,16 +161,16 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, padding: '14px 22px', flexShrink: 0 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8, padding: '6px 22px', flexShrink: 0 }}>
         {[
           { label: 'Utilisateurs actifs', value: String(nbActifs), bg: '#D1FAE5', tc: '#065F46' },
           { label: 'Alertes Sécurité', value: String(nbAlertes), bg: nbAlertes > 0 ? '#FEE2E2' : '#F1F5F9', tc: nbAlertes > 0 ? '#991B1B' : '#475569' },
           { label: 'Conformité RGPD', value: '100%', bg: '#F0FDF4', tc: '#065F46' },
           { label: 'Score Sécurité', value: secScore + '%', bg: '#DBEAFE', tc: '#1E40AF' },
         ].map((k, i) => (
-          <div key={i} style={{ background: '#fff', borderRadius: 12, border: '1px solid #EEF0F3', padding: '14px 18px' }}>
-            <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 6 }}>{k.label}</div>
-            <div style={{ fontSize: 22, fontWeight: 800, color: '#0A3D26' }}>{k.value}</div>
+          <div key={i} style={{ background: '#fff', borderRadius: 10, border: '1px solid #EEF0F3', padding: '8px 12px' }}>
+            <div style={{ fontSize: 10, color: '#94A3B8', marginBottom: 2 }}>{k.label}</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#0A3D26' }}>{k.value}</div>
           </div>
         ))}
 {showInvite && (
