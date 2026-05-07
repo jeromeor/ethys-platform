@@ -22,9 +22,9 @@ export default async function QRCodePage({ searchParams }: { searchParams: Promi
     `)
     .order('created_at', { ascending: false })
 
-  const { data: certifications, error: certError } = await supabase
+  const { data: certifications } = await supabase
     .from('certifications_ethys')
-    .select('*, qr_codes(*)')
+    .select('id, numero, date_emission, date_validite, declaration_id, qr_codes(*)')
     .order('created_at', { ascending: false })
 
   const { data: declarations } = await supabase
@@ -36,17 +36,14 @@ export default async function QRCodePage({ searchParams }: { searchParams: Promi
     .select('id, nom, pays')
 
   const certificationsEnrichies = (certifications ?? []).map(cert => {
-    const decl = declarations?.find(d => d.id === cert.declaration_id)
-    const entreprise = entreprises?.find(e => e.id === decl?.entreprise_id)
+    const decl = (declarations ?? []).find(d => d.id === cert.declaration_id)
+    const entreprise = decl ? (entreprises ?? []).find(e => e.id === decl.entreprise_id) : null
     return {
       ...cert,
       declaration: decl ? { ...decl, entreprise: entreprise ?? null } : null,
     }
   })
 
-console.log('certifications raw:', certifications?.length, 'error:', certError?.message)
-console.log('declarations raw:', declarations?.length)
-console.log('enrichies:', certificationsEnrichies.length)
   return (
     <QRCodeClient
       lots={lots ?? []}
