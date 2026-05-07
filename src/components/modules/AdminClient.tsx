@@ -209,9 +209,10 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
             marginBottom: -2
           }}>{t}</button>
         ))}
+        ))}
+        <div style={{ flex: 1 }} />
+        <button onClick={() => setShowInvite(true)} style={{ margin: '4px 0', padding: '5px 12px', borderRadius: 8, border: 'none', background: '#0A3D26', color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer', alignSelf: 'center' }}>+ Inviter</button>
       </div>
-<div style={{ flex: 1 }} />
-<button onClick={() => setShowInvite(true)} style={{ margin: '8px 0', padding: '6px 14px', borderRadius: 8, border: 'none', background: '#0A3D26', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>+ Inviter</button>
 
       {message && (
         <div style={{ margin: '12px 22px 0', padding: '10px 14px', borderRadius: 8, background: message.includes('Erreur') ? '#FEF2F2' : '#F0FDF4', border: `1px solid ${message.includes('Erreur') ? '#FCA5A5' : '#A7F3D0'}`, fontSize: 12, color: message.includes('Erreur') ? '#DC2626' : '#065F46' }}>
