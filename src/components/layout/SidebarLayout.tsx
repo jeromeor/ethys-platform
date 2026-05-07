@@ -1,6 +1,7 @@
 ﻿'use client'
 
 import { useState } from 'react'
+import NotificationBell from './NotificationBell'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
@@ -85,6 +86,8 @@ export default function SidebarLayout({ user, profil, children }: Props) {
         <header style={{ height: 60, background: '#fff', borderBottom: '1px solid #EEF0F3', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 28px', flexShrink: 0 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: '#0A3D26' }}>
             {navItems.find(n => pathname === n.route || pathname.startsWith(n.route + '/'))?.label ?? 'Dashboard'}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <NotificationBell userId={profil?.id ?? ''} />
           </div>
           <div style={{ fontSize: 12, color: '#94A3B8', position: 'relative' }}>
             <button
@@ -114,6 +117,7 @@ export default function SidebarLayout({ user, profil, children }: Props) {
                 </button>
               </div>
             )}
+          </div>
           </div>
         </header>
         <div style={{ flex: 1, overflow: 'auto' }}>{children}</div>
