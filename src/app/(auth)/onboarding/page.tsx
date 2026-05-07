@@ -10,7 +10,9 @@ const INDICATIFS = [
   '+351 Portugal', '+90 Turquie', '+212 Maroc', '+216 Tunisie',
 ]
 
-export default function OnboardingPage() {
+import { Suspense } from 'react'
+
+function OnboardingContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClient()
@@ -177,5 +179,13 @@ export default function OnboardingPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function OnboardingPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Chargement...</div>}>
+      <OnboardingContent />
+    </Suspense>
   )
 }
