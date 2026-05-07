@@ -164,7 +164,7 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
                 const hasQR = cert.qr_codes?.length > 0
                 const isActive = selectedCert?.id === cert.id
                 return (
-                  <div key={cert.id} onClick={() => setSelectedCert(cert)} style={{ padding: '12px 16px', cursor: 'pointer', background: isActive ? '#F0FDF4' : 'transparent', borderLeft: `3px solid ${isActive ? '#0A3D26' : 'transparent'}`, borderBottom: '1px solid #F8FAFC' }}>
+                  <div key={cert.id} onClick={() => { setSelectedCert(cert); setSelected(null) }} style={{ padding: '12px 16px', cursor: 'pointer', background: isActive ? '#F0FDF4' : 'transparent', borderLeft: `3px solid ${isActive ? '#0A3D26' : 'transparent'}`, borderBottom: '1px solid #F8FAFC' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                       <span style={{ fontSize: 12, fontWeight: 800, color: '#0A3D26' }}>{cert.numero}</span>
                       <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: hasQR ? '#D1FAE5' : '#FEF3C7', color: hasQR ? '#065F46' : '#92400E' }}>
