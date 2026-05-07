@@ -1,6 +1,6 @@
 ﻿'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import NotificationBell from './NotificationBell'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -38,6 +38,17 @@ export default function SidebarLayout({ user, profil, children }: Props) {
   const supabase = createClient()
   const [open, setOpen] = useState(true)
   const [showUserMenu, setShowUserMenu] = useState(false)
+  const userMenuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setShowUserMenu(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -90,7 +101,7 @@ export default function SidebarLayout({ user, profil, children }: Props) {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <NotificationBell userId={profil?.id ?? ''} />
-            <div style={{ fontSize: 12, color: '#94A3B8', position: 'relative' }}>
+            <div ref={userMenuRef} style={{ fontSize: 12, color: '#94A3B8', position: 'relative' }}>
             <button
               onClick={() => setShowUserMenu(v => !v)}
               style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 12px', borderRadius: 10, border: '1.5px solid #EEF0F3', background: '#F8FAFC', cursor: 'pointer' }}
