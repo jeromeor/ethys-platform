@@ -78,7 +78,7 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
             </div>
           </div>
         </div>
-        <div style={{ maxWidth: 480, margin: '0 auto', padding: '24px' }}>
+        <div style={{ maxWidth: 480, margin: '0 auto', padding: '24px' }}><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
           {[
             { label: 'Entreprise', value: (decl?.entreprise as any)?.nom ?? '-' },
             { label: 'Pays', value: (decl?.entreprise as any)?.pays ?? '-' },
@@ -99,7 +99,7 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
               </div>
             </div>
           ))}
-          <div style={{ marginTop: 20, padding: '14px', borderRadius: 12, background: '#fff', border: '1px solid #EEF0F3', textAlign: 'center' }}>
+          </div><div style={{ marginTop: 20, padding: '14px', borderRadius: 12, background: '#fff', border: '1px solid #EEF0F3', textAlign: 'center' }}>
             <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 4 }}>Scan #{qrCode.nb_scans + 1}</div>
             <div style={{ fontSize: 10, color: '#CBD5E1' }}>Donnees verifiees et certifiees par TEXTILE LOOP</div>
             <div style={{ fontSize: 10, color: '#CBD5E1', marginTop: 2 }}>Plateforme ETHYS - {qrCode.reference}</div>
@@ -160,7 +160,7 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
           </div>
         </div>
       </div>
-      <div style={{ maxWidth: 480, margin: '0 auto', padding: '24px' }}>
+      <div style={{ maxWidth: 480, margin: '0 auto', padding: '24px' }}><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
         {[
           { label: 'Origine matiere', value: String(lot?.origine ?? 'Non renseigne') },
           { label: 'Filature', value: filature?.nom ?? '-' },
@@ -179,7 +179,7 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
             </div>
           </div>
         ))}
-        <div style={{ marginTop: 20, padding: '14px', borderRadius: 12, background: '#fff', border: '1px solid #EEF0F3', textAlign: 'center' }}>
+        </div><div style={{ marginTop: 20, padding: '14px', borderRadius: 12, background: '#fff', border: '1px solid #EEF0F3', textAlign: 'center' }}>
           <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 4 }}>Scan #{qrCode.nb_scans + 1}</div>
           <div style={{ fontSize: 10, color: '#CBD5E1' }}>Donnees verifiees et certifiees par TEXTILE LOOP</div>
           <div style={{ fontSize: 10, color: '#CBD5E1', marginTop: 2 }}>Plateforme ETHYS - {String(qrCode.reference)}</div>
