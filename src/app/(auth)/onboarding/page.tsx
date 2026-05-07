@@ -17,6 +17,7 @@ function OnboardingContent() {
   const searchParams = useSearchParams()
   const supabase = createClient()
   const [step, setStep] = useState(searchParams.get('step') === 'email' ? 0 : 1)
+  const isRedirected = searchParams.get('redirect') === '1'
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
   const [form, setForm] = useState({
@@ -164,9 +165,11 @@ function OnboardingContent() {
                 onFocus={e => e.target.style.borderColor = '#0A3D26'} onBlur={e => e.target.style.borderColor = '#E2E8F0'} />
             </div>
 
-            <div style={{ padding: '12px 14px', borderRadius: 10, background: '#FEF3C7', border: '1px solid #FCD34D', fontSize: 12, color: '#92400E', marginBottom: 12 }}>
-              Vous avez tenté d'accéder à une page qui nécessite un profil complet. Veuillez renseigner vos coordonnées pour débloquer l'accès à tous les modules.
-            </div>
+            {isRedirected && (
+              <div style={{ padding: '12px 14px', borderRadius: 10, background: '#FEF3C7', border: '1px solid #FCD34D', fontSize: 12, color: '#92400E', marginBottom: 12 }}>
+                Vous avez tenté d'accéder à une page qui nécessite un profil complet. Veuillez renseigner vos coordonnées pour débloquer l'accès à tous les modules.
+              </div>
+            )}
             <div style={{ padding: '12px 14px', borderRadius: 10, background: '#F0FDF4', border: '1px solid #A7F3D0', fontSize: 12, color: '#065F46', marginBottom: 20 }}>
               Après validation de votre profil, votre entreprise sera vérifiée par TEXTILE LOOP avant que vous puissiez accéder à toutes les fonctionnalités.
             </div>

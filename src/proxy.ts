@@ -56,7 +56,7 @@ export async function proxy(request: NextRequest) {
   // Niveau 1 - Profil incomplet ou delai expire
   if (!profilComplet || delaiExpire) {
     if (!MINIMAL_PATHS.some(p => pathname.startsWith(p))) {
-      return NextResponse.redirect(new URL('/onboarding', request.url))
+      return NextResponse.redirect(new URL('/onboarding?redirect=1', request.url))
     }
     return response
   }
