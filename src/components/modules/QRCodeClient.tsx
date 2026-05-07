@@ -457,9 +457,6 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
                     console.log('API result:', result)
                     if (result.data) window.location.reload()
                     else console.error('Error:', result.error)
-                      },
-                    console.log('QR result:', qrData, qrError?.message)
-                    else console.error('Insert failed:', qrError)
                   }}
                   style={{ width: '100%', padding: '11px', borderRadius: 10, border: 'none', background: '#0A3D26', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
                 >
