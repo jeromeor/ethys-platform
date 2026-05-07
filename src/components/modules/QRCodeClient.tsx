@@ -434,28 +434,31 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
               ) : (
                 <button
                   onClick={async () => {
-                    const sb = supabase
                     const reference = `ETHYS-CERT-${selectedCert.numero.replace(/\//g, '-')}`
-                    const urlPublique = `${window.location.origin}/tracabilite/${reference}`
-                    const { data: qrData, error: qrError } = await sb.from('qr_codes').insert({
-                      certification_id: selectedCert.id,
-                      reference,
-                      url_publique: urlPublique,
-                      data_encodee: {
+                    const res = await fetch('/api/qr-certification', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
                         certification_id: selectedCert.id,
                         numero: selectedCert.numero,
-                        type_produit: selectedCert.declaration?.type_produit,
-                        entreprise: selectedCert.declaration?.entreprise?.nom,
-                        filature: selectedCert.declaration?.filature_nom,
-                        pct_recycle: selectedCert.declaration?.pct_recycle,
-                        volume_recycle_kg: selectedCert.declaration?.volume_recycle_kg,
-                        volume_vierge_kg: selectedCert.declaration?.volume_vierge_kg,
+                        data_encodee: {
+                          certification_id: selectedCert.id,
+                          numero: selectedCert.numero,
+                          type_produit: selectedCert.declaration?.type_produit,
+                          entreprise: selectedCert.declaration?.entreprise?.nom,
+                          filature: selectedCert.declaration?.filature_nom,
+                          pct_recycle: selectedCert.declaration?.pct_recycle,
+                          volume_recycle_kg: selectedCert.declaration?.volume_recycle_kg,
+                          volume_vierge_kg: selectedCert.declaration?.volume_vierge_kg,
+                        }
+                      })
+                    })
+                    const result = await res.json()
+                    console.log('API result:', result)
+                    if (result.data) window.location.reload()
+                    else console.error('Error:', result.error)
                       },
-                      actif: true,
-                      nb_scans: 0,
-                    }).select().single()
                     console.log('QR result:', qrData, qrError?.message)
-                    if (qrData) window.location.reload()
                     else console.error('Insert failed:', qrError)
                   }}
                   style={{ width: '100%', padding: '11px', borderRadius: 10, border: 'none', background: '#0A3D26', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
