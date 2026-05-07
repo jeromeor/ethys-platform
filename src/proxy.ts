@@ -6,7 +6,7 @@ const PUBLIC_PATHS = ['/login', '/register', '/forgot-password', '/reset-passwor
 const ONBOARDING_PATHS = ['/onboarding', '/en-attente']
 const MINIMAL_PATHS = ['/dashboard', '/profil', '/onboarding', '/en-attente']
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   const response = NextResponse.next()
 
