@@ -454,9 +454,11 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
                       actif: true,
                       nb_scans: 0,
                     }).select().single()
-                    console.log('QR insert result:', data, error)
-                    if (data) window.location.reload()
-                    else console.error('Insert failed:', error)
+                    .then(({ data, error }) => {
+                      console.log('QR insert result:', data, error?.message)
+                      if (data) window.location.reload()
+                      else console.error('Insert failed:', error)
+                    })
                   }}
                   style={{ width: '100%', padding: '11px', borderRadius: 10, border: 'none', background: '#0A3D26', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
                 >
