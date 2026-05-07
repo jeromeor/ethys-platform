@@ -23,6 +23,7 @@ const navItems = [
 interface Props {
   user: { email?: string } | null
   profil: {
+    id?: string
     role?: string
     prenom?: string
     nom?: string
