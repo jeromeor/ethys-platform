@@ -437,7 +437,7 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
                     const sb = supabase
                     const reference = `ETHYS-CERT-${selectedCert.numero.replace(/\//g, '-')}`
                     const urlPublique = `${window.location.origin}/tracabilite/${reference}`
-                    const { data } = await sb.from('qr_codes').insert({
+                    const { data: qrData, error: qrError } = await sb.from('qr_codes').insert({
                       certification_id: selectedCert.id,
                       reference,
                       url_publique: urlPublique,
@@ -454,11 +454,9 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
                       actif: true,
                       nb_scans: 0,
                     }).select().single()
-                    .then(({ data, error }) => {
-                      console.log('QR insert result:', data, error?.message)
-                      if (data) window.location.reload()
-                      else console.error('Insert failed:', error)
-                    })
+                    console.log('QR result:', qrData, qrError?.message)
+                    if (qrData) window.location.reload()
+                    else console.error('Insert failed:', qrError)
                   }}
                   style={{ width: '100%', padding: '11px', borderRadius: 10, border: 'none', background: '#0A3D26', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
                 >
