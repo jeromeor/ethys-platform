@@ -10,21 +10,12 @@ export default async function QRCodePage({ searchParams }: { searchParams: Promi
 
   const { data: lots } = await supabase
     .from('lots')
-    .select(`
-      *,
-      commande:commandes(
-        reference, titre,
-        marque:entreprises!commandes_marque_id_fkey(nom),
-        filature:entreprises!commandes_filature_id_fkey(nom),
-        fournisseur:entreprises!commandes_fournisseur_id_fkey(nom)
-      ),
-      qr_codes(*)
-    `)
+    .select(`*, commande:commandes(reference, titre, marque:entreprises!commandes_marque_id_fkey(nom), filature:entreprises!commandes_filature_id_fkey(nom), fournisseur:entreprises!commandes_fournisseur_id_fkey(nom)), qr_codes(*)`)
     .order('created_at', { ascending: false })
 
   const { data: certifications } = await supabase
     .from('certifications_ethys')
-    .select('id, numero, date_emission, date_validite, declaration_id, qr_codes(*)')
+    .select('id, numero, date_emission, date_validite, declaration_id')
     .order('created_at', { ascending: false })
 
   const { data: declarations } = await supabase
@@ -35,12 +26,19 @@ export default async function QRCodePage({ searchParams }: { searchParams: Promi
     .from('entreprises')
     .select('id, nom, pays')
 
+  const { data: qrCodesCerts } = await supabase
+    .from('qr_codes')
+    .select('*')
+    .not('certification_id', 'is', null)
+
   const certificationsEnrichies = (certifications ?? []).map(cert => {
     const decl = (declarations ?? []).find(d => d.id === cert.declaration_id)
     const entreprise = decl ? (entreprises ?? []).find(e => e.id === decl.entreprise_id) : null
+    const qrCodes = (qrCodesCerts ?? []).filter(q => q.certification_id === cert.id)
     return {
       ...cert,
       declaration: decl ? { ...decl, entreprise: entreprise ?? null } : null,
+      qr_codes: qrCodes,
     }
   })
 
