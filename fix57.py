@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+﻿content = """import { createClient } from '@/lib/supabase/server'
 
 export default async function TracabilitePage({ params }: { params: Promise<{ qrId: string }> }) {
   const { qrId } = await params
@@ -188,3 +188,8 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
     </div>
   )
 }
+"""
+
+with open('src/app/tracabilite/[qrId]/page.tsx', 'w', encoding='utf-8') as f:
+    f.write(content)
+print('Done')
