@@ -87,10 +87,10 @@ export default function SidebarLayout({ user, profil, children }: Props) {
         <header style={{ height: 60, background: '#fff', borderBottom: '1px solid #EEF0F3', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 28px', flexShrink: 0 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: '#0A3D26' }}>
             {navItems.find(n => pathname === n.route || pathname.startsWith(n.route + '/'))?.label ?? 'Dashboard'}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <NotificationBell userId={profil?.id ?? ''} />
           </div>
-          <div style={{ fontSize: 12, color: '#94A3B8', position: 'relative' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <NotificationBell userId={profil?.id ?? ''} />
+            <div style={{ fontSize: 12, color: '#94A3B8', position: 'relative' }}>
             <button
               onClick={() => setShowUserMenu(v => !v)}
               style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 12px', borderRadius: 10, border: '1.5px solid #EEF0F3', background: '#F8FAFC', cursor: 'pointer' }}
