@@ -208,7 +208,6 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
             borderBottom: activeTab === t ? '2px solid #0A3D26' : '2px solid transparent',
             marginBottom: -2
           }}>{t}</button>
-          }}>{t}</button>
         ))}
         <div style={{ flex: 1 }} />
         <button onClick={() => setShowInvite(true)} style={{ margin: '4px 0', padding: '5px 12px', borderRadius: 8, border: 'none', background: '#0A3D26', color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer', alignSelf: 'center' }}>+ Inviter</button>
