@@ -434,8 +434,7 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
               ) : (
                 <button
                   onClick={async () => {
-                    const { createClient } = await import('@/lib/supabase/client')
-                    const sb = createClient()
+                    const sb = supabase
                     const reference = `ETHYS-CERT-${selectedCert.numero.replace(/\//g, '-')}`
                     const urlPublique = `${window.location.origin}/tracabilite/${reference}`
                     const { data } = await sb.from('qr_codes').insert({
