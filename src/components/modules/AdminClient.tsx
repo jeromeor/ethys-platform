@@ -91,6 +91,9 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
   const toggleStatut = async (id: string) => {
     const user = utilisateurs.find(u => u.id === id)
     if (!user || id === currentUserId) return
+    const action = user.statut === 'actif' ? 'désactiver' : 'réactiver'
+    const confirm = window.confirm(`Voulez-vous vraiment ${action} le compte ${user.email} ?`)
+    if (!confirm) return
     const newStatut = user.statut === 'actif' ? 'inactif' : 'actif'
     await supabase.from('profils_utilisateurs').update({ statut: newStatut }).eq('id', id)
     setUtilisateurs(prev => prev.map(u => u.id === id ? { ...u, statut: newStatut } : u))
