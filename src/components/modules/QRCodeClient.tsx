@@ -65,7 +65,6 @@ export default function QRCodeClient({ lots: initial, user, certifications, cert
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
   const [previewPublic, setPreviewPublic] = useState(false)
   const [source, setSource] = useState<'lots' | 'certs'>(certificationIdActif ? 'certs' : 'lots')
-  console.log('certifications:', certifications?.length)
 const [selectedCert, setSelectedCert] = useState<Certification | null>(
     certificationIdActif ? (certifications.find(c => c.declaration?.type_produit && c.id === certificationIdActif) ?? null) : null
   )
@@ -151,9 +150,9 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
           </div>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 2 }}>{source === 'lots' ? 'Lots de production' : 'Certifications ETHYS'}</div>
           <div style={{ fontSize: 11, color: '#94A3B8' }}>
-            <span style={{ fontWeight: 700, color: '#0A3D26' }}>{lots.filter(l => l.qr_codes?.length > 0).length}</span> QR générés
+            <span style={{ fontWeight: 700, color: '#0A3D26' }}>{source === 'lots' ? lots.filter(l => l.qr_codes?.length > 0).length : certifications.filter(c => c.qr_codes?.length > 0).length}</span> QR générés
             {' · '}
-            <span style={{ fontWeight: 700, color: '#D97706' }}>{lots.filter(l => !l.qr_codes?.length).length}</span> en attente
+            <span style={{ fontWeight: 700, color: '#D97706' }}>{source === 'lots' ? lots.filter(l => !l.qr_codes?.length).length : certifications.filter(c => !c.qr_codes?.length).length}</span> en attente
           </div>
         </div>
         <div style={{ flex: 1, overflowY: 'auto' }}>
