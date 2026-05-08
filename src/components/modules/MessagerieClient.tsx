@@ -91,11 +91,10 @@ export default function MessagerieClient({ currentUser, currentRole, adminId, ad
     setConversation(conv)
     const nonLus = conv.filter(m => !m.lu && m.auteur_id === user.id).map(m => m.id)
     if (nonLus.length > 0) {
-    if (nonLus.length > 0) {
       const { error } = await supabase.from('messages').update({ lu: true }).in('id', nonLus)
-      if (!error) {
-        setMessages(prev => prev.map(m => nonLus.includes(m.id) ? { ...m, lu: true } : m))
-      }
+      if (!error) setMessages(prev => prev.map(m => nonLus.includes(m.id) ? { ...m, lu: true } : m))
+    }
+  }
 
   const envoyerMessage = async () => {
     if (!newMessage.trim() || !selectedUser) return
