@@ -122,7 +122,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
         reference,
         commande_id: selected.id,
         type_coton: newLot.type_coton,
-        volume_tonnes: parseFloat(newLot.volume_tonnes),
+        volume_tonnes: parseFloat(newLot.volume_tonnes) / 1000,
         origine: newLot.origine || null,
         certification: newLot.certification || null,
         statut: 'en_attente',
@@ -332,7 +332,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                         </select>
                       </div>
                       <div>
-                        <label style={{ fontSize: 11, color: '#64748B', display: 'block', marginBottom: 4 }}>Volume (T)</label>
+                <label style={{ fontSize: 11, color: '#64748B', display: 'block', marginBottom: 4 }}>Volume (kg)</label>
                         <input type="number" value={newLot.volume_tonnes} onChange={e => setNewLot(p => ({ ...p, volume_tonnes: e.target.value }))}
                           placeholder="Ex : 80" style={{ width: '100%', padding: '7px 10px', borderRadius: 8, border: '1.5px solid #E2E8F0', fontSize: 12, boxSizing: 'border-box', outline: 'none' }} />
                       </div>
