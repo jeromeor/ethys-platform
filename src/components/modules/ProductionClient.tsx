@@ -278,7 +278,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                       <div>
                         <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26' }}>{lot.reference}</div>
                         <div style={{ fontSize: 11, color: '#64748B' }}>
-                          {Math.round((lot.volume_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg · {lot.type_coton === 'recycle' ? 'Recyclé' : 'Vierge'} · {lot.type_coton === 'recycle' ? '♻ recyclé' : '🌿 Vierge'}
+                          {Math.round((lot.volume_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg · {'Fil ETHYS'} · {'Fil ETHYS'}
                           {lot.machine && ` · ${lot.machine}`}
                         </div>
                       </div>
@@ -382,7 +382,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                             width: 38, height: 38, borderRadius: 10,
                             background: lot.type_coton === 'recycle' ? '#D1FAE5' : '#DBEAFE',
                             display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18
-                          }}>{lot.type_coton === 'recycle' ? '♻' : '🌿'}</div>
+                          }}>{'🏆'}</div>
                           <div>
                             <div style={{ fontSize: 14, fontWeight: 800, color: '#0A3D26' }}>{lot.reference}</div>
                             <div style={{ fontSize: 11, color: '#64748B' }}>{Math.round((lot.volume_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg - {lot.origine ?? '-'}</div>
