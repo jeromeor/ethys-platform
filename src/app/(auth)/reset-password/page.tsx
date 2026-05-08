@@ -14,14 +14,7 @@ export default function ResetPasswordPage() {
   const [done, setDone] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
-  const [ready, setReady] = useState(false)
-
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') setReady(true)
-    })
-    return () => subscription.unsubscribe()
-  }, [])
+  const [ready, setReady] = useState(true)
 
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -79,7 +72,7 @@ export default function ResetPasswordPage() {
                   </div>
                 </div>
                 {error && <div style={{ padding: '10px 14px', borderRadius: 8, background: '#FEF2F2', border: '1px solid #FCA5A5', fontSize: 12, color: '#DC2626', marginBottom: 16 }}>{error}</div>}
-                <button type="submit" disabled={loading || !ready} style={{ width: '100%', padding: '11px', borderRadius: 10, border: 'none', background: loading || !ready ? '#E2E8F0' : '#0A3D26', color: loading || !ready ? '#94A3B8' : '#fff', fontSize: 14, fontWeight: 700, cursor: loading || !ready ? 'default' : 'pointer' }}>
+                <button type="submit" disabled={loading} style={{ width: '100%', padding: '11px', borderRadius: 10, border: 'none', background: loading ? '#E2E8F0' : '#0A3D26', color: loading ? '#94A3B8' : '#fff', fontSize: 14, fontWeight: 700, cursor: loading ? 'default' : 'pointer' }}>
                   {loading ? 'Mise à jour...' : 'Définir le nouveau mot de passe'}
                 </button>
               </form>

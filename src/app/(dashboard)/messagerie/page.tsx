@@ -39,7 +39,7 @@ export default async function MessageriePage() {
       currentRole={profil?.role ?? 'marque'}
       adminId={adminId}
       adminUser={adminUser}
-      utilisateurs={utilisateurs.filter(u => u.id !== user.id)}
+      utilisateurs={utilisateurs}
     />
   )
 }

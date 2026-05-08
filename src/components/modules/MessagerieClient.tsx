@@ -50,8 +50,12 @@ export default function MessagerieClient({ currentUser, currentRole, adminId, ad
   }
 
   const nomExpediteur = (msg: Message) => {
-    const auteur = utilisateurs.find(u => u.id === msg.auteur_id) ?? 
-      (msg.auteur_id === currentUser.id ? { email: currentUser.email, prenom: undefined, nom: undefined } : null)
+    if (msg.auteur_id === currentUser.id) {
+      const moi = utilisateurs.find(u => u.id === currentUser.id)
+      if (moi?.prenom && moi?.nom) return `${moi.prenom} ${moi.nom}`
+      return currentUser.email
+    }
+    const auteur = utilisateurs.find(u => u.id === msg.auteur_id)
     if (auteur?.prenom && auteur?.nom) return `${auteur.prenom} ${auteur.nom}`
     return auteur?.email ?? 'Inconnu'
   }

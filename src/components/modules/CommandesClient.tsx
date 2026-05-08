@@ -397,7 +397,7 @@ const CréerCommande = async () => {
               <div>
                 {labelInput('Type de coton')}
                 <div style={{ display: 'flex', gap: 8 }}>
-                  {[['recycle', '♻ 100% Recycle'], ['mixte', '⚖ Mixte'], ['vierge', '🌿 100% Vierge']].map(([v, l]) => (
+                  {[['mixte', 'Fil ETHYS (recyclé + vierge)']].map(([v, l]) => (
                     <button key={v} onClick={() => set('type_coton', v)} style={{
                       flex: 1, padding: '8px', borderRadius: 10, cursor: 'pointer',
                       border: `2px solid ${form.type_coton === v ? '#0A3D26' : '#EEF0F3'}`,
