@@ -35,11 +35,11 @@ export default async function MessageriePage() {
 
   return (
     <MessagerieClient
-      currentUser={{ id: user.id, email: user.email ?? '' }}
+      currentUser={{ id: user.id, email: user.email ?? '', prenom: profil?.prenom, nom: profil?.nom }}
       currentRole={profil?.role ?? 'marque'}
       adminId={adminId}
       adminUser={adminUser}
-      utilisateurs={utilisateurs}
+      utilisateurs={utilisateurs.filter(u => u.id !== user.id)}
     />
   )
 }

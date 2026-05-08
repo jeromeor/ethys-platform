@@ -23,7 +23,7 @@ interface Utilisateur {
 }
 
 interface Props {
-  currentUser: { id: string; email: string }
+  currentUser: { id: string; email: string; prenom?: string; nom?: string }
   currentRole: string
   adminId: string
   adminUser: Utilisateur | null
@@ -51,8 +51,7 @@ export default function MessagerieClient({ currentUser, currentRole, adminId, ad
 
   const nomExpediteur = (msg: Message) => {
     if (msg.auteur_id === currentUser.id) {
-      const moi = utilisateurs.find(u => u.id === currentUser.id)
-      if (moi?.prenom && moi?.nom) return `${moi.prenom} ${moi.nom}`
+      if (currentUser.prenom && currentUser.nom) return `${currentUser.prenom} ${currentUser.nom}`
       return currentUser.email
     }
     const auteur = utilisateurs.find(u => u.id === msg.auteur_id)

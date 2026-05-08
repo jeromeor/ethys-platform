@@ -85,7 +85,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
     filature_id: '',
     fournisseur_id: '',
     type_coton: 'mixte',
-    volume_recyclé_tonnes: '',
+    volume_recycle_tonnes: '',
     volume_vierge_tonnes: '',
     grammage: '',
     date_livraison_souhaitee: '',
@@ -110,7 +110,7 @@ const CréerCommande = async () => {
       setError('Veuillez remplir tous les champs obligatoires : Marque, Filature, Fournisseur et Date de livraison.')
       return
     }
-    if (form.type_coton === 'recyclé' && (!form.volume_recyclé_tonnes || parseFloat(form.volume_recyclé_tonnes) <= 0)) {
+    if (form.type_coton === 'recycle' && (!form.volume_recycle_tonnes || parseFloat(form.volume_recycle_tonnes) <= 0)) {
       setError('Veuillez indiquer un volume de coton recyclé supérieur a 0.')
       return
     }
@@ -118,7 +118,7 @@ const CréerCommande = async () => {
       setError('Veuillez indiquer un volume de coton vierge supérieur a 0.')
       return
     }
-    if (form.type_coton === 'mixte' && (!form.volume_recyclé_tonnes || !form.volume_vierge_tonnes)) {
+    if (form.type_coton === 'mixte' && (!form.volume_recycle_tonnes || !form.volume_vierge_tonnes)) {
       setError('Pour un type mixte, Veuillez indiquer les volumes recyclé et vierge.')
       return
     }
@@ -133,7 +133,7 @@ const CréerCommande = async () => {
         filature_id: form.filature_id,
         fournisseur_id: form.fournisseur_id,
         type_coton: form.type_coton,
-        volume_recyclé_tonnes: parseFloat(form.volume_recyclé_tonnes) || 0,
+        volume_recycle_tonnes: parseFloat(form.volume_recycle_tonnes) || 0,
         volume_vierge_tonnes: parseFloat(form.volume_vierge_tonnes) || 0,
         grammage: form.grammage || null,
         date_livraison_souhaitee: form.date_livraison_souhaitee,
@@ -156,7 +156,7 @@ const CréerCommande = async () => {
       setShowForm(false)
       setForm({
         titre: '', marque_id: '', filature_id: '', fournisseur_id: '',
-        type_coton: 'mixte', volume_recyclé_tonnes: '', volume_vierge_tonnes: '',
+        type_coton: 'mixte', volume_recycle_tonnes: '', volume_vierge_tonnes: '',
         grammage: '', date_livraison_souhaitee: '', priorite: 'normale', notes: '',
       })
     }
@@ -413,12 +413,12 @@ const CréerCommande = async () => {
                 {form.type_coton !== 'vierge' && (
                   <div>
                     {labelInput('Volume recyclé (kg)')}
-                    <input type="number" min="0" value={form.volume_recyclé_tonnes}
-                      onChange={e => set('volume_recyclé_tonnes', e.target.value)}
+                    <input type="number" min="0" value={form.volume_recycle_tonnes}
+                      onChange={e => set('volume_recycle_tonnes', e.target.value)}
                       placeholder="Ex : 80" style={inputStyle} />
                   </div>
                 )}
-                {form.type_coton !== 'recyclé' && (
+                {form.type_coton !== 'recycle' && (
                   <div>
                     {labelInput('Volume vierge (kg)')}
                     <input type="number" min="0" value={form.volume_vierge_tonnes}
