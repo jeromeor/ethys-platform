@@ -70,6 +70,13 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
   })
 
   const updateAvancement = async (lotId: string, pct: number) => {
+    const lot = selected?.lots.find(l => l.id === lotId)
+    if (lot && pct < lot.avancement_pct) {
+      const confirm = window.confirm(
+        'Attention : vous essayez de réduire l\'avancement. Un retour en arrière nécessite une validation admin. Voulez-vous soumettre une demande de correction ?'
+      )
+      if (!confirm) return
+    }
     setUpdatingLot(lotId)
     const { error } = await supabase
       .from('lots')
@@ -312,7 +319,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                     width: '100%', padding: '10px', borderRadius: 10,
                     border: '2px dashed #D1FAE5', background: '#F0FDF4',
                     color: '#0A3D26', fontSize: 12, fontWeight: 600, cursor: 'pointer'
-                  }}>ï¼‹ Ajouter un lot</button>
+          }}>+ Ajouter un lot</button>
                 ) : (
                   <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #EEF0F3', padding: '16px 20px' }}>
                     <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 12 }}>Nouveau lot</div>
@@ -321,8 +328,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                         <label style={{ fontSize: 11, color: '#64748B', display: 'block', marginBottom: 4 }}>Type coton</label>
                         <select value={newLot.type_coton} onChange={e => setNewLot(p => ({ ...p, type_coton: e.target.value }))}
                           style={{ width: '100%', padding: '7px 10px', borderRadius: 8, border: '1.5px solid #E2E8F0', fontSize: 12, outline: 'none' }}>
-                          <option value='recycle'>♻ recyclé</option>
-                          <option value="vierge">🌿 Vierge</option>
+                <option value='recycle'>Fil ETHYS (recyclé)</option>
                         </select>
                       </div>
                       <div>
