@@ -403,7 +403,7 @@ export default function CertificationClient({ declarations: initial, userRole, e
         {/* État vide */}
         {!selected && !showForm && (
           <div style={{ textAlign: 'center', padding: '80px 40px', color: '#94A3B8' }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>🏆</div>
+            <div style={{ fontSize: 48, marginBottom: 16 }}></div>
             <div style={{ fontSize: 16, fontWeight: 700, color: '#0A3D26', marginBottom: 8 }}>Certification ETHYS</div>
             <div style={{ fontSize: 13, lineHeight: 1.6, maxWidth: 400, margin: '0 auto' }}>
               {isAdmin
