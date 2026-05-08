@@ -34,7 +34,8 @@ export default function EnAttentePage() {
   return (
     <div style={{ minHeight: '100vh', background: '#F7F8FA', fontFamily: "'DM Sans', sans-serif", display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
       <div style={{ width: '100%', maxWidth: 480, textAlign: 'center' }}>
-        <img src="/logo.png" alt="TEXTILE LOOP" style={{ width: 140, height: 'auto', margin: '0 auto 32px', display: 'block' }} />
+        <img src="/logo.png" alt="TEXTILE LOOP" style={{ width: 140, height: 'auto', margin: '0 auto 12px', display: 'block' }} />
+        <div style={{ fontSize: 13, color: '#94A3B8', marginBottom: 32, textAlign: 'center' }}>Plateforme ETHYS</div>
         <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #EEF0F3', padding: '40px 32px', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
           <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#D1FAE5', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontSize: 28 }}>⏳</div>
           <div style={{ fontSize: 20, fontWeight: 700, color: '#0A3D26', marginBottom: 12 }}>Profil en cours de validation</div>

@@ -29,7 +29,7 @@ export default function RegisterPage() {
     const { error } = await supabase.auth.signUp({ email, password, options: { data: { role } } })
     if (password !== confirmPassword) { setError('Les mots de passe ne correspondent pas.'); setLoading(false); return }
     if (error) { setError(error.message); setLoading(false); return }
-    router.push('/dashboard')
+    router.push('/onboarding')
     router.refresh()
   }
 

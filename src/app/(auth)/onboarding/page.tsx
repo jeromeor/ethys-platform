@@ -19,6 +19,7 @@ function OnboardingContent() {
   const [step, setStep] = useState(searchParams.get('step') === 'email' ? 0 : 1)
   const isRedirected = searchParams.get('redirect') === '1'
   const [saving, setSaving] = useState(false)
+  const [errors, setErrors] = useState<Record<string, boolean>>({})
   const [message, setMessage] = useState('')
   const [form, setForm] = useState({
     prenom: '',
@@ -46,10 +47,18 @@ function OnboardingContent() {
   }, [])
 
   const sauvegarder = async () => {
-    if (!form.prenom || !form.nom || !form.telephone || !form.adresse_rue || !form.adresse_ville) {
+    const newErrors: Record<string, boolean> = {}
+    if (!form.prenom) newErrors.prenom = true
+    if (!form.nom) newErrors.nom = true
+    if (!form.telephone) newErrors.telephone = true
+    if (!form.adresse_rue) newErrors.adresse_rue = true
+    if (!form.adresse_ville) newErrors.adresse_ville = true
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors)
       setMessage('Veuillez remplir tous les champs obligatoires.')
       return
     }
+    setErrors({})
     setSaving(true)
     const { data: { user } } = await supabase.auth.getUser()
     const { error } = await supabase
@@ -131,12 +140,12 @@ function OnboardingContent() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: '#64748B', display: 'block', marginBottom: 6 }}>Prénom *</label>
-                <input value={form.prenom} onChange={e => setForm(f => ({ ...f, prenom: e.target.value }))} style={inputStyle} placeholder="Marie"
+                <input value={form.prenom} onChange={e => { setForm(f => ({ ...f, prenom: e.target.value })); setErrors(e2 => ({ ...e2, prenom: false })) }} style={{ ...inputStyle, borderColor: errors.prenom ? '#EF4444' : '#E2E8F0' }} placeholder="Marie"
                   onFocus={e => e.target.style.borderColor = '#0A3D26'} onBlur={e => e.target.style.borderColor = '#E2E8F0'} />
               </div>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: '#64748B', display: 'block', marginBottom: 6 }}>Nom *</label>
-                <input value={form.nom} onChange={e => setForm(f => ({ ...f, nom: e.target.value }))} style={inputStyle} placeholder="Dupont"
+                <input value={form.nom} onChange={e => { setForm(f => ({ ...f, nom: e.target.value })); setErrors(e2 => ({ ...e2, nom: false })) }} style={{ ...inputStyle, borderColor: errors.nom ? '#EF4444' : '#E2E8F0' }} placeholder="Dupont"
                   onFocus={e => e.target.style.borderColor = '#0A3D26'} onBlur={e => e.target.style.borderColor = '#E2E8F0'} />
               </div>
             </div>
@@ -147,19 +156,19 @@ function OnboardingContent() {
                 <select value={form.telephone_indicatif} onChange={e => setForm(f => ({ ...f, telephone_indicatif: e.target.value.split(' ')[0] }))} style={{ ...inputStyle, width: 160, flexShrink: 0 }}>
                   {INDICATIFS.map(i => <option key={i} value={i.split(' ')[0]}>{i}</option>)}
                 </select>
-                <input value={form.telephone} onChange={e => setForm(f => ({ ...f, telephone: e.target.value }))} style={inputStyle} placeholder="06 12 34 56 78"
+                <input value={form.telephone} onChange={e => { setForm(f => ({ ...f, telephone: e.target.value })); setErrors(e2 => ({ ...e2, telephone: false })) }} style={{ ...inputStyle, borderColor: errors.telephone ? '#EF4444' : '#E2E8F0' }} placeholder="06 12 34 56 78"
                   onFocus={e => e.target.style.borderColor = '#0A3D26'} onBlur={e => e.target.style.borderColor = '#E2E8F0'} />
               </div>
             </div>
 
             <div style={{ marginBottom: 14 }}>
               <label style={{ fontSize: 12, fontWeight: 600, color: '#64748B', display: 'block', marginBottom: 6 }}>Adresse *</label>
-              <input value={form.adresse_rue} onChange={e => setForm(f => ({ ...f, adresse_rue: e.target.value }))} style={{ ...inputStyle, marginBottom: 8 }} placeholder="12 rue de la Paix"
+              <input value={form.adresse_rue} onChange={e => { setForm(f => ({ ...f, adresse_rue: e.target.value })); setErrors(e2 => ({ ...e2, adresse_rue: false })) }} style={{ ...inputStyle, marginBottom: 8, borderColor: errors.adresse_rue ? '#EF4444' : '#E2E8F0' }} placeholder="12 rue de la Paix"
                 onFocus={e => e.target.style.borderColor = '#0A3D26'} onBlur={e => e.target.style.borderColor = '#E2E8F0'} />
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 8 }}>
                 <input value={form.adresse_code_postal} onChange={e => setForm(f => ({ ...f, adresse_code_postal: e.target.value }))} style={inputStyle} placeholder="75001"
                   onFocus={e => e.target.style.borderColor = '#0A3D26'} onBlur={e => e.target.style.borderColor = '#E2E8F0'} />
-                <input value={form.adresse_ville} onChange={e => setForm(f => ({ ...f, adresse_ville: e.target.value }))} style={inputStyle} placeholder="Paris"
+                <input value={form.adresse_ville} onChange={e => { setForm(f => ({ ...f, adresse_ville: e.target.value })); setErrors(e2 => ({ ...e2, adresse_ville: false })) }} style={{ ...inputStyle, borderColor: errors.adresse_ville ? '#EF4444' : '#E2E8F0' }} placeholder="Paris"
                   onFocus={e => e.target.style.borderColor = '#0A3D26'} onBlur={e => e.target.style.borderColor = '#E2E8F0'} />
               </div>
             </div>
