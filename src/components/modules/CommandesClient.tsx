@@ -13,7 +13,7 @@ interface Entreprise { id: string; nom: string; type: string }
 
 interface Commande {
   id: string
-  Référence: string
+  reference: string
   titre: string | null
   statut: StatutCommande
   type_coton: string
@@ -237,9 +237,9 @@ const CréerCommande = async () => {
                         onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = '#F8FAFC'}
                         onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = 'transparent'}
                       >
-                        <td style={{ padding: '12px 14px', fontSize: 12, fontWeight: 800, color: '#0A3D26', whiteSpace: 'nowrap' }}>{c.Référence}</td>
-                        <td style={{ padding: '12px 14px', fontSize: 12, color: '#475569' }}>{c.marque?.nom ?? 'â€”'}</td>
-                        <td style={{ padding: '12px 14px', fontSize: 12, color: '#475569' }}>{c.filature?.nom ?? 'â€”'}</td>
+                        <td style={{ padding: '12px 14px', fontSize: 12, fontWeight: 800, color: '#0A3D26', whiteSpace: 'nowrap' }}>{c.reference}</td>
+                        <td style={{ padding: '12px 14px', fontSize: 12, color: '#475569' }}>{c.marque?.nom ?? '-'}</td>
+                        <td style={{ padding: '12px 14px', fontSize: 12, color: '#475569' }}>{c.filature?.nom ?? '-'}</td>
                         <td style={{ padding: '12px 14px', fontSize: 12, fontWeight: 600 }}>{Math.round((c.volume_total_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg</td>
                         <td style={{ padding: '12px 14px' }}>
                           <span style={{ fontSize: 11, fontWeight: 600, color: '#059669' }}>
@@ -290,12 +290,12 @@ const CréerCommande = async () => {
             padding: '14px 18px', borderBottom: '1px solid #F1F5F9',
             display: 'flex', justifyContent: 'space-between', alignItems: 'center'
           }}>
-            <span style={{ fontWeight: 700, fontSize: 13, color: '#0A3D26' }}>{selected.Référence}</span>
+            <span style={{ fontWeight: 700, fontSize: 13, color: '#0A3D26' }}>{selected.reference}</span>
             <button onClick={() => setSelected(null)} style={{ border: 'none', background: 'none', fontSize: 16, color: '#94A3B8', cursor: 'pointer' }}>âœ•</button>
           </div>
           <div style={{ flex: 1, overflow: 'auto', padding: '18px' }}>
             <div style={{ background: 'linear-gradient(135deg,#0A3D26,#0D5C3A)', borderRadius: 12, padding: '16px', color: '#fff', marginBottom: 16 }}>
-              <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 4 }}>{selected.Référence}</div>
+              <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 4 }}>{selected.reference}</div>
               {selected.titre && <div style={{ fontSize: 11, opacity: 0.75, marginBottom: 10 }}>{selected.titre}</div>}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                 {[
