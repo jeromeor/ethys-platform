@@ -52,7 +52,7 @@ export default async function TraçabilitéPage({ params }: { params: Promise<{ 
               Valide jusqu'au {cert ? new Date(cert.date_validite).toLocaleDateString('fr-FR') : '-'}
             </div>
             <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 12, padding: '16px', marginBottom: 14 }}>
-              <div style={{ fontSize: 10, color: '#6EE7B7', fontWeight: 600, marginBottom: 10, letterSpacing: 1 }}>MATIERES PREMIERES</div>
+              <div style={{ fontSize: 10, color: '#6EE7B7', fontWeight: 600, marginBottom: 10, letterSpacing: 1 }}>MATIÈRES PREMIÈRES</div>
               <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
                 <div style={{ flex: pctRecyclé, background: '#10B981', borderRadius: 6, padding: '10px 8px', textAlign: 'center' }}>
                   <div style={{ fontSize: 22, fontWeight: 900, color: '#fff' }}>{pctRecyclé}%</div>
@@ -135,7 +135,7 @@ export default async function TraçabilitéPage({ params }: { params: Promise<{ 
             Lot #{String(lot?.reference ?? '')} - {String(commande?.reference ?? '')}
           </div>
           <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 12, padding: '16px', marginBottom: 14 }}>
-            <div style={{ fontSize: 10, color: '#6EE7B7', fontWeight: 600, marginBottom: 10, letterSpacing: 1 }}>MATIERES PREMIERES</div>
+            <div style={{ fontSize: 10, color: '#6EE7B7', fontWeight: 600, marginBottom: 10, letterSpacing: 1 }}>MATIÈRES PREMIÈRES</div>
             <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
               <div style={{ flex: pctRecyclé, background: '#10B981', borderRadius: 6, padding: '10px 8px', textAlign: 'center' }}>
                 <div style={{ fontSize: 22, fontWeight: 900, color: '#fff' }}>{pctRecyclé}%</div>
