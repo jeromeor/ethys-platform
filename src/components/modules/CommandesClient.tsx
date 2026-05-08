@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 type StatutCommande =
   | 'brouillon' | 'soumise' | 'validation_fournisseur'
   | 'validation_filature' | 'validation_finale' | 'en_production'
-  | 'controle_qualite' | 'qr_genere' | 'expediee' | 'livree' | 'annulee'
+  | 'controle_qualite' | 'qr_genere' | 'expediee' | 'livrée' | 'annulee'
 
 interface Entreprise { id: string; nom: string; type: string }
 
@@ -46,7 +46,7 @@ const STATUT_LABELS: Record<StatutCommande, string> = {
   controle_qualite:       'Contrôle qualité',
   qr_genere:              'QR généré',
   expediee:               'Expédiée',
-  livree:                 'Livrées',
+  livrée:                 'Livrées',
   annulee:                'Annulée',
 }
 
@@ -60,13 +60,13 @@ const STATUT_COLORS: Record<string, [string, string, string]> = {
   controle_qualite:       ['#FEF3C7', '#92400E', '#F59E0B'],
   qr_genere:              ['#D1FAE5', '#065F46', '#10B981'],
   expediee:               ['#D1FAE5', '#065F46', '#10B981'],
-  livree:                 ['#D1FAE5', '#065F46', '#10B981'],
+  livrée:                 ['#D1FAE5', '#065F46', '#10B981'],
   annulee:                ['#FEE2E2', '#991B1B', '#EF4444'],
 }
 
 const ETAPES = [
   'soumise', 'validation_fournisseur', 'validation_filature',
-  'validation_finale', 'en_production', 'qr_genere', 'livree'
+  'validation_finale', 'en_production', 'qr_genere', 'livrée'
 ]
 
 export default function CommandesClient({ user, profil, commandes: initial, entreprises }: Props) {
@@ -189,7 +189,7 @@ const CréerCommande = async () => {
           display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexShrink: 0
         }}>
           <div style={{ display: 'flex', gap: 6 }}>
-            {['tous', 'soumise', 'en_production', 'livree'].map(s => (
+            {['tous', 'soumise', 'en_production', 'livrée'].map(s => (
               <button key={s} onClick={() => setFilterStatut(s)} style={{
                 padding: '5px 12px', borderRadius: 20, border: 'none', cursor: 'pointer',
                 fontSize: 11, fontWeight: filterStatut === s ? 700 : 500,

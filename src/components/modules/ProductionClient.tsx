@@ -54,8 +54,8 @@ const STATUT_LOT_COLORS: Record<string, [string, string]> = {
   en_attente:       ['#F1F5F9', '#475569'],
   en_production:    ['#D1ECF1', '#0C5460'],
   controle_qualite: ['#FEF3C7', '#92400E'],
-  valide:           ['#D1FAE5', '#065F46'],
-  livre:            ['#D1FAE5', '#065F46'],
+  validé:           ['#D1FAE5', '#065F46'],
+  livré:            ['#D1FAE5', '#065F46'],
 }
 
 export default function ProductionClient({ commandes: initial, user }: Props) {
@@ -283,7 +283,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                           fontSize: 11, outline: 'none', cursor: 'pointer'
                         }}
                       >
-                        {['en_attente', 'en_production', 'controle_qualite', 'valide', 'livre'].map(s => (
+                        {['en_attente', 'en_production', 'controle_qualite', 'validé', 'livré'].map(s => (
                           <option key={s} value={s}>{s.replace('_', ' ')}</option>
                         ))}
                       </select>

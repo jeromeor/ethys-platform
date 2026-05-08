@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 
-export default async function TracabilitePage({ params }: { params: Promise<{ qrId: string }> }) {
+export default async function TraçabilitéPage({ params }: { params: Promise<{ qrId: string }> }) {
   const { qrId } = await params
   const supabase = await createClient()
 
@@ -37,27 +37,27 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
       .eq('id', cert?.declaration_id)
       .single()
 
-    const pctRecycle = Number(decl?.pct_recycle ?? 51)
-    const pctVierge = 100 - pctRecycle
+    const pctRecyclé = Number(decl?.pct_recyclé ?? 51)
+    const pctVierge = 100 - pctRecyclé
     const typeLabel = decl?.type_produit === 'fil' ? 'Fil ETHYS' : decl?.type_produit === 'tissu' ? 'Tissu ETHYS' : 'Produit fini ETHYS'
 
     return (
       <div style={{ minHeight: '100vh', background: '#F7F8FA', fontFamily: "'DM Sans', sans-serif" }}>
         <div style={{ background: 'linear-gradient(135deg,#0A3D26,#0D5C3A)', padding: '32px 24px', color: '#fff' }}>
           <div style={{ maxWidth: 480, margin: '0 auto' }}>
-            <div style={{ fontSize: 10, color: '#6EE7B7', fontWeight: 600, letterSpacing: 1, marginBottom: 8 }}>ETHYS - TRACABILITE TOTALE</div>
+            <div style={{ fontSize: 10, color: '#6EE7B7', fontWeight: 600, letterSpacing: 1, marginBottom: 8 }}>ETHYS - TRAÇABILITÉ TOTALE</div>
             <div style={{ fontSize: 24, fontWeight: 900, marginBottom: 4 }}>{typeLabel}</div>
             <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 6 }}>{cert?.numero}</div>
             <div style={{ fontSize: 11, opacity: 0.6, marginBottom: 20 }}>
-              Valide jusqu au {cert ? new Date(cert.date_validite).toLocaleDateString('fr-FR') : '-'}
+              Valide jusqu'au {cert ? new Date(cert.date_validite).toLocaleDateString('fr-FR') : '-'}
             </div>
             <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 12, padding: '16px', marginBottom: 14 }}>
               <div style={{ fontSize: 10, color: '#6EE7B7', fontWeight: 600, marginBottom: 10, letterSpacing: 1 }}>MATIERES PREMIERES</div>
               <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
-                <div style={{ flex: pctRecycle, background: '#10B981', borderRadius: 6, padding: '10px 8px', textAlign: 'center' }}>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: '#fff' }}>{pctRecycle}%</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>Coton recycle</div>
-                  <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>{Number(decl?.volume_recycle_kg ?? 0).toLocaleString('fr-FR')} kg</div>
+                <div style={{ flex: pctRecyclé, background: '#10B981', borderRadius: 6, padding: '10px 8px', textAlign: 'center' }}>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: '#fff' }}>{pctRecyclé}%</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>Coton recyclé</div>
+                  <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>{Number(decl?.volume_recyclé_kg ?? 0).toLocaleString('fr-FR')} kg</div>
                 </div>
                 <div style={{ flex: pctVierge, background: 'rgba(255,255,255,0.15)', borderRadius: 6, padding: '10px 8px', textAlign: 'center' }}>
                   <div style={{ fontSize: 22, fontWeight: 900, color: '#fff' }}>{pctVierge}%</div>
@@ -66,14 +66,14 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
                 </div>
               </div>
               <div style={{ height: 6, background: 'rgba(255,255,255,0.15)', borderRadius: 3, overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: `${pctRecycle}%`, background: '#6EE7B7', borderRadius: 3 }} />
+                <div style={{ height: '100%', width: `${pctRecyclé}%`, background: '#6EE7B7', borderRadius: 3 }} />
               </div>
             </div>
             <div style={{ background: 'rgba(110,231,183,0.2)', borderRadius: 10, padding: '12px 14px', border: '1px solid rgba(110,231,183,0.4)', textAlign: 'center' }}>
-              <div style={{ fontSize: 14, fontWeight: 900, color: '#6EE7B7', marginBottom: 4 }}>v Certifie ETHYS</div>
+              <div style={{ fontSize: 14, fontWeight: 900, color: '#6EE7B7', marginBottom: 4 }}>v Certifié ETHYS</div>
               <div style={{ fontSize: 11, fontWeight: 700, color: '#6EE7B7' }}>{cert?.numero}</div>
               <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5, marginTop: 4 }}>
-                Certifie par TEXTILE LOOP - tracabilite verifiee
+                Certifié par TEXTILE LOOP - traçabilité verifiee
               </div>
             </div>
           </div>
@@ -87,7 +87,7 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
             { label: 'Provenance coton', value: decl?.provenance_pays ?? '-' },
             { label: 'Type produit', value: typeLabel },
             { label: 'Numero certification', value: cert?.numero ?? '-' },
-            { label: 'Date emission', value: cert ? new Date(cert.date_emission).toLocaleDateString('fr-FR') : '-' },
+            { label: 'Date émission', value: cert ? new Date(cert.date_émission).toLocaleDateString('fr-FR') : '-' },
           ].map(({ label, value }) => (
             <div key={label} style={{ display: 'flex', gap: 14, alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #EEF0F3' }}>
               <div style={{ width: 36, height: 36, borderRadius: 8, background: label === 'Numero certification' ? '#D1FAE5' : '#F0FDF4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 12, fontWeight: 700, color: '#0A3D26' }}>
@@ -101,7 +101,7 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
           ))}
           </div><div style={{ marginTop: 20, padding: '14px', borderRadius: 12, background: '#fff', border: '1px solid #EEF0F3', textAlign: 'center' }}>
             <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 4 }}>Scan #{qrCode.nb_scans + 1}</div>
-            <div style={{ fontSize: 10, color: '#CBD5E1' }}>Donnees verifiees et certifiees par TEXTILE LOOP</div>
+            <div style={{ fontSize: 10, color: '#CBD5E1' }}>Données vérifiées et certifiées par TEXTILE LOOP</div>
             <div style={{ fontSize: 10, color: '#CBD5E1', marginTop: 2 }}>Plateforme ETHYS - {qrCode.reference}</div>
           </div>
         </div>
@@ -119,17 +119,17 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
   const filature = commande?.filature as Record<string, string>
   const fournisseur = commande?.fournisseur as Record<string, string>
   const marque = commande?.marque as Record<string, string>
-  const volumeRecycle = lot?.type_coton === 'recycle' ? Number(lot?.volume_tonnes) : 0
+  const volumeRecyclé = lot?.type_coton === 'recyclé' ? Number(lot?.volume_tonnes) : 0
   const volumeVierge = lot?.type_coton === 'vierge' ? Number(lot?.volume_tonnes) : 0
   const totalVolume = Number(lot?.volume_tonnes) ?? 0
-  const pctRecycle = totalVolume > 0 ? Math.round(volumeRecycle / totalVolume * 100) : 51
-  const pctVierge = 100 - pctRecycle
+  const pctRecyclé = totalVolume > 0 ? Math.round(volumeRecyclé / totalVolume * 100) : 51
+  const pctVierge = 100 - pctRecyclé
 
   return (
     <div style={{ minHeight: '100vh', background: '#F7F8FA', fontFamily: "'DM Sans', sans-serif" }}>
       <div style={{ background: 'linear-gradient(135deg,#0A3D26,#0D5C3A)', padding: '32px 24px', color: '#fff' }}>
         <div style={{ maxWidth: 480, margin: '0 auto' }}>
-          <div style={{ fontSize: 10, color: '#6EE7B7', fontWeight: 600, letterSpacing: 1, marginBottom: 8 }}>ETHYS - TRACABILITE TOTALE</div>
+          <div style={{ fontSize: 10, color: '#6EE7B7', fontWeight: 600, letterSpacing: 1, marginBottom: 8 }}>ETHYS - TRAÇABILITÉ TOTALE</div>
           <div style={{ fontSize: 24, fontWeight: 900, marginBottom: 4 }}>Votre fil ETHYS</div>
           <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 20 }}>
             Lot #{String(lot?.reference ?? '')} - {String(commande?.reference ?? '')}
@@ -137,10 +137,10 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
           <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 12, padding: '16px', marginBottom: 14 }}>
             <div style={{ fontSize: 10, color: '#6EE7B7', fontWeight: 600, marginBottom: 10, letterSpacing: 1 }}>MATIERES PREMIERES</div>
             <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
-              <div style={{ flex: pctRecycle, background: '#10B981', borderRadius: 6, padding: '10px 8px', textAlign: 'center' }}>
-                <div style={{ fontSize: 22, fontWeight: 900, color: '#fff' }}>{pctRecycle}%</div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>Coton recycle</div>
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>{Math.round(volumeRecycle * 1000).toLocaleString('fr-FR')} kg</div>
+              <div style={{ flex: pctRecyclé, background: '#10B981', borderRadius: 6, padding: '10px 8px', textAlign: 'center' }}>
+                <div style={{ fontSize: 22, fontWeight: 900, color: '#fff' }}>{pctRecyclé}%</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>Coton recyclé</div>
+                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>{Math.round(volumeRecyclé * 1000).toLocaleString('fr-FR')} kg</div>
               </div>
               <div style={{ flex: pctVierge, background: 'rgba(255,255,255,0.15)', borderRadius: 6, padding: '10px 8px', textAlign: 'center' }}>
                 <div style={{ fontSize: 22, fontWeight: 900, color: '#fff' }}>{pctVierge}%</div>
@@ -149,20 +149,20 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
               </div>
             </div>
             <div style={{ height: 6, background: 'rgba(255,255,255,0.15)', borderRadius: 3, overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${pctRecycle}%`, background: '#6EE7B7', borderRadius: 3 }} />
+              <div style={{ height: '100%', width: `${pctRecyclé}%`, background: '#6EE7B7', borderRadius: 3 }} />
             </div>
           </div>
           <div style={{ background: 'rgba(110,231,183,0.2)', borderRadius: 10, padding: '12px 14px', border: '1px solid rgba(110,231,183,0.4)', textAlign: 'center' }}>
-            <div style={{ fontSize: 14, fontWeight: 900, color: '#6EE7B7', marginBottom: 4 }}>Fil certifie ETHYS</div>
+            <div style={{ fontSize: 14, fontWeight: 900, color: '#6EE7B7', marginBottom: 4 }}>Fil certifié ETHYS</div>
             <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
-              Ce fil est le resultat de la transformation de coton recycle et vierge par {filature?.nom ?? 'la filature'}, certifie par la plateforme TEXTILE LOOP.
+              Ce fil est le résultat de la transformation de coton recyclé et vierge par {filature?.nom ?? 'la filature'}, certifié par la plateforme TEXTILE LOOP.
             </div>
           </div>
         </div>
       </div>
       <div style={{ maxWidth: 480, margin: '0 auto', padding: '24px' }}><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
         {[
-          { label: 'Origine matiere', value: String(lot?.origine ?? 'Non renseigne') },
+          { label: 'Origine matière', value: String(lot?.origine ?? 'Non renseigné') },
           { label: 'Filature', value: filature?.nom ?? '-' },
           { label: 'Certification fil', value: String(lot?.certification ?? 'ETHYS') },
           { label: 'Fournisseur coton', value: fournisseur?.nom ?? '-' },
@@ -171,7 +171,7 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
         ].map(({ label, value }) => (
           <div key={label} style={{ display: 'flex', gap: 14, alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #EEF0F3' }}>
             <div style={{ width: 36, height: 36, borderRadius: 8, background: label === 'Certification fil' ? '#D1FAE5' : '#F0FDF4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 14 }}>
-              {label === 'Certification fil' ? 'E' : label === 'Filature' ? 'F' : label === 'Origine matiere' ? 'O' : label === 'Marque' ? 'M' : label === 'Volume total' ? 'V' : 'C'}
+              {label === 'Certification fil' ? 'E' : label === 'Filature' ? 'F' : label === 'Origine matière' ? 'O' : label === 'Marque' ? 'M' : label === 'Volume total' ? 'V' : 'C'}
             </div>
             <div>
               <div style={{ fontSize: 12, fontWeight: 700, color: '#1A202C' }}>{label}</div>
@@ -181,7 +181,7 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
         ))}
         </div><div style={{ marginTop: 20, padding: '14px', borderRadius: 12, background: '#fff', border: '1px solid #EEF0F3', textAlign: 'center' }}>
           <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 4 }}>Scan #{qrCode.nb_scans + 1}</div>
-          <div style={{ fontSize: 10, color: '#CBD5E1' }}>Donnees verifiees et certifiees par TEXTILE LOOP</div>
+          <div style={{ fontSize: 10, color: '#CBD5E1' }}>Données vérifiées et certifiées par TEXTILE LOOP</div>
           <div style={{ fontSize: 10, color: '#CBD5E1', marginTop: 2 }}>Plateforme ETHYS - {String(qrCode.reference)}</div>
         </div>
       </div>
