@@ -280,6 +280,7 @@ export default function CertificationClient({ declarations: initial, userRole, e
                   {userRole === 'filature' && <option value="fil">Fil ETHYS</option>}
                   {userRole === 'tisseur' && <option value="fil">Fil ETHYS</option>}
                   {userRole === 'tisseur' && <option value="tissu">Tissu ETHYS</option>}
+                  {userRole === 'marque' && <option value="fil">Fil ETHYS</option>}
                   {userRole === 'marque' && <option value="tissu">Tissu ETHYS</option>}
                   {userRole === 'marque' && <option value="produit_fini">Produit fini ETHYS</option>}
                   {userRole === 'admin' && <><option value="fil">Fil ETHYS</option><option value="tissu">Tissu ETHYS</option><option value="produit_fini">Produit fini ETHYS</option></>}
