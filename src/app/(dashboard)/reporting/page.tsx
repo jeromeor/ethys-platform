@@ -14,7 +14,7 @@ export default async function ReportingPage() {
 
   const { data: factures } = await supabase
     .from('factures')
-    .select('montant_ttc, statut, date_emission')
+    .select('montant_ht, statut, date_emission')
     .order('date_emission', { ascending: true })
 
   const { data: entreprises } = await supabase
