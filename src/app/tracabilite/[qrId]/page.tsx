@@ -37,7 +37,7 @@ export default async function TraçabilitéPage({ params }: { params: Promise<{ 
       .eq('id', cert?.declaration_id)
       .single()
 
-    const pctRecyclé = Number(decl?.pct_recyclé ?? 51)
+    const pctRecyclé = Number(decl?.pct_recycle ?? 51)
     const pctVierge = 100 - pctRecyclé
     const typeLabel = decl?.type_produit === 'fil' ? 'Fil ETHYS' : decl?.type_produit === 'tissu' ? 'Tissu ETHYS' : 'Produit fini ETHYS'
 
