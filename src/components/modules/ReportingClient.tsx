@@ -148,7 +148,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
                     <XAxis dataKey="mois" tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} tickFormatter={v => `${Math.round(v * 1000 / 1000)} k`} />
                     <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid #EEF0F3', fontSize: 12 }} />
-                    <Bar dataKey="volume" name="Volume (milliers de kg)" fill="#0A3D26" radius={[4, 4, 0, 0]}><LabelList dataKey="volume" position="top" style={{ fontSize: 10, fill: '#475569', fontWeight: 600 }} formatter={(v: unknown) => Number(v) > 0 ? `${Math.round(Number(v) * 1000).toLocaleString('fr-FR')} kg` : ''} /></Bar>
+                    <Bar dataKey="volume" name="Volume (milliers de kg)" fill="#0A3D26" radius={[4, 4, 0, 0]}><LabelList dataKey="volume" position="top" style={{ fontSize: 11, fill: '#0A3D26', fontWeight: 700 }} formatter={(v: unknown) => Number(v) >= 0 ? `${Math.round(Number(v) * 1000).toLocaleString('fr-FR')} kg` : ''} /></Bar>
                   </BarChart>
                 </ResponsiveContainer>
               )}
@@ -173,27 +173,6 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
                 )}
               </div>
 
-              <div style={{ background: 'linear-gradient(135deg,#0A3D26,#0D5C3A)', borderRadius: 14, padding: '18px 22px', color: '#fff' }}>
-                <div style={{ fontSize: 11, color: '#6EE7B7', fontWeight: 600, marginBottom: 8, textTransform: 'uppercase' }}>
-                  Composition coton
-                </div>
-                <div style={{ display: 'flex', gap: 12, marginBottom: 10 }}>
-                  <div style={{ flex: 1, background: 'rgba(255,255,255,0.1)', borderRadius: 8, padding: '10px', textAlign: 'center' }}>
-                <div style={{ fontSize: 18, fontWeight: 900, color: '#6EE7B7' }}>{Math.round(totalRecycle * 1000).toLocaleString('fr-FR')} kg</div>
-                <div style={{ fontSize: 10, opacity: 0.7 }}>♻ recyclés</div>
-                  </div>
-                  <div style={{ flex: 1, background: 'rgba(255,255,255,0.1)', borderRadius: 8, padding: '10px', textAlign: 'center' }}>
-                    <div style={{ fontSize: 18, fontWeight: 900, color: '#fff' }}>{Math.round(totalVierge)}T</div>
-                    <div style={{ fontSize: 10, opacity: 0.7 }}>🌿 Vierge</div>
-                  </div>
-                </div>
-                <div style={{ height: 6, background: 'rgba(255,255,255,0.15)', borderRadius: 3 }}>
-                  <div style={{
-                    height: '100%', borderRadius: 3, background: '#6EE7B7',
-                    width: totalRecycle + totalVierge > 0 ? `${Math.round(totalRecycle / (totalRecycle + totalVierge) * 100)}%` : '0%'
-                  }} />
-                </div>
-              </div>
             </div>
 
             {/* Table commandes récentes */}
@@ -298,7 +277,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
                   <XAxis dataKey="mois" tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} tickFormatter={v => `${v / 1000}k`} />
                   <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} formatter={(v) => fmt(Number(v))} />
-                  <Bar dataKey="ca" name="CA en euros" fill="#0A3D26" radius={[6, 6, 0, 0]}><LabelList dataKey="ca" position="top" style={{ fontSize: 10, fill: '#475569', fontWeight: 600 }} formatter={(v: unknown) => Number(v) > 0 ? `${Number(v).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}` : ''} /></Bar>
+                  <Bar dataKey="ca" name="CA en euros" fill="#0A3D26" radius={[6, 6, 0, 0]}><LabelList dataKey="ca" position="top" style={{ fontSize: 11, fill: '#0A3D26', fontWeight: 700 }} formatter={(v: unknown) => Number(v) >= 0 ? `${Number(v).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}` : ''} /></Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
