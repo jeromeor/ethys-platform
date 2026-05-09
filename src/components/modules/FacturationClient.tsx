@@ -427,7 +427,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
             </table>
           </div>
         )}
-      </div>
+      </div>}
 
       {/* Modal détail facture */}
       {selected && (
