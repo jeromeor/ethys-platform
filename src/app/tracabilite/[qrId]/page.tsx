@@ -41,7 +41,6 @@ export default async function TraçabilitéPage({ params }: { params: Promise<{ 
     const dataEncodee: Record<string, unknown> = typeof qrCode.data_encodee === 'string' ? JSON.parse(qrCode.data_encodee) : (qrCode.data_encodee as Record<string, unknown> ?? {})
     console.log('DEBUG data_encodee:', JSON.stringify(qrCode.data_encodee))
     console.log('DEBUG decl:', JSON.stringify(decl))
-    console.log('DEBUG volRecycle:', volRecycle, 'volVierge:', volVierge)
     const volRecycle = Number(decl?.volume_recycle_kg ?? dataEncodee.volume_recycle_kg ?? 0)
     const volVierge = Number(decl?.volume_vierge_kg ?? dataEncodee.volume_vierge_kg ?? 0)
     const totalVol = volRecycle + volVierge
