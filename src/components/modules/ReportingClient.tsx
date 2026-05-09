@@ -143,7 +143,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
                 <div style={{ textAlign: 'center', padding: '40px', color: '#94A3B8', fontSize: 12 }}>Aucune donnée</div>
               ) : (
                 <ResponsiveContainer width="100%" height={200}>
-                  <BarChart data={parMois}>
+                  <BarChart data={parMois} margin={{ top: 30, right: 10, left: 10, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
                     <XAxis dataKey="mois" tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} tickFormatter={v => `${Math.round(v * 1000 / 1000)} k`} />
@@ -272,7 +272,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
             <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '18px 22px' }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>CA mensuel</div>
               <ResponsiveContainer width="100%" height={240}>
-                <BarChart data={parMois}>
+                <BarChart data={parMois} margin={{ top: 30, right: 10, left: 10, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
                   <XAxis dataKey="mois" tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} tickFormatter={v => `${v / 1000}k`} />
