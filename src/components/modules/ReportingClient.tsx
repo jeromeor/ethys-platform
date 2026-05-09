@@ -230,31 +230,9 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
               </ResponsiveContainer>
             </div>
 
-            <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '18px 22px' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>Recyclé vs Vierge</div>
-              <ResponsiveContainer width="100%" height={220}>
-                <PieChart>
-                  <Pie
-                    data={[
-                    { name: '♻ Recyclés', value: Math.round(totalRecycle * 1000) },
-                      { name: '🌿 Vierge', value: Math.round(totalVierge) },
-                    ]}
-                    cx="50%" cy="50%" innerRadius={60} outerRadius={90}
-                    dataKey="value" paddingAngle={4}
-                  >
-                    <Cell fill="#0A3D26" />
-                    <Cell fill="#CBD5E1" />
-                  </Pie>
-                  <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} formatter={v => `${v} T`} />
-                  <Legend iconType="circle" iconSize={10} wrapperStyle={{ fontSize: 12 }} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
 
             {[
               { label: 'Volume total', value: `${Math.round(totalVolume * 1000).toLocaleString('fr-FR')} kg`, badge: `${commandes.length} commandes`, bg: '#D1FAE5', tc: '#065F46' },
-          { label: 'Volume Recyclé', value: `${Math.round(totalRecycle * 1000).toLocaleString('fr-FR')} kg`, badge: `${pctRecycleGlobal}% du total`, bg: '#D1FAE5', tc: '#065F46' },
-          { label: 'Volume Vierge', value: `${Math.round(totalVierge * 1000).toLocaleString('fr-FR')} kg`, badge: `${100 - pctRecycleGlobal}% du total`, bg: '#F1F5F9', tc: '#475569' },
           { label: 'Lots actifs', value: `${lots.filter(l => l.statut !== 'livre').length}`, badge: `${lots.length} lots total`, bg: '#DBEAFE', tc: '#1E40AF' },
             ].map((s, i) => (
               <div key={i} style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '16px 20px' }}>
