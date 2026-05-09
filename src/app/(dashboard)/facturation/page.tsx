@@ -13,6 +13,8 @@ export default async function FacturationPage() {
       *,
       lignes:lignes_facture(*),
       commande:commandes(reference, volume_total_tonnes),
+      emetteur_id,
+      destinataire_id,
       emetteur:entreprises!factures_emetteur_id_fkey(nom, adresse, email_contact),
       destinataire:entreprises!factures_destinataire_id_fkey(nom, adresse, email_contact)
     `)

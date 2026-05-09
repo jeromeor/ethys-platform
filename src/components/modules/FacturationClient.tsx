@@ -29,6 +29,7 @@ interface Facture {
   lignes: LigneFacture[]
   commande: { reference: string; volume_total_tonnes: number } | null
   emetteur: { nom: string; adresse: string | null; email_contact: string | null } | null
+  destinataire_id: string | null
   destinataire: { nom: string; adresse: string | null; email_contact: string | null } | null
 }
 
