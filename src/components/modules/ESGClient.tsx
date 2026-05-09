@@ -35,7 +35,6 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
 
   const scores = {
     Traçabilité:    totalLots > 0 ? Math.min(100, Math.round(lotsAvecCert / totalLots * 100)) : 50,
-    recyclage:      pctRecycléGlobal,
     certifications: certsValides > 0 ? Math.min(100, certsValides * 25) : 30,
     conformite:     commandes.length > 0 ? Math.min(100, Math.round(commandesLivrees / commandes.length * 100 + 40)) : 70,
     partenaires:    75,
@@ -46,7 +45,6 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
 
   const radarData = [
     { axe: 'Traçabilité', score: scores.Traçabilité },
-    { axe: 'Recyclage', score: scores.recyclage },
     { axe: 'Certifications', score: scores.certifications },
     { axe: 'Conformité', score: scores.conformite },
     { axe: 'Partenaires', score: scores.partenaires },
@@ -68,7 +66,6 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
       Période_debut: new Date(new Date().getFullYear(), 0, 1).toISOString().split('T')[0],
       Période_fin: new Date().toISOString().split('T')[0],
       score_Traçabilité: scores.Traçabilité,
-      score_recyclage: scores.recyclage,
       score_certifications: scores.certifications,
       score_conformite: scores.conformite,
       score_partenaires: scores.partenaires,
@@ -107,7 +104,7 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
           </div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, flexShrink: 0 }}>
-          {[[pctRecycléGlobal + '%', 'Recyclé'], [(Math.round(volumeRecyclé * 1000)).toLocaleString('fr-FR') + ' kg', 'Vol. recyclé'], [String(certsValides), 'Certifications'], ['100%', 'Conformité']].map(([v, l]) => (
+          {[[String(certsValides), 'Certifications'], ['100%', 'Conformité']].map(([v, l]) => (
             <div key={l} style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 10, padding: '8px 12px', textAlign: 'center' }}>
               <div style={{ fontSize: 16, fontWeight: 900, color: '#6EE7B7' }}>{v}</div>
               <div style={{ fontSize: 9, opacity: 0.65, marginTop: 2 }}>{l}</div>
@@ -170,7 +167,6 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {[
               { cat: 'Environnement', lettre: 'E', couleur: '#065F46', bg: '#D1FAE5', items: [
-                { label: '% coton Recyclé', val: pctRecycléGlobal + '%', ok: pctRecycléGlobal >= 50 },
                 { label: 'Lots avec certification', val: lotsAvecCert + '/' + totalLots, ok: lotsAvecCert === totalLots },
                 { label: 'Volume Recyclé', val: (Math.round(volumeRecyclé * 1000)).toLocaleString('fr-FR') + ' kg', ok: true },
               ]},
