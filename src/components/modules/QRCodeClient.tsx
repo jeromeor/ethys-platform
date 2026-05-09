@@ -307,8 +307,8 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
 
       {previewPublic && qrActif && selected && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: 20 }} onClick={() => setPreviewPublic(false)}>
-          <div style={{ background: '#fff', borderRadius: 20, width: '100%', maxWidth: 420, maxHeight: '90vh', overflow: 'auto', boxShadow: '0 32px 80px rgba(0,0,0,0.2)' }} onClick={e => e.stopPropagation()}>
-            <div style={{ background: 'linear-gradient(135deg,#0A3D26,#0D5C3A)', borderRadius: '20px 20px 0 0', padding: '24px', color: '#fff' }}>
+          <div style={{ background: '#fff', borderRadius: 20, width: '100%', maxWidth: 420, maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 32px 80px rgba(0,0,0,0.2)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ background: 'linear-gradient(135deg,#0A3D26,#0D5C3A)', borderRadius: '20px 20px 0 0', padding: '16px', color: '#fff' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
                 <div>
                   <div style={{ fontSize: 10, color: '#6EE7B7', fontWeight: 600, letterSpacing: 1, marginBottom: 4 }}>ETHYS · Traçabilité TOTALE</div>
@@ -350,7 +350,7 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
               <div style={{ background: 'rgba(110,231,183,0.2)', borderRadius: 10, padding: '12px 14px', border: '1px solid rgba(110,231,183,0.4)', textAlign: 'center' }}>
                 <div style={{ fontSize: 14, fontWeight: 900, color: '#6EE7B7', marginBottom: 4 }}>v Fil Certifié ETHYS</div>
                 <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
-              Ce fil est le résultat de la transformation de coton recyclé et vierge par {selected.commande?.filature?.nom ?? 'la filature'}, certifié par la plateforme TEXTILE LOOP.
+              Ce fil certifié ETHYS est le résultat de la transformation de coton recyclé (51 %) et de coton vierge (49 %). Il a été réalisé par {selected.commande?.filature?.nom ?? 'la filature'}.
                 </div>
               </div>
             </div>
