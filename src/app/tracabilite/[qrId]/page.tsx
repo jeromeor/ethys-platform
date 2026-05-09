@@ -37,10 +37,14 @@ export default async function TraçabilitéPage({ params }: { params: Promise<{ 
       .eq('id', cert?.declaration_id)
       .single()
 
-    const totalVol = Number(decl?.volume_recycle_kg ?? 0) + Number(decl?.volume_vierge_kg ?? 0)
-    const pctRecyclé = totalVol > 0 ? Math.round(Number(decl?.volume_recycle_kg ?? 0) / totalVol * 100) : 51
+    // Fallback sur les donnees encodees dans le QR code si decl est null
+    const dataEncodee = qrCode.data_encodee as Record<string, unknown> ?? {}
+    const volRecycle = Number(decl?.volume_recycle_kg ?? dataEncodee.volume_recycle_kg ?? 0)
+    const volVierge = Number(decl?.volume_vierge_kg ?? dataEncodee.volume_vierge_kg ?? 0)
+    const totalVol = volRecycle + volVierge
+    const pctRecyclé = totalVol > 0 ? Math.round(volRecycle / totalVol * 100) : 51
     const pctVierge = 100 - pctRecyclé
-    const typeLabel = decl?.type_produit === 'fil' ? 'Fil ETHYS' : decl?.type_produit === 'tissu' ? 'Tissu ETHYS' : 'Produit fini ETHYS'
+    const typeLabel = (decl?.type_produit ?? dataEncodee.type_produit) === 'fil' ? 'Fil ETHYS' : (decl?.type_produit ?? dataEncodee.type_produit) === 'tissu' ? 'Tissu ETHYS' : 'Produit fini ETHYS'
 
     return (
       <div style={{ minHeight: '100vh', background: '#F7F8FA', fontFamily: "'DM Sans', sans-serif" }}>
@@ -81,9 +85,9 @@ export default async function TraçabilitéPage({ params }: { params: Promise<{ 
         </div>
         <div style={{ maxWidth: 480, margin: '0 auto', padding: '24px' }}><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
           {[
-            { label: 'Entreprise', value: (decl?.entreprise as any)?.nom ?? '-' },
+            { label: 'Entreprise', value: (decl?.entreprise as any)?.nom ?? String(dataEncodee.entreprise ?? '-') },
             { label: 'Pays', value: (decl?.entreprise as any)?.pays ?? '-' },
-            { label: 'Filature', value: decl?.filature_nom ?? '-' },
+            { label: 'Filature', value: decl?.filature_nom ?? String(dataEncodee.filature ?? '-') },
             { label: 'Pays filature', value: decl?.filature_pays ?? '-' },
             { label: 'Provenance coton', value: decl?.provenance_pays ?? '-' },
             { label: 'Type produit', value: typeLabel },
