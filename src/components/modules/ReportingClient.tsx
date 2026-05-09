@@ -104,7 +104,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
         {[
           { label: 'Volume total', value: `${Math.round(totalVolume * 1000).toLocaleString('fr-FR')} kg`, delta: `${commandes.length} commandes` },
           { label: 'CA total', value: fmt(totalCA), delta: `${factures.length} factures` },
-          { label: '% Coton recyclé', value: `${pctRecycleGlobal}%`, delta: `${Math.round(totalRecycle * 1000).toLocaleString('fr-FR')} kg recyclés` },
+          { label: '% Coton recyclé', value: `${pctRecycleGlobal}%`, delta: '51% de chaque fil ETHYS' },
           { label: 'Partenaires', value: `${entreprises.length}`, delta: `${entreprises.filter(e => e.statut === 'Vérifié').length} Vérifiés` },
         ].map((k, i) => (
           <div key={i} style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '16px 18px' }}>
