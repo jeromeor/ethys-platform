@@ -181,7 +181,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                   }}>{cmd.priorite}</span>
                 </div>
                 <div style={{ fontSize: 11, color: '#64748B', marginBottom: 6 }}>
-                  {cmd.marque?.nom} · {cmd.volume_total_tonnes}T
+                  {cmd.marque?.nom} · {Math.round((cmd.volume_total_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#94A3B8', marginBottom: 4 }}>
                   <span>{cmd.filature?.nom}</span>
@@ -206,7 +206,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
               <div>
                 <div style={{ fontSize: 18, fontWeight: 900, marginBottom: 2 }}>{selected.reference}</div>
                 <div style={{ fontSize: 12, opacity: 0.75 }}>
-                  {selected.marque?.nom} · {selected.filature?.nom} · {selected.volume_total_tonnes}T · {Math.round(selected.pct_recycle)}% recyclé
+                  {selected.marque?.nom} · {selected.filature?.nom} · {Math.round((selected.volume_total_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg · Fil ETHYS
                 </div>
               </div>
               <div style={{ textAlign: 'right' }}>

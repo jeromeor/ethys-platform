@@ -193,7 +193,7 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
                   </span>
                 </div>
                 <div style={{ fontSize: 11, color: '#64748B', marginBottom: 2 }}>{lot.commande?.reference} · {lot.commande?.marque?.nom}</div>
-                <div style={{ fontSize: 11, color: '#94A3B8' }}>{lot.volume_tonnes}T · {lot.type_coton === 'recycle' ? 'Recyclé' : 'Vierge'}</div>
+                <div style={{ fontSize: 11, color: '#94A3B8' }}>{Math.round((lot.volume_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg · {lot.type_coton === 'recycle' ? 'Recyclé' : 'Vierge'}</div>
                 {hasQR && <div style={{ fontSize: 10, color: '#94A3B8', marginTop: 4 }}>{lot.qr_codes[0].nb_scans} scan(s)</div>}
               </div>
             )
