@@ -38,7 +38,7 @@ export default async function TraçabilitéPage({ params }: { params: Promise<{ 
       .single()
 
     // Fallback sur les donnees encodees dans le QR code si decl est null
-    const dataEncodee = qrCode.data_encodee as Record<string, unknown> ?? {}
+    const dataEncodee: Record<string, unknown> = typeof qrCode.data_encodee === 'string' ? JSON.parse(qrCode.data_encodee) : (qrCode.data_encodee as Record<string, unknown> ?? {})
     const volRecycle = Number(decl?.volume_recycle_kg ?? dataEncodee.volume_recycle_kg ?? 0)
     const volVierge = Number(decl?.volume_vierge_kg ?? dataEncodee.volume_vierge_kg ?? 0)
     const totalVol = volRecycle + volVierge
