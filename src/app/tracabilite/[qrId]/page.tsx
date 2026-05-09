@@ -38,15 +38,12 @@ export default async function TraçabilitéPage({ params }: { params: Promise<{ 
       .single()
 
     // Fallback sur les donnees encodees dans le QR code si decl est null
-    const dataEncodee = (typeof qrCode.data_encodee === 'string' ? JSON.parse(qrCode.data_encodee) : qrCode.data_encodee) as Record<string, unknown>
-    const volRecycleRaw = Number(decl?.volume_recycle_kg ?? dataEncodee?.volume_recycle_kg ?? 0)
-    const volViergeRaw = Number(decl?.volume_vierge_kg ?? dataEncodee?.volume_vierge_kg ?? 0)
-    const totalVol = volRecycleRaw + volViergeRaw
-    const volRecycle = totalVol > 0 ? volRecycleRaw : 5100
-    const volVierge = totalVol > 0 ? volViergeRaw : 4900
-    const pctRecyclé = (volRecycle + volVierge) > 0 ? Math.round(volRecycle / (volRecycle + volVierge) * 100) : 51
-    const pctVierge = 100 - pctRecyclé
-    const typeLabel = (decl?.type_produit ?? dataEncodee.type_produit) === 'fil' ? 'Fil ETHYS' : (decl?.type_produit ?? dataEncodee.type_produit) === 'tissu' ? 'Tissu ETHYS' : 'Produit fini ETHYS'
+    const pctRecyclé = 51
+    const pctVierge = 49
+    const totalKg = Number(cert?.volume_total ?? 0)
+    const volRecycle = Math.round(totalKg * 0.51)
+    const volVierge = Math.round(totalKg * 0.49)
+    const typeLabel = decl?.type_produit === 'fil' ? 'Fil ETHYS' : decl?.type_produit === 'tissu' ? 'Tissu ETHYS' : 'Produit fini ETHYS'
 
     return (
       <div style={{ minHeight: '100vh', background: '#F7F8FA', fontFamily: "'DM Sans', sans-serif" }}>
@@ -87,9 +84,9 @@ export default async function TraçabilitéPage({ params }: { params: Promise<{ 
         </div>
         <div style={{ maxWidth: 480, margin: '0 auto', padding: '24px' }}><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
           {[
-            { label: 'Entreprise', value: (decl?.entreprise as any)?.nom ?? String(dataEncodee.entreprise ?? '-') },
+            { label: 'Entreprise', value: (decl?.entreprise as any)?.nom ?? '-' },
             { label: 'Pays', value: (decl?.entreprise as any)?.pays ?? '-' },
-            { label: 'Filature', value: decl?.filature_nom ?? String(dataEncodee.filature ?? '-') },
+            { label: 'Filature', value: decl?.filature_nom ?? '-' },
             { label: 'Pays filature', value: decl?.filature_pays ?? '-' },
             { label: 'Provenance coton', value: decl?.provenance_pays ?? '-' },
             { label: 'Type produit', value: typeLabel },
