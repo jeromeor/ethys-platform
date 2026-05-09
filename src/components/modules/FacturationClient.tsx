@@ -43,10 +43,24 @@ interface Commande {
 
 interface Entreprise { id: string; nom: string; type: string }
 
+interface AccordCommercial {
+  id: string
+  entreprise_id: string
+  prix_base_kg: number
+  remise_volume_annuel_pct: number
+  seuil_volume_annuel_tonnes: number
+  date_debut: string
+  date_fin: string | null
+  notes: string | null
+  entreprise: { nom: string } | null
+}
+
 interface Props {
   factures: Facture[]
   commandes: Commande[]
   entreprises: Entreprise[]
+  accords: AccordCommercial[]
+  profil: { role: string; entreprise_id: string }
   user: { id: string }
 }
 
@@ -72,13 +86,26 @@ function fmt(n: number) {
   return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(n)
 }
 
-export default function FacturationClient({ factures: initial, commandes, entreprises, user }: Props) {
+export default function FacturationClient({ factures: initial, commandes, entreprises, accords: accordsInitial, profil, user }: Props) {
   const supabase = createClient()
   const [factures, setFactures] = useState<Facture[]>(initial)
   const [selected, setSelected] = useState<Facture | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [filterStatut, setFilterStatut] = useState('tous')
   const [loading, setLoading] = useState(false)
+  const [activeTab, setActiveTab] = useState<'factures' | 'accords'>('factures')
+  const [accords, setAccords] = useState<AccordCommercial[]>(accordsInitial)
+  const [showAccordForm, setShowAccordForm] = useState(false)
+  const [accordForm, setAccordForm] = useState({
+    entreprise_id: '',
+    prix_base_kg: '0.60',
+    remise_volume_annuel_pct: '0',
+    seuil_volume_annuel_tonnes: '0',
+    date_debut: new Date().toISOString().split('T')[0],
+    date_fin: '',
+    notes: ''
+  })
+  const isAdmin = profil.role === 'admin'
 
   const [form, setForm] = useState({
     commande_id: '',
@@ -224,11 +251,133 @@ export default function FacturationClient({ factures: initial, commandes, entrep
         <button onClick={() => setShowForm(true)} style={{
           padding: '7px 14px', borderRadius: 8, border: 'none',
           background: '#0A3D26', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer'
-        }}>＋ Nouvelle facture</button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          {isAdmin && (
+            <button onClick={() => setActiveTab(activeTab === 'accords' ? 'factures' : 'accords')} style={{
+              padding: '7px 14px', borderRadius: 8, border: '1.5px solid #0A3D26',
+              background: activeTab === 'accords' ? '#0A3D26' : '#fff',
+              color: activeTab === 'accords' ? '#fff' : '#0A3D26', fontSize: 12, fontWeight: 700, cursor: 'pointer'
+            }}>★ Accords commerciaux</button>
+          )}
+          <button onClick={() => setShowForm(true)} style={{
+            padding: '7px 14px', borderRadius: 8, border: 'none',
+            background: '#0A3D26', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer'
+          }}>＋ Nouvelle facture</button>
+        </div>
       </div>
 
+      {/* Onglet Accords commerciaux */}
+      {activeTab === 'accords' && isAdmin && (
+        <div style={{ flex: 1, overflow: 'auto', padding: '16px 22px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#0A3D26' }}>Accords commerciaux</div>
+            <button onClick={() => setShowAccordForm(true)} style={{ padding: '7px 14px', borderRadius: 8, border: 'none', background: '#0A3D26', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>+ Nouvel accord</button>
+          </div>
+          {accords.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '60px 0', color: '#94A3B8', fontSize: 13 }}>Aucun accord commercial. Cliquez sur "+ Nouvel accord" pour en créer un.</div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {accords.map(a => (
+                <div key={a.id} style={{ background: '#fff', borderRadius: 12, border: '1px solid #EEF0F3', padding: '16px 20px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26' }}>{a.entreprise?.nom ?? '-'}</div>
+                      <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>
+                        Du {new Date(a.date_debut).toLocaleDateString('fr-FR')} 
+                        {a.date_fin ? ` au ${new Date(a.date_fin).toLocaleDateString('fr-FR')}` : ' (illimité)'}
+                      </div>
+                    </div>
+                    <span style={{ padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: '#D1FAE5', color: '#065F46' }}>Actif</span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+                    <div style={{ padding: '10px 12px', borderRadius: 8, background: '#F0FDF4' }}>
+                      <div style={{ fontSize: 10, color: '#94A3B8', marginBottom: 2 }}>Prix négocié/kg</div>
+                      <div style={{ fontSize: 16, fontWeight: 800, color: '#0A3D26' }}>{Number(a.prix_base_kg).toFixed(4)}€</div>
+                      <div style={{ fontSize: 10, color: '#94A3B8' }}>Base: 0.60€</div>
+                    </div>
+                    <div style={{ padding: '10px 12px', borderRadius: 8, background: '#FEF3C7' }}>
+                      <div style={{ fontSize: 10, color: '#94A3B8', marginBottom: 2 }}>Remise volume annuel</div>
+                      <div style={{ fontSize: 16, fontWeight: 800, color: '#92400E' }}>{a.remise_volume_annuel_pct}%</div>
+                      <div style={{ fontSize: 10, color: '#94A3B8' }}>Dès {a.seuil_volume_annuel_tonnes}T/an</div>
+                    </div>
+                    <div style={{ padding: '10px 12px', borderRadius: 8, background: '#F8FAFC' }}>
+                      <div style={{ fontSize: 10, color: '#94A3B8', marginBottom: 2 }}>Remise palier commande</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#475569' }}>1% ≥ 5T · 2% ≥ 10T</div>
+                      <div style={{ fontSize: 10, color: '#94A3B8' }}>Standard ETHYS</div>
+                    </div>
+                  </div>
+                  {a.notes && <div style={{ fontSize: 11, color: '#64748B', marginTop: 10, fontStyle: 'italic', padding: '8px 10px', borderRadius: 6, background: '#F8FAFC' }}>{a.notes}</div>}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Modal nouvel accord */}
+          {showAccordForm && (
+            <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }} onClick={() => setShowAccordForm(false)}>
+              <div style={{ background: '#fff', borderRadius: 16, padding: '28px 32px', width: 460, boxShadow: '0 24px 64px rgba(0,0,0,0.15)' }} onClick={e => e.stopPropagation()}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+                  <span style={{ fontSize: 15, fontWeight: 700, color: '#0A3D26' }}>Nouvel accord commercial</span>
+                  <button onClick={() => setShowAccordForm(false)} style={{ border: 'none', background: 'none', fontSize: 18, cursor: 'pointer', color: '#94A3B8' }}>x</button>
+                </div>
+                <div style={{ marginBottom: 14 }}>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: '#64748B', display: 'block', marginBottom: 6 }}>Marque *</label>
+                  <select value={accordForm.entreprise_id} onChange={e => setAccordForm(f => ({ ...f, entreprise_id: e.target.value }))} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #E2E8F0', fontSize: 12, outline: 'none' }}>
+                    <option value="">Sélectionner une marque...</option>
+                    {entreprises.filter(e => e.type === 'marque').map(e => <option key={e.id} value={e.id}>{e.nom}</option>)}
+                  </select>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: '#64748B', display: 'block', marginBottom: 6 }}>Prix négocié (€/kg) *</label>
+                    <input type="number" step="0.0001" value={accordForm.prix_base_kg} onChange={e => setAccordForm(f => ({ ...f, prix_base_kg: e.target.value }))} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #E2E8F0', fontSize: 12, outline: 'none', boxSizing: 'border-box' as const }} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: '#64748B', display: 'block', marginBottom: 6 }}>Remise annuelle (%)</label>
+                    <input type="number" step="0.01" value={accordForm.remise_volume_annuel_pct} onChange={e => setAccordForm(f => ({ ...f, remise_volume_annuel_pct: e.target.value }))} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #E2E8F0', fontSize: 12, outline: 'none', boxSizing: 'border-box' as const }} />
+                  </div>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: '#64748B', display: 'block', marginBottom: 6 }}>Seuil volume annuel (T)</label>
+                    <input type="number" value={accordForm.seuil_volume_annuel_tonnes} onChange={e => setAccordForm(f => ({ ...f, seuil_volume_annuel_tonnes: e.target.value }))} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #E2E8F0', fontSize: 12, outline: 'none', boxSizing: 'border-box' as const }} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: '#64748B', display: 'block', marginBottom: 6 }}>Date fin (optionnel)</label>
+                    <input type="date" value={accordForm.date_fin} onChange={e => setAccordForm(f => ({ ...f, date_fin: e.target.value }))} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #E2E8F0', fontSize: 12, outline: 'none', boxSizing: 'border-box' as const }} />
+                  </div>
+                </div>
+                <div style={{ marginBottom: 20 }}>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: '#64748B', display: 'block', marginBottom: 6 }}>Notes (optionnel)</label>
+                  <textarea value={accordForm.notes} onChange={e => setAccordForm(f => ({ ...f, notes: e.target.value }))} rows={2} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #E2E8F0', fontSize: 12, outline: 'none', resize: 'none', boxSizing: 'border-box' as const }} />
+                </div>
+                <button onClick={async () => {
+                  if (!accordForm.entreprise_id || !accordForm.prix_base_kg) return
+                  const { data, error } = await supabase.from('accords_commerciaux').insert({
+                    entreprise_id: accordForm.entreprise_id,
+                    prix_base_kg: parseFloat(accordForm.prix_base_kg),
+                    remise_volume_annuel_pct: parseFloat(accordForm.remise_volume_annuel_pct) || 0,
+                    seuil_volume_annuel_tonnes: parseFloat(accordForm.seuil_volume_annuel_tonnes) || 0,
+                    date_debut: new Date().toISOString().split('T')[0],
+                    date_fin: accordForm.date_fin || null,
+                    notes: accordForm.notes || null,
+                    created_by: user.id
+                  }).select('*, entreprise:entreprises(nom)').single()
+                  if (!error && data) {
+                    setAccords(prev => [data as AccordCommercial, ...prev])
+                    setShowAccordForm(false)
+                  }
+                }} style={{ width: '100%', padding: '11px', borderRadius: 10, border: 'none', background: '#0A3D26', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+                  Enregistrer l'accord
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Table */}
-      <div style={{ flex: 1, overflow: 'auto', padding: '16px 22px' }}>
+      {activeTab === 'factures' && <div style={{ flex: 1, overflow: 'auto', padding: '16px 22px' }}>
         {filtrees.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 0', color: '#94A3B8' }}>
             <div style={{ fontSize: 32, marginBottom: 10 }}>◫</div>
@@ -305,6 +454,37 @@ export default function FacturationClient({ factures: initial, commandes, entrep
                   <div style={{ fontSize: 10, color: '#6EE7B7', fontWeight: 600, letterSpacing: 1, marginBottom: 4 }}>FACTURE ETHYS</div>
                   <div style={{ fontSize: 22, fontWeight: 900 }}>{selected.reference}</div>
                   <div style={{ fontSize: 11, opacity: 0.75, marginTop: 2 }}>Réf. commande : {selected.commande?.reference}</div>
+                  {/* Decomposition prix - visible admin et marque uniquement */}
+                  {(isAdmin || accords.some(a => a.entreprise_id === selected.destinataire_id)) && (() => {
+                    const accord = accords.find(a => a.entreprise_id === selected.destinataire_id)
+                    const vol = selected.commande?.volume_total_tonnes ?? 0
+                    const prixBase = accord ? accord.prix_base_kg : 0.60
+                    const remisePalier = vol >= 10 ? 2 : vol >= 5 ? 1 : 0
+                    const remiseAnnuelle = accord?.remise_volume_annuel_pct ?? 0
+                    const prixFinal = prixBase * (1 - remisePalier/100) * (1 - remiseAnnuelle/100)
+                    return (
+                      <div style={{ marginTop: 12, padding: '12px 14px', borderRadius: 10, background: '#F0FDF4', border: '1px solid #A7F3D0' }}>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: '#065F46', marginBottom: 8, textTransform: 'uppercase' }}>
+                          {accord ? '★ Prix accord commercial' : 'Décomposition du prix'}
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+                          <div style={{ fontSize: 11, color: '#475569' }}>Prix de base</div>
+                          <div style={{ fontSize: 11, fontWeight: 600, color: '#0A3D26', textAlign: 'right' }}>{prixBase.toFixed(4)}€/kg</div>
+                          {remisePalier > 0 && <>
+                            <div style={{ fontSize: 11, color: '#475569' }}>Remise volume commande</div>
+                            <div style={{ fontSize: 11, fontWeight: 600, color: '#065F46', textAlign: 'right' }}>-{remisePalier}%</div>
+                          </>}
+                          {remiseAnnuelle > 0 && <>
+                            <div style={{ fontSize: 11, color: '#475569' }}>Remise volume annuel</div>
+                            <div style={{ fontSize: 11, fontWeight: 600, color: '#065F46', textAlign: 'right' }}>-{remiseAnnuelle}%</div>
+                          </>}
+                          <div style={{ fontSize: 11, fontWeight: 700, color: '#0A3D26', borderTop: '1px solid #A7F3D0', paddingTop: 6 }}>Prix applicable</div>
+                          <div style={{ fontSize: 12, fontWeight: 900, color: '#0A3D26', textAlign: 'right', borderTop: '1px solid #A7F3D0', paddingTop: 6 }}>{prixFinal.toFixed(4)}€/kg</div>
+                        </div>
+                        {accord?.notes && <div style={{ fontSize: 10, color: '#64748B', marginTop: 8, fontStyle: 'italic' }}>{accord.notes}</div>}
+                      </div>
+                    )
+                  })()}
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: 26, fontWeight: 900, color: '#6EE7B7' }}>{fmt(selected.montant_ttc)}</div>
@@ -417,6 +597,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
       )}
 
       {/* Modal nouvelle facture */}
+      }
       {showForm && (
         <div style={{
           position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)',

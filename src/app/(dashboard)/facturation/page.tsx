@@ -28,6 +28,17 @@ export default async function FacturationPage() {
     .select('id, nom, type')
     .order('nom')
 
+  const { data: profil } = await supabase
+    .from('profils_utilisateurs')
+    .select('role, entreprise_id')
+    .eq('id', user.id)
+    .single()
+
+  const { data: accords } = await supabase
+    .from('accords_commerciaux')
+    .select('*, entreprise:entreprises(nom)')
+    .order('created_at', { ascending: false })
+
   // Enrichir les commandes avec les noms d'entreprises
   const commandes = (commandesRaw ?? []).map(c => {
     const marque = (entreprises ?? []).find(e => e.id === c.marque_id)
@@ -47,6 +58,8 @@ export default async function FacturationPage() {
       factures={factures ?? []}
       commandes={commandes}
       entreprises={entreprises ?? []}
+      accords={accords ?? []}
+      profil={{ role: profil?.role ?? '', entreprise_id: profil?.entreprise_id ?? '' }}
       user={user}
     />
   )
