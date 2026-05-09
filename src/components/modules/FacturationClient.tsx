@@ -248,9 +248,6 @@ export default function FacturationClient({ factures: initial, commandes, entrep
             </button>
           ))}
         </div>
-        <button onClick={() => setShowForm(true)} style={{
-          padding: '7px 14px', borderRadius: 8, border: 'none',
-          background: '#0A3D26', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer'
         <div style={{ display: 'flex', gap: 8 }}>
           {isAdmin && (
             <button onClick={() => setActiveTab(activeTab === 'accords' ? 'factures' : 'accords')} style={{
