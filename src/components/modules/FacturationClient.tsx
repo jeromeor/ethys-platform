@@ -594,7 +594,6 @@ export default function FacturationClient({ factures: initial, commandes, entrep
       )}
 
       {/* Modal nouvelle facture */}
-      }
       {showForm && (
         <div style={{
           position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)',
