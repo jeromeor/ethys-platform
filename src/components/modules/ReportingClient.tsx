@@ -15,7 +15,7 @@ interface Commande {
 }
 
 interface Facture {
-  montant_ttc: number
+  montant_ht: number
   statut: string
   date_emission: string
 }
@@ -50,7 +50,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
   const [activeTab, setActiveTab] = useState('Vue globale')
 
   const totalVolume = commandes.reduce((s, c) => s + (c.volume_total_tonnes ?? 0), 0)
-  const totalCA = factures.reduce((s, f) => s + f.montant_ttc, 0)
+  const totalCA = factures.reduce((s, f) => s + f.montant_ht, 0)
   const totalRecycle = lots.filter(l => l.type_coton === 'Recyclé').reduce((s, l) => s + l.volume_tonnes, 0)
   const totalVierge = lots.filter(l => l.type_coton === 'Vierge').reduce((s, l) => s + l.volume_tonnes, 0)
   const pctRecycleGlobal = totalVolume > 0 ? Math.round(commandes.reduce((s, c) => s + c.pct_recycle, 0) / commandes.length) : 0
@@ -67,7 +67,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
     factures.forEach(f => {
       const mois = new Date(f.date_emission).toLocaleDateString('fr-FR', { month: 'short', year: '2-digit' })
       if (!map[mois]) map[mois] = { mois, volume: 0, ca: 0, commandes: 0 }
-      map[mois].ca += f.montant_ttc
+      map[mois].ca += f.montant_ht
     })
     return Object.values(map)
   }, [commandes, factures])
@@ -264,7 +264,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
                 { label: 'CA total', value: fmt(totalCA) },
                 { label: 'Factures payées', value: `${factures.filter(f => f.statut === 'payee').length}` },
                 { label: 'Factures en attente', value: `${factures.filter(f => f.statut === 'en_attente' || f.statut === 'emise').length}` },
-                { label: 'Taux encaissement', value: totalCA > 0 ? `${Math.round(factures.filter(f => f.statut === 'payee').reduce((s, f) => s + f.montant_ttc, 0) / totalCA * 100)}%` : 'â€”' },
+                { label: 'Taux encaissement', value: totalCA > 0 ? `${Math.round(factures.filter(f => f.statut === 'payee').reduce((s, f) => s + f.montant_ht, 0) / totalCA * 100)}%` : 'â€”' },
               ].map((k, i) => (
                 <div key={i} style={{ background: '#fff', borderRadius: 12, border: '1px solid #EEF0F3', padding: '14px 18px' }}>
                   <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 4 }}>{k.label}</div>
