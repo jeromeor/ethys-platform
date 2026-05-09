@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import {
-  BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
+  BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, LabelList,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts'
 
@@ -148,7 +148,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
                     <XAxis dataKey="mois" tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} tickFormatter={v => `${Math.round(v * 1000 / 1000)} k`} />
                     <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid #EEF0F3', fontSize: 12 }} />
-                    <Bar dataKey="volume" name="Volume (T)" fill="#0A3D26" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="volume" name="Volume (milliers de kg)" fill="#0A3D26" radius={[4, 4, 0, 0]}><LabelList dataKey="volume" position="top" style={{ fontSize: 10, fill: '#475569', fontWeight: 600 }} formatter={(v: number) => v > 0 ? `${Math.round(v * 1000).toLocaleString('fr-FR')} kg` : ''} /></Bar>
                   </BarChart>
                 </ResponsiveContainer>
               )}
@@ -298,7 +298,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
                   <XAxis dataKey="mois" tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} tickFormatter={v => `${v / 1000}k`} />
                   <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} formatter={(v) => fmt(Number(v))} />
-                  <Bar dataKey="ca" name="CA en euros" fill="#0A3D26" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="ca" name="CA en euros" fill="#0A3D26" radius={[6, 6, 0, 0]}><LabelList dataKey="ca" position="top" style={{ fontSize: 10, fill: '#475569', fontWeight: 600 }} formatter={(v: number) => v > 0 ? `${v.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}` : ''} /></Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
