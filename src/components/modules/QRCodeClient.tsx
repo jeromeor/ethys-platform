@@ -440,12 +440,12 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
                     <button
                       onClick={() => {
                         navigator.clipboard.writeText(selectedCert.qr_codes[0].url_publique)
-                        setCopied(true)
-                        setTimeout(() => setCopied(false), 2000)
+                        setUrlCopied(true)
+                        setTimeout(() => setUrlCopied(false), 2000)
                       }}
                       style={{ flex: 1, padding: '8px', borderRadius: 8, border: '1.5px solid #0A3D26', background: '#fff', color: '#0A3D26', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
                     >
-                      {copied ? 'Copiée !' : 'Copier URL'}
+                      {urlCopied ? 'Copiée !' : 'Copier URL'}
                     </button>
                   </div>
                 </div>
