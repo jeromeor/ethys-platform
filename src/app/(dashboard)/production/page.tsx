@@ -7,7 +7,16 @@ export default async function ProductionPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: raw } = await supabase
+  const { data: profil } = await supabase
+    .from('profils_utilisateurs')
+    .select('role, entreprise_id')
+    .eq('id', user.id)
+    .single()
+
+  const role = profil?.role
+  const entrepriseId = profil?.entreprise_id
+
+  let productionQuery = supabase
     .from('commandes')
     .select(`
       id, reference, statut, priorite,
@@ -26,6 +35,13 @@ export default async function ProductionPage() {
       'controle_qualite', 'qr_genere', 'expediee'
     ])
     .order('created_at', { ascending: false })
+
+  if (role !== 'admin' && entrepriseId) {
+    if (role === 'filature') productionQuery = productionQuery.eq('filature_id', entrepriseId)
+    else if (role === 'marque') productionQuery = productionQuery.eq('marque_id', entrepriseId)
+  }
+
+  const { data: raw } = await productionQuery
 
   const { data: entreprises } = await supabase
     .from('entreprises')
