@@ -61,13 +61,13 @@ export async function proxy(request: NextRequest) {
     return response
   }
 
-  // Niveau 2 - En attente validation entreprise
-  if (!entrepriseValidee) {
-    if (!MINIMAL_PATHS.some(p => pathname.startsWith(p)) && pathname !== '/messagerie') {
-      return NextResponse.redirect(new URL('/en-attente', request.url))
-    }
-    return response
-  }
+  // Niveau 2 - En attente validation entreprise (DESACTIVE POUR TESTS BETA)
+  // if (!entrepriseValidee) {
+  //   if (!MINIMAL_PATHS.some(p => pathname.startsWith(p)) && pathname !== '/messagerie') {
+  //     return NextResponse.redirect(new URL('/en-attente', request.url))
+  //   }
+  //   return response
+  // }
 
   return response
 }
