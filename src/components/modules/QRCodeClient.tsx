@@ -427,7 +427,6 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
 
             <div style={{ marginTop: 20 }}>
               {selectedCert.qr_codes?.length > 0 ? (
-              {selectedCert.qr_codes?.length > 0 ? (
                 <div style={{ padding: '12px 16px', borderRadius: 10, background: '#D1FAE5', border: '1px solid #A7F3D0', textAlign: 'center' }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: '#065F46' }}>✓ QR Code actif</div>
                   <div style={{ fontSize: 11, color: '#065F46', marginTop: 4 }}>{selectedCert.qr_codes[0].reference}</div>
