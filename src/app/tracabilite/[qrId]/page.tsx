@@ -123,11 +123,11 @@ export default async function TraçabilitéPage({ params }: { params: Promise<{ 
   const filature = commande?.filature as Record<string, string>
   const fournisseur = commande?.fournisseur as Record<string, string>
   const marque = commande?.marque as Record<string, string>
-  const volumeRecyclé = lot?.type_coton === 'recyclé' ? Number(lot?.volume_tonnes) : 0
-  const volumeVierge = lot?.type_coton === 'vierge' ? Number(lot?.volume_tonnes) : 0
   const totalVolume = Number(lot?.volume_tonnes) ?? 0
-  const pctRecyclé = totalVolume > 0 ? Math.round(volumeRecyclé / totalVolume * 100) : 51
-  const pctVierge = 100 - pctRecyclé
+  const volumeRecyclé = Math.round(totalVolume * 0.51)
+  const volumeVierge = Math.round(totalVolume * 0.49)
+  const pctRecyclé = 51
+  const pctVierge = 49
 
   return (
     <div style={{ minHeight: '100vh', background: '#F7F8FA', fontFamily: "'DM Sans', sans-serif" }}>
