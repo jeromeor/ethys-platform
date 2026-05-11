@@ -1,5 +1,15 @@
 import { createClient } from '@/lib/supabase/server'
 
+
+const formatStatut = (s: string) => ({
+  en_production: 'En production',
+  livree: 'Livrée',
+  soumise: 'Soumise',
+  validation_filature: 'Val. filature',
+  validation_finale: 'Val. finale',
+  annulee: 'Annulée',
+}[s] ?? s)
+
 export default async function DashboardPage() {
   const supabase = await createClient()
 
@@ -66,7 +76,7 @@ export default async function DashboardPage() {
               {dernierCommandes.map((c, i) => (
                 <tr key={i} style={{ borderTop: '1px solid #F1F5F9' }}>
                   <td style={{ padding: '12px 18px', fontSize: 12, fontWeight: 700, color: '#0A3D26' }}>{c.reference}</td>
-                  <td style={{ padding: '12px 18px', fontSize: 12, color: '#475569' }}>{c.statut}</td>
+                  <td style={{ padding: '12px 18px', fontSize: 12, color: '#475569' }}>{formatStatut(c.statut)}</td>
                   <td style={{ padding: '12px 18px', fontSize: 12, color: '#94A3B8' }}>
                     {new Date(c.created_at).toLocaleDateString('fr-FR')}
                   </td>
