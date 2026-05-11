@@ -44,7 +44,7 @@ function fmt(n: number) {
 }
 
 const TABS = ['Vue globale', 'Volumes', 'Finances', 'Partenaires']
-const COLORS = ['#0A3D26', '#10B981', '#6EE7B7', '#CBD5E1', '#F59E0B']
+const COLORS = ['#1a1a1a', '#2d5016', '#c2956e', '#CBD5E1', '#F59E0B']
 
 export default function ReportingClient({ commandes, factures, entreprises, lots }: Props) {
   const [activeTab, setActiveTab] = useState('Vue globale')
@@ -107,22 +107,22 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
           { label: '% Coton recyclé', value: `${pctRecycleGlobal}%`, delta: '' },
           { label: 'Partenaires', value: `${entreprises.length}`, delta: `${entreprises.filter(e => e.statut === 'Vérifié').length} Vérifiés` },
         ].map((k, i) => (
-          <div key={i} style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '16px 18px' }}>
-            <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.3 }}>{k.label}</div>
-            <div style={{ fontSize: 22, fontWeight: 800, color: '#0A3D26' }}>{k.value}</div>
-            <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 4 }}>{k.delta}</div>
+          <div key={i} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '16px 18px' }}>
+            <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.3 }}>{k.label}</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: '#1a1a1a' }}>{k.value}</div>
+            <div style={{ fontSize: 11, color: '#8b7355', marginTop: 4 }}>{k.delta}</div>
           </div>
         ))}
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', borderBottom: '2px solid #EEF0F3', padding: '0 22px', flexShrink: 0, background: '#fff' }}>
+      <div style={{ display: 'flex', borderBottom: '2px solid #e8e3d8', padding: '0 22px', flexShrink: 0, background: '#fff' }}>
         {TABS.map(t => (
           <button key={t} onClick={() => setActiveTab(t)} style={{
             padding: '10px 18px', border: 'none', background: 'none', cursor: 'pointer',
             fontSize: 13, fontWeight: activeTab === t ? 700 : 500,
-            color: activeTab === t ? '#0A3D26' : '#94A3B8',
-            borderBottom: activeTab === t ? '2px solid #0A3D26' : '2px solid transparent',
+            color: activeTab === t ? '#1a1a1a' : '#8b7355',
+            borderBottom: activeTab === t ? '2px solid #1a1a1a' : '2px solid transparent',
             marginBottom: -2
           }}>{t}</button>
         ))}
@@ -135,32 +135,32 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
         {activeTab === 'Vue globale' && (
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
 
-            <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '18px 22px' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>Volumes mensuels (milliers de kg)</div>
+            <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '18px 22px' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 16 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 16 }}>Volumes mensuels (milliers de kg)</div>
               </div>
               {parMois.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '40px', color: '#94A3B8', fontSize: 12 }}>Aucune donnée</div>
+                <div style={{ textAlign: 'center', padding: '40px', color: '#8b7355', fontSize: 12 }}>Aucune donnée</div>
               ) : (
                 <ResponsiveContainer width="100%" height={200}>
                   <BarChart data={parMois} margin={{ top: 30, right: 10, left: 10, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
-                    <XAxis dataKey="mois" tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} tickFormatter={v => `${Math.round(v * 1000 / 1000)} k`} />
-                    <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid #EEF0F3', fontSize: 12 }} />
-                    <Bar dataKey="volume" name="Volume (milliers de kg)" fill="#0A3D26" radius={[4, 4, 0, 0]}><LabelList dataKey="volume" position="top" style={{ fontSize: 11, fill: '#0A3D26', fontWeight: 700 }} formatter={(v: unknown) => Number(v) >= 0 ? `${Math.round(Number(v) * 1000).toLocaleString('fr-FR')} kg` : ''} /></Bar>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f5f3ef" />
+                    <XAxis dataKey="mois" tick={{ fontSize: 11, fill: '#8b7355' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: '#8b7355' }} axisLine={false} tickLine={false} tickFormatter={v => `${Math.round(v * 1000 / 1000)} k`} />
+                    <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid #e8e3d8', fontSize: 12 }} />
+                    <Bar dataKey="volume" name="Volume (milliers de kg)" fill="#1a1a1a" radius={[4, 4, 0, 0]}><LabelList dataKey="volume" position="top" style={{ fontSize: 11, fill: '#1a1a1a', fontWeight: 700 }} formatter={(v: unknown) => Number(v) >= 0 ? `${Math.round(Number(v) * 1000).toLocaleString('fr-FR')} kg` : ''} /></Bar>
                   </BarChart>
                 </ResponsiveContainer>
               )}
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '18px 22px' }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 14 }}>
+              <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '18px 22px' }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 14 }}>
                   Statuts commandes
                 </div>
                 {statutsData.length === 0 ? (
-                  <div style={{ textAlign: 'center', color: '#94A3B8', fontSize: 12 }}>Aucune donnée</div>
+                  <div style={{ textAlign: 'center', color: '#8b7355', fontSize: 12 }}>Aucune donnée</div>
                 ) : (
                   <ResponsiveContainer width="100%" height={130}>
                     <PieChart>
@@ -176,18 +176,18 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
             </div>
 
             {/* Table commandes récentes */}
-            <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', overflow: 'hidden', gridColumn: '1 / -1' }}>
-              <div style={{ padding: '14px 20px', borderBottom: '1px solid #F1F5F9', fontSize: 13, fontWeight: 700, color: '#0A3D26' }}>
+            <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', overflow: 'hidden', gridColumn: '1 / -1' }}>
+              <div style={{ padding: '14px 20px', borderBottom: '1px solid #f5f3ef', fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>
                 Résumé des commandes
               </div>
               {commandes.length === 0 ? (
-                <div style={{ padding: '30px', textAlign: 'center', color: '#94A3B8', fontSize: 12 }}>Aucune commande</div>
+                <div style={{ padding: '30px', textAlign: 'center', color: '#8b7355', fontSize: 12 }}>Aucune commande</div>
               ) : (
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
-                    <tr style={{ background: '#F8FAFC' }}>
+                    <tr style={{ background: '#f5f3ef' }}>
                       {['Statut', 'Nb commandes', 'Volume total', '% recyclé moy.'].map(h => (
-                        <th key={h} style={{ padding: '9px 16px', fontSize: 11, fontWeight: 600, color: '#94A3B8', textAlign: 'left', textTransform: 'uppercase' }}>{h}</th>
+                        <th key={h} style={{ padding: '9px 16px', fontSize: 11, fontWeight: 600, color: '#8b7355', textAlign: 'left', textTransform: 'uppercase' }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -197,8 +197,8 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
                       const vol = cmds.reduce((sum, c) => sum + (c.volume_total_tonnes ?? 0), 0)
                       const pct = cmds.length > 0 ? Math.round(cmds.reduce((sum, c) => sum + c.pct_recycle, 0) / cmds.length) : 0
                       return (
-                        <tr key={i} style={{ borderTop: '1px solid #F1F5F9' }}>
-                          <td style={{ padding: '11px 16px', fontSize: 12, fontWeight: 600, color: '#0A3D26', textTransform: 'capitalize' }}>
+                        <tr key={i} style={{ borderTop: '1px solid #f5f3ef' }}>
+                          <td style={{ padding: '11px 16px', fontSize: 12, fontWeight: 600, color: '#1a1a1a', textTransform: 'capitalize' }}>
                             {s.name.replace(/_/g, ' ')}
                           </td>
                           <td style={{ padding: '11px 16px', fontSize: 12 }}>{s.value}</td>
@@ -217,28 +217,28 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
         {/* Volumes */}
         {activeTab === 'Volumes' && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-            <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '18px 22px' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>Évolution volumes</div>
+            <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '18px 22px' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 16 }}>Évolution volumes</div>
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart data={parMois}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
-                  <XAxis dataKey="mois" tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f5f3ef" />
+                  <XAxis dataKey="mois" tick={{ fontSize: 11, fill: '#8b7355' }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: '#8b7355' }} axisLine={false} tickLine={false} />
                   <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
-                  <Line type="monotone" dataKey="volume" name="Volume (T)" stroke="#0A3D26" strokeWidth={2.5} dot={{ r: 4, fill: '#0A3D26' }} />
+                  <Line type="monotone" dataKey="volume" name="Volume (T)" stroke="#1a1a1a" strokeWidth={2.5} dot={{ r: 4, fill: '#1a1a1a' }} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
 
 
             {[
-              { label: 'Volume total', value: `${Math.round(totalVolume * 1000).toLocaleString('fr-FR')} kg`, badge: `${commandes.length} commandes`, bg: '#D1FAE5', tc: '#065F46' },
+              { label: 'Volume total', value: `${Math.round(totalVolume * 1000).toLocaleString('fr-FR')} kg`, badge: `${commandes.length} commandes`, bg: '#f0f4ec', tc: '#2d5016' },
           { label: 'Lots actifs', value: `${lots.filter(l => l.statut !== 'livre').length}`, badge: `${lots.length} lots total`, bg: '#DBEAFE', tc: '#1E40AF' },
             ].map((s, i) => (
-              <div key={i} style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '16px 20px' }}>
-                <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 6 }}>{s.label}</div>
-                <div style={{ fontSize: 22, fontWeight: 800, color: '#0A3D26', marginBottom: 6 }}>{s.value}</div>
-                <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 20, background: s.bg, color: s.tc, fontWeight: 600 }}>{s.badge}</span>
+              <div key={i} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '16px 20px' }}>
+                <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 6 }}>{s.label}</div>
+                <div style={{ fontSize: 22, fontWeight: 800, color: '#1a1a1a', marginBottom: 6 }}>{s.value}</div>
+                <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: s.bg, color: s.tc, fontWeight: 600 }}>{s.badge}</span>
               </div>
             ))}
           </div>
@@ -247,15 +247,15 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
 {/* Finances */}
 {activeTab === 'Finances' && (
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
-            <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '18px 22px' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>CA mensuel</div>
+            <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '18px 22px' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 16 }}>CA mensuel</div>
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={parMois} margin={{ top: 30, right: 10, left: 10, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
-                  <XAxis dataKey="mois" tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} tickFormatter={v => `${v / 1000}k`} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f5f3ef" />
+                  <XAxis dataKey="mois" tick={{ fontSize: 11, fill: '#8b7355' }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: '#8b7355' }} axisLine={false} tickLine={false} tickFormatter={v => `${v / 1000}k`} />
                   <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} formatter={(v) => fmt(Number(v))} />
-                  <Bar dataKey="ca" name="CA en euros" fill="#0A3D26" radius={[6, 6, 0, 0]}><LabelList dataKey="ca" position="top" style={{ fontSize: 11, fill: '#0A3D26', fontWeight: 700 }} formatter={(v: unknown) => Number(v) >= 0 ? `${Number(v).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}` : ''} /></Bar>
+                  <Bar dataKey="ca" name="CA en euros" fill="#1a1a1a" radius={[6, 6, 0, 0]}><LabelList dataKey="ca" position="top" style={{ fontSize: 11, fill: '#1a1a1a', fontWeight: 700 }} formatter={(v: unknown) => Number(v) >= 0 ? `${Number(v).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}` : ''} /></Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -266,9 +266,9 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
                 { label: 'Factures en attente', value: `${factures.filter(f => f.statut === 'en_attente' || f.statut === 'emise').length}` },
                 { label: 'Taux encaissement', value: totalCA > 0 ? `${Math.round(factures.filter(f => f.statut === 'payee').reduce((s, f) => s + f.montant_ht, 0) / totalCA * 100)}%` : 'â€”' },
               ].map((k, i) => (
-                <div key={i} style={{ background: '#fff', borderRadius: 12, border: '1px solid #EEF0F3', padding: '14px 18px' }}>
-                  <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 4 }}>{k.label}</div>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: '#0A3D26' }}>{k.value}</div>
+                <div key={i} style={{ background: '#fff', borderRadius: 6, border: '1px solid #e8e3d8', padding: '14px 18px' }}>
+                  <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 4 }}>{k.label}</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: '#1a1a1a' }}>{k.value}</div>
                 </div>
               ))}
             </div>
@@ -278,21 +278,21 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
         {/* Partenaires */}
         {activeTab === 'Partenaires' && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-            <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '18px 22px' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>Répartition par pays</div>
+            <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '18px 22px' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 16 }}>Répartition par pays</div>
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={paysData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
-                  <XAxis type="number" tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
-                  <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} width={70} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f5f3ef" />
+                  <XAxis type="number" tick={{ fontSize: 11, fill: '#8b7355' }} axisLine={false} tickLine={false} />
+                  <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fill: '#8b7355' }} axisLine={false} tickLine={false} width={70} />
                   <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
-                  <Bar dataKey="value" name="Partenaires" fill="#0A3D26" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="value" name="Partenaires" fill="#1a1a1a" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
 
-            <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '18px 22px' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26', marginBottom: 16 }}>Répartition par type</div>
+            <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '18px 22px' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 16 }}>Répartition par type</div>
               <ResponsiveContainer width="100%" height={200}>
                 <PieChart>
                   <Pie data={typesData} cx="50%" cy="50%" outerRadius={80} dataKey="value" paddingAngle={3}>
@@ -310,9 +310,9 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
               { label: 'En cours', value: `${entreprises.filter(e => e.statut === 'en_cours').length}` },
               { label: 'Pays couverts', value: `${new Set(entreprises.map(e => e.pays)).size}` },
             ].map((k, i) => (
-              <div key={i} style={{ background: '#fff', borderRadius: 12, border: '1px solid #EEF0F3', padding: '14px 18px' }}>
-                <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 4 }}>{k.label}</div>
-                <div style={{ fontSize: 22, fontWeight: 800, color: '#0A3D26' }}>{k.value}</div>
+              <div key={i} style={{ background: '#fff', borderRadius: 6, border: '1px solid #e8e3d8', padding: '14px 18px' }}>
+                <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 4 }}>{k.label}</div>
+                <div style={{ fontSize: 22, fontWeight: 800, color: '#1a1a1a' }}>{k.value}</div>
               </div>
             ))}
           </div>

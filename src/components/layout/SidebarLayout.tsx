@@ -63,7 +63,7 @@ export default function SidebarLayout({ user, profil, children }: Props) {
   const nomEntreprise = profil?.entreprise?.nom ?? user?.email ?? ''
 
   return (
-    <div style={{ display: 'flex', height: '100vh', fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", background: '#F7F8FA', color: '#1A202C', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', height: '100vh', fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", background: '#f5f3ef', color: '#1A202C', overflow: 'hidden' }}>
 
       <aside style={{ width: open ? 220 : 64, minWidth: open ? 220 : 64, background: '#ffffff', display: 'flex', flexDirection: 'column', transition: 'width 0.25s ease', overflow: 'hidden', flexShrink: 0, borderRight: '1px solid #d4c5b0' }}>
         <div style={{ padding: '20px 16px 16px', borderBottom: '1px solid #e8e3d8', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -96,30 +96,30 @@ export default function SidebarLayout({ user, profil, children }: Props) {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <NotificationBell userId={profil?.id ?? ''} />
-            <div ref={userMenuRef} style={{ fontSize: 12, color: '#94A3B8', position: 'relative' }}>
+            <div ref={userMenuRef} style={{ fontSize: 12, color: '#8b7355', position: 'relative' }}>
             <button
               onClick={() => setShowUserMenu(v => !v)}
-              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 12px', borderRadius: 10, border: '1.5px solid #EEF0F3', background: '#F8FAFC', cursor: 'pointer' }}
+              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 12px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', cursor: 'pointer' }}
             >
               <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#1a1a1a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: '#fff', flexShrink: 0 }}>
                 {initiales}
               </div>
               <div style={{ textAlign: 'left' }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: '#1A202C' }}>{nomEntreprise}</div>
-                <div style={{ fontSize: 10, color: '#94A3B8', textTransform: 'capitalize' }}>{profil?.role ?? 'utilisateur'}</div>
+                <div style={{ fontSize: 10, color: '#8b7355', textTransform: 'capitalize' }}>{profil?.role ?? 'utilisateur'}</div>
               </div>
-              <div style={{ fontSize: 10, color: '#94A3B8', marginLeft: 4 }}>▼</div>
+              <div style={{ fontSize: 10, color: '#8b7355', marginLeft: 4 }}>▼</div>
             </button>
             {showUserMenu && (
-              <div style={{ position: 'absolute', top: '110%', right: 0, background: '#fff', borderRadius: 12, border: '1px solid #EEF0F3', boxShadow: '0 8px 24px rgba(0,0,0,0.08)', minWidth: 200, zIndex: 100, overflow: 'hidden' }}>
-                <div style={{ padding: '12px 16px', borderBottom: '1px solid #F1F5F9' }}>
+              <div style={{ position: 'absolute', top: '110%', right: 0, background: '#fff', borderRadius: 6, border: '1px solid #e8e3d8', boxShadow: '0 8px 24px rgba(0,0,0,0.08)', minWidth: 200, zIndex: 100, overflow: 'hidden' }}>
+                <div style={{ padding: '12px 16px', borderBottom: '1px solid #f5f3ef' }}>
                   <div style={{ fontSize: 12, fontWeight: 700, color: '#1A202C' }}>{nomEntreprise}</div>
-                  <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>{user?.email}</div>
+                  <div style={{ fontSize: 11, color: '#8b7355', marginTop: 2 }}>{user?.email}</div>
                 </div>
-                <button onClick={() => { setShowUserMenu(false); router.push('/profil') }} style={{ display: 'block', width: '100%', padding: '10px 16px', border: 'none', background: 'none', textAlign: 'left', fontSize: 12, color: '#475569', cursor: 'pointer' }}>
+                <button onClick={() => { setShowUserMenu(false); router.push('/profil') }} style={{ display: 'block', width: '100%', padding: '10px 16px', border: 'none', background: 'none', textAlign: 'left', fontSize: 12, color: '#4a5568', cursor: 'pointer' }}>
                   Mon profil
                 </button>
-                <button onClick={handleLogout} style={{ display: 'block', width: '100%', padding: '10px 16px', border: 'none', background: 'none', textAlign: 'left', fontSize: 12, color: '#DC2626', cursor: 'pointer', borderTop: '1px solid #F1F5F9' }}>
+                <button onClick={handleLogout} style={{ display: 'block', width: '100%', padding: '10px 16px', border: 'none', background: 'none', textAlign: 'left', fontSize: 12, color: '#8b3a3a', cursor: 'pointer', borderTop: '1px solid #f5f3ef' }}>
                   Déconnexion
                 </button>
               </div>

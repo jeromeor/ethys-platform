@@ -51,16 +51,16 @@ const STATUT_LABELS: Record<StatutCommande, string> = {
 }
 
 const STATUT_COLORS: Record<string, [string, string, string]> = {
-  brouillon:              ['#F1F5F9', '#475569', '#94A3B8'],
+  brouillon:              ['#f5f3ef', '#4a5568', '#8b7355'],
   Soumise:                ['#DBEAFE', '#1E40AF', '#3B82F6'],
-  validation_fournisseur: ['#FEF3C7', '#92400E', '#F59E0B'],
-  validation_filature:    ['#FEF3C7', '#92400E', '#F59E0B'],
-  validation_finale:      ['#FEF3C7', '#92400E', '#F59E0B'],
+  validation_fournisseur: ['#fdf8ec', '#b8860b', '#F59E0B'],
+  validation_filature:    ['#fdf8ec', '#b8860b', '#F59E0B'],
+  validation_finale:      ['#fdf8ec', '#b8860b', '#F59E0B'],
   en_production:          ['#D1ECF1', '#0C5460', '#06B6D4'],
-  controle_qualite:       ['#FEF3C7', '#92400E', '#F59E0B'],
-  qr_genere:              ['#D1FAE5', '#065F46', '#10B981'],
-  expediee:               ['#D1FAE5', '#065F46', '#10B981'],
-  livrée:                 ['#D1FAE5', '#065F46', '#10B981'],
+  controle_qualite:       ['#fdf8ec', '#b8860b', '#F59E0B'],
+  qr_genere:              ['#f0f4ec', '#2d5016', '#2d5016'],
+  expediee:               ['#f0f4ec', '#2d5016', '#2d5016'],
+  livrée:                 ['#f0f4ec', '#2d5016', '#2d5016'],
   annulee:                ['#FEE2E2', '#991B1B', '#EF4444'],
 }
 
@@ -164,14 +164,14 @@ const CréerCommande = async () => {
   }
 
   const labelInput = (label: string) => (
-    <label style={{ fontSize: 12, fontWeight: 600, color: '#64748B', display: 'block', marginBottom: 6 }}>
+    <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>
       {label}
     </label>
   )
 
   const inputStyle = {
     width: '100%', padding: '9px 12px', borderRadius: 8,
-    border: '1.5px solid #E2E8F0', fontSize: 13,
+    border: '1.5px solid #d4c5b0', fontSize: 13,
     boxSizing: 'border-box' as const, outline: 'none', background: '#fff'
   }
 
@@ -185,16 +185,16 @@ const CréerCommande = async () => {
 
         {/* Barre outils */}
         <div style={{
-          padding: '14px 22px', background: '#fff', borderBottom: '1px solid #EEF0F3',
+          padding: '14px 22px', background: '#fff', borderBottom: '1px solid #e8e3d8',
           display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexShrink: 0
         }}>
           <div style={{ display: 'flex', gap: 6 }}>
             {['tous', 'soumise', 'en_production', 'livrée'].map(s => (
               <button key={s} onClick={() => setFilterStatut(s)} style={{
-                padding: '5px 12px', borderRadius: 20, border: 'none', cursor: 'pointer',
+                padding: '5px 12px', borderRadius: 4, border: 'none', cursor: 'pointer',
                 fontSize: 11, fontWeight: filterStatut === s ? 700 : 500,
-                background: filterStatut === s ? '#0A3D26' : '#F1F5F9',
-                color: filterStatut === s ? '#fff' : '#64748B'
+                background: filterStatut === s ? '#1a1a1a' : '#f5f3ef',
+                color: filterStatut === s ? '#fff' : '#4a5568'
               }}>
                 {s === 'tous' ? 'Toutes' : STATUT_LABELS[s as StatutCommande]}
               </button>
@@ -202,8 +202,8 @@ const CréerCommande = async () => {
           </div>
           {(profil?.role === 'admin' || profil?.role === 'marque') && (
   <button onClick={() => setShowForm(true)} style={{
-    padding: '8px 16px', borderRadius: 10, border: 'none',
-    background: '#0A3D26', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer'
+    padding: '8px 16px', borderRadius: 4, border: 'none',
+    background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer'
   }}>+ Nouvelle commande</button>
 )}
         </div>
@@ -211,35 +211,35 @@ const CréerCommande = async () => {
         {/* Table */}
         <div style={{ flex: 1, overflow: 'auto', padding: '16px 22px' }}>
           {filtrees.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '60px 0', color: '#94A3B8' }}>
+            <div style={{ textAlign: 'center', padding: '60px 0', color: '#8b7355' }}>
               <div style={{ fontSize: 32, marginBottom: 10 }}>◈</div>
               <div style={{ fontSize: 14, fontWeight: 600 }}>Aucune commande</div>
               <div style={{ fontSize: 12, marginTop: 4 }}>Cliquez sur "+ Nouvelle commande" pour commencer</div>
             </div>
           ) : (
-            <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', overflow: 'hidden' }}>
+            <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', overflow: 'hidden' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
-                  <tr style={{ background: '#F8FAFC' }}>
+                  <tr style={{ background: '#f5f3ef' }}>
                     {['Référence', 'Marque', 'Filature', 'Volume', 'Composition', 'Statut', 'Livraison'].concat(selected ? [] : ['Avancement']).map(h => (
-                      <th key={h} style={{ padding: '10px 14px', fontSize: 11, fontWeight: 600, color: '#94A3B8', textAlign: 'left', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{h}</th>
+                      <th key={h} style={{ padding: '10px 14px', fontSize: 11, fontWeight: 600, color: '#8b7355', textAlign: 'left', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {filtrees.map((c, i) => {
-                    const [bg, tc, dot] = STATUT_COLORS[c.statut] ?? ['#F1F5F9', '#475569', '#94A3B8']
+                    const [bg, tc, dot] = STATUT_COLORS[c.statut] ?? ['#f5f3ef', '#4a5568', '#8b7355']
                     const etape = etapeIndex(c.statut)
                     return (
                       <tr key={c.id}
                         onClick={() => setSelected(c)}
-                        style={{ borderTop: '1px solid #F1F5F9', cursor: 'pointer' }}
-                        onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = '#F8FAFC'}
+                        style={{ borderTop: '1px solid #f5f3ef', cursor: 'pointer' }}
+                        onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = '#f5f3ef'}
                         onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = 'transparent'}
                       >
-                        <td style={{ padding: '12px 14px', fontSize: 12, fontWeight: 800, color: '#0A3D26', whiteSpace: 'nowrap' }}>{c.reference}</td>
-                        <td style={{ padding: '12px 14px', fontSize: 12, color: '#475569' }}>{c.marque?.nom ?? '-'}</td>
-                        <td style={{ padding: '12px 14px', fontSize: 12, color: '#475569' }}>{c.filature?.nom ?? '-'}</td>
+                        <td style={{ padding: '12px 14px', fontSize: 12, fontWeight: 800, color: '#1a1a1a', whiteSpace: 'nowrap' }}>{c.reference}</td>
+                        <td style={{ padding: '12px 14px', fontSize: 12, color: '#4a5568' }}>{c.marque?.nom ?? '-'}</td>
+                        <td style={{ padding: '12px 14px', fontSize: 12, color: '#4a5568' }}>{c.filature?.nom ?? '-'}</td>
                         <td style={{ padding: '12px 14px', fontSize: 12, fontWeight: 600 }}>{Math.round((c.volume_total_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg</td>
                         <td style={{ padding: '12px 14px' }}>
                           <span style={{ fontSize: 11, fontWeight: 600, color: '#059669' }}>
@@ -248,14 +248,14 @@ const CréerCommande = async () => {
                         </td>
                         <td style={{ padding: '12px 14px' }}>
                           <span style={{
-                            padding: '3px 8px', borderRadius: 20, fontSize: 10, fontWeight: 700,
+                            padding: '3px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700,
                             background: bg, color: tc, display: 'inline-flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap'
                           }}>
                             <span style={{ width: 5, height: 5, borderRadius: '50%', background: dot }} />
                             {STATUT_LABELS[c.statut]}
                           </span>
                         </td>
-                        <td style={{ padding: '12px 14px', fontSize: 11, color: '#94A3B8', whiteSpace: 'nowrap' }}>
+                        <td style={{ padding: '12px 14px', fontSize: 11, color: '#8b7355', whiteSpace: 'nowrap' }}>
                           {new Date(c.date_livraison_souhaitee).toLocaleDateString('fr-FR')}
                         </td>
                         {!selected && (
@@ -264,7 +264,7 @@ const CréerCommande = async () => {
       {ETAPES.map((_, idx) => (
         <div key={idx} style={{
           width: 14, height: 4, borderRadius: 2,
-          background: idx <= etape ? '#0A3D26' : '#E2E8F0'
+          background: idx <= etape ? '#1a1a1a' : '#d4c5b0'
         }} />
       ))}
     </div>
@@ -284,17 +284,17 @@ const CréerCommande = async () => {
       {selected && (
         <div style={{
           width: 320, minWidth: 320, background: '#fff',
-          borderLeft: '1px solid #EEF0F3', display: 'flex', flexDirection: 'column', overflow: 'hidden'
+          borderLeft: '1px solid #e8e3d8', display: 'flex', flexDirection: 'column', overflow: 'hidden'
         }}>
           <div style={{
-            padding: '14px 18px', borderBottom: '1px solid #F1F5F9',
+            padding: '14px 18px', borderBottom: '1px solid #f5f3ef',
             display: 'flex', justifyContent: 'space-between', alignItems: 'center'
           }}>
-            <span style={{ fontWeight: 700, fontSize: 13, color: '#0A3D26' }}>{selected.reference}</span>
-            <button onClick={() => setSelected(null)} style={{ border: 'none', background: 'none', fontSize: 16, color: '#94A3B8', cursor: 'pointer' }}>âœ•</button>
+            <span style={{ fontWeight: 700, fontSize: 13, color: '#1a1a1a' }}>{selected.reference}</span>
+            <button onClick={() => setSelected(null)} style={{ border: 'none', background: 'none', fontSize: 16, color: '#8b7355', cursor: 'pointer' }}>âœ•</button>
           </div>
           <div style={{ flex: 1, overflow: 'auto', padding: '18px' }}>
-            <div style={{ background: 'linear-gradient(135deg,#0A3D26,#0D5C3A)', borderRadius: 12, padding: '16px', color: '#fff', marginBottom: 16 }}>
+            <div style={{ background: 'linear-gradient(135deg,#1a1a1a,#2a2a2a)', borderRadius: 6, padding: '16px', color: '#fff', marginBottom: 16 }}>
               <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 4 }}>{selected.reference}</div>
               {selected.titre && <div style={{ fontSize: 11, opacity: 0.75, marginBottom: 10 }}>{selected.titre}</div>}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
@@ -305,7 +305,7 @@ const CréerCommande = async () => {
                   ['Livraison', new Date(selected.date_livraison_souhaitee).toLocaleDateString('fr-FR')],
                 ].map(([l, v]) => (
                   <div key={l} style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 10px' }}>
-                    <div style={{ fontSize: 13, fontWeight: 800, color: '#6EE7B7' }}>{v}</div>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: '#c2956e' }}>{v}</div>
                     <div style={{ fontSize: 9, opacity: 0.65 }}>{l}</div>
                   </div>
                 ))}
@@ -321,7 +321,7 @@ const CréerCommande = async () => {
               ['Statut', STATUT_LABELS[selected.statut]],
             ].map(([l, v]) => (
               <div key={l} style={{ display: 'flex', gap: 12, marginBottom: 10 }}>
-                <span style={{ fontSize: 12, color: '#94A3B8', width: 100, flexShrink: 0 }}>{l}</span>
+                <span style={{ fontSize: 12, color: '#8b7355', width: 100, flexShrink: 0 }}>{l}</span>
                 <span style={{ fontSize: 12, fontWeight: 600, color: '#1A202C' }}>{v ?? '-'}</span>
               </div>
             ))}
@@ -329,16 +329,16 @@ const CréerCommande = async () => {
             {/* Validations */}
             {selected.validations?.length > 0 && (
               <div style={{ marginTop: 14 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#0A3D26', marginBottom: 8, textTransform: 'uppercase' }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#1a1a1a', marginBottom: 8, textTransform: 'uppercase' }}>
                   Validations
                 </div>
                 {selected.validations.map((v, i) => (
                   <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 6 }}>
-                    <span style={{ color: '#64748B', textTransform: 'capitalize' }}>{v.type}</span>
+                    <span style={{ color: '#4a5568', textTransform: 'capitalize' }}>{v.type}</span>
                     <span style={{
-                      padding: '2px 8px', borderRadius: 20, fontSize: 10, fontWeight: 700,
-                      background: v.statut === 'approuve' ? '#D1FAE5' : v.statut === 'refuse' ? '#FEE2E2' : '#FEF3C7',
-                      color: v.statut === 'approuve' ? '#065F46' : v.statut === 'refuse' ? '#991B1B' : '#92400E'
+                      padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700,
+                      background: v.statut === 'approuve' ? '#f0f4ec' : v.statut === 'refuse' ? '#FEE2E2' : '#fdf8ec',
+                      color: v.statut === 'approuve' ? '#2d5016' : v.statut === 'refuse' ? '#991B1B' : '#b8860b'
                     }}>{v.statut}</span>
                   </div>
                 ))}
@@ -358,9 +358,9 @@ const CréerCommande = async () => {
             background: '#fff', borderRadius: 18, width: '100%', maxWidth: 560,
             maxHeight: '90vh', overflow: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.2)'
           }}>
-            <div style={{ padding: '22px 28px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: 16, fontWeight: 700, color: '#0A3D26' }}>Nouvelle commande ETHYS</span>
-              <button onClick={() => setShowForm(false)} style={{ border: 'none', background: 'none', fontSize: 18, color: '#94A3B8', cursor: 'pointer' }}>x</button>
+            <div style={{ padding: '22px 28px', borderBottom: '1px solid #f5f3ef', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>Nouvelle commande ETHYS</span>
+              <button onClick={() => setShowForm(false)} style={{ border: 'none', background: 'none', fontSize: 18, color: '#8b7355', cursor: 'pointer' }}>x</button>
             </div>
             <div style={{ padding: '22px 28px', display: 'flex', flexDirection: 'column', gap: 14 }}>
 
@@ -399,10 +399,10 @@ const CréerCommande = async () => {
                 <div style={{ display: 'flex', gap: 8 }}>
                   {[['mixte', 'Fil ETHYS (recyclé + vierge)']].map(([v, l]) => (
                     <button key={v} onClick={() => set('type_coton', v)} style={{
-                      flex: 1, padding: '8px', borderRadius: 10, cursor: 'pointer',
-                      border: `2px solid ${form.type_coton === v ? '#0A3D26' : '#EEF0F3'}`,
+                      flex: 1, padding: '8px', borderRadius: 4, cursor: 'pointer',
+                      border: `2px solid ${form.type_coton === v ? '#1a1a1a' : '#e8e3d8'}`,
                       background: form.type_coton === v ? '#F0FDF4' : '#FAFAFA',
-                      color: form.type_coton === v ? '#0A3D26' : '#64748B',
+                      color: form.type_coton === v ? '#1a1a1a' : '#4a5568',
                       fontSize: 11, fontWeight: form.type_coton === v ? 700 : 400
                     }}>{l}</button>
                   ))}
@@ -462,19 +462,19 @@ const CréerCommande = async () => {
 
               <div style={{ display: 'flex', gap: 10, paddingTop: 4 }}>
                 <button onClick={() => setShowForm(false)} style={{
-                  flex: 1, padding: '10px', borderRadius: 10,
-                  border: '1.5px solid #EEF0F3', background: '#F8FAFC',
-                  color: '#94A3B8', fontSize: 13, cursor: 'pointer'
+                  flex: 1, padding: '10px', borderRadius: 4,
+                  border: '1.5px solid #e8e3d8', background: '#f5f3ef',
+                  color: '#8b7355', fontSize: 13, cursor: 'pointer'
                 }}>Annuler</button>
                 <button onClick={CréerCommande} disabled={loading} style={{
-                  flex: 2, padding: '10px', borderRadius: 10, border: 'none',
-                  background: loading ? '#E2E8F0' : '#0A3D26',
-                  color: loading ? '#94A3B8' : '#fff',
+                  flex: 2, padding: '10px', borderRadius: 4, border: 'none',
+                  background: loading ? '#d4c5b0' : '#1a1a1a',
+                  color: loading ? '#8b7355' : '#fff',
                   fontSize: 13, fontWeight: 700, cursor: loading ? 'default' : 'pointer'
                 }}>{error && (
   <div style={{
-    padding: '10px 14px', borderRadius: 8, background: '#FEF2F2',
-    border: '1px solid #FCA5A5', fontSize: 12, color: '#DC2626', marginBottom: 16
+    padding: '10px 14px', borderRadius: 8, background: '#fdf0f0',
+    border: '1px solid #c8a0a0', fontSize: 12, color: '#8b3a3a', marginBottom: 16
   }}>{error}</div>
 )}
                   {loading ? 'Creation...' : '✓ Creer la commande ETHYS'}

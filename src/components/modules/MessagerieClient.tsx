@@ -143,20 +143,20 @@ export default function MessagerieClient({ currentUser, currentRole, adminId, ad
     <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
 
       {/* Sidebar gauche */}
-      <div style={{ width: 260, minWidth: 260, background: '#fff', borderRight: '1px solid #EEF0F3', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ width: 260, minWidth: 260, background: '#fff', borderRight: '1px solid #e8e3d8', display: 'flex', flexDirection: 'column' }}>
 
         {/* Dossiers */}
-        <div style={{ padding: '12px 14px', borderBottom: '1px solid #F1F5F9' }}>
+        <div style={{ padding: '12px 14px', borderBottom: '1px solid #f5f3ef' }}>
           <div style={{ display: 'flex', gap: 6 }}>
-            <button onClick={() => { setDossier('recus'); setSelectedUser(null) }} style={{ flex: 1, padding: '7px 10px', borderRadius: 8, border: 'none', cursor: 'pointer', background: dossier === 'recus' ? '#F0FDF4' : '#F8FAFC', color: dossier === 'recus' ? '#0A3D26' : '#64748B', fontWeight: dossier === 'recus' ? 700 : 400, fontSize: 12, position: 'relative' }}>
+            <button onClick={() => { setDossier('recus'); setSelectedUser(null) }} style={{ flex: 1, padding: '7px 10px', borderRadius: 8, border: 'none', cursor: 'pointer', background: dossier === 'recus' ? '#F0FDF4' : '#f5f3ef', color: dossier === 'recus' ? '#1a1a1a' : '#4a5568', fontWeight: dossier === 'recus' ? 700 : 400, fontSize: 12, position: 'relative' }}>
               Reçus
               {nonLusTotal > 0 && (
-                <span style={{ position: 'absolute', top: -4, right: -4, width: 16, height: 16, borderRadius: '50%', background: '#DC2626', color: '#fff', fontSize: 9, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ position: 'absolute', top: -4, right: -4, width: 16, height: 16, borderRadius: '50%', background: '#8b3a3a', color: '#fff', fontSize: 9, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {nonLusTotal}
                 </span>
               )}
             </button>
-            <button onClick={() => { setDossier('envoyes'); setSelectedUser(null) }} style={{ flex: 1, padding: '7px 10px', borderRadius: 8, border: 'none', cursor: 'pointer', background: dossier === 'envoyes' ? '#F0FDF4' : '#F8FAFC', color: dossier === 'envoyes' ? '#0A3D26' : '#64748B', fontWeight: dossier === 'envoyes' ? 700 : 400, fontSize: 12 }}>
+            <button onClick={() => { setDossier('envoyes'); setSelectedUser(null) }} style={{ flex: 1, padding: '7px 10px', borderRadius: 8, border: 'none', cursor: 'pointer', background: dossier === 'envoyes' ? '#F0FDF4' : '#f5f3ef', color: dossier === 'envoyes' ? '#1a1a1a' : '#4a5568', fontWeight: dossier === 'envoyes' ? 700 : 400, fontSize: 12 }}>
               Envoyés
             </button>
           </div>
@@ -165,7 +165,7 @@ export default function MessagerieClient({ currentUser, currentRole, adminId, ad
         {/* Liste interlocuteurs */}
         <div style={{ flex: 1, overflowY: 'auto' }}>
           {!isAdmin && dossier === 'recus' && interlocuteursRecus.length === 0 && (
-            <div style={{ padding: '20px 14px', textAlign: 'center', color: '#94A3B8', fontSize: 12 }}>
+            <div style={{ padding: '20px 14px', textAlign: 'center', color: '#8b7355', fontSize: 12 }}>
               Aucun message reçu de l'administration.
             </div>
           )}
@@ -176,16 +176,16 @@ export default function MessagerieClient({ currentUser, currentRole, adminId, ad
               .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0]
             const isSelected = selectedUser?.id === user.id
             return (
-              <div key={user.id} onClick={() => ouvrirConversation(user)} style={{ padding: '12px 14px', cursor: 'pointer', background: isSelected ? '#F0FDF4' : 'transparent', borderLeft: `3px solid ${isSelected ? '#0A3D26' : 'transparent'}`, borderBottom: '1px solid #F8FAFC' }}>
+              <div key={user.id} onClick={() => ouvrirConversation(user)} style={{ padding: '12px 14px', cursor: 'pointer', background: isSelected ? '#F0FDF4' : 'transparent', borderLeft: `3px solid ${isSelected ? '#1a1a1a' : 'transparent'}`, borderBottom: '1px solid #f5f3ef' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
                   <div style={{ fontSize: 12, fontWeight: nonLus > 0 ? 800 : 600, color: '#1A202C' }}>{nomAffiche(user)}</div>
                   {nonLus > 0 && (
-                    <span style={{ width: 18, height: 18, borderRadius: '50%', background: '#DC2626', color: '#fff', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{nonLus}</span>
+                    <span style={{ width: 18, height: 18, borderRadius: '50%', background: '#8b3a3a', color: '#fff', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{nonLus}</span>
                   )}
                 </div>
-                <div style={{ fontSize: 11, color: '#64748B', marginBottom: 2 }}>{user.entreprise?.nom ?? user.role}</div>
+                <div style={{ fontSize: 11, color: '#4a5568', marginBottom: 2 }}>{user.entreprise?.nom ?? user.role}</div>
                 {dernierMsg && (
-                  <div style={{ fontSize: 11, color: '#94A3B8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <div style={{ fontSize: 11, color: '#8b7355', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {dernierMsg.contenu.slice(0, 40)}{dernierMsg.contenu.length > 40 ? '...' : ''}
                   </div>
                 )}
@@ -195,12 +195,12 @@ export default function MessagerieClient({ currentUser, currentRole, adminId, ad
 
           {/* Bouton nouveau message pour admin */}
           {isAdmin && (
-            <div style={{ padding: '12px 14px', borderTop: '1px solid #F1F5F9', marginTop: 'auto' }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', marginBottom: 8, textTransform: 'uppercase' }}>Contacter un utilisateur</div>
+            <div style={{ padding: '12px 14px', borderTop: '1px solid #f5f3ef', marginTop: 'auto' }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#8b7355', marginBottom: 8, textTransform: 'uppercase' }}>Contacter un utilisateur</div>
               <select onChange={e => {
                 const user = utilisateurs.find(u => u.id === e.target.value)
                 if (user) { setDossier('envoyes'); ouvrirConversation(user) }
-              }} style={{ width: '100%', padding: '7px 10px', borderRadius: 8, border: '1.5px solid #E2E8F0', fontSize: 12, outline: 'none', color: '#1A202C' }}>
+              }} style={{ width: '100%', padding: '7px 10px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none', color: '#1A202C' }}>
                 <option value="">Sélectionner un utilisateur...</option>
                 {utilisateurs.filter(u => u.id !== currentUser.id).map(u => (
                   <option key={u.id} value={u.id}>{nomAffiche(u)} — {u.entreprise?.nom ?? u.role}</option>
@@ -212,12 +212,12 @@ export default function MessagerieClient({ currentUser, currentRole, adminId, ad
 
         {/* Bouton contacter admin pour non-admin */}
         {!isAdmin && (
-          <div style={{ padding: '12px 14px', borderTop: '1px solid #F1F5F9' }}>
+          <div style={{ padding: '12px 14px', borderTop: '1px solid #f5f3ef' }}>
             <button onClick={() => {
               const admin = adminUser ?? utilisateurs.find(u => u.id === adminId)
   
     if (admin) ouvrirConversation(admin)
-            }} style={{ width: '100%', padding: '8px', borderRadius: 8, border: 'none', background: '#0A3D26', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+            }} style={{ width: '100%', padding: '8px', borderRadius: 8, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
               + Contacter l'administration
             </button>
           </div>
@@ -227,29 +227,29 @@ export default function MessagerieClient({ currentUser, currentRole, adminId, ad
       {/* Zone de conversation */}
       {selectedUser ? (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-          <div style={{ padding: '14px 20px', borderBottom: '1px solid #EEF0F3', background: '#fff', display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#D1FAE5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: '#065F46' }}>
+          <div style={{ padding: '14px 20px', borderBottom: '1px solid #e8e3d8', background: '#fff', display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#f0f4ec', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: '#2d5016' }}>
               {nomAffiche(selectedUser).slice(0, 1).toUpperCase()}
             </div>
             <div>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#1A202C' }}>{nomAffiche(selectedUser)}</div>
-              <div style={{ fontSize: 11, color: '#94A3B8' }}>{selectedUser.entreprise?.nom ?? selectedUser.role}</div>
+              <div style={{ fontSize: 11, color: '#8b7355' }}>{selectedUser.entreprise?.nom ?? selectedUser.role}</div>
             </div>
           </div>
 
           <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
             {conversation.length === 0 ? (
-              <div style={{ textAlign: 'center', color: '#94A3B8', fontSize: 13, marginTop: 60 }}>
+              <div style={{ textAlign: 'center', color: '#8b7355', fontSize: 13, marginTop: 60 }}>
                 Aucun message — démarrez la conversation.
               </div>
             ) : conversation.map(msg => {
               const estMoi = msg.auteur_id === currentUser.id
               return (
                 <div key={msg.id} style={{ display: 'flex', flexDirection: 'column', alignItems: estMoi ? 'flex-end' : 'flex-start', marginBottom: 16 }}>
-                  <div style={{ maxWidth: '70%', padding: '10px 14px', borderRadius: estMoi ? '12px 12px 4px 12px' : '12px 12px 12px 4px', background: estMoi ? '#0A3D26' : '#F1F5F9', color: estMoi ? '#fff' : '#1A202C', fontSize: 13, lineHeight: 1.5 }}>
+                  <div style={{ maxWidth: '70%', padding: '10px 14px', borderRadius: estMoi ? '12px 12px 4px 12px' : '12px 12px 12px 4px', background: estMoi ? '#1a1a1a' : '#f5f3ef', color: estMoi ? '#fff' : '#1A202C', fontSize: 13, lineHeight: 1.5 }}>
                     {msg.contenu}
                   </div>
-                  <div style={{ fontSize: 10, color: '#94A3B8', marginTop: 4, display: 'flex', gap: 6 }}>
+                  <div style={{ fontSize: 10, color: '#8b7355', marginTop: 4, display: 'flex', gap: 6 }}>
                     <span style={{ fontWeight: 600 }}>{nomExpediteur(msg)}</span>
                     <span>·</span>
                     <span>{new Date(msg.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })} {new Date(msg.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
@@ -260,21 +260,21 @@ export default function MessagerieClient({ currentUser, currentRole, adminId, ad
             <div ref={messagesEndRef} />
           </div>
 
-          <div style={{ padding: '14px 20px', borderTop: '1px solid #EEF0F3', background: '#fff', display: 'flex', gap: 10 }}>
+          <div style={{ padding: '14px 20px', borderTop: '1px solid #e8e3d8', background: '#fff', display: 'flex', gap: 10 }}>
             <input
               value={newMessage}
               onChange={e => setNewMessage(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && !e.shiftKey && envoyerMessage()}
               placeholder={`Écrire à ${nomAffiche(selectedUser)}...`}
-              style={{ flex: 1, padding: '10px 14px', borderRadius: 10, border: '1.5px solid #E2E8F0', fontSize: 13, outline: 'none', color: '#1A202C' }}
+              style={{ flex: 1, padding: '10px 14px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 13, outline: 'none', color: '#1A202C' }}
             />
-            <button onClick={envoyerMessage} disabled={sending || !newMessage.trim()} style={{ padding: '10px 18px', borderRadius: 10, border: 'none', background: sending || !newMessage.trim() ? '#E2E8F0' : '#0A3D26', color: sending || !newMessage.trim() ? '#94A3B8' : '#fff', fontSize: 13, fontWeight: 700, cursor: sending || !newMessage.trim() ? 'default' : 'pointer' }}>
+            <button onClick={envoyerMessage} disabled={sending || !newMessage.trim()} style={{ padding: '10px 18px', borderRadius: 4, border: 'none', background: sending || !newMessage.trim() ? '#d4c5b0' : '#1a1a1a', color: sending || !newMessage.trim() ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: sending || !newMessage.trim() ? 'default' : 'pointer' }}>
               {sending ? '...' : 'Envoyer'}
             </button>
           </div>
         </div>
       ) : (
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8' }}>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8b7355' }}>
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: 40, marginBottom: 12 }}>✉</div>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>Sélectionnez une conversation</div>
