@@ -290,7 +290,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                           fontSize: 11, outline: 'none', cursor: 'pointer'
                         }}
                       >
-                        {['en_attente', 'en_production', 'controle_qualite', 'validé', 'livré'].map(s => (
+                        {['en_attente', 'En production', 'controle_qualite', 'validé', 'livré'].map(s => (
                           <option key={s} value={s}>{s.replace('_', ' ')}</option>
                         ))}
                       </select>
@@ -382,7 +382,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                             width: 38, height: 38, borderRadius: 4,
                             background: lot.type_coton === 'recycle' ? '#f0f4ec' : '#DBEAFE',
                             display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18
-                          }}>{'🏆'}</div>
+                          }}>{''}</div>
                           <div>
                             <div style={{ fontSize: 14, fontWeight: 800, color: '#1a1a1a' }}>{lot.reference}</div>
                             <div style={{ fontSize: 11, color: '#4a5568' }}>{Math.round((lot.volume_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg - {lot.origine ?? '-'}</div>

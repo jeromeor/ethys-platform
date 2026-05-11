@@ -163,7 +163,7 @@ export default function AnnuaireClient({ partenaires, paysList, userRole }: Prop
                     })}
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
-                    {note ? <span style={{ color: '#F59E0B', fontWeight: 700 }}>★ {note}</span> : <span style={{ color: '#CBD5E1' }}>Non noté</span>}
+                    {note ? <span style={{ color: '#F59E0B', fontWeight: 700 }}> {note}</span> : <span style={{ color: '#CBD5E1' }}>Non noté</span>}
                     {p.capacite_annuelle_tonnes && <span style={{ color: '#4a5568' }}>{p.capacite_annuelle_tonnes ? (p.capacite_annuelle_tonnes * 1000).toLocaleString('fr-FR') + ' kg/an' : ''}</span>}
                   </div>
                 </div>

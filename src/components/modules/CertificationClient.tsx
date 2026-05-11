@@ -241,8 +241,8 @@ export default function CertificationClient({ declarations: initial, userRole, e
                   <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: bg, color: tc }}>{STATUT_LABELS[d.statut]}</span>
                 </div>
                 <div style={{ display: 'flex', gap: 12, fontSize: 11, color: '#4a5568', marginBottom: 4 }}>
-                  <span>♻ {d.volume_recycle_kg.toLocaleString('fr-FR')} kg</span>
-                  <span>🌿 {d.volume_vierge_kg.toLocaleString('fr-FR')} kg</span>
+                  <span> {d.volume_recycle_kg.toLocaleString('fr-FR')} kg</span>
+                  <span> {d.volume_vierge_kg.toLocaleString('fr-FR')} kg</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <div style={{ flex: 1, height: 4, background: '#d4c5b0', borderRadius: 2, overflow: 'hidden' }}>
@@ -323,8 +323,8 @@ export default function CertificationClient({ declarations: initial, userRole, e
                       <div style={{ height: '100%', width: `${pctRecycle}%`, background: eligible ? '#2d5016' : '#F59E0B', borderRadius: 4, transition: 'width 0.3s' }} />
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
-                      <span style={{ color: '#4a5568' }}>♻ Recyclé : {pctRecycle}%</span>
-                      <span style={{ color: '#4a5568' }}>🌿 Vierge : {100 - pctRecycle}%</span>
+                      <span style={{ color: '#4a5568' }}> Recyclé : {pctRecycle}%</span>
+                      <span style={{ color: '#4a5568' }}> Vierge : {100 - pctRecycle}%</span>
                     </div>
                   </div>
                   <div style={{ textAlign: 'center', flexShrink: 0 }}>
@@ -445,12 +445,12 @@ function DetailDeclaration({ declaration: d, isAdmin, onCertifier, onRefuser, sa
         <div style={{ display: 'flex', gap: 12, marginBottom: 10 }}>
           <div style={{ flex: d.pct_recycle, background: '#2d5016', borderRadius: 8, padding: '12px', textAlign: 'center' }}>
             <div style={{ fontSize: 22, fontWeight: 900, color: '#fff' }}>{d.pct_recycle}%</div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>♻ Recyclé</div>
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}> Recyclé</div>
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>{d.volume_recycle_kg.toLocaleString('fr-FR')} kg</div>
           </div>
           <div style={{ flex: 100 - d.pct_recycle, background: 'rgba(0,0,0,0.06)', borderRadius: 8, padding: '12px', textAlign: 'center' }}>
             <div style={{ fontSize: 22, fontWeight: 900, color: '#4a5568' }}>{100 - d.pct_recycle}%</div>
-            <div style={{ fontSize: 10, color: '#4a5568' }}>🌿 Vierge</div>
+            <div style={{ fontSize: 10, color: '#4a5568' }}> Vierge</div>
             <div style={{ fontSize: 11, color: '#8b7355', marginTop: 2 }}>{d.volume_vierge_kg.toLocaleString('fr-FR')} kg</div>
           </div>
         </div>
@@ -516,7 +516,7 @@ function DetailDeclaration({ declaration: d, isAdmin, onCertifier, onRefuser, sa
 
       {d.statut === 'certifiee' && (
         <div style={{ padding: '14px 16px', borderRadius: 4, background: '#f0f4ec', border: '1px solid #c8d8b8' }}>
-          <div style={{ fontSize: 14, fontWeight: 900, color: '#2d5016', marginBottom: 8, textAlign: 'center' }}>🏆 Certification ETHYS obtenue</div>
+          <div style={{ fontSize: 14, fontWeight: 900, color: '#2d5016', marginBottom: 8, textAlign: 'center' }}> Certification ETHYS obtenue</div>
           {d.certification ? (
             <div style={{ textAlign: 'center', marginBottom: 12 }}>
               <div style={{ fontSize: 12, color: '#2d5016', fontWeight: 700 }}>{d.certification.numero}</div>

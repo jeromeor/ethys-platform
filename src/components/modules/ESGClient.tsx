@@ -31,7 +31,7 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
   const totalVierge = lots.filter(l => l.type_coton === 'vierge').reduce((s, l) => s + l.volume_tonnes, 0)
   const certsValides = certifications.filter(c => c.valide).length
   const pctRecycléGlobal = totalVolume > 0 ? Math.round(volumeRecyclé / totalVolume * 100) : 0
-  const commandesLivrees = commandes.filter(c => c.statut === 'livree').length
+  const commandesLivrees = commandes.filter(c => c.statut === 'Livree').length
 
   const scores = {
     Traçabilité:    totalLots > 0 ? Math.min(100, Math.round(lotsAvecCert / totalLots * 100)) : 50,

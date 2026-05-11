@@ -203,7 +203,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
                           </td>
                           <td style={{ padding: '11px 16px', fontSize: 12 }}>{s.value}</td>
                           <td style={{ padding: '11px 16px', fontSize: 12, fontWeight: 600 }}>{Math.round(vol * 1000).toLocaleString('fr-FR')} kg</td>
-                          <td style={{ padding: '11px 16px', fontSize: 12, color: '#059669', fontWeight: 600 }}>{pct}% ♻</td>
+                          <td style={{ padding: '11px 16px', fontSize: 12, color: '#059669', fontWeight: 600 }}>{pct}% </td>
                         </tr>
                       )
                     })}

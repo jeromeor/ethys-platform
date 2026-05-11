@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 
 type StatutCommande =
   | 'brouillon' | 'soumise' | 'validation_fournisseur'
-  | 'validation_filature' | 'validation_finale' | 'en_production'
+  | 'validation_filature' | 'validation_finale' | 'En production'
   | 'controle_qualite' | 'qr_genere' | 'expediee' | 'livrée' | 'annulee'
 
 interface Entreprise { id: string; nom: string; type: string }
@@ -66,7 +66,7 @@ const STATUT_COLORS: Record<string, [string, string, string]> = {
 
 const ETAPES = [
   'soumise', 'validation_fournisseur', 'validation_filature',
-  'validation_finale', 'en_production', 'qr_genere', 'livrée'
+  'validation_finale', 'En production', 'qr_genere', 'livrée'
 ]
 
 export default function CommandesClient({ user, profil, commandes: initial, entreprises }: Props) {
@@ -189,7 +189,7 @@ const CréerCommande = async () => {
           display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexShrink: 0
         }}>
           <div style={{ display: 'flex', gap: 6 }}>
-            {['tous', 'soumise', 'en_production', 'livrée'].map(s => (
+            {['tous', 'soumise', 'En production', 'livrée'].map(s => (
               <button key={s} onClick={() => setFilterStatut(s)} style={{
                 padding: '5px 12px', borderRadius: 4, border: 'none', cursor: 'pointer',
                 fontSize: 11, fontWeight: filterStatut === s ? 700 : 500,
@@ -243,7 +243,7 @@ const CréerCommande = async () => {
                         <td style={{ padding: '12px 14px', fontSize: 12, fontWeight: 600 }}>{Math.round((c.volume_total_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg</td>
                         <td style={{ padding: '12px 14px' }}>
                           <span style={{ fontSize: 11, fontWeight: 600, color: '#059669' }}>
-                            {Math.round(c.pct_recycle ?? 0)}% ♻
+                            {Math.round(c.pct_recycle ?? 0)}% 
                           </span>
                         </td>
                         <td style={{ padding: '12px 14px' }}>

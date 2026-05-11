@@ -255,7 +255,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
               padding: '7px 14px', borderRadius: 8, border: '1.5px solid #1a1a1a',
               background: activeTab === 'accords' ? '#1a1a1a' : '#fff',
               color: activeTab === 'accords' ? '#fff' : '#1a1a1a', fontSize: 12, fontWeight: 700, cursor: 'pointer'
-            }}>★ Accords commerciaux</button>
+            }}> Accords commerciaux</button>
           )}
           <button onClick={() => setShowForm(true)} style={{
             padding: '7px 14px', borderRadius: 8, border: 'none',
@@ -463,7 +463,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
                     return (
                       <div style={{ marginTop: 12, padding: '12px 14px', borderRadius: 4, background: '#F0FDF4', border: '1px solid #c8d8b8' }}>
                         <div style={{ fontSize: 10, fontWeight: 700, color: '#2d5016', marginBottom: 8, textTransform: 'uppercase' }}>
-                          {accord ? '★ Prix accord commercial' : 'Décomposition du prix'}
+                          {accord ? ' Prix accord commercial' : 'Décomposition du prix'}
                         </div>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
                           <div style={{ fontSize: 11, color: '#4a5568' }}>Prix de base</div>
