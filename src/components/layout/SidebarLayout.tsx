@@ -6,18 +6,18 @@ import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 const navItems = [
-  { icon: '⊞', label: 'Dashboard',    route: '/dashboard' },
-  { icon: '◎', label: 'Profil',       route: '/profil' },
-  { icon: '⊕', label: 'Annuaire',     route: '/annuaire' },
-  { icon: '✉', label: 'Messagerie',   route: '/messagerie' },
-  { icon: '◈', label: 'Commandes',    route: '/commandes' },
-  { icon: '⬡', label: 'Production',   route: '/production' },
-  { icon: '▣', label: 'QR Code',      route: '/qrcode' },
-  { icon: '◫', label: 'Facturation',  route: '/facturation' },
-  { icon: '◉', label: 'Reporting',    route: '/reporting' },
-  { icon: '◦', label: 'ESG',          route: '/esg' },
-  { icon: '⚡', label: 'Certification', route: '/certification' },
-  { icon: '⚙', label: 'Admin',        route: '/admin' },
+  { icon: 'grid', label: 'Dashboard',    route: '/dashboard' },
+  { icon: 'user', label: 'Profil',       route: '/profil' },
+  { icon: 'book', label: 'Annuaire',     route: '/annuaire' },
+  { icon: 'mail', label: 'Messagerie',   route: '/messagerie' },
+  { icon: 'box', label: 'Commandes',    route: '/commandes' },
+  { icon: 'tool', label: 'Production',   route: '/production' },
+  { icon: 'qr', label: 'QR Code',      route: '/qrcode' },
+  { icon: 'file', label: 'Facturation',  route: '/facturation' },
+  { icon: 'bar', label: 'Reporting',    route: '/reporting' },
+  { icon: 'leaf', label: 'ESG',          route: '/esg' },
+  { icon: 'star', label: 'Certification', route: '/certification' },
+  { icon: 'gear', label: 'Admin',        route: '/admin' },
 ]
 
 interface Props {
@@ -65,13 +65,13 @@ export default function SidebarLayout({ user, profil, children }: Props) {
   return (
     <div style={{ display: 'flex', height: '100vh', fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", background: '#F7F8FA', color: '#1A202C', overflow: 'hidden' }}>
 
-      <aside style={{ width: open ? 220 : 64, minWidth: open ? 220 : 64, background: '#0A3D26', display: 'flex', flexDirection: 'column', transition: 'width 0.25s ease', overflow: 'hidden', flexShrink: 0 }}>
+      <aside style={{ width: open ? 220 : 64, minWidth: open ? 220 : 64, background: '#1a1a1a', display: 'flex', flexDirection: 'column', transition: 'width 0.25s ease', overflow: 'hidden', flexShrink: 0 }}>
         <div style={{ padding: '22px 16px 18px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ width: 32, height: 32, borderRadius: 8, background: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 900, color: '#fff', flexShrink: 0 }}>T</div>
             {open && <div>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>TEXTILE LOOP</div>
-              <div style={{ fontSize: 10, color: '#6EE7B7', letterSpacing: 1 }}>ETHYS Platform</div>
+              <div style={{ fontSize: 10, color: '#c2956e', letterSpacing: 1 }}>ETHYS Platform</div>
             </div>}
           </div>
         </div>
@@ -95,8 +95,8 @@ export default function SidebarLayout({ user, profil, children }: Props) {
       </aside>
 
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <header style={{ height: 60, background: '#fff', borderBottom: '1px solid #EEF0F3', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 28px', flexShrink: 0 }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: '#0A3D26' }}>
+        <header style={{ height: 60, background: '#ffffff', borderBottom: '1px solid #e8e3d8', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 28px', flexShrink: 0 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>
             {navItems.find(n => pathname === n.route || pathname.startsWith(n.route + '/'))?.label ?? 'Dashboard'}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -106,7 +106,7 @@ export default function SidebarLayout({ user, profil, children }: Props) {
               onClick={() => setShowUserMenu(v => !v)}
               style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 12px', borderRadius: 10, border: '1.5px solid #EEF0F3', background: '#F8FAFC', cursor: 'pointer' }}
             >
-              <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#0A3D26', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: '#fff', flexShrink: 0 }}>
+              <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#1a1a1a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: '#fff', flexShrink: 0 }}>
                 {initiales}
               </div>
               <div style={{ textAlign: 'left' }}>

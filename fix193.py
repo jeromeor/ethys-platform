@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿content = """import type { Metadata } from "next";
 import { Inter, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
 
@@ -32,3 +32,6 @@ export default function RootLayout({
     </html>
   );
 }
+"""
+open('src/app/layout.tsx', 'w', encoding='utf-8').write(content)
+print("Done")
