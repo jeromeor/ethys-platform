@@ -29,7 +29,7 @@ export default function LoginPage() {
 
   return (
     <div style={{
-      minHeight: '100vh', display: 'flex',
+      height: '100vh', display: 'flex', overflow: 'hidden',
       background: '#f5f3ef',
       fontFamily: "'Inter', system-ui, sans-serif"
     }}>
@@ -58,17 +58,17 @@ export default function LoginPage() {
         justifyContent: 'center', padding: '40px 24px'
       }}>
         <div style={{ width: '100%', maxWidth: 400 }}>
-          <div style={{ textAlign: 'center', marginBottom: 40 }}>
-            <img src="/logo_ethys.png" alt="ETHYS" style={{ width: 100, height: 'auto', margin: '0 auto 12px', display: 'block' }} />
+          <div style={{ textAlign: 'center', marginBottom: 20 }}>
+            <img src="/logo_ethys.png" alt="ETHYS" style={{ width: 80, height: 'auto', margin: '0 auto 8px', display: 'block' }} />
             <div style={{ fontSize: 11, color: '#8b7355', letterSpacing: 2, textTransform: 'uppercase', marginTop: 6 }}>Platform</div>
           </div>
 
-          <div style={{ background: '#ffffff', borderRadius: 8, border: '1px solid #d4c5b0', padding: '36px 32px', boxShadow: '0 2px 12px rgba(26,26,26,0.06)' }}>
+          <div style={{ background: '#ffffff', borderRadius: 8, border: '1px solid #d4c5b0', padding: '24px 28px', boxShadow: '0 2px 12px rgba(26,26,26,0.06)' }}>
             <div style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a', marginBottom: 4 }}>Connexion</div>
-            <div style={{ fontSize: 13, color: '#8b7355', marginBottom: 28 }}>Accedez a votre espace ETHYS</div>
+            <div style={{ fontSize: 13, color: '#8b7355', marginBottom: 12 }}>Accedez a votre espace ETHYS</div>
 
             <form onSubmit={handleLogin}>
-              <div style={{ marginBottom: 18 }}>
+              <div style={{ marginBottom: 12 }}>
                 <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>Email professionnel</label>
                 <input
                   type="email" value={email} onChange={e => setEmail(e.target.value)}
@@ -79,7 +79,7 @@ export default function LoginPage() {
                 />
               </div>
 
-              <div style={{ marginBottom: 10 }}>
+              <div style={{ marginBottom: 8 }}>
                 <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>Mot de passe</label>
                 <div style={{ position: 'relative' }}>
                   <input
@@ -96,7 +96,7 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <div style={{ textAlign: 'right', marginBottom: 22 }}>
+              <div style={{ textAlign: 'right', marginBottom: 14 }}>
                 <a href="/forgot-password" style={{ fontSize: 12, color: '#8b7355', textDecoration: 'none' }}>Mot de passe oublie ?</a>
               </div>
 
