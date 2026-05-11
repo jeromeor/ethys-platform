@@ -232,7 +232,7 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
               <div style={{ padding: 16, borderRadius: 8, marginBottom: 16, border: `2px solid ${qrActif ? '#f0f4ec' : '#e8e3d8'}`, background: qrActif ? '#fff' : '#f5f3ef', position: 'relative' }}>
                 {generating ? (
                   <div style={{ width: 180, height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 10 }}>
-                    <div style={{ fontSize: 32 }}>⏳</div>
+                    <div style={{ fontSize: 32 }}></div>
                     <div style={{ fontSize: 12, color: '#8b7355' }}>Génération...</div>
                   </div>
                 ) : qrDataUrl ? (
@@ -394,7 +394,7 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
                   Validé jusqu'au {new Date(selectedCert.date_validite).toLocaleDateString('fr-FR')}
                 </div>
               </div>
-              <span style={{ padding: '4px 12px', borderRadius: 4, fontSize: 11, fontWeight: 700, background: '#f0f4ec', color: '#2d5016' }}>✓ Certifié</span>
+              <span style={{ padding: '4px 12px', borderRadius: 4, fontSize: 11, fontWeight: 700, background: '#f0f4ec', color: '#2d5016' }}> Certifié</span>
             </div>
 
             <div style={{ background: '#F0FDF4', borderRadius: 6, padding: '16px', marginBottom: 16 }}>
@@ -428,7 +428,7 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
             <div style={{ marginTop: 20 }}>
               {selectedCert.qr_codes?.length > 0 ? (
                 <div style={{ padding: '12px 16px', borderRadius: 4, background: '#f0f4ec', border: '1px solid #c8d8b8', textAlign: 'center' }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#2d5016' }}>✓ QR Code actif</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#2d5016' }}> QR Code actif</div>
                   <div style={{ fontSize: 11, color: '#2d5016', marginTop: 4 }}>{selectedCert.qr_codes[0].reference}</div>
                   <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
                     <button

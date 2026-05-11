@@ -477,7 +477,7 @@ const CréerCommande = async () => {
     border: '1px solid #c8a0a0', fontSize: 12, color: '#8b3a3a', marginBottom: 16
   }}>{error}</div>
 )}
-                  {loading ? 'Creation...' : '✓ Creer la commande ETHYS'}
+                  {loading ? 'Creation...' : ' Creer la commande ETHYS'}
 		</button>
               </div>
             </div>

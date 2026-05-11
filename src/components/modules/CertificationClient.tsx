@@ -308,7 +308,7 @@ export default function CertificationClient({ declarations: initial, userRole, e
               <div style={{ padding: '10px 14px', borderRadius: 8, marginBottom: 12, background: zonesCompatibles(form.provenance_pays, form.filature_pays) ? '#F0FDF4' : '#fdf0f0', border: `1px solid ${zonesCompatibles(form.provenance_pays, form.filature_pays) ? '#c8d8b8' : '#c8a0a0'}` }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: zonesCompatibles(form.provenance_pays, form.filature_pays) ? '#2d5016' : '#8b3a3a' }}>
                   {zonesCompatibles(form.provenance_pays, form.filature_pays)
-                    ? `✓ Compatible — ${form.provenance_pays} et ${form.filature_pays} sont dans la même zone`
+                    ? ` Compatible — ${form.provenance_pays} et ${form.filature_pays} sont dans la même zone`
                     : `✗ Incompatible — ${form.provenance_pays} (${getZoneLabel(form.provenance_pays)}) et ${form.filature_pays} (${getZoneLabel(form.filature_pays)}) sont dans des zones différentes`
                   }
                 </div>
@@ -330,7 +330,7 @@ export default function CertificationClient({ declarations: initial, userRole, e
                   <div style={{ textAlign: 'center', flexShrink: 0 }}>
                     <div style={{ fontSize: 20, fontWeight: 900, color: eligible ? '#2d5016' : '#b8860b' }}>{pctRecycle}%</div>
                     <div style={{ fontSize: 10, fontWeight: 700, color: eligible ? '#2d5016' : '#b8860b' }}>
-                      {eligible ? '✓ Éligible ETHYS' : '✗ Min. 51% requis'}
+                      {eligible ? ' Éligible ETHYS' : '✗ Min. 51% requis'}
                     </div>
                   </div>
                 </div>
@@ -455,7 +455,7 @@ function DetailDeclaration({ declaration: d, isAdmin, onCertifier, onRefuser, sa
           </div>
         </div>
         <div style={{ textAlign: 'center', fontSize: 12, fontWeight: 700, color: d.eligible_ethys ? '#2d5016' : '#b8860b' }}>
-          {d.eligible_ethys ? '✓ Éligible à la certification ETHYS' : '✗ Non éligible — minimum 51% requis'}
+          {d.eligible_ethys ? ' Éligible à la certification ETHYS' : '✗ Non éligible — minimum 51% requis'}
         </div>
       </div>
 
@@ -465,7 +465,7 @@ function DetailDeclaration({ declaration: d, isAdmin, onCertifier, onRefuser, sa
           ['Filature', d.filature_nom ?? '-'],
           ['Tisseur', d.tisseur_nom ?? '-'],
           ['Provenance', d.provenance_pays ?? '-'],
-          ['Déclaration honneur', d.declaration_honneur ? '✓ Signée' : '✗ Non signée'],
+          ['Déclaration honneur', d.declaration_honneur ? ' Signée' : '✗ Non signée'],
         ].map(([label, val]) => (
           <div key={label} style={{ padding: '10px 14px', borderRadius: 8, background: '#f5f3ef', border: '1px solid #e8e3d8' }}>
             <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 4 }}>{label}</div>
@@ -497,7 +497,7 @@ function DetailDeclaration({ declaration: d, isAdmin, onCertifier, onRefuser, sa
                 Refuser
               </button>
               <button onClick={() => onCertifier(d)} disabled={saving || !d.eligible_ethys} style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: saving || !d.eligible_ethys ? '#d4c5b0' : '#1a1a1a', color: saving || !d.eligible_ethys ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: saving || !d.eligible_ethys ? 'default' : 'pointer' }}>
-                {saving ? 'Certification...' : '✓ Certifier ETHYS'}
+                {saving ? 'Certification...' : ' Certifier ETHYS'}
               </button>
             </div>
           ) : (

@@ -257,7 +257,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                               background: fait ? '#1a1a1a' : enCours ? '#2d5016' : '#d4c5b0',
                               color: fait || enCours ? '#fff' : '#8b7355',
                               boxShadow: enCours ? '0 0 0 3px rgba(16,185,129,0.25)' : 'none'
-                            }}>{fait ? '✓' : i + 1}</div>
+                            }}>{fait ? '' : i + 1}</div>
                             <div style={{ fontSize: 9, color: fait ? '#1a1a1a' : enCours ? '#2d5016' : '#8b7355', fontWeight: enCours ? 700 : 400, textAlign: 'center', marginTop: 4, lineHeight: 1.3 }}>
                               {etape}
                             </div>
@@ -354,7 +354,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                       <button onClick={ajouterLot} style={{
                         flex: 2, padding: '8px', borderRadius: 8, border: 'none',
                         background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer'
-                      }}>✓ Ajouter</button>
+                      }}> Ajouter</button>
                       <button onClick={() => setShowAddLot(false)} style={{
                         flex: 1, padding: '8px', borderRadius: 8,
                         border: '1.5px solid #e8e3d8', background: '#fff', fontSize: 12, cursor: 'pointer'
@@ -442,7 +442,7 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                                   padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700,
                                   background: cq.conforme ? '#f0f4ec' : '#FEE2E2',
                                   color: cq.conforme ? '#2d5016' : '#991B1B'
-                                }}>{cq.conforme ? '✓ Conforme' : '✕ Non conforme'}</span>
+                                }}>{cq.conforme ? ' Conforme' : '✕ Non conforme'}</span>
                               </td>
                               <td style={{ padding: '11px 14px', fontSize: 11, color: '#8b7355' }}>
                                 {new Date(cq.date_controle).toLocaleDateString('fr-FR')}

@@ -581,7 +581,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
                   <button onClick={() => marquerPayee(selected.id)} style={{
                     flex: 2, padding: '10px', borderRadius: 4, border: 'none',
                     background: '#1a1a1a', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer'
-                  }}>✓ Marquer comme payée</button>
+                  }}> Marquer comme payée</button>
                 )}
                 <button onClick={() => setSelected(null)} style={{
                   flex: 1, padding: '10px', borderRadius: 4,
@@ -698,7 +698,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
                   color: loading ? '#8b7355' : '#fff',
                   fontSize: 13, fontWeight: 700, cursor: loading ? 'default' : 'pointer'
                 }}>
-                  {loading ? 'Création…' : '✓ Créer la facture'}
+                  {loading ? 'Création…' : ' Créer la facture'}
                 </button>
               </div>
             </div>

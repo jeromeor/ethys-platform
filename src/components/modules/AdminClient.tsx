@@ -274,7 +274,7 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
           <div>
             {utilisateurs.filter(u => !u.entreprise_id && u.role !== 'admin').length === 0 ? (
               <div style={{ textAlign: 'center', padding: '60px', color: '#8b7355' }}>
-                <div style={{ fontSize: 32, marginBottom: 12 }}>✓</div>
+                <div style={{ fontSize: 32, marginBottom: 12 }}></div>
                 <div style={{ fontSize: 14, fontWeight: 600 }}>Aucun compte en attente</div>
                 <div style={{ fontSize: 12, marginTop: 4 }}>Tous les comptes sont validés.</div>
               </div>
@@ -287,7 +287,7 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
                         <div style={{ fontSize: 13, fontWeight: 700, color: '#1A202C', marginBottom: 4 }}>{u.email}</div>
                         <div style={{ fontSize: 11, color: '#8b7355' }}>Rôle : {u.role} · Inscrit le {new Date(u.created_at).toLocaleDateString('fr-FR')}</div>
                       </div>
-                      <span style={{ padding: '3px 10px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: '#fdf8ec', color: '#b8860b' }}>⏳ En attente</span>
+                      <span style={{ padding: '3px 10px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: '#fdf8ec', color: '#b8860b' }}> En attente</span>
                     </div>
                     <div style={{ marginBottom: 12 }}>
                       <div style={{ fontSize: 11, fontWeight: 600, color: '#4a5568', marginBottom: 6 }}>Associer à une entreprise :</div>
