@@ -147,7 +147,6 @@ export default async function TraçabilitéPage({ params }: { params: Promise<{ 
             <img src='/logo_ethys.png' alt='ETHYS' style={{ width: 90, height: 'auto', filter: 'invert(1)', flexShrink: 0 }} />
           </div>
 
-          <div style={{ fontSize: 24, fontWeight: 900, marginBottom: 4 }}>Votre fil ETHYS</div>
           <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 20 }}>
             Lot #{String(lot?.reference ?? '')} - {String(commande?.reference ?? '')}
           </div>
