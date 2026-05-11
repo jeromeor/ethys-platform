@@ -65,9 +65,9 @@ export default function SidebarLayout({ user, profil, children }: Props) {
   return (
     <div style={{ display: 'flex', height: '100vh', fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", background: '#F7F8FA', color: '#1A202C', overflow: 'hidden' }}>
 
-      <aside style={{ width: open ? 220 : 64, minWidth: open ? 220 : 64, background: '#1a1a1a', display: 'flex', flexDirection: 'column', transition: 'width 0.25s ease', overflow: 'hidden', flexShrink: 0 }}>
-        <div style={{ padding: '22px 16px 18px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-          <img src='/logo_ethys.jpg' alt='ETHYS' style={{ width: open ? 80 : 28, height: 'auto', transition: 'width 0.25s', filter: 'invert(1)', flexShrink: 0 }} />
+      <aside style={{ width: open ? 220 : 64, minWidth: open ? 220 : 64, background: '#ffffff', display: 'flex', flexDirection: 'column', transition: 'width 0.25s ease', overflow: 'hidden', flexShrink: 0, borderRight: '1px solid #d4c5b0' }}>
+        <div style={{ padding: '22px 16px 18px', borderBottom: '1px solid #e8e3d8' }}>
+          <img src='/logo_ethys.jpg' alt='ETHYS' style={{ width: open ? 80 : 28, height: 'auto', transition: 'width 0.25s', flexShrink: 0 }} />
         </div>
 
 
@@ -75,7 +75,7 @@ export default function SidebarLayout({ user, profil, children }: Props) {
           {navItems.filter(item => item.route !== '/admin' || profil?.role === 'admin').map(item => {
             const active = pathname === item.route || pathname.startsWith(item.route + '/')
             return (
-              <button key={item.route} onClick={() => router.push(item.route)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '9px 10px', borderRadius: 8, border: 'none', cursor: 'pointer', background: active ? 'rgba(16,185,129,0.18)' : 'transparent', color: active ? '#6EE7B7' : 'rgba(255,255,255,0.55)', fontSize: 13, fontWeight: active ? 600 : 400, textAlign: 'left', width: '100%' }}>
+              <button key={item.route} onClick={() => router.push(item.route)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '9px 10px', borderRadius: 8, border: 'none', cursor: 'pointer', background: active ? '#e8e3d8' : 'transparent', color: active ? '#1a1a1a' : '#4a5568', fontSize: 13, fontWeight: active ? 600 : 400, textAlign: 'left', width: '100%' }}>
                 <span style={{ flexShrink: 0, width: 20, display: 'flex', alignItems: 'center', justifyContent: 'center' }} dangerouslySetInnerHTML={{ __html: item.icon }} />
                 {open && <span>{item.label}</span>}
               </button>
@@ -83,7 +83,7 @@ export default function SidebarLayout({ user, profil, children }: Props) {
           })}
         </nav>
 
-        <button onClick={() => setOpen(v => !v)} style={{ margin: '8px', padding: '8px', borderRadius: 8, border: 'none', background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', fontSize: 13 }}>
+        <button onClick={() => setOpen(v => !v)} style={{ margin: '8px', padding: '8px', borderRadius: 8, border: 'none', background: '#f5f3ef', color: '#8b7355', cursor: 'pointer', fontSize: 13 }}>
           {open ? '◀' : '▶'}
         </button>
 
