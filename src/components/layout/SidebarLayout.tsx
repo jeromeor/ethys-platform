@@ -68,13 +68,9 @@ export default function SidebarLayout({ user, profil, children }: Props) {
       <aside style={{ width: open ? 220 : 64, minWidth: open ? 220 : 64, background: '#1a1a1a', display: 'flex', flexDirection: 'column', transition: 'width 0.25s ease', overflow: 'hidden', flexShrink: 0 }}>
         <div style={{ padding: '22px 16px 18px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 32, height: 32, borderRadius: 8, background: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 900, color: '#fff', flexShrink: 0 }}>T</div>
-            {open && <div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>TEXTILE LOOP</div>
-              <div style={{ fontSize: 10, color: '#c2956e', letterSpacing: 1 }}>ETHYS Platform</div>
-            </div>}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <img src='/logo_ethys.jpg' alt='ETHYS' style={{ width: open ? 80 : 28, height: 'auto', transition: 'width 0.25s', filter: 'invert(1)', flexShrink: 0 }} />
           </div>
-        </div>
 
         <nav style={{ flex: 1, padding: '10px 8px', display: 'flex', flexDirection: 'column', gap: 2, overflowY: 'auto' }}>
           {navItems.filter(item => item.route !== '/admin' || profil?.role === 'admin').map(item => {
