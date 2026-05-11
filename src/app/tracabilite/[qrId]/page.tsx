@@ -139,17 +139,15 @@ export default async function TraçabilitéPage({ params }: { params: Promise<{ 
     <div style={{ minHeight: '100vh', background: '#f5f3ef', fontFamily: "'Inter', system-ui, sans-serif" }}>
       <div style={{ background: '#1a1a1a', padding: '20px 24px 24px', color: '#fff' }}>
         <div style={{ maxWidth: 480, margin: '0 auto' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 12 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 16 }}>
             <div>
               <div style={{ fontSize: 9, color: '#c2956e', fontWeight: 600, letterSpacing: 1, marginBottom: 6 }}>ETHYS — TRAÇABILITÉ</div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', lineHeight: 1.2 }}>Votre fil ETHYS</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', lineHeight: 1.2, marginBottom: 4 }}>Votre fil ETHYS</div>
+              <div style={{ fontSize: 11, opacity: 0.6, marginTop: 2 }}>Lot #{String(lot?.reference ?? '')} - {String(commande?.reference ?? '')}</div>
             </div>
             <img src='/logo_ethys.png' alt='ETHYS' style={{ width: 90, height: 'auto', filter: 'invert(1)', flexShrink: 0 }} />
           </div>
 
-          <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 20 }}>
-            Lot #{String(lot?.reference ?? '')} - {String(commande?.reference ?? '')}
-          </div>
           <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 4, padding: '16px', marginBottom: 14 }}>
             <div style={{ fontSize: 10, color: '#c2956e', fontWeight: 600, marginBottom: 10, letterSpacing: 1 }}>MATIÈRES PREMIÈRES</div>
             <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
