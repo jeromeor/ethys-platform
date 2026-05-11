@@ -47,14 +47,14 @@ export default async function TraçabilitéPage({ params }: { params: Promise<{ 
 
     return (
       <div style={{ minHeight: '100vh', background: '#f5f3ef', fontFamily: "'Inter', system-ui, sans-serif" }}>
-        <div style={{ background: '#1a1a1a', padding: '32px 24px', color: '#fff' }}>
+        <div style={{ background: '#1a1a1a', padding: '20px 24px 24px', color: '#fff' }}>
           <div style={{ maxWidth: 480, margin: '0 auto' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <div>
               <div style={{ fontSize: 9, color: '#c2956e', fontWeight: 600, letterSpacing: 1, marginBottom: 8 }}>ETHYS — TRAÇABILITÉ</div>
-              <div style={{ fontSize: 26, fontWeight: 800, color: '#fff', lineHeight: 1.2, marginBottom: 4 }}>Votre fil ETHYS</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', lineHeight: 1.2, marginBottom: 2 }}>Votre fil ETHYS</div>
             </div>
-            <img src="/logo_ethys.png" alt="ETHYS" style={{ width: 80, height: 'auto', filter: 'invert(1)', flexShrink: 0, marginTop: 4 }} />
+            <img src="/logo_ethys.png" alt="ETHYS" style={{ width: 100, height: 'auto', filter: 'invert(1)', flexShrink: 0 }} />
           </div>
   
             <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 6 }}>{cert?.numero}</div>
@@ -137,14 +137,14 @@ export default async function TraçabilitéPage({ params }: { params: Promise<{ 
 
   return (
     <div style={{ minHeight: '100vh', background: '#f5f3ef', fontFamily: "'Inter', system-ui, sans-serif" }}>
-      <div style={{ background: '#1a1a1a', padding: '32px 24px', color: '#fff' }}>
+      <div style={{ background: '#1a1a1a', padding: '20px 24px 24px', color: '#fff' }}>
         <div style={{ maxWidth: 480, margin: '0 auto' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <div>
               <div style={{ fontSize: 9, color: '#c2956e', fontWeight: 600, letterSpacing: 1, marginBottom: 8 }}>ETHYS — TRAÇABILITÉ</div>
-              <div style={{ fontSize: 26, fontWeight: 800, color: '#fff', lineHeight: 1.2, marginBottom: 4 }}>Votre fil ETHYS</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', lineHeight: 1.2, marginBottom: 2 }}>Votre fil ETHYS</div>
             </div>
-            <img src="/logo_ethys.png" alt="ETHYS" style={{ width: 80, height: 'auto', filter: 'invert(1)', flexShrink: 0, marginTop: 4 }} />
+            <img src="/logo_ethys.png" alt="ETHYS" style={{ width: 100, height: 'auto', filter: 'invert(1)', flexShrink: 0 }} />
           </div>
 
           <div style={{ fontSize: 24, fontWeight: 900, marginBottom: 4 }}>Votre fil ETHYS</div>
