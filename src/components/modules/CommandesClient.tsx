@@ -42,7 +42,7 @@ const STATUT_LABELS: Record<StatutCommande, string> = {
   validation_fournisseur: 'Val. fournisseur',
   validation_filature:    'Val. filature',
   validation_finale:      'Val. finale',
-  en_production:          'En production',
+  'En production':      'En production',
   controle_qualite:       'Contrôle qualité',
   qr_genere:              'QR généré',
   expediee:               'Expédiée',
