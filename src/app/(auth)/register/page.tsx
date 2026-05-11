@@ -52,7 +52,7 @@ export default function RegisterPage() {
   )
 
   return (
-    <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', background: '#f5f3ef', fontFamily: "'Inter', system-ui, sans-serif" }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 0', background: '#f5f3ef', fontFamily: "'Inter', system-ui, sans-serif" }}>
       <div style={{ width: '100%', maxWidth: 420, padding: '0 24px' }}>
         <div style={{ textAlign: 'center', marginBottom: 16 }}>
           <img src="/logo_ethys.png" alt="ETHYS" style={{ width: 65, height: 'auto', margin: '0 auto 6px', display: 'block' }} />
