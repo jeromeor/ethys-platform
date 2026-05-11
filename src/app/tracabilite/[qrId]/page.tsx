@@ -49,6 +49,7 @@ export default async function TraçabilitéPage({ params }: { params: Promise<{ 
       <div style={{ minHeight: '100vh', background: '#f5f3ef', fontFamily: "'Inter', system-ui, sans-serif" }}>
         <div style={{ background: '#1a1a1a', padding: '32px 24px', color: '#fff' }}>
           <div style={{ maxWidth: 480, margin: '0 auto' }}>
+            <img src="/logo_ethys.png" alt="ETHYS" style={{ width: 40, height: 'auto', marginBottom: 16, filter: 'invert(1)' }} />
             <div style={{ fontSize: 10, color: '#c2956e', fontWeight: 600, letterSpacing: 1, marginBottom: 8 }}>ETHYS - TRAÇABILITÉ TOTALE</div>
             <div style={{ fontSize: 24, fontWeight: 900, marginBottom: 4 }}>{typeLabel}</div>
             <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 6 }}>{cert?.numero}</div>
@@ -133,7 +134,8 @@ export default async function TraçabilitéPage({ params }: { params: Promise<{ 
     <div style={{ minHeight: '100vh', background: '#f5f3ef', fontFamily: "'Inter', system-ui, sans-serif" }}>
       <div style={{ background: '#1a1a1a', padding: '32px 24px', color: '#fff' }}>
         <div style={{ maxWidth: 480, margin: '0 auto' }}>
-          <div style={{ fontSize: 10, color: '#c2956e', fontWeight: 600, letterSpacing: 1, marginBottom: 8 }}>ETHYS - TRAÇABILITÉ TOTALE</div>
+          <img src="/logo_ethys.png" alt="ETHYS" style={{ width: 40, height: 'auto', marginBottom: 16, filter: 'invert(1)' }} />
+            <div style={{ fontSize: 10, color: '#c2956e', fontWeight: 600, letterSpacing: 1, marginBottom: 8 }}>ETHYS - TRAÇABILITÉ TOTALE</div>
           <div style={{ fontSize: 24, fontWeight: 900, marginBottom: 4 }}>Votre fil ETHYS</div>
           <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 20 }}>
             Lot #{String(lot?.reference ?? '')} - {String(commande?.reference ?? '')}
