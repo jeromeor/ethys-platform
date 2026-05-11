@@ -59,9 +59,7 @@ export default function LoginPage() {
       }}>
         <div style={{ width: '100%', maxWidth: 400 }}>
           <div style={{ textAlign: 'center', marginBottom: 40 }}>
-            <div style={{ width: 80, height: 80, background: '#1a1a1a', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', padding: 10, boxSizing: 'border-box' }}>
-            <img src="/logo_ethys.png" alt="ETHYS" style={{ width: '100%', height: 'auto',  }} />
-          </div>
+            <img src="/logo_ethys.png" alt="ETHYS" style={{ width: 100, height: 'auto', margin: '0 auto 12px', display: 'block' }} />
             <div style={{ fontSize: 11, color: '#8b7355', letterSpacing: 2, textTransform: 'uppercase', marginTop: 6 }}>Platform</div>
           </div>
 
