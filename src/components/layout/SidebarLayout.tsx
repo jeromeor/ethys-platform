@@ -66,10 +66,10 @@ export default function SidebarLayout({ user, profil, children }: Props) {
     <div style={{ display: 'flex', height: '100vh', fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", background: '#F7F8FA', color: '#1A202C', overflow: 'hidden' }}>
 
       <aside style={{ width: open ? 220 : 64, minWidth: open ? 220 : 64, background: '#ffffff', display: 'flex', flexDirection: 'column', transition: 'width 0.25s ease', overflow: 'hidden', flexShrink: 0, borderRight: '1px solid #d4c5b0' }}>
-        <div style={{ padding: '22px 16px 18px', borderBottom: '1px solid #e8e3d8' }}>
-          <img src='/logo_ethys.jpg' alt='ETHYS' style={{ width: open ? 80 : 28, height: 'auto', transition: 'width 0.25s', flexShrink: 0 }} />
+        <div style={{ padding: '20px 16px 16px', borderBottom: '1px solid #e8e3d8', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <img src='/logo_ethys.jpg' alt='ETHYS' style={{ width: open ? 100 : 36, height: 'auto', transition: 'width 0.25s', flexShrink: 0 }} />
+          {open && <div style={{ fontSize: 10, fontWeight: 600, color: '#1a1a1a', letterSpacing: 2, marginTop: 6, textTransform: 'uppercase' }}>Platform</div>}
         </div>
-
 
         <nav style={{ flex: 1, padding: '10px 8px', display: 'flex', flexDirection: 'column', gap: 2, overflowY: 'auto' }}>
           {navItems.filter(item => item.route !== '/admin' || profil?.role === 'admin').map(item => {
