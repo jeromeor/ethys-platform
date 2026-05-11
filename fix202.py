@@ -1,4 +1,4 @@
-'use client'
+﻿content = """'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -125,3 +125,6 @@ export default function LoginPage() {
     </div>
   )
 }
+"""
+open('src/app/(auth)/login/page.tsx', 'w', encoding='utf-8').write(content)
+print("Done")
