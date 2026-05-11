@@ -67,10 +67,10 @@ export default function SidebarLayout({ user, profil, children }: Props) {
 
       <aside style={{ width: open ? 220 : 64, minWidth: open ? 220 : 64, background: '#1a1a1a', display: 'flex', flexDirection: 'column', transition: 'width 0.25s ease', overflow: 'hidden', flexShrink: 0 }}>
         <div style={{ padding: '22px 16px 18px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <img src='/logo_ethys.jpg' alt='ETHYS' style={{ width: open ? 80 : 28, height: 'auto', transition: 'width 0.25s', filter: 'invert(1)', flexShrink: 0 }} />
-          </div>
+        <div style={{ padding: '22px 16px 18px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+          <img src='/logo_ethys.jpg' alt='ETHYS' style={{ width: open ? 80 : 28, height: 'auto', transition: 'width 0.25s', filter: 'invert(1)', flexShrink: 0 }} />
+        </div>
+
 
         <nav style={{ flex: 1, padding: '10px 8px', display: 'flex', flexDirection: 'column', gap: 2, overflowY: 'auto' }}>
           {navItems.filter(item => item.route !== '/admin' || profil?.role === 'admin').map(item => {
