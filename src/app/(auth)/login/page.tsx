@@ -40,7 +40,7 @@ export default function LoginPage() {
         flexDirection: 'column', justifyContent: 'space-between',
         padding: '48px', position: 'relative', overflow: 'hidden'
       }} className="auth-panel">
-        <img src="/logo_ethys.jpg" alt="ETHYS" style={{ width: 80, filter: 'invert(1)' }} />
+        <img src="/logo_ethys.png" alt="ETHYS" style={{ width: 80, filter: 'invert(1)' }} />
         <div>
           <div style={{ fontSize: 28, fontWeight: 700, color: '#ffffff', lineHeight: 1.3, marginBottom: 16 }}>
             La tracabilite textile<br />au service de l'ethique
@@ -59,7 +59,7 @@ export default function LoginPage() {
       }}>
         <div style={{ width: '100%', maxWidth: 400 }}>
           <div style={{ textAlign: 'center', marginBottom: 40 }}>
-            <img src="/logo_ethys.jpg" alt="ETHYS" style={{ width: 80, height: 'auto', margin: '0 auto 12px', display: 'block' }} />
+            <img src="/logo_ethys.png" alt="ETHYS" style={{ width: 80, height: 'auto', margin: '0 auto 12px', display: 'block' }} />
             <div style={{ fontSize: 11, color: '#8b7355', letterSpacing: 2, textTransform: 'uppercase', marginTop: 6 }}>Platform</div>
           </div>
 
