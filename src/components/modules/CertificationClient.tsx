@@ -235,7 +235,7 @@ export default function CertificationClient({ declarations: initial, userRole, e
           ) : declarations.map(d => {
             const [bg, tc] = STATUT_COLORS[d.statut] ?? ['#f5f3ef', '#4a5568']
             return (
-              <div key={d.id} onClick={() => setSelected(d)} style={{ padding: '12px 16px', cursor: 'pointer', background: selected?.id === d.id ? '#F0FDF4' : 'transparent', borderLeft: `3px solid ${selected?.id === d.id ? '#1a1a1a' : 'transparent'}`, borderBottom: '1px solid #f5f3ef' }}>
+              <div key={d.id} onClick={() => setSelected(d)} style={{ padding: '12px 16px', cursor: 'pointer', background: selected?.id === d.id ? '#f0f4ec' : 'transparent', borderLeft: `3px solid ${selected?.id === d.id ? '#1a1a1a' : 'transparent'}`, borderBottom: '1px solid #f5f3ef' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
                   <span style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>{TYPE_LABELS[d.type_produit]}</span>
                   <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: bg, color: tc }}>{STATUT_LABELS[d.statut]}</span>
@@ -250,7 +250,7 @@ export default function CertificationClient({ declarations: initial, userRole, e
                   </div>
                   <span style={{ fontSize: 10, fontWeight: 700, color: d.eligible_ethys ? '#2d5016' : '#b8860b' }}>{d.pct_recycle}% recyclé</span>
                 </div>
-                <div style={{ fontSize: 10, color: '#CBD5E1', marginTop: 4 }}>{new Date(d.created_at).toLocaleDateString('fr-FR')}</div>
+                <div style={{ fontSize: 10, color: '#CBD5E1', marginTop: 4 }}>{(d.created_at ? new Date(d.created_at).toLocaleDateString('fr-FR') : '-')}</div>
               </div>
             )
           })}
@@ -260,7 +260,7 @@ export default function CertificationClient({ declarations: initial, userRole, e
       {/* Zone principale */}
       <div style={{ flex: 1, overflow: 'auto', padding: '24px 28px' }}>
         {message && (
-          <div style={{ padding: '12px 16px', borderRadius: 4, background: message.includes('Erreur') ? '#fdf0f0' : '#F0FDF4', border: `1px solid ${message.includes('Erreur') ? '#c8a0a0' : '#c8d8b8'}`, fontSize: 13, color: message.includes('Erreur') ? '#8b3a3a' : '#2d5016', marginBottom: 20 }}>
+          <div style={{ padding: '12px 16px', borderRadius: 4, background: message.includes('Erreur') ? '#fdf0f0' : '#f0f4ec', border: `1px solid ${message.includes('Erreur') ? '#c8a0a0' : '#c8d8b8'}`, fontSize: 13, color: message.includes('Erreur') ? '#8b3a3a' : '#2d5016', marginBottom: 20 }}>
             {message}
           </div>
         )}
@@ -305,7 +305,7 @@ export default function CertificationClient({ declarations: initial, userRole, e
 
         {/* Vérification compatibilité zones */}
             {form.provenance_pays && form.filature_pays && (
-              <div style={{ padding: '10px 14px', borderRadius: 8, marginBottom: 12, background: zonesCompatibles(form.provenance_pays, form.filature_pays) ? '#F0FDF4' : '#fdf0f0', border: `1px solid ${zonesCompatibles(form.provenance_pays, form.filature_pays) ? '#c8d8b8' : '#c8a0a0'}` }}>
+              <div style={{ padding: '10px 14px', borderRadius: 8, marginBottom: 12, background: zonesCompatibles(form.provenance_pays, form.filature_pays) ? '#f0f4ec' : '#fdf0f0', border: `1px solid ${zonesCompatibles(form.provenance_pays, form.filature_pays) ? '#c8d8b8' : '#c8a0a0'}` }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: zonesCompatibles(form.provenance_pays, form.filature_pays) ? '#2d5016' : '#8b3a3a' }}>
                   {zonesCompatibles(form.provenance_pays, form.filature_pays)
                     ? ` Compatible — ${form.provenance_pays} et ${form.filature_pays} sont dans la même zone`
@@ -316,7 +316,7 @@ export default function CertificationClient({ declarations: initial, userRole, e
             )}    
 	{/* Indicateur temps réel */}
             {(form.volume_recycle_kg || form.volume_vierge_kg) && (
-              <div style={{ padding: '14px 16px', borderRadius: 4, background: eligible ? '#F0FDF4' : '#fdf8ec', border: `1px solid ${eligible ? '#c8d8b8' : '#b8860b'}`, marginBottom: 16 }}>
+              <div style={{ padding: '14px 16px', borderRadius: 4, background: eligible ? '#f0f4ec' : '#fdf8ec', border: `1px solid ${eligible ? '#c8d8b8' : '#b8860b'}`, marginBottom: 16 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ height: 8, background: '#d4c5b0', borderRadius: 4, overflow: 'hidden', marginBottom: 6 }}>
@@ -434,13 +434,13 @@ function DetailDeclaration({ declaration: d, isAdmin, onCertifier, onRefuser, sa
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
         <div>
           <div style={{ fontSize: 16, fontWeight: 800, color: '#1a1a1a', marginBottom: 4 }}>{TYPE_LABELS[d.type_produit]}</div>
-          <div style={{ fontSize: 12, color: '#8b7355' }}>Déclarée le {new Date(d.created_at).toLocaleDateString('fr-FR')}</div>
+          <div style={{ fontSize: 12, color: '#8b7355' }}>Déclarée le {(d.created_at ? new Date(d.created_at).toLocaleDateString('fr-FR') : '-')}</div>
         </div>
         <span style={{ padding: '4px 12px', borderRadius: 4, fontSize: 11, fontWeight: 700, background: bg, color: tc }}>{STATUT_LABELS[d.statut]}</span>
       </div>
 
       {/* Composition */}
-      <div style={{ background: d.eligible_ethys ? '#F0FDF4' : '#fdf8ec', borderRadius: 6, padding: '16px', marginBottom: 16 }}>
+      <div style={{ background: d.eligible_ethys ? '#f0f4ec' : '#fdf8ec', borderRadius: 6, padding: '16px', marginBottom: 16 }}>
         <div style={{ fontSize: 11, fontWeight: 700, color: '#1a1a1a', marginBottom: 10, textTransform: 'uppercase' }}>Composition</div>
         <div style={{ display: 'flex', gap: 12, marginBottom: 10 }}>
           <div style={{ flex: d.pct_recycle, background: '#2d5016', borderRadius: 8, padding: '12px', textAlign: 'center' }}>
@@ -521,7 +521,7 @@ function DetailDeclaration({ declaration: d, isAdmin, onCertifier, onRefuser, sa
             <div style={{ textAlign: 'center', marginBottom: 12 }}>
               <div style={{ fontSize: 12, color: '#2d5016', fontWeight: 700 }}>{d.certification.numero}</div>
               <div style={{ fontSize: 11, color: '#4a5568', marginTop: 2 }}>
-                Valide jusqu'au {new Date(d.certification.date_validite).toLocaleDateString('fr-FR')}
+                Valide jusqu'au {(d.certification.date_validite ? new Date(d.certification.date_validite).toLocaleDateString('fr-FR') : '-')}
               </div>
             </div>
           ) : null}
