@@ -83,7 +83,7 @@ const STATUT_COLORS: Record<string, [string, string]> = {
   brouillon:      ['#f5f3ef', '#4a5568'],
   soumise:        ['#DBEAFE', '#1E40AF'],
   en_validation:  ['#fdf8ec', '#b8860b'],
-  certifiee:      ['#f0f4ec', '#2d5016'],
+  certifiee:      ['#f5f3ef', '#1a1a1a'],
   refusee:        ['#FEE2E2', '#991B1B'],
 }
 
@@ -246,7 +246,7 @@ export default function CertificationClient({ declarations: initial, userRole, e
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <div style={{ flex: 1, height: 4, background: '#d4c5b0', borderRadius: 2, overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: `${d.pct_recycle}%`, background: d.eligible_ethys ? '#2d5016' : '#F59E0B', borderRadius: 2 }} />
+                    <div style={{ height: '100%', width: `${d.pct_recycle}%`, background: d.eligible_ethys ? '#8b7355' : '#b8860b', borderRadius: 2 }} />
                   </div>
                   <span style={{ fontSize: 10, fontWeight: 700, color: d.eligible_ethys ? '#2d5016' : '#b8860b' }}>{d.pct_recycle}% recyclé</span>
                 </div>
@@ -320,7 +320,7 @@ export default function CertificationClient({ declarations: initial, userRole, e
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ height: 8, background: '#d4c5b0', borderRadius: 4, overflow: 'hidden', marginBottom: 6 }}>
-                      <div style={{ height: '100%', width: `${pctRecycle}%`, background: eligible ? '#2d5016' : '#F59E0B', borderRadius: 4, transition: 'width 0.3s' }} />
+                      <div style={{ height: '100%', width: `${pctRecycle}%`, background: eligible ? '#8b7355' : '#b8860b', borderRadius: 4, transition: 'width 0.3s' }} />
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
                       <span style={{ color: '#4a5568' }}> Recyclé : {pctRecycle}%</span>
@@ -443,7 +443,7 @@ function DetailDeclaration({ declaration: d, isAdmin, onCertifier, onRefuser, sa
       <div style={{ background: d.eligible_ethys ? '#f0f4ec' : '#fdf8ec', borderRadius: 6, padding: '16px', marginBottom: 16 }}>
         <div style={{ fontSize: 11, fontWeight: 700, color: '#1a1a1a', marginBottom: 10, textTransform: 'uppercase' }}>Composition</div>
         <div style={{ display: 'flex', gap: 12, marginBottom: 10 }}>
-          <div style={{ flex: d.pct_recycle, background: '#2d5016', borderRadius: 8, padding: '12px', textAlign: 'center' }}>
+          <div style={{ flex: d.pct_recycle, background: '#8b7355', borderRadius: 4, padding: '12px', textAlign: 'center' }}>
             <div style={{ fontSize: 22, fontWeight: 900, color: '#fff' }}>{d.pct_recycle}%</div>
             <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}> Recyclé</div>
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>{d.volume_recycle_kg.toLocaleString('fr-FR')} kg</div>
@@ -516,10 +516,10 @@ function DetailDeclaration({ declaration: d, isAdmin, onCertifier, onRefuser, sa
 
       {d.statut === 'certifiee' && (
         <div style={{ padding: '14px 16px', borderRadius: 4, background: '#f0f4ec', border: '1px solid #c8d8b8' }}>
-          <div style={{ fontSize: 14, fontWeight: 900, color: '#2d5016', marginBottom: 8, textAlign: 'center' }}> Certification ETHYS obtenue</div>
+          <div style={{ fontSize: 14, fontWeight: 900, color: '#c2956e', marginBottom: 8, textAlign: 'center' }}> Certification ETHYS obtenue</div>
           {d.certification ? (
             <div style={{ textAlign: 'center', marginBottom: 12 }}>
-              <div style={{ fontSize: 12, color: '#2d5016', fontWeight: 700 }}>{d.certification.numero}</div>
+              <div style={{ fontSize: 12, color: '#1a1a1a', fontWeight: 700 }}>{d.certification.numero}</div>
               <div style={{ fontSize: 11, color: '#4a5568', marginTop: 2 }}>
                 Valide jusqu'au {(d.certification.date_validite ? new Date(d.certification.date_validite).toLocaleDateString('fr-FR') : '-')}
               </div>
