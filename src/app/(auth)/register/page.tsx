@@ -107,10 +107,10 @@ export default function RegisterPage() {
           </div>
         </div>
       </div>
-    </div>
       <div style={{ textAlign: 'center', marginTop: 12, fontSize: 11, color: '#d4c5b0' }}>
         <a href='/mentions-legales' style={{ color: '#8b7355', textDecoration: 'none' }}>Mentions légales &amp; RGPD</a>
         {' — '} TEXTILE LOOP © 2026
       </div>
+    </div>
   )
 }

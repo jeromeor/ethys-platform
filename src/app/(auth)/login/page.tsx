@@ -127,4 +127,5 @@ export default function LoginPage() {
         {' — '} TEXTILE LOOP © 2026
       </div>
     </div>
+  )
 }
