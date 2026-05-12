@@ -14,7 +14,21 @@ export default function ResetPasswordPage() {
   const [done, setDone] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
-  const [ready, setReady] = useState(true)
+  const [ready, setReady] = useState(false)
+
+  useEffect(() => {
+    // Supabase envoie le token via le hash ou query params
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setReady(true)
+      }
+    })
+    // Verifier si deja une session active
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) setReady(true)
+    })
+    return () => subscription.unsubscribe()
+  }, [])
 
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,6 +45,11 @@ export default function ResetPasswordPage() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f3ef', fontFamily: "'Inter', system-ui, sans-serif" }}>
       <div style={{ width: 400 }}>
+        {!ready && (
+          <div style={{ background: '#fdf8ec', border: '1px solid #b8860b', borderRadius: 8, padding: '16px', textAlign: 'center', marginBottom: 16, fontSize: 13, color: '#b8860b' }}>
+            Chargement du lien de réinitialisation...
+          </div>
+        )}
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <img src="/logo_ethys.png" alt="TEXTILE LOOP" style={{ width: 160, height: 'auto', margin: '0 auto 12px', display: 'block' }} />
           <div style={{ fontSize: 13, color: '#94A3B8', marginTop: 4 }}>Plateforme ETHYS</div>
