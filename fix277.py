@@ -1,15 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿content = """import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
   const { email, lien, delai } = await request.json()
 
   const delaiTexte = delai === 'immediat'
-    ? 'immédiatement après confirmation'
-    : 'dans 7 jours après confirmation'
+    ? 'imm\u00e9diatement apr\u00e8s confirmation'
+    : 'dans 7 jours apr\u00e8s confirmation'
 
   const delaiMessage = delai === '7jours'
-    ? '<p style="color:#b8860b;background:#fdf8ec;padding:10px 14px;border-radius:4px;font-size:13px;">Vous disposez de 7 jours pour annuler cette demande en contactant <a href=\"mailto:contact@ethys-textileloop.com\">contact@ethys-textileloop.com</a></p>'
-    : '<p style="color:#8b3a3a;background:#fdf0f0;padding:10px 14px;border-radius:4px;font-size:13px;">Cette suppression sera effective immédiatement après confirmation.</p>'
+    ? '<p style="color:#b8860b;background:#fdf8ec;padding:10px 14px;border-radius:4px;font-size:13px;">Vous disposez de 7 jours pour annuler cette demande en contactant <a href=\\"mailto:contact@ethys-textileloop.com\\">contact@ethys-textileloop.com</a></p>'
+    : '<p style="color:#8b3a3a;background:#fdf0f0;padding:10px 14px;border-radius:4px;font-size:13px;">Cette suppression sera effective imm\u00e9diatement apr\u00e8s confirmation.</p>'
 
   try {
     const res = await fetch('https://api.resend.com/emails', {
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
             <div style="background:#fff;border-radius:8px;border:1px solid #e8e3d8;padding:28px 24px;">
               <h2 style="color:#1a1a1a;font-size:18px;margin:0 0 12px;">Suppression de votre compte</h2>
               <p style="color:#4a5568;font-size:13px;line-height:1.7;margin:0 0 16px;">
-                Vous avez demandé la suppression de votre compte ETHYS.<br/>
+                Vous avez demand\u00e9 la suppression de votre compte ETHYS.<br/>
                 La suppression sera effective <strong>${delaiTexte}</strong>.
               </p>
               ${delaiMessage}
@@ -46,8 +46,8 @@ export async function POST(request: NextRequest) {
               </p>
             </div>
             <div style="text-align:center;margin-top:20px;font-size:11px;color:#d4c5b0;">
-              TEXTILE LOOP — 15 rue d'Upsal, 67000 Strasbourg<br/>
-              <a href="https://www.ethys-textileloop.com/mentions-legales" style="color:#8b7355;">Mentions légales & RGPD</a>
+              TEXTILE LOOP \u2014 15 rue d'Upsal, 67000 Strasbourg<br/>
+              <a href="https://www.ethys-textileloop.com/mentions-legales" style="color:#8b7355;">Mentions l\u00e9gales & RGPD</a>
             </div>
           </div>
         `
@@ -66,3 +66,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: false }, { status: 500 })
   }
 }
+"""
+open('src/app/api/send-deletion-email/route.ts', 'w', encoding='utf-8').write(content)
+print("Done")
