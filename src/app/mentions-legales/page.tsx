@@ -1,19 +1,13 @@
-'use client'
-
-import { useRouter } from 'next/navigation'
-
 export default function MentionsLegalesPage() {
-  const router = useRouter()
-
   return (
     <div style={{ minHeight: '100vh', background: '#f5f3ef', fontFamily: "'Inter', system-ui, sans-serif" }}>
       <div style={{ maxWidth: 800, margin: '0 auto', padding: '40px 24px' }}>
 
         {/* Header */}
         <div style={{ marginBottom: 32 }}>
-          <button onClick={() => router.back()} style={{ display: 'flex', alignItems: 'center', gap: 8, border: 'none', background: 'none', cursor: 'pointer', color: '#8b7355', fontSize: 13, marginBottom: 24, padding: 0 }}>
+          <a href='/' style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#8b7355', fontSize: 13, marginBottom: 24, textDecoration: 'none' }}>
             ← Retour
-          </button>
+          </a>
           <a href="/login"><img src="/logo_ethys.png" alt="ETHYS" style={{ width: 60, marginBottom: 16 }} /></a>
           <h1 style={{ fontSize: 24, fontWeight: 800, color: '#1a1a1a', marginBottom: 4 }}>Mentions légales & Politique de confidentialité</h1>
           <p style={{ fontSize: 13, color: '#8b7355' }}>Dernière mise à jour : mai 2026</p>
