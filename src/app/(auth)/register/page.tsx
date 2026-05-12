@@ -20,11 +20,13 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [error, setError] = useState('')
+  const [consentement, setConsentement] = useState(false)
   const [loading, setLoading] = useState(false)
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
     if (password !== confirmPassword) { setError('Les mots de passe ne correspondent pas.'); return }
+    if (!consentement) { setError('Vous devez accepter la politique de confidentialité pour créer un compte.'); return }
     setLoading(true)
     setError('')
     const { error: signUpError } = await supabase.auth.signUp({ email, password })
@@ -96,8 +98,24 @@ export default function RegisterPage() {
                 ))}
               </div>
             </div>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 14, padding: '12px', borderRadius: 4, background: '#f5f3ef', border: '1px solid #e8e3d8' }}>
+              <input
+                type="checkbox"
+                id="consentement"
+                checked={consentement}
+                onChange={e => setConsentement(e.target.checked)}
+                style={{ marginTop: 2, accentColor: '#1a1a1a', flexShrink: 0, width: 14, height: 14, cursor: 'pointer' }}
+              />
+              <label htmlFor="consentement" style={{ fontSize: 12, color: '#4a5568', lineHeight: 1.5, cursor: 'pointer' }}>
+                J'ai lu et j'accepte la{' '}
+                <a href="/mentions-legales" target="_blank" style={{ color: '#1a1a1a', fontWeight: 600, textDecoration: 'underline' }}>
+                  politique de confidentialité
+                </a>
+                {' '}et le traitement de mes données personnelles par TEXTILE LOOP conformément au RGPD.
+              </label>
+            </div>
             {error && <div style={{ padding: '8px 12px', borderRadius: 4, background: '#fdf0f0', border: '1px solid #8b3a3a', fontSize: 12, color: '#8b3a3a', marginBottom: 10 }}>{error}</div>}
-            <button type="submit" disabled={loading} style={{ width: '100%', padding: '11px', borderRadius: 4, border: 'none', background: loading ? '#e8e3d8' : '#1a1a1a', color: loading ? '#8b7355' : '#fff', fontSize: 12, fontWeight: 600, cursor: loading ? 'default' : 'pointer', letterSpacing: 0.5, textTransform: 'uppercase', fontFamily: 'inherit' }}>
+            <button type="submit" disabled={loading || !consentement} style={{ width: '100%', padding: '11px', borderRadius: 4, border: 'none', background: loading || !consentement ? '#e8e3d8' : '#1a1a1a', color: loading || !consentement ? '#8b7355' : '#fff', fontSize: 12, fontWeight: 600, cursor: loading || !consentement ? 'default' : 'pointer', letterSpacing: 0.5, textTransform: 'uppercase', fontFamily: 'inherit' }}>
               {loading ? 'Creation...' : 'Creer mon compte'}
             </button>
           </form>
