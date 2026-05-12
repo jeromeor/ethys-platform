@@ -184,6 +184,5 @@ export default async function ProfilPage() {
         </form>
       </div>
     </div>
-    </div>
   )
 }
