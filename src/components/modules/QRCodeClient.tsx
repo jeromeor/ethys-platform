@@ -243,7 +243,7 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
                   </div>
                 )}
                 {qrActif && !generating && (
-                  <div style={{ position: 'absolute', top: -8, right: -8, width: 24, height: 24, borderRadius: '50%', background: '#2d5016', border: '2px solid #fff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 12, fontWeight: 700 }}>v</div>
+                  <div style={{ position: 'absolute', top: -8, right: -8, width: 24, height: 24, borderRadius: '50%', background: '#8b7355', border: '2px solid #fff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 12, fontWeight: 700 }}>v</div>
                 )}
               </div>
               {qrActif && (
@@ -330,7 +330,7 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
               <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 6, padding: '14px', marginBottom: 12 }}>
                 <div style={{ fontSize: 10, color: '#c2956e', fontWeight: 600, marginBottom: 10, letterSpacing: 1 }}>MATIERES PREMIERES</div>
                 <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
-                  <div style={{ flex: 51, background: '#2d5016', borderRadius: 6, padding: '10px 8px', textAlign: 'center' }}>
+                  <div style={{ flex: 51, background: '#8b7355', borderRadius: 6, padding: '10px 8px', textAlign: 'center' }}>
                     <div style={{ fontSize: 20, fontWeight: 900, color: '#fff' }}>51%</div>
                     <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>Coton recyclé</div>
                     <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>61 200 kg</div>
@@ -400,7 +400,7 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
             <div style={{ background: '#F0FDF4', borderRadius: 6, padding: '16px', marginBottom: 16 }}>
               <div style={{ fontSize: 11, fontWeight: 700, color: '#1a1a1a', marginBottom: 10, textTransform: 'uppercase' }}>Composition</div>
               <div style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
-                <div style={{ flex: selectedCert.declaration?.pct_recycle ?? 51, background: '#2d5016', borderRadius: 8, padding: '10px', textAlign: 'center' }}>
+                <div style={{ flex: selectedCert.declaration?.pct_recycle ?? 51, background: '#8b7355', borderRadius: 8, padding: '10px', textAlign: 'center' }}>
                   <div style={{ fontSize: 20, fontWeight: 900, color: '#fff' }}>{selectedCert.declaration?.pct_recycle ?? 0}%</div>
                   <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}> Recyclé</div>
                   <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>{(selectedCert.declaration?.volume_recycle_kg ?? 0).toLocaleString('fr-FR')} kg</div>
