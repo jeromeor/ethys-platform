@@ -26,7 +26,7 @@ export default function MentionsLegalesPage() {
             <strong>TEXTILE LOOP</strong><br />
             15 rue d'Upsal — 67000 Strasbourg — France<br />
             SIRET : 810 401 018 00025<br />
-            Email : contact@textile-loop.com<br />
+            Email : contact@ethys-textileloop.com<br />
             Responsable de la publication : Jérôme ORIOL
           </p>
         </div>
@@ -51,7 +51,7 @@ export default function MentionsLegalesPage() {
           <p style={{ fontSize: 14, color: '#4a5568', lineHeight: 1.8, margin: 0 }}>
             <strong>Jérôme ORIOL</strong> — TEXTILE LOOP<br />
             15 rue d'Upsal — 67000 Strasbourg — France<br />
-            Email : contact@textile-loop.com
+            Email : contact@ethys-textileloop.com
           </p>
         </div>
 
@@ -102,7 +102,7 @@ export default function MentionsLegalesPage() {
             <li><strong>Droit d'opposition</strong> — vous opposer à certains traitements</li>
           </ul>
           <p style={{ fontSize: 14, color: '#4a5568', lineHeight: 1.8, margin: '16px 0 0' }}>
-            Pour exercer ces droits, contactez-nous à : <strong>contact@textile-loop.com</strong><br />
+            Pour exercer ces droits, contactez-nous à : <strong>contact@ethys-textileloop.com</strong><br />
             Nous répondrons dans un délai maximum de 30 jours.<br />
             Vous pouvez également introduire une réclamation auprès de la <strong>CNIL</strong> (www.cnil.fr).
           </p>
@@ -119,7 +119,7 @@ export default function MentionsLegalesPage() {
         {/* Contact */}
         <div style={{ background: '#1a1a1a', borderRadius: 8, padding: '24px 32px', textAlign: 'center' }}>
           <p style={{ fontSize: 14, color: '#e8e3d8', margin: '0 0 8px' }}>Une question sur vos données personnelles ?</p>
-          <a href="mailto:contact@textile-loop.com" style={{ fontSize: 14, fontWeight: 700, color: '#c2956e', textDecoration: 'none' }}>contact@textile-loop.com</a>
+          <a href="mailto:contact@ethys-textileloop.com" style={{ fontSize: 14, fontWeight: 700, color: '#c2956e', textDecoration: 'none' }}>contact@ethys-textileloop.com</a>
         </div>
 
       </div>
