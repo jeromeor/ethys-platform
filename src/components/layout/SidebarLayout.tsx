@@ -83,7 +83,12 @@ export default function SidebarLayout({ user, profil, children }: Props) {
           })}
         </nav>
 
-        <button onClick={() => setOpen(v => !v)} style={{ margin: '8px', padding: '8px', borderRadius: 8, border: 'none', background: '#f5f3ef', color: '#8b7355', cursor: 'pointer', fontSize: 13 }}>
+              {open && (
+        <div style={{ padding: '8px 12px', borderTop: '1px solid #e8e3d8' }}>
+          <a href="/mentions-legales" style={{ fontSize: 10, color: '#d4c5b0', textDecoration: 'none', display: 'block', textAlign: 'center' }}>Mentions légales & RGPD</a>
+        </div>
+      )}
+      <button onClick={() => setOpen(v => !v)} style={{ margin: '8px', padding: '8px', borderRadius: 8, border: 'none', background: '#f5f3ef', color: '#8b7355', cursor: 'pointer', fontSize: 13 }}>
           {open ? '◀' : '▶'}
         </button>
 

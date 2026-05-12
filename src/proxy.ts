@@ -2,7 +2,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-const PUBLIC_PATHS = ['/login', '/register', '/forgot-password', '/reset-password', '/tracabilite']
+const PUBLIC_PATHS = ['/login', '/register', '/forgot-password', '/reset-password', '/tracabilite', '/mentions-legales']
 const ONBOARDING_PATHS = ['/onboarding', '/en-attente']
 const MINIMAL_PATHS = ['/dashboard', '/profil', '/onboarding', '/en-attente']
 
