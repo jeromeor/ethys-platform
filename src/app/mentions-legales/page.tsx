@@ -14,7 +14,7 @@ export default function MentionsLegalesPage() {
           <button onClick={() => router.back()} style={{ display: 'flex', alignItems: 'center', gap: 8, border: 'none', background: 'none', cursor: 'pointer', color: '#8b7355', fontSize: 13, marginBottom: 24, padding: 0 }}>
             ← Retour
           </button>
-          <a href="/login" style={{ display: "block" }}><img src="/logo_ethys.png" alt="ETHYS" style={{ width: 60, marginBottom: 16 }} />
+          <a href="/login"><img src="/logo_ethys.png" alt="ETHYS" style={{ width: 60, marginBottom: 16 }} /></a>
           <h1 style={{ fontSize: 24, fontWeight: 800, color: '#1a1a1a', marginBottom: 4 }}>Mentions légales & Politique de confidentialité</h1>
           <p style={{ fontSize: 13, color: '#8b7355' }}>Dernière mise à jour : mai 2026</p>
         </div>

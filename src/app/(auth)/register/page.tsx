@@ -57,7 +57,7 @@ export default function RegisterPage() {
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 0', background: '#f5f3ef', fontFamily: "'Inter', system-ui, sans-serif" }}>
       <div style={{ width: '100%', maxWidth: 420, padding: '0 24px' }}>
         <div style={{ textAlign: 'center', marginBottom: 16 }}>
-          <a href="/login" style={{ display: "block" }}><img src="/logo_ethys.png" alt="ETHYS" style={{ width: 65, height: 'auto', margin: '0 auto 6px', display: 'block' }} />
+          <a href="/login"><img src="/logo_ethys.png" alt="ETHYS" style={{ width: 65, height: 'auto', margin: '0 auto 6px', display: 'block' }} /></a>
           <div style={{ fontSize: 10, color: '#8b7355', letterSpacing: 2, textTransform: 'uppercase' }}>Platform</div>
         </div>
         <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #d4c5b0', padding: '22px 26px', boxShadow: '0 2px 12px rgba(26,26,26,0.06)' }}>
