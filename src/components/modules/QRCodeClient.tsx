@@ -348,7 +348,7 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
 
               {/* Certification fil ETHYS */}
               <div style={{ background: 'rgba(110,231,183,0.2)', borderRadius: 4, padding: '12px 14px', border: '1px solid rgba(110,231,183,0.4)', textAlign: 'center' }}>
-                <div style={{ fontSize: 14, fontWeight: 900, color: '#c2956e', marginBottom: 4 }}>v Fil Certifié ETHYS</div>
+                <div style={{ fontSize: 14, fontWeight: 900, color: '#c2956e', marginBottom: 4 }}>Fil certifié ETHYS</div>
                 <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
               Ce fil certifié ETHYS est le résultat de la transformation de coton recyclé (51 %) et de coton vierge (49 %). Il a été réalisé par {selected.commande?.filature?.nom ?? 'la filature'}.
                 </div>
