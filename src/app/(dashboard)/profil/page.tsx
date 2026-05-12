@@ -30,7 +30,7 @@ export default async function ProfilPage() {
 
       {/* Hero */}
       <div style={{
-        background: 'linear-gradient(135deg, #0A3D26, #0D5C3A)',
+        background: 'linear-gradient(135deg, #1a1a1a, #0D5C3A)',
         borderRadius: 16, padding: '28px 32px', marginBottom: 22,
         color: '#fff', display: 'flex', alignItems: 'center', gap: 24
       }}>
@@ -74,7 +74,7 @@ export default async function ProfilPage() {
 
         {/* Informations légales */}
         <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', overflow: 'hidden' }}>
-          <div style={{ padding: '14px 22px', borderBottom: '1px solid #F1F5F9', fontSize: 13, fontWeight: 700, color: '#0A3D26' }}>
+          <div style={{ padding: '14px 22px', borderBottom: '1px solid #F1F5F9', fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>
             Informations légales
           </div>
           <div style={{ padding: '18px 22px' }}>
@@ -98,7 +98,7 @@ export default async function ProfilPage() {
         {/* Contact */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', overflow: 'hidden' }}>
-            <div style={{ padding: '14px 22px', borderBottom: '1px solid #F1F5F9', fontSize: 13, fontWeight: 700, color: '#0A3D26' }}>
+            <div style={{ padding: '14px 22px', borderBottom: '1px solid #F1F5F9', fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>
               Contact
             </div>
             <div style={{ padding: '18px 22px' }}>
@@ -109,7 +109,7 @@ export default async function ProfilPage() {
               ].map(([l, v]) => (
                 <div key={l} style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
                   <span style={{ fontSize: 12, color: '#94A3B8', width: 100, flexShrink: 0 }}>{l}</span>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: '#0A3D26' }}>{v}</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a' }}>{v}</span>
                 </div>
               ))}
             </div>
@@ -117,7 +117,7 @@ export default async function ProfilPage() {
 
           {/* Certifications */}
           <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', overflow: 'hidden' }}>
-            <div style={{ padding: '14px 22px', borderBottom: '1px solid #F1F5F9', fontSize: 13, fontWeight: 700, color: '#0A3D26' }}>
+            <div style={{ padding: '14px 22px', borderBottom: '1px solid #F1F5F9', fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>
               Certifications ({certifications?.length ?? 0})
             </div>
             <div style={{ padding: '14px 18px' }}>
@@ -143,7 +143,7 @@ export default async function ProfilPage() {
 
           {/* Documents */}
           <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', overflow: 'hidden' }}>
-            <div style={{ padding: '14px 22px', borderBottom: '1px solid #F1F5F9', fontSize: 13, fontWeight: 700, color: '#0A3D26' }}>
+            <div style={{ padding: '14px 22px', borderBottom: '1px solid #F1F5F9', fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>
               Documents ({documents?.length ?? 0})
             </div>
             <div style={{ padding: '14px 18px' }}>
