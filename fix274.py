@@ -1,4 +1,4 @@
-'use client'
+﻿content = """'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -19,7 +19,7 @@ export default function SupprimerComptePage() {
 
     // Verifier le mot de passe
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user?.email) { setError('Session expirée, veuillez vous reconnecter.'); setLoading(false); return }
+    if (!user?.email) { setError('Session expir\u00e9e, veuillez vous reconnecter.'); setLoading(false); return }
 
     const { error: authError } = await supabase.auth.signInWithPassword({
       email: user.email,
@@ -42,7 +42,7 @@ export default function SupprimerComptePage() {
       })
       .eq('id', user.id)
 
-    if (updateError) { setError('Erreur lors de la demande. Veuillez réessayer.'); setLoading(false); return }
+    if (updateError) { setError('Erreur lors de la demande. Veuillez r\u00e9essayer.'); setLoading(false); return }
 
     // Envoyer email via Supabase (lien de confirmation)
     const baseUrl = window.location.origin
@@ -72,10 +72,10 @@ export default function SupprimerComptePage() {
             <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#f0f4ec', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: 24 }}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2d5016" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
             </div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a', marginBottom: 8 }}>Email envoyé</div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a', marginBottom: 8 }}>Email envoy\u00e9</div>
             <div style={{ fontSize: 13, color: '#4a5568', lineHeight: 1.7, marginBottom: 20 }}>
-              Un email de confirmation a été envoyé à votre adresse.<br />
-              Cliquez sur le lien dans l'email pour {delai === 'immediat' ? 'supprimer immédiatement' : 'programmer la suppression dans 7 jours'} votre compte.
+              Un email de confirmation a \u00e9t\u00e9 envoy\u00e9 \u00e0 votre adresse.<br />
+              Cliquez sur le lien dans l'email pour {delai === 'immediat' ? 'supprimer imm\u00e9diatement' : 'programmer la suppression dans 7 jours'} votre compte.
             </div>
             <div style={{ padding: '10px 14px', borderRadius: 4, background: '#fdf8ec', border: '1px solid #b8860b', fontSize: 12, color: '#b8860b', marginBottom: 20 }}>
               Le lien est valable 24 heures.
@@ -95,8 +95,8 @@ export default function SupprimerComptePage() {
         <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #fde8e8', padding: '32px 28px' }}>
           <div style={{ fontSize: 20, fontWeight: 700, color: '#8b3a3a', marginBottom: 8 }}>Supprimer mon compte</div>
           <div style={{ fontSize: 13, color: '#4a5568', lineHeight: 1.7, marginBottom: 20 }}>
-            Cette action supprimera vos données personnelles conformément au RGPD.<br />
-            Les données de traçabilité textile seront conservées pour des raisons légales.
+            Cette action supprimera vos donn\u00e9es personnelles conform\u00e9ment au RGPD.<br />
+            Les donn\u00e9es de tra\u00e7abilit\u00e9 textile seront conserv\u00e9es pour des raisons l\u00e9gales.
           </div>
 
           <div style={{ marginBottom: 16 }}>
@@ -107,27 +107,27 @@ export default function SupprimerComptePage() {
               type="password"
               value={password}
               onChange={e => setPassword(e.target.value)}
-              placeholder="••••••••"
+              placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"
               style={{ width: '100%', padding: '10px 14px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 13, boxSizing: 'border-box' as const, outline: 'none', fontFamily: 'inherit' }}
             />
           </div>
 
           <div style={{ marginBottom: 20 }}>
             <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-              Délai de suppression
+              D\u00e9lai de suppression
             </label>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <div onClick={() => setDelai('7jours')} style={{ padding: '10px 14px', borderRadius: 4, border: `1.5px solid ${delai === '7jours' ? '#1a1a1a' : '#d4c5b0'}`, background: delai === '7jours' ? '#f5f3ef' : '#fff', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>Dans 7 jours</div>
-                  <div style={{ fontSize: 11, color: '#8b7355' }}>Vous pouvez annuler pendant ce délai</div>
+                  <div style={{ fontSize: 11, color: '#8b7355' }}>Vous pouvez annuler pendant ce d\u00e9lai</div>
                 </div>
                 {delai === '7jours' && <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#1a1a1a' }} />}
               </div>
               <div onClick={() => setDelai('immediat')} style={{ padding: '10px 14px', borderRadius: 4, border: `1.5px solid ${delai === 'immediat' ? '#8b3a3a' : '#d4c5b0'}`, background: delai === 'immediat' ? '#fdf0f0' : '#fff', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#8b3a3a' }}>Immédiat</div>
-                  <div style={{ fontSize: 11, color: '#8b7355' }}>Irréversible — suppression dès confirmation par email</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: '#8b3a3a' }}>Imm\u00e9diat</div>
+                  <div style={{ fontSize: 11, color: '#8b7355' }}>Irr\u00e9versible — suppression d\u00e8s confirmation par email</div>
                 </div>
                 {delai === 'immediat' && <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#8b3a3a' }} />}
               </div>
@@ -153,3 +153,6 @@ export default function SupprimerComptePage() {
     </div>
   )
 }
+"""
+open('src/app/(dashboard)/profil/supprimer/page.tsx', 'w', encoding='utf-8').write(content)
+print("Done")
