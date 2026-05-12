@@ -257,7 +257,6 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                               background: fait ? '#e8e3d8' : enCours ? '#c2956e' : '#d4c5b0',
                               color: fait ? '#1a1a1a' : enCours ? '#fff' : '#8b7355',
                               boxShadow: enCours ? '0 0 0 3px rgba(194,149,110,0.3)' : 'none'
-                            }}>{fait ? '' : i + 1}</div>
                             }}>{fait ? 'v' : i + 1}</div>
                             <div style={{ fontSize: 9, color: fait ? '#4a5568' : enCours ? '#c2956e' : '#8b7355', fontWeight: enCours ? 700 : 400, textAlign: 'center', marginTop: 4, lineHeight: 1.3 }}>
                             </div>
