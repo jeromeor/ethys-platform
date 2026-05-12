@@ -30,7 +30,7 @@ export default async function ProfilPage() {
 
       {/* Hero */}
       <div style={{
-        background: 'linear-gradient(135deg, #1a1a1a, #0D5C3A)',
+        background: '#1a1a1a',
         borderRadius: 16, padding: '28px 32px', marginBottom: 22,
         color: '#fff', display: 'flex', alignItems: 'center', gap: 24
       }}>
@@ -50,7 +50,7 @@ export default async function ProfilPage() {
             </span>
             <span style={{
               padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700,
-              background: entreprise?.statut === 'verifie' ? '#10B981' : '#F59E0B',
+              background: entreprise?.statut === 'verifie' ? '#2d5016' : '#b8860b',
               color: '#fff'
             }}>
               {entreprise?.statut === 'verifie' ? '✓ Profil vérifié' : '⏳ En cours de vérification'}
@@ -64,7 +64,7 @@ export default async function ProfilPage() {
           <div style={{ fontSize: 11, opacity: 0.65, marginBottom: 4 }}>Rôle plateforme</div>
           <div style={{
             padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 700,
-            background: 'rgba(255,255,255,0.12)', color: '#6EE7B7',
+            background: 'rgba(255,255,255,0.12)', color: '#c2956e',
             textTransform: 'capitalize'
           }}>{profil?.role}</div>
         </div>
@@ -73,7 +73,7 @@ export default async function ProfilPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
 
         {/* Informations légales */}
-        <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', overflow: 'hidden' }}>
+        <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', overflow: 'hidden' }}>
           <div style={{ padding: '14px 22px', borderBottom: '1px solid #F1F5F9', fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>
             Informations légales
           </div>
@@ -97,7 +97,7 @@ export default async function ProfilPage() {
 
         {/* Contact */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', overflow: 'hidden' }}>
+          <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', overflow: 'hidden' }}>
             <div style={{ padding: '14px 22px', borderBottom: '1px solid #F1F5F9', fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>
               Contact
             </div>
@@ -116,7 +116,7 @@ export default async function ProfilPage() {
           </div>
 
           {/* Certifications */}
-          <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', overflow: 'hidden' }}>
+          <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', overflow: 'hidden' }}>
             <div style={{ padding: '14px 22px', borderBottom: '1px solid #F1F5F9', fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>
               Certifications ({certifications?.length ?? 0})
             </div>
@@ -142,7 +142,7 @@ export default async function ProfilPage() {
           </div>
 
           {/* Documents */}
-          <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', overflow: 'hidden' }}>
+          <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', overflow: 'hidden' }}>
             <div style={{ padding: '14px 22px', borderBottom: '1px solid #F1F5F9', fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>
               Documents ({documents?.length ?? 0})
             </div>

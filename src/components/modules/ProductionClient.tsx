@@ -254,12 +254,12 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                               width: 30, height: 30, borderRadius: '50%', flexShrink: 0,
                               display: 'flex', alignItems: 'center', justifyContent: 'center',
                               fontSize: 11, fontWeight: 800,
-                              background: fait ? '#1a1a1a' : enCours ? '#2d5016' : '#d4c5b0',
-                              color: fait || enCours ? '#fff' : '#8b7355',
-                              boxShadow: enCours ? '0 0 0 3px rgba(16,185,129,0.25)' : 'none'
+                              background: fait ? '#e8e3d8' : enCours ? '#c2956e' : '#d4c5b0',
+                              color: fait ? '#1a1a1a' : enCours ? '#fff' : '#8b7355',
+                              boxShadow: enCours ? '0 0 0 3px rgba(194,149,110,0.3)' : 'none'
                             }}>{fait ? '' : i + 1}</div>
-                            <div style={{ fontSize: 9, color: fait ? '#1a1a1a' : enCours ? '#2d5016' : '#8b7355', fontWeight: enCours ? 700 : 400, textAlign: 'center', marginTop: 4, lineHeight: 1.3 }}>
-                              {etape}
+                            }}>{fait ? '✓' : i + 1}</div>
+                            <div style={{ fontSize: 9, color: fait ? '#4a5568' : enCours ? '#c2956e' : '#8b7355', fontWeight: enCours ? 700 : 400, textAlign: 'center', marginTop: 4, lineHeight: 1.3 }}>
                             </div>
                           </div>
                           {i < ETAPES_PROD.length - 1 && (
