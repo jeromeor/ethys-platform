@@ -19,21 +19,32 @@ function ResetPasswordForm() {
   const [showConfirm, setShowConfirm] = useState(false)
 
   useEffect(() => {
-    // Verifier si erreur dans l URL
     const errorCode = searchParams.get('error_code')
     if (errorCode) {
       setError('Le lien de réinitialisation est invalide ou a expiré. Veuillez en demander un nouveau.')
       return
     }
 
-    // Ecouter l evenement PASSWORD_RECOVERY
+    const code = searchParams.get('code')
+    if (code) {
+      // Echanger le code PKCE contre une session
+      supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
+        if (error) {
+          setError('Le lien est invalide ou a expiré. Veuillez en demander un nouveau.')
+        } else {
+          setReady(true)
+        }
+      })
+      return
+    }
+
+    // Ecouter l evenement PASSWORD_RECOVERY (flux hash)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'PASSWORD_RECOVERY' || session) {
         setReady(true)
       }
     })
 
-    // Verifier session existante
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) setReady(true)
     })
