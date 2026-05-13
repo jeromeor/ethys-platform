@@ -5,7 +5,8 @@ export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
   const token_hash = searchParams.get('token_hash')
-  const type = searchParams.get('type') as 'recovery' | 'magiclink' | 'email' | null
+  const token = searchParams.get('token')
+  const type = searchParams.get('type') as 'recovery' | 'magiclink' | 'email' | 'signup' | null
   const error = searchParams.get('error')
   const next = searchParams.get('next') ?? '/dashboard'
 
@@ -15,8 +16,10 @@ export async function GET(request: NextRequest) {
 
   const supabase = await createClient()
 
-  if (token_hash && type) {
-    const { error: verifyError } = await supabase.auth.verifyOtp({ token_hash, type })
+  const hash = token_hash ?? token
+
+  if (hash && type) {
+    const { error: verifyError } = await supabase.auth.verifyOtp({ token_hash: hash, type })
     if (!verifyError) {
       return NextResponse.redirect(`${origin}${next}`)
     }
