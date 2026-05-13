@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+﻿import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import CommandesClient from '@/components/modules/CommandesClient'
 
@@ -40,6 +40,7 @@ export default async function CommandesPage() {
     .neq('type', 'plateforme')
     .order('nom')
 
+  console.log('commandes reçues:', commandes?.length, commandes?.[0]?.statut)
   return (
     <CommandesClient
       user={user}
