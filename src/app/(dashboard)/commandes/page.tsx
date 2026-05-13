@@ -18,8 +18,7 @@ export default async function CommandesPage() {
       *,
       marque:entreprises!commandes_marque_id_fkey(nom, pays),
       filature:entreprises!commandes_filature_id_fkey(nom, pays),
-      fournisseur:entreprises!commandes_fournisseur_id_fkey(nom, pays),
-      validations(*)
+      fournisseur:entreprises!commandes_fournisseur_id_fkey(nom, pays)
     `)
   if (role !== 'admin' && entrepriseId) {
     if (role === 'marque') commandesQuery = commandesQuery.eq('marque_id', entrepriseId)
@@ -42,3 +41,4 @@ export default async function CommandesPage() {
     />
   )
 }
+
