@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿content = """import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
 export async function GET(request: NextRequest) {
@@ -26,3 +26,6 @@ export async function GET(request: NextRequest) {
   // Pas de code - rediriger vers reset-password avec tous les params
   return NextResponse.redirect(`${origin}/reset-password?${searchParams.toString()}`)
 }
+"""
+open('src/app/auth/callback/route.ts', 'w', encoding='utf-8').write(content)
+print("Done")
