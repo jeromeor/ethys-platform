@@ -35,11 +35,11 @@ export default function EnAttentePage() {
     <div style={{ height: '100vh', overflow: 'hidden', background: '#f5f3ef', fontFamily: "'Inter', system-ui, sans-serif", display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
       <div style={{ width: '100%', maxWidth: 480, textAlign: 'center' }}>
         <img src="/logo_ethys.png" alt="TEXTILE LOOP" style={{ width: 80, height: 'auto', margin: '0 auto 12px', display: 'block' }} />
-        <div style={{ fontSize: 13, color: '#8b7355', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 32, textAlign: 'center' }}>PLATFORM</div>
-        <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #EEF0F3', padding: '40px 32px', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
-          <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#D1FAE5', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontSize: 28 }}>⏳</div>
+        <div style={{ fontSize: 13, color: '#8b7355', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 20, textAlign: 'center' }}>PLATFORM</div>
+        <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #EEF0F3', padding: '24px 28px', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
+          <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#D1FAE5', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 28 }}>⏳</div>
           <div style={{ fontSize: 20, fontWeight: 700, color: '#0A3D26', marginBottom: 12 }}>Profil en cours de validation</div>
-          <div style={{ fontSize: 13, color: '#64748B', lineHeight: 1.7, marginBottom: 24 }}>
+          <div style={{ fontSize: 13, color: '#64748B', lineHeight: 1.5, marginBottom: 16 }}>
             Votre profil a été soumis avec succès. L'équipe TEXTILE LOOP vérifie vos informations et associera votre compte à votre entreprise.<br /><br />
             Vous recevrez un email à <strong>{email}</strong> dès que votre accès sera activé.
           </div>
@@ -57,4 +57,5 @@ export default function EnAttentePage() {
     </div>
   )
 }
+
 
