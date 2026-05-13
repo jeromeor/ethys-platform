@@ -23,11 +23,11 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f3ef', fontFamily: "'Inter', system-ui, sans-serif" }}>
+    <div style={{ height: '100vh', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f3ef', fontFamily: "'Inter', system-ui, sans-serif" }}>
       <div style={{ width: 400 }}>
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <img src="/logo_ethys.png" alt="TEXTILE LOOP" style={{ width: 160, height: 'auto', margin: '0 auto 12px', display: 'block' }} />
-          <div style={{ fontSize: 13, color: '#94A3B8', marginTop: 4 }}>Plateforme ETHYS</div>
+          <img src="/logo_ethys.png" alt="TEXTILE LOOP" style={{ width: 80, height: 'auto', margin: '0 auto 12px', display: 'block' }} />
+          <div style={{ fontSize: 13, color: '#94A3B8', marginTop: 4 }}>PLATFORM</div>
         </div>
         <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '32px', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
           {sent ? (
@@ -75,3 +75,4 @@ export default function ForgotPasswordPage() {
     </div>
   )
 }
+
