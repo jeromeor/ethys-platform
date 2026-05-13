@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -21,7 +21,7 @@ function ResetPasswordForm() {
   useEffect(() => {
     const errorCode = searchParams.get('error_code')
     if (errorCode) {
-      setError('Le lien de réinitialisation est invalide ou a expiré. Veuillez en demander un nouveau.')
+      setError('Le lien de rÃ©initialisation est invalide ou a expirÃ©. Veuillez en demander un nouveau.')
       return
     }
 
@@ -30,7 +30,7 @@ function ResetPasswordForm() {
       // Echanger le code PKCE contre une session
       supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
         if (error) {
-          setError('Le lien est invalide ou a expiré. Veuillez en demander un nouveau.')
+          setError('Le lien est invalide ou a expirÃ©. Veuillez en demander un nouveau.')
         } else {
           setReady(true)
         }
@@ -55,7 +55,7 @@ function ResetPasswordForm() {
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault()
     if (password !== confirm) { setError('Les mots de passe ne correspondent pas.'); return }
-    if (password.length < 8) { setError('8 caractères minimum.'); return }
+    if (password.length < 8) { setError('8 caractÃ¨res minimum.'); return }
     setLoading(true)
     setError('')
     const { error } = await supabase.auth.updateUser({ password })
@@ -74,7 +74,7 @@ function ResetPasswordForm() {
   )
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f3ef', fontFamily: "'Inter', system-ui, sans-serif" }}>
+    <div style={{ height: '100vh', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f3ef', fontFamily: "'Inter', system-ui, sans-serif" }}>
       <div style={{ width: '100%', maxWidth: 420, padding: '0 24px' }}>
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
           <a href="/login"><img src="/logo_ethys.png" alt="ETHYS" style={{ width: 80, height: 'auto', margin: '0 auto 8px', display: 'block', cursor: 'pointer' }} /></a>
@@ -86,13 +86,13 @@ function ResetPasswordForm() {
               <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#f0f4ec', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2d5016" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
               </div>
-              <div style={{ fontSize: 17, fontWeight: 700, color: '#1a1a1a', marginBottom: 10 }}>Mot de passe mis à jour</div>
+              <div style={{ fontSize: 17, fontWeight: 700, color: '#1a1a1a', marginBottom: 10 }}>Mot de passe mis Ã  jour</div>
               <div style={{ fontSize: 13, color: '#4a5568' }}>Redirection vers la connexion...</div>
             </div>
           ) : error && !ready ? (
             <div style={{ textAlign: 'center' }}>
               <div style={{ padding: '16px', borderRadius: 4, background: '#fdf0f0', border: '1px solid #8b3a3a', fontSize: 13, color: '#8b3a3a', marginBottom: 20 }}>{error}</div>
-              <a href="/forgot-password" style={{ display: 'inline-block', padding: '10px 20px', background: '#1a1a1a', color: '#fff', borderRadius: 4, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
+              <a href="/forgot-password" style={{ display: 'inline-block', padding: '10px 20px', background: '#1a1a1a', color: '#1a1a1a', borderRadius: 4, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
                 Demander un nouveau lien
               </a>
             </div>
@@ -103,13 +103,13 @@ function ResetPasswordForm() {
           ) : (
             <>
               <div style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a', marginBottom: 4 }}>Nouveau mot de passe</div>
-              <div style={{ fontSize: 13, color: '#8b7355', marginBottom: 20 }}>Choisissez un mot de passe différent du précédent.</div>
+              <div style={{ fontSize: 13, color: '#8b7355', marginBottom: 20 }}>Choisissez un mot de passe diffÃ©rent du prÃ©cÃ©dent.</div>
               <form onSubmit={handleReset}>
                 <div style={{ marginBottom: 14 }}>
                   <label style={{ fontSize: 11, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 5, textTransform: 'uppercase', letterSpacing: 0.5 }}>Nouveau mot de passe</label>
                   <div style={{ position: 'relative' }}>
-                    <input type={showPassword ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="8 caractères minimum" required
-                      style={{ width: '100%', padding: '10px 40px 10px 14px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 13, boxSizing: 'border-box' as const, outline: 'none', fontFamily: 'inherit' }}
+                    <input type={showPassword ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="8 caractÃ¨res minimum" required
+                      style={{ width: '100%', padding: '10px 40px 10px 14px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 13, boxSizing: 'border-box' as const, outline: 'none', color: '#1a1a1a', background: '#fff', fontFamily: 'inherit' }}
                       onFocus={e => e.target.style.borderColor = '#1a1a1a'} onBlur={e => e.target.style.borderColor = '#d4c5b0'} />
                     <EyeBtn show={showPassword} toggle={() => setShowPassword(v => !v)} />
                   </div>
@@ -117,15 +117,15 @@ function ResetPasswordForm() {
                 <div style={{ marginBottom: 18 }}>
                   <label style={{ fontSize: 11, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 5, textTransform: 'uppercase', letterSpacing: 0.5 }}>Confirmer le mot de passe</label>
                   <div style={{ position: 'relative' }}>
-                    <input type={showConfirm ? 'text' : 'password'} value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="Répétez le mot de passe" required
-                      style={{ width: '100%', padding: '10px 40px 10px 14px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 13, boxSizing: 'border-box' as const, outline: 'none', fontFamily: 'inherit' }}
+                    <input type={showConfirm ? 'text' : 'password'} value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="RÃ©pÃ©tez le mot de passe" required
+                      style={{ width: '100%', padding: '10px 40px 10px 14px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 13, boxSizing: 'border-box' as const, outline: 'none', color: '#1a1a1a', background: '#fff', fontFamily: 'inherit' }}
                       onFocus={e => e.target.style.borderColor = '#1a1a1a'} onBlur={e => e.target.style.borderColor = '#d4c5b0'} />
                     <EyeBtn show={showConfirm} toggle={() => setShowConfirm(v => !v)} />
                   </div>
                 </div>
                 {error && <div style={{ padding: '10px 14px', borderRadius: 4, background: '#fdf0f0', border: '1px solid #8b3a3a', fontSize: 12, color: '#8b3a3a', marginBottom: 14 }}>{error}</div>}
                 <button type="submit" disabled={loading} style={{ width: '100%', padding: '11px', borderRadius: 4, border: 'none', background: loading ? '#e8e3d8' : '#1a1a1a', color: loading ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 600, cursor: loading ? 'default' : 'pointer', fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                  {loading ? 'Mise à jour...' : 'Définir le nouveau mot de passe'}
+                  {loading ? 'Mise Ã  jour...' : 'DÃ©finir le nouveau mot de passe'}
                 </button>
               </form>
             </>
@@ -143,3 +143,5 @@ export default function ResetPasswordPage() {
     </Suspense>
   )
 }
+
+
