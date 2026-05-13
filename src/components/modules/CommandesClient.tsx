@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 type StatutCommande =
   | 'brouillon' | 'soumise' | 'validation_fournisseur'
   | 'validation_filature' | 'validation_finale' | 'En production'
-  | 'controle_qualite' | 'qr_genere' | 'expediee' | 'livrée' | 'annulee'
+  | 'controle_qualite' | 'qr_genere' | 'expediee' | 'livree' | 'annulee'
 
 interface Entreprise { id: string; nom: string; type: string }
 
@@ -46,7 +46,7 @@ const STATUT_LABELS: Record<StatutCommande, string> = {
   controle_qualite:       'Contrôle qualité',
   qr_genere:              'QR généré',
   expediee:               'Expédiée',
-  livrée:                 'Livrées',
+  livree:                 'Livrées',
   annulee:                'Annulée',
 }
 
@@ -60,13 +60,13 @@ const STATUT_COLORS: Record<string, [string, string, string]> = {
   controle_qualite:       ['#fdf8ec', '#b8860b', '#F59E0B'],
   qr_genere:              ['#f0f4ec', '#2d5016', '#2d5016'],
   expediee:               ['#f0f4ec', '#2d5016', '#2d5016'],
-  livrée:                 ['#f0f4ec', '#2d5016', '#2d5016'],
+  livree:                 ['#f0f4ec', '#2d5016', '#2d5016'],
   annulee:                ['#FEE2E2', '#991B1B', '#EF4444'],
 }
 
 const ETAPES = [
   'soumise', 'validation_fournisseur', 'validation_filature',
-  'validation_finale', 'En production', 'qr_genere', 'livrée'
+  'validation_finale', 'En production', 'qr_genere', 'livree'
 ]
 
 export default function CommandesClient({ user, profil, commandes: initial, entreprises }: Props) {
@@ -189,7 +189,7 @@ const CréerCommande = async () => {
           display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexShrink: 0
         }}>
           <div style={{ display: 'flex', gap: 6 }}>
-            {['tous', 'soumise', 'En production', 'livrée'].map(s => (
+            {['tous', 'soumise', 'En production', 'livree'].map(s => (
               <button key={s} onClick={() => setFilterStatut(s)} style={{
                 padding: '5px 12px', borderRadius: 4, border: 'none', cursor: 'pointer',
                 fontSize: 11, fontWeight: filterStatut === s ? 700 : 500,
@@ -487,6 +487,7 @@ const CréerCommande = async () => {
     </div>
   )
 }
+
 
 
 
