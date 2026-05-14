@@ -36,8 +36,11 @@ export default function EnAttentePage() {
         <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #d4c5b0', padding: '24px 28px', boxShadow: '0 2px 12px rgba(26,26,26,0.06)' }}>
           <div style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a', marginBottom: 8 }}>Profil en cours de validation</div>
           <div style={{ fontSize: 13, color: '#64748B', lineHeight: 1.6, marginBottom: 16 }}>
-            Votre profil a été soumis avec succès. L&apos;équipe TEXTILE LOOP vérifie vos informations et associera votre compte à votre entreprise.<br /><br />
-            Vous recevrez un email à <strong>{email}</strong> dès que votre accès sera activé.
+            Votre profil a été transmis avec succès.<br />
+            L&apos;équipe TEXTILE LOOP vérifie vos informations.<br />
+            Votre compte sera associé prochainement à votre entreprise.<br /><br />
+            Vous recevrez un email à <strong>{email}</strong><br />
+            dès que votre accès sera activé.
           </div>
           <div style={{ padding: '10px 14px', borderRadius: 6, background: '#FEF3C7', border: '1px solid #FCD34D', fontSize: 12, color: '#92400E', marginBottom: 16 }}>
             Cette vérification prend généralement moins de 24 heures ouvrées.
@@ -57,5 +60,6 @@ export default function EnAttentePage() {
     </div>
   )
 }
+
 
 
