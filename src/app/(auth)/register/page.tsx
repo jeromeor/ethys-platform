@@ -120,7 +120,7 @@ export default function RegisterPage() {
             </button>
           </form>
           <div style={{ textAlign: 'center', marginTop: 12, fontSize: 12, color: '#8b7355' }}>
-            Deja un compte ?{' '}
+            Déjà un compte ?{' '}
             <a href="/login" style={{ color: '#1a1a1a', fontWeight: 600, textDecoration: 'none' }}>Se connecter</a>
           </div>
         </div>
