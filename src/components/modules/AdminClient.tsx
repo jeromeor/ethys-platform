@@ -281,6 +281,8 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
           </div>
         )}
 
+        </>
+        )}
         {activeTab === 'Comptes à valider' && (
           <div>
             {utilisateurs.filter(u => !u.entreprise_id && u.role !== 'admin').length === 0 ? (
@@ -468,6 +470,7 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
     </div>
   )
 }
+
 
 
 
