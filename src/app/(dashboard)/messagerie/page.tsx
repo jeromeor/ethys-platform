@@ -16,7 +16,7 @@ export default async function MessageriePage() {
   const { data: utilisateursRaw } = await supabase
     .from('profils_utilisateurs')
     .select('id, email, prenom, nom, role, entreprise:entreprises(nom)')
-    .order('email')
+    .order('nom').order('prenom')
 
   const utilisateurs = (utilisateursRaw ?? []).map(u => ({
     ...u,
@@ -43,3 +43,4 @@ export default async function MessageriePage() {
     />
   )
 }
+
