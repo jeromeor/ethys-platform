@@ -221,7 +221,7 @@ export default function CertificationClient({ declarations: initial, userRole, e
               <span style={{ fontWeight: 700, color: '#D97706' }}>{declarations.filter(d => d.statut === 'en_validation' || d.statut === 'soumise').length}</span> en attente
             </div>
           </div>
-          {!isAdmin && (
+          {(
             <button onClick={() => setShowForm(true)} style={{ padding: '7px 12px', borderRadius: 8, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
               + Nouvelle
             </button>
@@ -536,3 +536,4 @@ function DetailDeclaration({ declaration: d, isAdmin, onCertifier, onRefuser, sa
     </div>
   )
 }
+
