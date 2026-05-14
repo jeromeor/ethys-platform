@@ -225,6 +225,7 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
         </div>
       )}
 
+        {activeTab === 'Utilisateurs' && (
       <div style={{ flex: 1, overflow: 'auto', padding: '16px 22px' }}>
 
           <>
