@@ -243,7 +243,7 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
                     <tr key={i} style={{ borderTop: '1px solid #f5f3ef' }}>
                       <td style={{ padding: '12px 16px', fontSize: 12, fontWeight: 600 }}>{u.nom?.toUpperCase() ?? '-'}</td>
                       <td style={{ padding: '12px 16px', fontSize: 12 }}>{u.prenom ?? '-'}</td>
-                      <td style={{ padding: '12px 16px', fontSize: 12, fontWeight: 600 }}><a href={mailto:+u.email} style={{ color: '#1a1a1a', textDecoration: 'none' }}>{u.email}</a></td>
+                      <td style={{ padding: '12px 16px', fontSize: 12, fontWeight: 600 }}><a href={"mailto:" + u.email} style={{ color: '#1a1a1a', textDecoration: 'none' }}>{u.email}</a></td>
                       <td style={{ padding: '12px 16px' }}>
                         <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: rbg, color: rtc }}>{u.role}</span>
                       </td>
@@ -461,6 +461,7 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
     </div>
   )
 }
+
 
 
 
