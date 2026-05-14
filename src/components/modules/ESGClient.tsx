@@ -13,7 +13,7 @@ interface Props {
   commandes: { statut: string; volume_total_tonnes: number; pct_recycle: number; created_at: string }[]
   lots: { type_coton: string; volume_tonnes: number; statut: string; certification: string | null }[]
   certifications: { id: string; label: string; valide: boolean; date_expiration: string }[]
-  scoreExistant: { score_global: number; score_Tra�abilit�: number; score_recyclage: number; score_certifications: number; score_conformite: number; score_partenaires: number; score_reporting: number; P�riode_debut: string; P�riode_fin: string } | null
+  scoreExistant: { score_global: number; score_Traçabilité: number; score_recyclage: number; score_certifications: number; score_conformite: number; score_partenaires: number; score_reporting: number; Période_debut: string; Période_fin: string } | null
 }
 
 const TABS = ['Score ESG', 'Indicateurs', 'Rapport RSE']
@@ -27,14 +27,14 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
   const totalLots = lots.length
   const lotsAvecCert = lots.filter(l => l.certification).length
   const totalVolume = lots.reduce((s, l) => s + l.volume_tonnes, 0)
-  const volumeRecycl� = lots.filter(l => l.type_coton === 'Recycl�').reduce((s, l) => s + l.volume_tonnes, 0)
+  const volumeRecyclé = lots.filter(l => l.type_coton === 'Recyclé').reduce((s, l) => s + l.volume_tonnes, 0)
   const totalVierge = lots.filter(l => l.type_coton === 'vierge').reduce((s, l) => s + l.volume_tonnes, 0)
   const certsValides = certifications.filter(c => c.valide).length
-  const pctRecycl�Global = totalVolume > 0 ? Math.round(volumeRecycl� / totalVolume * 100) : 0
+  const pctRecycléGlobal = totalVolume > 0 ? Math.round(volumeRecyclé / totalVolume * 100) : 0
   const commandesLivrees = commandes.filter(c => c.statut === 'Livree').length
 
   const scores = {
-    Tra�abilit�:    totalLots > 0 ? Math.min(100, Math.round(lotsAvecCert / totalLots * 100)) : 50,
+    Traçabilité:    totalLots > 0 ? Math.min(100, Math.round(lotsAvecCert / totalLots * 100)) : 50,
     certifications: certsValides > 0 ? Math.min(100, certsValides * 25) : 30,
     conformite:     commandes.length > 0 ? Math.min(100, Math.round(commandesLivrees / commandes.length * 100 + 40)) : 70,
     partenaires:    75,
@@ -44,9 +44,9 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
   const scoreGlobal = Math.round(Object.values(scores).reduce((s, v) => s + v, 0) / Object.values(scores).length)
 
   const radarData = [
-    { axe: 'Tra�abilit�', score: scores.Tra�abilit� },
+    { axe: 'Traçabilité', score: scores.Traçabilité },
     { axe: 'Certifications', score: scores.certifications },
-    { axe: 'Conformit�', score: scores.conformite },
+    { axe: 'Conformité', score: scores.conformite },
     { axe: 'Partenaires', score: scores.partenaires },
     { axe: 'Reporting', score: scores.reporting },
   ]
@@ -63,9 +63,9 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
     if (!profil?.entreprise_id) return
     await supabase.from('scores_esg').insert({
       entreprise_id: profil.entreprise_id,
-      P�riode_debut: new Date(new Date().getFullYear(), 0, 1).toISOString().split('T')[0],
-      P�riode_fin: new Date().toISOString().split('T')[0],
-      score_Tra�abilit�: scores.Tra�abilit�,
+      Période_debut: new Date(new Date().getFullYear(), 0, 1).toISOString().split('T')[0],
+      Période_fin: new Date().toISOString().split('T')[0],
+      score_Traçabilité: scores.Traçabilité,
       score_certifications: scores.certifications,
       score_conformite: scores.conformite,
       score_partenaires: scores.partenaires,
@@ -73,7 +73,7 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
     })
   }
 
-  const G�n�rerRapport = async () => {
+  const GénérerRapport = async () => {
     setGenerating(true)
     await SauvegarderScore()
     await new Promise(r => setTimeout(r, 1500))
@@ -94,8 +94,8 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
           <div style={{ fontSize: 9, color: '#c2956e', fontWeight: 600, marginTop: 6 }}>SCORE ESG</div>
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 18, fontWeight: 900, marginBottom: 4 }}>Performance ESG � {profil?.entreprise?.nom ?? 'ETHYS'}</div>
-          <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 10 }}>Calcul� en temps r�el depuis vos donn�es</div>
+          <div style={{ fontSize: 18, fontWeight: 900, marginBottom: 4 }}>Performance ESG — {profil?.entreprise?.nom ?? 'ETHYS'}</div>
+          <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 10 }}>Calculé en temps réel depuis vos données</div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {certifications.filter(c => c.valide).map(c => (
               <span key={c.id} style={{ padding: '3px 10px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: 'rgba(110,231,183,0.2)', color: '#c2956e', border: '1px solid rgba(110,231,183,0.3)' }}>v {c.label}</span>
@@ -104,7 +104,7 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
           </div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, flexShrink: 0 }}>
-          {[[String(certsValides), 'Certifications'], ['100%', 'Conformit�']].map(([v, l]) => (
+          {[[String(certsValides), 'Certifications'], ['100%', 'Conformité']].map(([v, l]) => (
             <div key={l} style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 4, padding: '8px 12px', textAlign: 'center' }}>
               <div style={{ fontSize: 16, fontWeight: 900, color: '#c2956e' }}>{v}</div>
               <div style={{ fontSize: 9, opacity: 0.65, marginTop: 2 }}>{l}</div>
@@ -168,16 +168,16 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
             {[
               { cat: 'Environnement', lettre: 'E', couleur: '#2d5016', bg: '#f0f4ec', items: [
                 { label: 'Lots avec certification', val: lotsAvecCert + '/' + totalLots, ok: lotsAvecCert === totalLots },
-                { label: 'Volume Recycl�', val: (Math.round(volumeRecycl� * 1000)).toLocaleString('fr-FR') + ' kg', ok: true },
+                { label: 'Volume Recyclé', val: (Math.round(volumeRecyclé * 1000)).toLocaleString('fr-FR') + ' kg', ok: true },
               ]},
               { cat: 'Social', lettre: 'S', couleur: '#1E40AF', bg: '#DBEAFE', items: [
                 { label: 'Certifications actives', val: String(certsValides), ok: certsValides >= 2 },
-                { label: 'Partenaires v�rifi�s', val: '6/7', ok: false },
-                { label: 'Pays � risque', val: '0', ok: true },
+                { label: 'Partenaires vérifiés', val: '6/7', ok: false },
+                { label: 'Pays à risque', val: '0', ok: true },
               ]},
               { cat: 'Gouvernance', lettre: 'G', couleur: '#6B21A8', bg: '#F3E8FF', items: [
                 { label: 'Commandes avec workflow', val: String(commandes.length), ok: true },
-                { label: 'Conformit� RGPD', val: '100%', ok: true },
+                { label: 'Conformité RGPD', val: '100%', ok: true },
                 { label: 'Audit log actif', val: 'Oui', ok: true },
               ]},
             ].map((cat, ci) => (
@@ -213,21 +213,21 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
                 </div>
               )}
               <div style={{ padding: '10px 14px', borderRadius: 8, background: '#f5f3ef', fontSize: 11, color: '#8b7355' }}>
-              G�n�rez votre rapport pour le t�l�charger
+              Générez votre rapport pour le télécharger
               </div>
             </div>
             <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '20px 22px' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 14 }}>G�n�rer rapport RSE</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 14 }}>Générer rapport RSE</div>
               <div style={{ marginBottom: 12 }}>
                 <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 5 }}>Entreprise</label>
                 <div style={{ padding: '8px 12px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 12, background: '#f5f3ef' }}>{profil?.entreprise?.nom ?? '-'}</div>
               </div>
-              <button onClick={G�n�rerRapport} disabled={generating} style={{ width: '100%', padding: '10px', borderRadius: 4, border: 'none', background: generating ? '#d4c5b0' : '#1a1a1a', color: generating ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: generating ? 'default' : 'pointer' }}>
-                {generating ? 'Generation...' : generated ? 'v Rapport pr�t' : 'G�n�rer rapport RSE'}
+              <button onClick={GénérerRapport} disabled={generating} style={{ width: '100%', padding: '10px', borderRadius: 4, border: 'none', background: generating ? '#d4c5b0' : '#1a1a1a', color: generating ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: generating ? 'default' : 'pointer' }}>
+                {generating ? 'Generation...' : generated ? 'v Rapport prêt' : 'Générer rapport RSE'}
               </button>
               {generated && (
                 <div style={{ marginTop: 8, padding: '8px 12px', borderRadius: 8, background: '#f0f4ec', fontSize: 11, color: '#2d5016', fontWeight: 600, textAlign: 'center' }}>
-                  Rapport_RSE_{profil?.entreprise?.nom ?? 'ETHYS'}_2026.pdf pr�t
+                  Rapport_RSE_{profil?.entreprise?.nom ?? 'ETHYS'}_2026.pdf prêt
                 </div>
               )}
             </div>
