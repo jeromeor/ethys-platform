@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 
 type StatutCommande =
   | 'brouillon' | 'soumise' | 'validation_fournisseur'
-  | 'validation_filature' | 'validation_finale' | 'En production'
+  | 'validation_filature' | 'validation_finale' | 'en_production'
   | 'controle_qualite' | 'qr_genere' | 'expediee' | 'livree' | 'annulee'
 
 interface Entreprise { id: string; nom: string; type: string }
@@ -42,7 +42,7 @@ const STATUT_LABELS: Record<StatutCommande, string> = {
   validation_fournisseur: 'Val. fournisseur',
   validation_filature:    'Val. filature',
   validation_finale:      'Val. finale',
-  'En production':      'En production',
+  'en_production':      'en_production',
   controle_qualite:       'Contrôle qualité',
   qr_genere:              'QR généré',
   expediee:               'Expédiée',
@@ -56,7 +56,7 @@ const STATUT_COLORS: Record<string, [string, string, string]> = {
   validation_fournisseur: ['#fdf8ec', '#b8860b', '#F59E0B'],
   validation_filature:    ['#fdf8ec', '#b8860b', '#F59E0B'],
   validation_finale:      ['#fdf8ec', '#b8860b', '#F59E0B'],
-  en_production:          ['#D1ECF1', '#0C5460', '#06B6D4'],
+  en_production:        ['#D1ECF1', '#0C5460', '#06B6D4'],
   controle_qualite:       ['#fdf8ec', '#b8860b', '#F59E0B'],
   qr_genere:              ['#f0f4ec', '#2d5016', '#2d5016'],
   expediee:               ['#f0f4ec', '#2d5016', '#2d5016'],
@@ -66,7 +66,7 @@ const STATUT_COLORS: Record<string, [string, string, string]> = {
 
 const ETAPES = [
   'soumise', 'validation_fournisseur', 'validation_filature',
-  'validation_finale', 'En production', 'qr_genere', 'livree'
+  'validation_finale', 'en_production', 'qr_genere', 'livree'
 ]
 
 export default function CommandesClient({ user, profil, commandes: initial, entreprises }: Props) {
@@ -189,18 +189,18 @@ const CréerCommande = async () => {
           display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexShrink: 0
         }}>
           <div style={{ display: 'flex', gap: 6 }}>
-            {['tous', 'soumise', 'En production', 'livree'].map(s => (
+            {['tous', 'soumise', 'en_production', 'livree'].map(s => (
               <button key={s} onClick={() => setFilterStatut(s)} style={{
                 padding: '5px 12px', borderRadius: 4, border: 'none', cursor: 'pointer',
                 fontSize: 11, fontWeight: filterStatut === s ? 700 : 500,
                 background: filterStatut === s ? '#1a1a1a' : '#f5f3ef',
                 color: filterStatut === s ? '#fff' : '#4a5568'
               }}>
-                {s === 'tous' ? 'Toutes' : STATUT_LABELS[s as StatutCommande]}
+                {s === 'tous' ? 'Toutes' : s === 'soumise' ? 'Transmises' : STATUT_LABELS[s as StatutCommande]}
               </button>
             ))}
           </div>
-          {(profil?.role === 'admin' || profil?.role === 'marque') && (
+          {(profil?.role === 'admin' || profil?.role === 'marque' || profil?.role === 'filature') && (
   <button onClick={() => setShowForm(true)} style={{
     padding: '8px 16px', borderRadius: 4, border: 'none',
     background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer'
@@ -487,6 +487,7 @@ const CréerCommande = async () => {
     </div>
   )
 }
+
 
 
 
