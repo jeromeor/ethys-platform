@@ -243,7 +243,7 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
                   </div>
                 )}
                 {qrActif && !generating && (
-                  <div style={{ position: 'absolute', top: -8, right: -8, width: 24, height: 24, borderRadius: '50%', background: '#8b7355', border: '2px solid #fff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 12, fontWeight: 700 }}>v</div>
+                  <div style={{ position: 'absolute', top: -8, right: -8, width: 24, height: 24, borderRadius: '50%', background: '#8b7355', border: '2px solid #fff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 12, fontWeight: 700 }}><svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='#fff' strokeWidth='3' strokeLinecap='round' strokeLinejoin='round'><polyline points='20 6 9 17 4 12'/></svg></div>
                 )}
               </div>
               {qrActif && (
@@ -488,5 +488,6 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
     </div>
   )
 }
+
 
 
