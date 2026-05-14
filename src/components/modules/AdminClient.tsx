@@ -224,9 +224,9 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
           {message}
         </div>
       )}
-
-        {activeTab === 'Utilisateurs' && (
       <div style={{ flex: 1, overflow: 'auto', padding: '16px 22px' }}>
+        {activeTab === 'Utilisateurs' && (
+
 
           <>
           <div style={{ padding: '12px 22px', borderBottom: '1px solid #e8e3d8', display: 'flex', gap: 12, alignItems: 'center' }}>
