@@ -83,7 +83,7 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
-      <div style={{ background: 'linear-gradient(135deg,#1a1a1a,#2a2a2a)', padding: '20px 24px', color: '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 24 }}>
+      <div style={{ background: 'linear-gradient(135deg,#1a1a1a,#2a2a2a)', padding: '12px 24px', color: '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 24 }}>
         <div style={{ textAlign: 'center', flexShrink: 0 }}>
           <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'conic-gradient(#c2956e 0% ' + scoreGlobal + '%, rgba(255,255,255,0.1) ' + scoreGlobal + '% 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ width: 60, height: 60, borderRadius: '50%', background: '#1a1a1a', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
