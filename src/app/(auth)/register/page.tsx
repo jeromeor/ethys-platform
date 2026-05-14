@@ -33,7 +33,7 @@ export default function RegisterPage() {
     if (signUpError) { setError(signUpError.message); setLoading(false); return }
     const { data: { user } } = await supabase.auth.getUser()
     if (user) await supabase.from('profils_utilisateurs').upsert({ id: user.id, email: user.email, role, statut: 'actif', email_valide: true }, { onConflict: 'id' })
-    router.push('/onboarding')
+    router.push('/dashboard')
     router.refresh()
   }
 
