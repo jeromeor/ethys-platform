@@ -281,8 +281,6 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
             </table>
           </div>
         </>
-        )}
-
 
         {activeTab === 'Comptes à valider' && (
           <div>
