@@ -62,6 +62,7 @@ const TABS = ['Utilisateurs', 'Comptes à valider', 'Demandes en attente', 'Séc
 
 export default function AdminClient({ utilisateurs: initial = [], audit = [], entreprises = [], currentUserId }: Props) {
   const supabase = createClient()
+  const [filtreEntreprise, setFiltreEntreprise] = useState('')
   const [utilisateurs, setUtilisateurs] = useState<Utilisateur[]>((initial ?? []).slice().sort((a, b) => (a.nom ?? '').localeCompare(b.nom ?? '')))
   const [activeTab, setActiveTab] = useState('Utilisateurs')
   const [selectedUser, setSelectedUser] = useState<Utilisateur | null>(null)
@@ -227,6 +228,12 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
       <div style={{ flex: 1, overflow: 'auto', padding: '16px 22px' }}>
 
         {activeTab === 'Utilisateurs' && (
+          <div style={{ padding: '12px 22px', borderBottom: '1px solid #e8e3d8', display: 'flex', gap: 12, alignItems: 'center' }}>
+            <select value={filtreEntreprise} onChange={e => setFiltreEntreprise(e.target.value)} style={{ padding: '6px 12px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 12, color: '#1a1a1a', background: '#fff' }}>
+              <option value=''>Toutes les entreprises</option>
+              {entreprises.map(e => <option key={e.id} value={e.id}>{e.nom}</option>)}
+            </select>
+          </div>
           <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', overflow: 'hidden' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
@@ -237,7 +244,7 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
                 </tr>
               </thead>
               <tbody>
-                {utilisateurs.map((u, i) => {
+                {utilisateurs.filter(u => !filtreEntreprise || u.entreprise_id === filtreEntreprise).map((u, i) => {
                   const [rbg, rtc] = ROLE_COLORS[u.role] ?? ['#f5f3ef', '#4a5568']
                   return (
                     <tr key={i} style={{ borderTop: '1px solid #f5f3ef' }}>
@@ -461,6 +468,7 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
     </div>
   )
 }
+
 
 
 
