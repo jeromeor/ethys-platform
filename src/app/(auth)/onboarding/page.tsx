@@ -66,7 +66,6 @@ function OnboardingContent() {
     const { error } = await supabase
       .from('profils_utilisateurs')
       .update({
-        nom_societe: form.nom_societe.toUpperCase(),
         prenom: form.prenom,
         nom: form.nom,
         telephone: `${form.telephone_indicatif} ${form.telephone}`,
