@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 
 interface Message {
   id: string
-  auteur_id: string
+  expediteur_id: string
   destinataire_id: string | null
   contenu: string
   lu: boolean
@@ -50,11 +50,11 @@ export default function MessagerieClient({ currentUser, currentRole, adminId, ad
   }
 
   const nomExpediteur = (msg: Message) => {
-    if (msg.auteur_id === currentUser.id) {
+    if (msg.expediteur_id === currentUser.id) {
       if (currentUser.prenom && currentUser.nom) return `${currentUser.prenom} ${currentUser.nom}`
       return currentUser.email
     }
-    const auteur = utilisateurs.find(u => u.id === msg.auteur_id)
+    const auteur = utilisateurs.find(u => u.id === msg.expediteur_id)
     if (auteur?.prenom && auteur?.nom) return `${auteur.prenom} ${auteur.nom}`
     return auteur?.email ?? 'Inconnu'
   }
@@ -79,7 +79,7 @@ export default function MessagerieClient({ currentUser, currentRole, adminId, ad
     const { data } = await supabase
       .from('messages')
       .select('*')
-      .or(`auteur_id.eq.${currentUser.id},destinataire_id.eq.${currentUser.id}`)
+      .or(`expediteur_id.eq.${currentUser.id},destinataire_id.eq.${currentUser.id}`)
       .order('created_at', { ascending: true })
     setMessages(data ?? [])
     setLoading(false)
@@ -88,11 +88,11 @@ export default function MessagerieClient({ currentUser, currentRole, adminId, ad
   const ouvrirConversation = async (user: Utilisateur) => {
     setSelectedUser(user)
     const conv = messages.filter(m =>
-      (m.auteur_id === currentUser.id && m.destinataire_id === user.id) ||
-      (m.auteur_id === user.id && m.destinataire_id === currentUser.id)
+      (m.expediteur_id === currentUser.id && m.destinataire_id === user.id) ||
+      (m.expediteur_id === user.id && m.destinataire_id === currentUser.id)
     )
     setConversation(conv)
-    const nonLus = conv.filter(m => !m.lu && m.auteur_id === user.id).map(m => m.id)
+    const nonLus = conv.filter(m => !m.lu && m.expediteur_id === user.id).map(m => m.id)
     if (nonLus.length > 0) {
       const { error } = await supabase.from('messages').update({ lu: true }).in('id', nonLus)
       if (!error) setMessages(prev => prev.map(m => nonLus.includes(m.id) ? { ...m, lu: true } : m))
@@ -106,7 +106,7 @@ export default function MessagerieClient({ currentUser, currentRole, adminId, ad
     const { data } = await supabase
       .from('messages')
       .insert({
-        auteur_id: currentUser.id,
+        expediteur_id: currentUser.id,
         destinataire_id: destinataireId,
         contenu: newMessage.trim(),
         lu: false,
@@ -122,12 +122,12 @@ export default function MessagerieClient({ currentUser, currentRole, adminId, ad
   }
 
   const messagesRecus = messages.filter(m => m.destinataire_id === currentUser.id)
-  const messagesEnvoyes = messages.filter(m => m.auteur_id === currentUser.id)
+  const messagesEnvoyes = messages.filter(m => m.expediteur_id === currentUser.id)
 
   const nonLusTotal = messagesRecus.filter(m => !m.lu).length
 
   const interlocuteursRecus = isAdmin
-    ? utilisateurs.filter(u => messagesRecus.some(m => m.auteur_id === u.id))
+    ? utilisateurs.filter(u => messagesRecus.some(m => m.expediteur_id === u.id))
     : [utilisateurs.find(u => u.id === adminId)].filter(Boolean) as Utilisateur[]
 
   const interlocuteursEnvoyes = isAdmin
@@ -137,7 +137,7 @@ export default function MessagerieClient({ currentUser, currentRole, adminId, ad
   const interlocuteurs = dossier === 'recus' ? interlocuteursRecus : interlocuteursEnvoyes
 
   const nonLusPourUser = (userId: string) =>
-    messagesRecus.filter(m => m.auteur_id === userId && !m.lu).length
+    messagesRecus.filter(m => m.expediteur_id === userId && !m.lu).length
 
   return (
     <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
@@ -172,7 +172,7 @@ export default function MessagerieClient({ currentUser, currentRole, adminId, ad
           {interlocuteurs.map(user => {
             const nonLus = nonLusPourUser(user.id)
             const dernierMsg = messages
-              .filter(m => (m.auteur_id === user.id && m.destinataire_id === currentUser.id) || (m.auteur_id === currentUser.id && m.destinataire_id === user.id))
+              .filter(m => (m.expediteur_id === user.id && m.destinataire_id === currentUser.id) || (m.expediteur_id === currentUser.id && m.destinataire_id === user.id))
               .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0]
             const isSelected = selectedUser?.id === user.id
             return (
@@ -243,7 +243,7 @@ export default function MessagerieClient({ currentUser, currentRole, adminId, ad
                 Aucun message — démarrez la conversation.
               </div>
             ) : conversation.map(msg => {
-              const estMoi = msg.auteur_id === currentUser.id
+              const estMoi = msg.expediteur_id === currentUser.id
               return (
                 <div key={msg.id} style={{ display: 'flex', flexDirection: 'column', alignItems: estMoi ? 'flex-end' : 'flex-start', marginBottom: 16 }}>
                   <div style={{ maxWidth: '70%', padding: '10px 14px', borderRadius: estMoi ? '12px 12px 4px 12px' : '12px 12px 12px 4px', background: estMoi ? '#1a1a1a' : '#f5f3ef', color: estMoi ? '#fff' : '#1A202C', fontSize: 13, lineHeight: 1.5 }}>
@@ -287,3 +287,4 @@ export default function MessagerieClient({ currentUser, currentRole, adminId, ad
     </div>
   )
 }
+
