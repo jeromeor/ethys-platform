@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   const token = searchParams.get('token')
   const type = searchParams.get('type') as 'recovery' | 'magiclink' | 'email' | 'signup' | null
   const error = searchParams.get('error')
-  const next = searchParams.get('next') ?? '/dashboard'
+  const next = searchParams.get('next') ?? (type === 'recovery' ? '/update-password' : '/dashboard')
 
   if (error) {
     return NextResponse.redirect(`${origin}/login?error=${error}`)
