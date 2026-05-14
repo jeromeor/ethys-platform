@@ -22,6 +22,7 @@ function OnboardingContent() {
   const [errors, setErrors] = useState<Record<string, boolean>>({})
   const [message, setMessage] = useState('')
   const [form, setForm] = useState({
+    nom_societe: '',
     prenom: '',
     nom: '',
     telephone: '',
@@ -38,7 +39,7 @@ function OnboardingContent() {
       if (!user) return
       const { data } = await supabase
         .from('profils_utilisateurs')
-        .select('prenom, nom, telephone, adresse_rue, adresse_code_postal, adresse_ville, adresse_pays')
+        .select('nom_societe, prenom, nom, telephone, adresse_rue, adresse_code_postal, adresse_ville, adresse_pays')
         .eq('id', user.id)
         .single()
       if (data) setForm(f => ({ ...f, ...data }))
@@ -48,6 +49,7 @@ function OnboardingContent() {
 
   const sauvegarder = async () => {
     const newErrors: Record<string, boolean> = {}
+    if (!form.nom_societe) newErrors.nom_societe = true
     if (!form.prenom) newErrors.prenom = true
     if (!form.nom) newErrors.nom = true
     if (!form.telephone) newErrors.telephone = true
@@ -64,6 +66,7 @@ function OnboardingContent() {
     const { error } = await supabase
       .from('profils_utilisateurs')
       .update({
+        nom_societe: form.nom_societe.toUpperCase(),
         prenom: form.prenom,
         nom: form.nom,
         telephone: `${form.telephone_indicatif} ${form.telephone}`,
@@ -100,8 +103,8 @@ function OnboardingContent() {
     <div style={{ minHeight: '100vh', background: '#f5f3ef', fontFamily: "'Inter', system-ui, sans-serif", display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
       <div style={{ width: '100%', maxWidth: 520 }}>
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <img src="/logo_ethys.png" alt="TEXTILE LOOP" style={{ width: 140, height: 'auto', margin: '0 auto 12px', display: 'block' }} />
-          <div style={{ fontSize: 13, color: '#8b7355' }}>Plateforme ETHYS</div>
+          <img src="/logo_ethys.png" alt="TEXTILE LOOP" style={{ width: 80, height: 'auto', margin: '0 auto 12px', display: 'block' }} />
+          <div style={{ fontSize: 13, color: '#8b7355' }}>PLATFORM</div>
         </div>
 
         {step === 0 ? (
@@ -137,6 +140,10 @@ function OnboardingContent() {
               </div>
             )}
 
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Nom de la société *</label>
+              <input value={form.nom_societe} onChange={e => { setForm(f => ({ ...f, nom_societe: e.target.value.toUpperCase() })); setErrors(e2 => ({ ...e2, nom_societe: false })) }} style={{ ...inputStyle, borderColor: errors.nom_societe ? '#EF4444' : '#E2E8F0' }} placeholder='NOM DE VOTRE SOCIÉTÉ' onFocus={e => e.target.style.borderColor = '#1a1a1a'} onBlur={e => e.target.style.borderColor = '#d4c5b0'} />
+            </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Prénom *</label>
@@ -205,3 +212,4 @@ export default function OnboardingPage() {
     </Suspense>
   )
 }
+
