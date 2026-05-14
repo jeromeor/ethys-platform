@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+﻿import { createClient } from '@/lib/supabase/server'
 
 export default async function TraçabilitéPage({ params }: { params: Promise<{ qrId: string }> }) {
   const { qrId } = await params
@@ -202,3 +202,4 @@ export default async function TraçabilitéPage({ params }: { params: Promise<{ 
     </div>
   )
 }
+
