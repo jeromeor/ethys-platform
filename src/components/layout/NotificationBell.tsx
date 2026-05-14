@@ -39,7 +39,7 @@ export default function NotificationBell({ userId }: Props) {
     charger()
     const channel = supabase
       .channel('notifications_realtime')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` }, () => charger())
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `utilisateur_id=eq.${userId}` }, () => charger())
       .subscribe()
     return () => { supabase.removeChannel(channel) }
   }, [userId])
@@ -56,7 +56,7 @@ export default function NotificationBell({ userId }: Props) {
     const { data } = await supabase
       .from('notifications')
       .select('*')
-      .eq('user_id', userId)
+      .eq('utilisateur_id', userId)
       .order('created_at', { ascending: false })
       .limit(20)
     setNotifications(data ?? [])
