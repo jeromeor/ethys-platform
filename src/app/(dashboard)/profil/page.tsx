@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+﻿import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 
 export default async function ProfilPage() {
@@ -181,3 +181,4 @@ export default async function ProfilPage() {
     </div>
   )
 }
+
