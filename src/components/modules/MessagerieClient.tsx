@@ -45,17 +45,17 @@ export default function MessagerieClient({ currentUser, currentRole, adminId, ad
 
   const nomAffiche = (u?: Utilisateur | null) => {
     if (!u) return 'Inconnu'
-    if (u.prenom && u.nom) return `${u.prenom} ${u.nom}`
+    if (u.prenom && u.nom) return `${u.nom} ${u.prenom}`
     return u.email
   }
 
   const nomExpediteur = (msg: Message) => {
     if (msg.expediteur_id === currentUser.id) {
-      if (currentUser.prenom && currentUser.nom) return `${currentUser.prenom} ${currentUser.nom}`
+      if (currentUser.prenom && currentUser.nom) return `${currentUser.nom} ${currentUser.prenom}`
       return currentUser.email
     }
     const auteur = utilisateurs.find(u => u.id === msg.expediteur_id)
-    if (auteur?.prenom && auteur?.nom) return `${auteur.prenom} ${auteur.nom}`
+    if (auteur?.prenom && auteur?.nom) return `${auteur.nom} ${auteur.prenom}`
     return auteur?.email ?? 'Inconnu'
   }
 
@@ -287,5 +287,6 @@ export default function MessagerieClient({ currentUser, currentRole, adminId, ad
     </div>
   )
 }
+
 
 
