@@ -65,7 +65,7 @@ function OnboardingContent() {
     const { data: { user } } = await supabase.auth.getUser()
     const { error } = await supabase
       .from('profils_utilisateurs')
-      .update({
+      .upsert({
         prenom: form.prenom,
         nom: form.nom,
         telephone: `${form.telephone_indicatif} ${form.telephone}`,
@@ -74,6 +74,7 @@ function OnboardingContent() {
         adresse_ville: form.adresse_ville,
         adresse_pays: form.adresse_pays,
         profil_complete_at: new Date().toISOString(),
+        statut: 'actif',
       })
       .eq('id', user!.id)
     if (!error) {
