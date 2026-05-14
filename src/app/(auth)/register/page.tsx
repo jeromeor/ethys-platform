@@ -61,7 +61,7 @@ export default function RegisterPage() {
           <div style={{ fontSize: 10, color: '#8b7355', letterSpacing: 2, textTransform: 'uppercase' }}>Platform</div>
         </div>
         <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #d4c5b0', padding: '22px 26px', boxShadow: '0 2px 12px rgba(26,26,26,0.06)' }}>
-          <div style={{ fontSize: 17, fontWeight: 700, color: '#1a1a1a', marginBottom: 3 }}>Creer un compte</div>
+          <div style={{ fontSize: 17, fontWeight: 700, color: '#1a1a1a', marginBottom: 3 }}>Créer un compte</div>
           <div style={{ fontSize: 12, color: '#8b7355', marginBottom: 14 }}>Rejoignez la plateforme ETHYS</div>
           <form onSubmit={handleRegister}>
             <div style={{ marginBottom: 10 }}>
@@ -71,14 +71,14 @@ export default function RegisterPage() {
             <div style={{ marginBottom: 10 }}>
               <label style={{ fontSize: 11, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>Mot de passe</label>
               <div style={{ position: 'relative' }}>
-                <input type={showPassword ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="8 caracteres minimum" required minLength={8} style={{ ...inputStyle, paddingRight: 40 }} onFocus={e => e.target.style.borderColor='#1a1a1a'} onBlur={e => e.target.style.borderColor='#d4c5b0'} />
+                <input type={showPassword ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="8 caractères minimum" required minLength={8} style={{ ...inputStyle, paddingRight: 40 }} onFocus={e => e.target.style.borderColor='#1a1a1a'} onBlur={e => e.target.style.borderColor='#d4c5b0'} />
                 <EyeIcon show={showPassword} toggle={() => setShowPassword(v => !v)} />
               </div>
             </div>
             <div style={{ marginBottom: 12 }}>
               <label style={{ fontSize: 11, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>Confirmer le mot de passe</label>
               <div style={{ position: 'relative' }}>
-                <input type={showConfirm ? 'text' : 'password'} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Repetez le mot de passe" onPaste={e => e.preventDefault()} onCopy={e => e.preventDefault()} required minLength={8} style={{ ...inputStyle, paddingRight: 40, borderColor: confirmPassword && password !== confirmPassword ? '#8b3a3a' : '#d4c5b0' }} onFocus={e => e.target.style.borderColor='#1a1a1a'} onBlur={e => e.target.style.borderColor= confirmPassword && password !== confirmPassword ? '#8b3a3a' : '#d4c5b0'} />
+                <input type={showConfirm ? 'text' : 'password'} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Répétez le mot de passe" onPaste={e => e.preventDefault()} onCopy={e => e.preventDefault()} required minLength={8} style={{ ...inputStyle, paddingRight: 40, borderColor: confirmPassword && password !== confirmPassword ? '#8b3a3a' : '#d4c5b0' }} onFocus={e => e.target.style.borderColor='#1a1a1a'} onBlur={e => e.target.style.borderColor= confirmPassword && password !== confirmPassword ? '#8b3a3a' : '#d4c5b0'} />
                 <EyeIcon show={showConfirm} toggle={() => setShowConfirm(v => !v)} />
               </div>
               {confirmPassword && password !== confirmPassword && <div style={{ fontSize: 11, color: '#8b3a3a', marginTop: 3 }}>Les mots de passe ne correspondent pas.</div>}
@@ -116,7 +116,7 @@ export default function RegisterPage() {
             </div>
             {error && <div style={{ padding: '8px 12px', borderRadius: 4, background: '#fdf0f0', border: '1px solid #8b3a3a', fontSize: 12, color: '#8b3a3a', marginBottom: 10 }}>{error}</div>}
             <button type="submit" disabled={loading || !consentement} style={{ width: '100%', padding: '11px', borderRadius: 4, border: 'none', background: loading || !consentement ? '#e8e3d8' : '#1a1a1a', color: loading || !consentement ? '#8b7355' : '#fff', fontSize: 12, fontWeight: 600, cursor: loading || !consentement ? 'default' : 'pointer', letterSpacing: 0.5, textTransform: 'uppercase', fontFamily: 'inherit' }}>
-              {loading ? 'Creation...' : 'Creer mon compte'}
+              {loading ? 'Creation...' : 'Créer mon compte'}
             </button>
           </form>
           <div style={{ textAlign: 'center', marginTop: 12, fontSize: 12, color: '#8b7355' }}>

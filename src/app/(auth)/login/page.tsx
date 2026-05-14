@@ -19,7 +19,7 @@ export default function LoginPage() {
     setError('')
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
-      setError('Email ou mot de passe incorrect. Verifiez votre saisie.')
+      setError('Email ou mot de passe incorrect. Vérifiez votre saisie.')
       setLoading(false)
       return
     }
@@ -65,7 +65,7 @@ export default function LoginPage() {
 
           <div style={{ background: '#ffffff', borderRadius: 8, border: '1px solid #d4c5b0', padding: '24px 28px', boxShadow: '0 2px 12px rgba(26,26,26,0.06)' }}>
             <div style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a', marginBottom: 4 }}>Connexion</div>
-            <div style={{ fontSize: 13, color: '#8b7355', marginBottom: 12 }}>Accedez a votre espace ETHYS</div>
+            <div style={{ fontSize: 13, color: '#8b7355', marginBottom: 12 }}>Accédez à votre espace ETHYS</div>
 
             <form onSubmit={handleLogin}>
               <div style={{ marginBottom: 12 }}>
@@ -97,7 +97,7 @@ export default function LoginPage() {
               </div>
 
               <div style={{ textAlign: 'right', marginBottom: 14 }}>
-                <a href="/forgot-password" style={{ fontSize: 12, color: '#8b7355', textDecoration: 'none' }}>Mot de passe oublie ?</a>
+                <a href="/forgot-password" style={{ fontSize: 12, color: '#8b7355', textDecoration: 'none' }}>Mot de passe oublié ?</a>
               </div>
 
               {error && (
@@ -117,7 +117,7 @@ export default function LoginPage() {
 
             <div style={{ textAlign: 'center', marginTop: 24, fontSize: 13, color: '#8b7355' }}>
               Pas encore de compte ?{' '}
-              <a href="/register" style={{ color: '#1a1a1a', fontWeight: 600, textDecoration: 'none' }}>Creer un compte</a>
+              <a href="/register" style={{ color: '#1a1a1a', fontWeight: 600, textDecoration: 'none' }}>Créer un compte</a>
             </div>
           </div>
           <div style={{ textAlign: 'center', marginTop: 20, fontSize: 11, color: '#d4c5b0' }}>
