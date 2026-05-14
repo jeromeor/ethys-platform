@@ -29,7 +29,7 @@ export default function RegisterPage() {
     if (!consentement) { setError('Vous devez accepter la politique de confidentialité pour créer un compte.'); return }
     setLoading(true)
     setError('')
-    const { error: signUpError } = await supabase.auth.signUp({ email, password })
+    const { error: signUpError } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: 'https://www.ethys-textileloop.com/auth/callback?next=/en-attente' } })
     if (signUpError) { setError(signUpError.message); setLoading(false); return }
     const { data: { user } } = await supabase.auth.getUser()
     if (user) await supabase.from('profils_utilisateurs').update({ role }).eq('id', user.id)
@@ -132,3 +132,4 @@ export default function RegisterPage() {
     </div>
   )
 }
+
