@@ -42,6 +42,9 @@ export default function ForgotPasswordPage() {
                 Vérifiez votre boîte mail et cliquez sur le lien pour définir un nouveau mot de passe.
               </div>
               <div style={{ padding: '10px 14px', borderRadius: 8, background: '#FEF3C7', border: '1px solid #FCD34D', fontSize: 12, color: '#92400E', marginBottom: 20 }}>
+                Pensez a verifier vos spams si vous ne voyez pas l'email dans votre boite de reception.
+              </div>
+              <div style={{ padding: '10px 14px', borderRadius: 8, background: '#FEF3C7', border: '1px solid #FCD34D', fontSize: 12, color: '#92400E', marginBottom: 20 }}>
                 Le lien est valable 1 heure. Après ce délai, vous devrez faire une nouvelle demande.
               </div>
               <a href="/login" style={{ display: 'block', textAlign: 'center', fontSize: 13, color: '#1a1a1a', fontWeight: 600, textDecoration: 'none' }}>Retour à la connexion</a>
