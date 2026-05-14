@@ -227,7 +227,7 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
 
       <div style={{ flex: 1, overflow: 'auto', padding: '16px 22px' }}>
 
-        {activeTab === 'Utilisateurs' && (
+          <>
           <div style={{ padding: '12px 22px', borderBottom: '1px solid #e8e3d8', display: 'flex', gap: 12, alignItems: 'center' }}>
             <select value={filtreEntreprise} onChange={e => setFiltreEntreprise(e.target.value)} style={{ padding: '6px 12px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 12, color: '#1a1a1a', background: '#fff' }}>
               <option value=''>Toutes les entreprises</option>
@@ -280,7 +280,7 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
             </table>
           </div>
         )}
-
+        )}
         </>
         )}
         {activeTab === 'Comptes à valider' && (
@@ -470,6 +470,7 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
     </div>
   )
 }
+
 
 
 
