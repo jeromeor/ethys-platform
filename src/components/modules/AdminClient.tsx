@@ -6,6 +6,8 @@ import { createClient } from '@/lib/supabase/client'
 interface Utilisateur {
   id: string
   email: string
+  nom: string | null
+  prenom: string | null
   role: string
   statut: string
   entreprise_id: string | null
@@ -459,6 +461,7 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
     </div>
   )
 }
+
 
 
 
