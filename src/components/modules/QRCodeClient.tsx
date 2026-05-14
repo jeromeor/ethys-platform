@@ -265,7 +265,7 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
                       <div style={{ fontSize: 10, color: '#8b7355' }}>{label}</div>
                       <div style={{ fontSize: 11, fontWeight: 600, color: label === 'Certification fil' ? '#1a1a1a' : '#1A202C' }}>{val}</div>
                     </div>
-                    <span style={{ fontSize: 11, color: '#2d5016' }}>v</span>
+                    <span style={{ fontSize: 11, color: '#2d5016' }}><svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='#2d5016' strokeWidth='3' strokeLinecap='round' strokeLinejoin='round'><polyline points='20 6 9 17 4 12'/></svg></span>
                   </div>
                 ))}
               </div>
@@ -488,4 +488,5 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
     </div>
   )
 }
+
 
