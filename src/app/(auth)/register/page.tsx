@@ -32,7 +32,7 @@ export default function RegisterPage() {
     const { error: signUpError } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: 'https://www.ethys-textileloop.com/auth/callback?next=/en-attente' } })
     if (signUpError) { setError(signUpError.message); setLoading(false); return }
     const { data: { user } } = await supabase.auth.getUser()
-    if (user) await supabase.from('profils_utilisateurs').update({ role }).eq('id', user.id)
+    if (user) await supabase.from('profils_utilisateurs').upsert({ id: user.id, email: user.email, role, statut: 'actif', email_valide: true }, { onConflict: 'id' })
     router.push('/onboarding')
     router.refresh()
   }
