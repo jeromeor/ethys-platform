@@ -229,7 +229,7 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: '#f5f3ef' }}>
-                  {['Email', 'Role', 'Entreprise', 'Statut', 'Dernière connexion', 'Actions'].map(h => (
+                  {['Nom', 'Prénom', 'Email', 'Role', 'Entreprise', 'Statut', 'Dernière connexion', 'Actions'].map(h => (
                     <th key={h} style={{ padding: '10px 16px', fontSize: 11, fontWeight: 600, color: '#8b7355', textAlign: 'left', textTransform: 'uppercase' }}>{h}</th>
                   ))}
                 </tr>
@@ -239,6 +239,8 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
                   const [rbg, rtc] = ROLE_COLORS[u.role] ?? ['#f5f3ef', '#4a5568']
                   return (
                     <tr key={i} style={{ borderTop: '1px solid #f5f3ef' }}>
+                      <td style={{ padding: '12px 16px', fontSize: 12, fontWeight: 600 }}>{u.nom?.toUpperCase() ?? '-'}</td>
+                      <td style={{ padding: '12px 16px', fontSize: 12 }}>{u.prenom ?? '-'}</td>
                       <td style={{ padding: '12px 16px', fontSize: 12, fontWeight: 600 }}>{u.email}</td>
                       <td style={{ padding: '12px 16px' }}>
                         <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: rbg, color: rtc }}>{u.role}</span>
@@ -248,7 +250,7 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
                         <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: u.statut === 'actif' ? '#f0f4ec' : '#f5f3ef', color: u.statut === 'actif' ? '#2d5016' : '#8b7355' }}>{u.statut}</span>
                       </td>
                       <td style={{ padding: '12px 16px', fontSize: 11, color: '#8b7355' }}>
-                        {u.derniere_connexion ? new Date(u.derniere_connexion).toLocaleDateString('fr-FR') : '-'}
+                        {u.derniere_connexion ? new Date(u.derniere_connexion).toLocaleDateString('fr-FR') + ' ' + new Date(u.derniere_connexion).toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'}) : '-'}
                       </td>
                       <td style={{ padding: '12px 16px' }}>
                         <div style={{ display: 'flex', gap: 6 }}>
@@ -457,4 +459,6 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
     </div>
   )
 }
+
+
 
