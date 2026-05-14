@@ -34,7 +34,6 @@ export default function EnAttentePage() {
         </a>
         <div style={{ fontSize: 11, color: '#8b7355', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 20 }}>PLATFORM</div>
         <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #d4c5b0', padding: '24px 28px', boxShadow: '0 2px 12px rgba(26,26,26,0.06)' }}>
-          <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#f0f4ec', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 24 }}>◈</div>
           <div style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a', marginBottom: 8 }}>Profil en cours de validation</div>
           <div style={{ fontSize: 13, color: '#64748B', lineHeight: 1.6, marginBottom: 16 }}>
             Votre profil a été soumis avec succès. L&apos;équipe TEXTILE LOOP vérifie vos informations et associera votre compte à votre entreprise.<br /><br />
@@ -58,3 +57,4 @@ export default function EnAttentePage() {
     </div>
   )
 }
+
