@@ -38,11 +38,11 @@ interface Props {
 
 const STATUT_LABELS: Record<StatutCommande, string> = {
   brouillon:              'Brouillon',
-  soumise:                'Soumises',
+  soumise:                'Transmises',
   validation_fournisseur: 'Val. fournisseur',
   validation_filature:    'Val. filature',
   validation_finale:      'Val. finale',
-  'en_production':      'en_production',
+  'en_production':      'En production',
   controle_qualite:       'Contrôle qualité',
   qr_genere:              'QR généré',
   expediee:               'Expédiée',
@@ -487,6 +487,7 @@ const CréerCommande = async () => {
     </div>
   )
 }
+
 
 
 
