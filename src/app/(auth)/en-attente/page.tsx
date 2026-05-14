@@ -34,7 +34,7 @@ export default function EnAttentePage() {
   return (
     <div style={{ height: '100vh', overflow: 'hidden', background: '#f5f3ef', fontFamily: "'Inter', system-ui, sans-serif", display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
       <div style={{ width: '100%', maxWidth: 480, textAlign: 'center' }}>
-        <img src="/logo_ethys.png" alt="TEXTILE LOOP" style={{ width: 80, height: 'auto', margin: '0 auto 12px', display: 'block' }} />
+        <a href="/dashboard"><img src="/logo_ethys.png" alt="TEXTILE LOOP" style={{ width: 80, height: 'auto', margin: '0 auto 12px', display: 'block' }} />
         <div style={{ fontSize: 13, color: '#8b7355', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 20, textAlign: 'center' }}>PLATFORM</div>
         <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #EEF0F3', padding: '24px 28px', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
           <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#D1FAE5', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 28 }}>⏳</div>
@@ -55,7 +55,14 @@ export default function EnAttentePage() {
         </div>
       </div>
     </div>
+        <div style={{ textAlign: 'center', marginTop: 16, fontSize: 11, color: '#d4c5b0' }}>
+          <a href='/mentions-legales' style={{ color: '#8b7355', textDecoration: 'none' }}>Mentions légales &amp; RGPD</a>
+          {' — '} TEXTILE LOOP © 2026
+        </div>
+      </div>
+    </div>
   )
 }
+
 
 
