@@ -87,25 +87,19 @@ export default function SidebarLayout({ user, profil, children }: Props) {
           {open && <div style={{ fontSize: 10, fontWeight: 600, color: '#1a1a1a', letterSpacing: 2, marginTop: 6, textTransform: 'uppercase' }}>Platform</div>}
         </div>
 
-        <nav style={{ flex: 1, padding: '4px 8px', display: 'flex', flexDirection: 'column', gap: 0, overflowY: 'auto' }}>
+        <nav style={{ flex: 1, padding: '2px 8px', display: 'flex', flexDirection: 'column', gap: 0, overflowY: 'auto' }}>
           {navItems.filter(item => item.route !== '/admin' || profil?.role === 'admin').map(item => {
             const active = pathname === item.route || pathname.startsWith(item.route + '/')
             return (
-              <button key={item.route} onClick={() => router.push(item.route)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '6px 10px', borderRadius: 6, border: 'none', cursor: 'pointer', background: active ? '#e8e3d8' : 'transparent', color: active ? '#1a1a1a' : '#4a5568', fontSize: 13, fontWeight: active ? 600 : 400, textAlign: 'left', width: '100%' }}>
+              <button key={item.route} onClick={() => router.push(item.route)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '5px 10px', borderRadius: 6, border: 'none', cursor: 'pointer', background: active ? '#e8e3d8' : 'transparent', color: active ? '#1a1a1a' : '#4a5568', fontSize: 13, fontWeight: active ? 600 : 400, textAlign: 'left', width: '100%' }}>
                 <span style={{ flexShrink: 0, width: 20, display: 'flex', alignItems: 'center', justifyContent: 'center' }} dangerouslySetInnerHTML={{ __html: item.icon }} />
                 {open && <span style={{ flex: 1 }}>{item.label}</span>}{open && item.route === '/admin' && comptesEnAttente > 0 && (<span style={{ background: '#EF4444', color: '#fff', borderRadius: '50%', minWidth: 18, height: 18, fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>{comptesEnAttente}</span>)}
               </button>
             )
           })}
         </nav>
-
-              {open && (
-        <div style={{ padding: '8px 12px', borderTop: '1px solid #e8e3d8' }}>
-          <a href="/mentions-legales" style={{ fontSize: 10, color: '#d4c5b0', textDecoration: 'none', display: 'block', textAlign: 'center' }}>Mentions légales & RGPD</a>
-        </div>
-      )}
-      <button onClick={() => setOpen(v => !v)} style={{ margin: '8px', padding: '8px', borderRadius: 8, border: 'none', background: '#f5f3ef', color: '#8b7355', cursor: 'pointer', fontSize: 13 }}>
-          {open ? '◀' : '▶'}
+      <button onClick={() => setOpen(v => !v)} style={{ margin: '4px 8px', padding: '4px', borderRadius: 6, border: 'none', background: 'transparent', color: '#d4c5b0', cursor: 'pointer', fontSize: 11 }}>
+          {open ? '←' : '→'}
         </button>
 
       </aside>
