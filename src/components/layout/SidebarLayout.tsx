@@ -98,6 +98,7 @@ export default function SidebarLayout({ user, profil, children }: Props) {
             )
           })}
         </nav>
+      <div style={{ padding: '8px 12px', borderTop: '1px solid #e8e3d8' }}><a href="/mentions-legales" style={{ fontSize: 10, color: '#d4c5b0', textDecoration: 'none', display: 'block', textAlign: 'center' }}>Mentions legales</a></div>
       <button onClick={() => setOpen(v => !v)} style={{ margin: '4px 8px', padding: '4px', borderRadius: 6, border: 'none', background: 'transparent', color: '#d4c5b0', cursor: 'pointer', fontSize: 11 }}>
           {open ? '←' : '→'}
         </button>
