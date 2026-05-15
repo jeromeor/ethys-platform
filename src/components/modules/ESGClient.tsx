@@ -82,7 +82,7 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
       <div style={{ background: 'linear-gradient(135deg,#1a1a1a,#2a2a2a)', padding: '12px 24px', color: '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 24 }}>
         <div style={{ textAlign: 'center', flexShrink: 0 }}>
           <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'conic-gradient(#c2956e 0% ' + scoreGlobal + '%, rgba(255,255,255,0.1) ' + scoreGlobal + '% 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -119,7 +119,7 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
         ))}
       </div>
 
-      <div style={{ flex: 1, padding: '20px 22px' }}>
+      <div style={{ flex: 1, overflow: 'auto', padding: '20px 22px' }}>
         {activeTab === 'Score ESG' && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '18px 22px' }}>
