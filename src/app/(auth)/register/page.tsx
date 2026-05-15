@@ -32,7 +32,17 @@ export default function RegisterPage() {
     const { error: signUpError } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: 'https://www.ethys-textileloop.com/auth/callback?next=/en-attente' } })
     if (signUpError) { setError(signUpError.message); setLoading(false); return }
     const { data: { user } } = await supabase.auth.getUser()
-    if (user) await supabase.from('profils_utilisateurs').upsert({ id: user.id, email: user.email, role, statut: 'actif', email_valide: true }, { onConflict: 'id' })
+    if (user) {
+      await supabase.from('messages').insert({
+        expediteur_id: user.id,
+        destinataire_id: '1e48a840-8329-4595-be9b-f04d9ef1562a',
+        sujet: 'Nouvelle inscription',
+        contenu: 'Nouvel utilisateur inscrit : ' + user.email + '. Pensez a associer son entreprise dans Admin.',
+        lu: false,
+        private: false
+      })
+      await supabase.from('profils_utilisateurs').upsert({ id: user.id, email: user.email, role, statut: 'actif', email_valide: true }, { onConflict: 'id' })
+    }
     router.push('/dashboard')
     router.refresh()
   }
