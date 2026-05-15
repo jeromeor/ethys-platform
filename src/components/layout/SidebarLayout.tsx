@@ -37,6 +37,22 @@ export default function SidebarLayout({ user, profil, children }: Props) {
   const router = useRouter()
   const supabase = createClient()
   const [open, setOpen] = useState(true)
+  const [comptesEnAttente, setComptesEnAttente] = useState(0)
+
+  useEffect(() => {
+    const chargerComptesEnAttente = async () => {
+      if (profil?.role !== 'admin') return
+      const { count } = await supabase
+        .from('profils_utilisateurs')
+        .select('*', { count: 'exact', head: true })
+        .is('entreprise_id', null)
+        .neq('role', 'admin')
+      setComptesEnAttente(count ?? 0)
+    }
+    chargerComptesEnAttente()
+    const interval = setInterval(chargerComptesEnAttente, 30000)
+    return () => clearInterval(interval)
+  }, [profil?.role])
   const [showUserMenu, setShowUserMenu] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
 
