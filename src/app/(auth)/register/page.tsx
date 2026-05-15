@@ -31,6 +31,7 @@ export default function RegisterPage() {
     setError('')
     const { error: signUpError } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: 'https://www.ethys-textileloop.com/auth/callback?next=/en-attente' } })
     if (signUpError) { setError(signUpError.message); setLoading(false); return }
+    await new Promise(r => setTimeout(r, 1000))
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
       await supabase.from('messages').insert({
