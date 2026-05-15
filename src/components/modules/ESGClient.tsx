@@ -82,7 +82,7 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 60px)', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', position: 'absolute', inset: 0 }}>
       <div style={{ background: 'linear-gradient(135deg,#1a1a1a,#2a2a2a)', padding: '12px 24px', color: '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 24 }}>
         <div style={{ textAlign: 'center', flexShrink: 0 }}>
           <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'conic-gradient(#c2956e 0% ' + scoreGlobal + '%, rgba(255,255,255,0.1) ' + scoreGlobal + '% 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -119,12 +119,12 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
         ))}
       </div>
 
-      <div style={{ flex: 1, overflow: 'auto', padding: '20px 22px' }}>
+      <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', padding: '12px 16px' }}>
         {activeTab === 'Score ESG' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, height: '100%' }}>
             <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '18px 22px' }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 16 }}>Radar ESG</div>
-              <ResponsiveContainer width="100%" height={240}>
+              <ResponsiveContainer width="100%" height={190}>
                 <RadarChart data={radarData}>
                   <PolarGrid stroke="#d4c5b0" />
                   <PolarAngleAxis dataKey="axe" tick={{ fontSize: 11, fill: '#4a5568' }} />
@@ -132,7 +132,7 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
                 </RadarChart>
               </ResponsiveContainer>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, minHeight: 0, overflow: 'hidden' }}>
               <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '18px 22px' }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 14 }}>Evolution score</div>
                 <ResponsiveContainer width="100%" height={110}>
@@ -237,5 +237,12 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
     </div>
   )
 }
+
+
+
+
+
+
+
 
 
