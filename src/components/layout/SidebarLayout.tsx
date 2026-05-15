@@ -93,7 +93,7 @@ export default function SidebarLayout({ user, profil, children }: Props) {
             return (
               <button key={item.route} onClick={() => router.push(item.route)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '9px 10px', borderRadius: 8, border: 'none', cursor: 'pointer', background: active ? '#e8e3d8' : 'transparent', color: active ? '#1a1a1a' : '#4a5568', fontSize: 13, fontWeight: active ? 600 : 400, textAlign: 'left', width: '100%' }}>
                 <span style={{ flexShrink: 0, width: 20, display: 'flex', alignItems: 'center', justifyContent: 'center' }} dangerouslySetInnerHTML={{ __html: item.icon }} />
-                {open && <span>{item.label}</span>}
+                {open && <span style={{ flex: 1 }}>{item.label}</span>}{open && item.route === '/admin' && comptesEnAttente > 0 && (<span style={{ background: '#EF4444', color: '#fff', borderRadius: '50%', minWidth: 18, height: 18, fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>{comptesEnAttente}</span>)}
               </button>
             )
           })}
