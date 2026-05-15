@@ -213,7 +213,7 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
             color: activeTab === t ? '#1a1a1a' : '#8b7355',
             borderBottom: activeTab === t ? '2px solid #1a1a1a' : '2px solid transparent',
             marginBottom: -2
-          }}>{t}</button>
+          }}>{t}{t === 'Comptes \u00e0 valider' && utilisateurs.filter(u => !u.entreprise_id && u.role !== 'admin').length > 0 && (<span style={{ marginLeft: 6, background: '#EF4444', color: '#fff', borderRadius: '50%', minWidth: 18, height: 18, fontSize: 10, fontWeight: 700, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>{utilisateurs.filter(u => !u.entreprise_id && u.role !== 'admin').length}</span>)}</button>
         ))}
         <div style={{ flex: 1 }} />
         <button onClick={() => setShowInvite(true)} style={{ margin: '4px 0', padding: '5px 12px', borderRadius: 8, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer', alignSelf: 'center' }}>+ Inviter</button>
