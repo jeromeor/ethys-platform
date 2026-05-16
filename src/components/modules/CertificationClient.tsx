@@ -1,211 +1,179 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
-
-const ZONES: Record<string, number[]> = {
-  'France': [1], 'Espagne': [1], 'Italie': [1], 'Portugal': [1],
-  'Allemagne': [1], 'Belgique': [1], 'Pays-Bas': [1], 'Royaume-Uni': [1],
-  'Suisse': [1], 'Autriche': [1], 'Pologne': [1], 'Roumanie': [1],
-  'Turquie': [1, 5],
-  'Maroc': [1, 4], 'Tunisie': [1, 4], 'Algerie': [1, 4], 'Egypte': [1, 4], 'Libye': [1, 4],
-  'Senegal': [4], 'Mali': [4], 'Burkina Faso': [4], 'Cote Ivoire': [4],
-  'Nigeria': [4], 'Ethiopie': [4], 'Kenya': [4], 'Tanzanie': [4],
-  'Afrique du Sud': [4], 'Zimbabwe': [4], 'Mozambique': [4],
-  'Etats-Unis': [2], 'Canada': [2], 'Mexique': [2],
-  'Bresil': [3], 'Argentine': [3], 'Colombie': [3], 'Perou': [3],
-  'Inde': [5], 'Bangladesh': [5], 'Chine': [5], 'Vietnam': [5],
-  'Pakistan': [5], 'Indonesie': [5], 'Cambodge': [5], 'Myanmar': [5],
-  'Sri Lanka': [5], 'Nepal': [5],
-  'Australie': [6], 'Nouvelle-Zelande': [6],
-}
-
-const ZONE_LABELS: Record<number, string> = {
-  1: 'Europe', 2: 'Amerique du Nord', 3: 'Amerique du Sud',
-  4: 'Afrique', 5: 'Asie', 6: 'Oceanie',
-}
-
-const PAYS_CODES: Record<string, string> = {
-  'France': 'FR', 'Espagne': 'ES', 'Italie': 'IT', 'Portugal': 'PT',
-  'Allemagne': 'DE', 'Belgique': 'BE', 'Pays-Bas': 'NL', 'Royaume-Uni': 'GB',
-  'Suisse': 'CH', 'Autriche': 'AT', 'Pologne': 'PL', 'Roumanie': 'RO',
-  'Turquie': 'TR', 'Maroc': 'MA', 'Tunisie': 'TN', 'Algerie': 'DZ',
-  'Egypte': 'EG', 'Libye': 'LY', 'Senegal': 'SN', 'Mali': 'ML',
-  'Nigeria': 'NG', 'Ethiopie': 'ET', 'Kenya': 'KE', 'Afrique du Sud': 'ZA',
-  'Etats-Unis': 'US', 'Canada': 'CA', 'Mexique': 'MX',
-  'Bresil': 'BR', 'Argentine': 'AR', 'Colombie': 'CO', 'Perou': 'PE',
-  'Inde': 'IN', 'Bangladesh': 'BD', 'Chine': 'CN', 'Vietnam': 'VN',
-  'Pakistan': 'PK', 'Indonesie': 'ID', 'Cambodge': 'KH',
-  'Australie': 'AU', 'Nouvelle-Zelande': 'NZ',
-}
-
-const zonesCompatibles = (pays1: string, pays2: string): boolean => {
-  const z1 = ZONES[pays1] ?? []
-  const z2 = ZONES[pays2] ?? []
-  return z1.some(z => z2.includes(z))
-}
-
-const getZoneLabel = (pays: string): string => {
-  const zones = ZONES[pays]
-  if (!zones) return 'Zone inconnue'
-  return zones.map(z => ZONE_LABELS[z]).join(' / ')
-}
-
-interface Declaration {
+interface Commande {
   id: string
-  type_produit: string
-  volume_recycle_kg: number
-  volume_vierge_kg: number
-  pct_recycle: number
-  eligible_ethys: boolean
-  provenance_pays: string | null
-  filature_nom: string | null
-  tisseur_nom: string | null
-  description: string | null
-  declaration_honneur: boolean
-  statut: string
- commentaire_admin: string | null
-  filature_pays: string | null
+  reference: string
+  marque_id: string
+  filature_id: string
+  marque: { nom: string } | null
+  filature: { nom: string } | null
+  fournisseur?: { nom: string } | null
+  volume_recycle_tonnes?: number
+  volume_vierge_tonnes?: number
+  pct_recycle?: number
+}
+
+interface Lot {
+  id: string
+  reference: string
+  volume_tonnes: number
+  avancement_pct: number
+  origine: string | null
+  statut?: string
+  commande: Commande | Commande[] | null
+}
+
+interface Certification {
+  id: string
+  reference: string | null
+  lot_id: string | null
+  statut: string | null
+  type_produit: string | null
+  volume_recycle_kg: number | null
+  volume_vierge_kg: number | null
+  pct_recycle: number | null
+  date_emission: string | null
+  date_expiration: string | null
   created_at: string
-  entreprise_pays?: string | null
-  certification?: { numero: string; date_emission: string; date_validite: string } | null
+  lot?: Lot | null
+  createur?: { prenom: string; nom: string } | null
 }
 
 interface Props {
-  declarations: Declaration[]
+  certifications: Certification[]
+  lotsEligibles: Lot[]
   userRole: string
   entrepriseId: string
   userId: string
 }
 
 const STATUT_COLORS: Record<string, [string, string]> = {
-  brouillon:      ['#f5f3ef', '#4a5568'],
-  soumise:        ['#DBEAFE', '#1E40AF'],
-  en_validation:  ['#fdf8ec', '#b8860b'],
-  certifiee:      ['#f5f3ef', '#1a1a1a'],
-  refusee:        ['#FEE2E2', '#991B1B'],
+  en_attente:    ['#fdf8ec', '#b8860b'],
+  en_validation: ['#DBEAFE', '#1E40AF'],
+  certifiee:     ['#f0f4ec', '#2d5016'],
+  refusee:       ['#FEE2E2', '#991B1B'],
 }
 
 const STATUT_LABELS: Record<string, string> = {
-  brouillon:      'Brouillon',
-  soumise:        'Soumise',
-  en_validation:  'En validation',
-  certifiee:      'Certifiée',
-  refusee:        'Refusée',
+  en_attente:    'En attente',
+  en_validation: 'En validation',
+  certifiee:     'Certifiee',
+  refusee:       'Refusee',
 }
 
-const TYPE_LABELS: Record<string, string> = {
-  fil:          'Fil ETHYS',
-  tissu:        'Tissu ETHYS',
-  produit_fini: 'Produit fini ETHYS',
+function getLot(lot: Lot | null | undefined): Lot | null {
+  return lot ?? null
 }
 
-export default function CertificationClient({ declarations: initial, userRole, entrepriseId, userId }: Props) {
+function getCommande(lot: Lot | null): Commande | null {
+  if (!lot) return null
+  if (Array.isArray(lot.commande)) return lot.commande[0] ?? null
+  return lot.commande
+}
+
+export default function CertificationClient({ certifications: initial, lotsEligibles, userRole, entrepriseId, userId }: Props) {
   const supabase = createClient()
-  const [declarations, setDeclarations] = useState<Declaration[]>(initial)
+  const [certifications, setCertifications] = useState<Certification[]>(initial)
+  const [selected, setSelected] = useState<Certification | null>(null)
   const [showForm, setShowForm] = useState(false)
-  const [selected, setSelected] = useState<Declaration | null>(null)
+  const [selectedLotId, setSelectedLotId] = useState('')
+  const [declarationHonneur, setDeclarationHonneur] = useState(false)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
-  const [form, setForm] = useState({
-    type_produit: 'fil',
-    volume_recycle_kg: '',
-    volume_vierge_kg: '',
-    provenance_pays: '',
-    filature_nom: '',
-    filature_pays: '',
-    tisseur_nom: '',
-    description: '',
-    declaration_honneur: false,
-  })
+  const [commentaire, setCommentaire] = useState('')
+  const [showRefus, setShowRefus] = useState(false)
 
   const isAdmin = userRole === 'admin'
-  const pctRecycle = form.volume_recycle_kg && form.volume_vierge_kg
-    ? Math.round(parseFloat(form.volume_recycle_kg) / (parseFloat(form.volume_recycle_kg) + parseFloat(form.volume_vierge_kg)) * 100)
-    : 0
-  const eligible = pctRecycle >= 51
 
-  const soumettre = async (statut: 'brouillon' | 'soumise') => {
-    if (!form.declaration_honneur && statut === 'soumise') {
-      setMessage('Vous devez cocher la déclaration sur l\'honneur pour soumettre.')
+  const demanderCertification = async () => {
+    if (!selectedLotId) {
+      setMessage('Veuillez selectionner un lot.')
       return
     }
-    if (form.provenance_pays && form.filature_pays && !zonesCompatibles(form.provenance_pays, form.filature_pays)) {
-      const zoneCoton = getZoneLabel(form.provenance_pays)
-      const zoneFilature = getZoneLabel(form.filature_pays)
-      setMessage(`Incompatibilité géographique : le coton recyclé (${form.provenance_pays} — ${zoneCoton}) ne peut pas être transformé par une filature en ${form.filature_pays} (${zoneFilature}). Le coton recyclé doit être transformé dans la même zone géographique.`)
-      return
-    }
-    if (!eligible && statut === 'soumise') {
-      setMessage('Le fil doit contenir au moins 51% de coton recyclé pour être éligible à la certification ETHYS.')
+    if (!declarationHonneur) {
+      setMessage('Veuillez cocher la declaration sur honneur.')
       return
     }
     setSaving(true)
     setMessage('')
+
+    const lot = lotsEligibles.find(l => l.id === selectedLotId)
+    const commande = getCommande(lot ?? null)
+
     const { data, error } = await supabase
-      .from('declarations_ethys')
+      .from('certifications_ethys')
       .insert({
-        initiateur_id: userId,
-        entreprise_id: entrepriseId,
-        type_produit: form.type_produit,
-        volume_recycle_kg: parseFloat(form.volume_recycle_kg),
-        volume_vierge_kg: parseFloat(form.volume_vierge_kg),
-        provenance_pays: form.provenance_pays || null,
-        filature_nom: form.filature_nom || null,
-        filature_pays: form.filature_pays || null,
-        tisseur_nom: form.tisseur_nom || null,
-        description: form.description || null,
-        declaration_honneur: form.declaration_honneur,
-        statut,
+        lot_id: selectedLotId,
+        marque_id: commande?.marque_id ?? null,
+        filature_id: commande?.filature_id ?? null,
+        type_produit: 'fil',
+        volume_recycle_kg: lot ? Math.round((lot.volume_tonnes ?? 0) * 1000 * 0.51) : 0,
+        volume_vierge_kg: lot ? Math.round((lot.volume_tonnes ?? 0) * 1000 * 0.49) : 0,
+        pct_recycle: 51,
+        statut: 'en_validation',
+        created_by: userId,
       })
-      .select()
+      .select('*, lot:lots(id, reference, volume_tonnes, avancement_pct, origine, commande:commandes(id, reference, marque_id, filature_id, marque:entreprises!commandes_marque_id_fkey(nom), filature:entreprises!commandes_filature_id_fkey(nom)))')
       .single()
-    if (!error && data) {
-      setDeclarations(prev => [data, ...prev])
+
+    if (error) {
+      setMessage('Erreur : ' + error.message)
+      setSaving(false)
+      return
+    }
+
+    if (data) {
+      setCertifications(prev => [data as Certification, ...prev])
       setShowForm(false)
-      setMessage(statut === 'soumise' ? 'Déclaration soumise avec succès. TEXTILE LOOP va examiner votre demande.' : 'Brouillon sauvegardé.')
-      setForm({ type_produit: 'fil', volume_recycle_kg: '', volume_vierge_kg: '', provenance_pays: '', filature_nom: '', filature_pays: '', tisseur_nom: '', description: '', declaration_honneur: false })
-    } else {
-      setMessage('Erreur lors de la soumission.')
+      setSelectedLotId('')
+      setDeclarationHonneur(false)
+      setMessage('Demande de certification soumise. Elle sera examinee par TEXTILE LOOP.')
     }
     setSaving(false)
   }
 
-  const certifier = async (declaration: Declaration) => {
+  const certifier = async (cert: Certification) => {
     setSaving(true)
-    await supabase.from('declarations_ethys').update({ statut: 'certifiee' }).eq('id', declaration.id)
     const now = new Date()
     const year = now.getFullYear()
     const month = String(now.getMonth() + 1).padStart(2, '0')
-    const zones = ZONES[declaration.filature_pays ?? ''] ?? [1]
-    const zoneCode = String(zones[0]).padStart(3, '0')
-    const paysCode = PAYS_CODES[(declaration as any).entreprise?.pays ?? ''] ?? 'XX'
-    const seq = String(declarations.filter(d => d.statut === 'certifiee').length + 1).padStart(4, '0')
-    const numero = `ETHYS-${year}-${month}-${zoneCode}-${paysCode}-${seq}`
-    await supabase.from('certifications_ethys').insert({
-      declaration_id: declaration.id,
-      numero,
-    })
-    setDeclarations(prev => prev.map(d => d.id === declaration.id ? { ...d, statut: 'certifiee' } : d))
+    const seq = String(certifications.filter(c => c.statut === 'certifiee').length + 1).padStart(4, '0')
+    const reference = 'ETHYS-' + year + '-' + month + '-' + seq
+
+    const expiration = new Date(now)
+    expiration.setFullYear(expiration.getFullYear() + 2)
+
+    await supabase.from('certifications_ethys').update({
+      statut: 'certifiee',
+      reference,
+      date_emission: now.toISOString().split('T')[0],
+      date_expiration: expiration.toISOString().split('T')[0],
+    }).eq('id', cert.id)
+
+    setCertifications(prev => prev.map(c => c.id === cert.id ? { ...c, statut: 'certifiee', reference } : c))
     setSelected(null)
-    setMessage(`Déclaration certifiée. Numéro : ${numero}`)
+    setMessage('Certification accordee. Reference : ' + reference)
     setSaving(false)
   }
 
-  const refuser = async (declaration: Declaration, commentaire: string) => {
+  const refuser = async (cert: Certification) => {
+    if (!commentaire.trim()) {
+      setMessage('Veuillez indiquer un motif de refus.')
+      return
+    }
     setSaving(true)
-    await supabase.from('declarations_ethys').update({ statut: 'refusee', commentaire_admin: commentaire }).eq('id', declaration.id)
-    setDeclarations(prev => prev.map(d => d.id === declaration.id ? { ...d, statut: 'refusee', commentaire_admin: commentaire } : d))
+    await supabase.from('certifications_ethys').update({ statut: 'refusee' }).eq('id', cert.id)
+    setCertifications(prev => prev.map(c => c.id === cert.id ? { ...c, statut: 'refusee' } : c))
     setSelected(null)
+    setShowRefus(false)
+    setCommentaire('')
     setSaving(false)
   }
 
-  const inputStyle = {
-    width: '100%', padding: '9px 12px', borderRadius: 8,
-    border: '1.5px solid #d4c5b0', fontSize: 13,
-    boxSizing: 'border-box' as const, outline: 'none', color: '#1A202C'
-  }
+  const formatDate = (d: string | null) => d ? new Date(d).toLocaleDateString('fr-FR') : '-'
 
   return (
     <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
@@ -214,43 +182,42 @@ export default function CertificationClient({ declarations: initial, userRole, e
       <div style={{ width: 320, minWidth: 320, background: '#fff', borderRight: '1px solid #e8e3d8', display: 'flex', flexDirection: 'column' }}>
         <div style={{ padding: '14px 16px', borderBottom: '1px solid #f5f3ef', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>Déclarations ETHYS</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>Certifications ETHYS</div>
             <div style={{ fontSize: 11, color: '#8b7355', marginTop: 2 }}>
-              <span style={{ fontWeight: 700, color: '#1a1a1a' }}>{declarations.filter(d => d.statut === 'certifiee').length}</span> certifiées
+              <span style={{ fontWeight: 700, color: '#2d5016' }}>{certifications.filter(c => c.statut === 'certifiee').length}</span> certifiees
               {' · '}
-              <span style={{ fontWeight: 700, color: '#D97706' }}>{declarations.filter(d => d.statut === 'en_validation' || d.statut === 'soumise').length}</span> en attente
+              <span style={{ fontWeight: 700, color: '#b45309' }}>{certifications.filter(c => c.statut === 'en_validation').length}</span> en attente
             </div>
           </div>
-          {(
-            <button onClick={() => setShowForm(true)} style={{ padding: '7px 12px', borderRadius: 8, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
-              + Nouvelle
+          {!isAdmin && lotsEligibles.length > 0 && (
+            <button onClick={() => { setShowForm(true); setSelected(null) }} style={{ padding: '7px 12px', borderRadius: 8, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+              + Demander
             </button>
           )}
         </div>
+
         <div style={{ flex: 1, overflowY: 'auto' }}>
-          {declarations.length === 0 ? (
+          {certifications.length === 0 ? (
             <div style={{ padding: '40px 16px', textAlign: 'center', color: '#8b7355', fontSize: 12 }}>
-              Aucune déclaration.<br />Cliquez sur "+ Nouvelle" pour commencer.
+              Aucune certification.
             </div>
-          ) : declarations.map(d => {
-            const [bg, tc] = STATUT_COLORS[d.statut] ?? ['#f5f3ef', '#4a5568']
+          ) : certifications.map(cert => {
+            const lot = getLot(cert.lot)
+            const commande = getCommande(lot)
+            const [bg, tc] = STATUT_COLORS[cert.statut ?? ''] ?? ['#f5f3ef', '#4a5568']
             return (
-              <div key={d.id} onClick={() => setSelected(d)} style={{ padding: '12px 16px', cursor: 'pointer', background: selected?.id === d.id ? '#f0f4ec' : 'transparent', borderLeft: `3px solid ${selected?.id === d.id ? '#1a1a1a' : 'transparent'}`, borderBottom: '1px solid #f5f3ef' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>{TYPE_LABELS[d.type_produit]}</span>
-                  <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: bg, color: tc }}>{STATUT_LABELS[d.statut]}</span>
+              <div key={cert.id} onClick={() => { setSelected(cert); setShowForm(false) }} style={{ padding: '12px 16px', cursor: 'pointer', background: selected?.id === cert.id ? '#f0f4ec' : 'transparent', borderLeft: '3px solid ' + (selected?.id === cert.id ? '#1a1a1a' : 'transparent'), borderBottom: '1px solid #f5f3ef' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>{lot?.reference ?? '-'}</span>
+                  <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: bg, color: tc }}>{STATUT_LABELS[cert.statut ?? ''] ?? cert.statut}</span>
                 </div>
-                <div style={{ display: 'flex', gap: 12, fontSize: 11, color: '#4a5568', marginBottom: 4 }}>
-                  <span> {d.volume_recycle_kg.toLocaleString('fr-FR')} kg</span>
-                  <span> {d.volume_vierge_kg.toLocaleString('fr-FR')} kg</span>
+                <div style={{ fontSize: 11, color: '#4a5568', marginBottom: 2 }}>
+                  {commande?.marque?.nom ?? '-'} · {commande?.filature?.nom ?? '-'}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <div style={{ flex: 1, height: 4, background: '#d4c5b0', borderRadius: 2, overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: `${d.pct_recycle}%`, background: d.eligible_ethys ? '#8b7355' : '#b8860b', borderRadius: 2 }} />
-                  </div>
-                  <span style={{ fontSize: 10, fontWeight: 700, color: d.eligible_ethys ? '#2d5016' : '#b8860b' }}>{d.pct_recycle}% recyclé</span>
-                </div>
-                <div style={{ fontSize: 10, color: '#CBD5E1', marginTop: 4 }}>{(d.created_at ? new Date(d.created_at).toLocaleDateString('fr-FR') : '-')}</div>
+                {cert.reference && (
+                  <div style={{ fontSize: 10, fontWeight: 700, color: '#2d5016' }}>{cert.reference}</div>
+                )}
+                <div style={{ fontSize: 10, color: '#a0aec0', marginTop: 2 }}>{formatDate(cert.created_at)}</div>
               </div>
             )
           })}
@@ -259,157 +226,163 @@ export default function CertificationClient({ declarations: initial, userRole, e
 
       {/* Zone principale */}
       <div style={{ flex: 1, overflow: 'auto', padding: '24px 28px' }}>
+
         {message && (
-          <div style={{ padding: '12px 16px', borderRadius: 4, background: message.includes('Erreur') ? '#fdf0f0' : '#f0f4ec', border: `1px solid ${message.includes('Erreur') ? '#c8a0a0' : '#c8d8b8'}`, fontSize: 13, color: message.includes('Erreur') ? '#8b3a3a' : '#2d5016', marginBottom: 20 }}>
+          <div style={{ padding: '12px 16px', borderRadius: 8, background: message.includes('Erreur') ? '#fdf0f0' : '#f0f4ec', border: '1px solid ' + (message.includes('Erreur') ? '#c8a0a0' : '#c8d8b8'), fontSize: 13, color: message.includes('Erreur') ? '#8b3a3a' : '#2d5016', marginBottom: 20 }}>
             {message}
           </div>
         )}
 
-        {/* Formulaire nouvelle déclaration */}
+        {/* Formulaire demande certification */}
         {showForm && (
-          <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '24px', marginBottom: 24 }}>
+          <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '24px', marginBottom: 24, maxWidth: 600 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>Nouvelle déclaration ETHYS</div>
-              <button onClick={() => setShowForm(false)} style={{ border: 'none', background: 'none', fontSize: 18, cursor: 'pointer', color: '#8b7355' }}>×</button>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-              <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Type de produit *</label>
-                <select value={form.type_produit} onChange={e => setForm(f => ({ ...f, type_produit: e.target.value }))} style={inputStyle}>
-                  {userRole === 'filature' && <option value="fil">Fil ETHYS</option>}
-                  {userRole === 'tisseur' && <option value="fil">Fil ETHYS</option>}
-                  {userRole === 'tisseur' && <option value="tissu">Tissu ETHYS</option>}
-                  {userRole === 'marque' && <option value="fil">Fil ETHYS</option>}
-                  {userRole === 'marque' && <option value="tissu">Tissu ETHYS</option>}
-                  {userRole === 'marque' && <option value="produit_fini">Produit fini ETHYS</option>}
-                  {userRole === 'admin' && <><option value="fil">Fil ETHYS</option><option value="tissu">Tissu ETHYS</option><option value="produit_fini">Produit fini ETHYS</option></>}
-                </select>
-              </div>
-              <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Pays de provenance</label>
-                <input value={form.provenance_pays} onChange={e => setForm(f => ({ ...f, provenance_pays: e.target.value }))} style={inputStyle} placeholder="Ex: Maroc, Turquie..." />
-              </div>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-              <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Volume coton recyclé (kg) *</label>
-                <input type="number" value={form.volume_recycle_kg} onChange={e => setForm(f => ({ ...f, volume_recycle_kg: e.target.value }))} style={inputStyle} placeholder="0" min="0" />
-              </div>
-              <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Volume coton vierge (kg) *</label>
-                <input type="number" value={form.volume_vierge_kg} onChange={e => setForm(f => ({ ...f, volume_vierge_kg: e.target.value }))} style={inputStyle} placeholder="0" min="0" />
-              </div>
-            </div>
-
-        {/* Vérification compatibilité zones */}
-            {form.provenance_pays && form.filature_pays && (
-              <div style={{ padding: '10px 14px', borderRadius: 8, marginBottom: 12, background: zonesCompatibles(form.provenance_pays, form.filature_pays) ? '#f0f4ec' : '#fdf0f0', border: `1px solid ${zonesCompatibles(form.provenance_pays, form.filature_pays) ? '#c8d8b8' : '#c8a0a0'}` }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: zonesCompatibles(form.provenance_pays, form.filature_pays) ? '#2d5016' : '#8b3a3a' }}>
-                  {zonesCompatibles(form.provenance_pays, form.filature_pays)
-                    ? ` Compatible — ${form.provenance_pays} et ${form.filature_pays} sont dans la même zone`
-                    : `✗ Incompatible — ${form.provenance_pays} (${getZoneLabel(form.provenance_pays)}) et ${form.filature_pays} (${getZoneLabel(form.filature_pays)}) sont dans des zones différentes`
-                  }
-                </div>
-              </div>
-            )}    
-	{/* Indicateur temps réel */}
-            {(form.volume_recycle_kg || form.volume_vierge_kg) && (
-              <div style={{ padding: '14px 16px', borderRadius: 4, background: eligible ? '#f0f4ec' : '#fdf8ec', border: `1px solid ${eligible ? '#c8d8b8' : '#b8860b'}`, marginBottom: 16 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ height: 8, background: '#d4c5b0', borderRadius: 4, overflow: 'hidden', marginBottom: 6 }}>
-                      <div style={{ height: '100%', width: `${pctRecycle}%`, background: eligible ? '#8b7355' : '#b8860b', borderRadius: 4, transition: 'width 0.3s' }} />
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
-                      <span style={{ color: '#4a5568' }}> Recyclé : {pctRecycle}%</span>
-                      <span style={{ color: '#4a5568' }}> Vierge : {100 - pctRecycle}%</span>
-                    </div>
-                  </div>
-                  <div style={{ textAlign: 'center', flexShrink: 0 }}>
-                    <div style={{ fontSize: 20, fontWeight: 900, color: eligible ? '#2d5016' : '#b8860b' }}>{pctRecycle}%</div>
-                    <div style={{ fontSize: 10, fontWeight: 700, color: eligible ? '#2d5016' : '#b8860b' }}>
-                      {eligible ? ' Éligible ETHYS' : '✗ Min. 51% requis'}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-              <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Filature *</label>
-                <input value={form.filature_nom} onChange={e => setForm(f => ({ ...f, filature_nom: e.target.value }))} style={inputStyle} placeholder="Nom de la filature" />
-                <div style={{ marginTop: 8 }}>
-                  <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Pays de la filature *</label>
-                  <select value={form.filature_pays} onChange={e => setForm(f => ({ ...f, filature_pays: e.target.value }))} style={inputStyle}>
-                    <option value="">Sélectionner...</option>
-                    {Object.keys(PAYS_CODES).sort().map(p => (
-                      <option key={p} value={p}>{p} — {getZoneLabel(p)}</option>
-                    ))}
-                  </select>
-                </div>
-                <input value={form.filature_nom} onChange={e => setForm(f => ({ ...f, filature_nom: e.target.value }))} style={inputStyle} placeholder="Nom de la filature" />
-              </div>
-              {(form.type_produit === 'tissu' || form.type_produit === 'produit_fini') && (
-                <div>
-                  <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Tisseur</label>
-                  <input value={form.tisseur_nom} onChange={e => setForm(f => ({ ...f, tisseur_nom: e.target.value }))} style={inputStyle} placeholder="Nom du tisseur" />
-                </div>
-              )}
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>Demande de certification ETHYS</div>
+              <button onClick={() => setShowForm(false)} style={{ border: 'none', background: 'none', fontSize: 18, cursor: 'pointer', color: '#8b7355' }}>x</button>
             </div>
 
             <div style={{ marginBottom: 16 }}>
-              <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Description / Notes</label>
-              <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} style={{ ...inputStyle, height: 80, resize: 'vertical' }} placeholder="Informations complémentaires sur le produit..." />
+              <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Lot a certifier *</label>
+              <select value={selectedLotId} onChange={e => setSelectedLotId(e.target.value)}
+                style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}>
+                <option value="">Selectionner un lot...</option>
+                {lotsEligibles.map(lot => {
+                  const commande = getCommande(lot)
+                  return (
+                    <option key={lot.id} value={lot.id}>
+                      {lot.reference} — {Math.round((lot.volume_tonnes ?? 0) * 1000)} kg — {commande?.marque?.nom ?? '-'}
+                    </option>
+                  )
+                })}
+              </select>
             </div>
 
-            {/* Documents — beta = déclaration honneur */}
-            <div style={{ padding: '14px 16px', borderRadius: 4, background: '#f5f3ef', border: '1px solid #e8e3d8', marginBottom: 16 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a', marginBottom: 8 }}>Documents justificatifs</div>
-              <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 10 }}>
-                Phase bêta — déclaration sur l'honneur. Les documents PDF (bon de commande, bon de livraison) seront requis lors du lancement officiel.
-              </div>
+            {selectedLotId && (() => {
+              const lot = lotsEligibles.find(l => l.id === selectedLotId)
+              const commande = getCommande(lot ?? null)
+              return lot ? (
+                <div style={{ padding: '14px 16px', borderRadius: 8, background: '#f0f4ec', border: '1px solid #c8d8b8', marginBottom: 16 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#2d5016', marginBottom: 8 }}>Recap du lot</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12, color: '#4a5568' }}>
+                    <div>Lot : <strong>{lot.reference}</strong></div>
+                    <div>Volume : <strong>{Math.round((lot.volume_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg</strong></div>
+                    <div>Marque : <strong>{commande?.marque?.nom ?? '-'}</strong></div>
+                    <div>Filature : <strong>{commande?.filature?.nom ?? '-'}</strong></div>
+                    <div>Composition : <strong>51% recycle / 49% vierge</strong></div>
+                    {lot.origine && <div>Origine : <strong>{lot.origine}</strong></div>}
+                  </div>
+                </div>
+              ) : null
+            })()}
+
+            <div style={{ padding: '14px 16px', borderRadius: 8, background: '#f5f3ef', border: '1px solid #e8e3d8', marginBottom: 16 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a', marginBottom: 8 }}>Declaration sur honneur</div>
               <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer' }}>
-                <input type="checkbox" checked={form.declaration_honneur} onChange={e => setForm(f => ({ ...f, declaration_honneur: e.target.checked }))} style={{ accentColor: '#1a1a1a', marginTop: 2, flexShrink: 0 }} />
+                <input type="checkbox" checked={declarationHonneur} onChange={e => setDeclarationHonneur(e.target.checked)} style={{ marginTop: 2, flexShrink: 0 }} />
                 <span style={{ fontSize: 12, color: '#4a5568', lineHeight: 1.5 }}>
-                  Je certifie sur l'honneur que les informations renseignées sont exactes et que le produit respecte les critères de la certification ETHYS (minimum 51% de coton recyclé, traçabilité vérifiable).
+                  Je certifie sur honneur que les informations sont exactes et que ce lot de fil respecte les criteres ETHYS (minimum 51% de coton recycle, tracabilite verifiable).
                 </span>
               </label>
             </div>
 
             <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => soumettre('brouillon')} disabled={saving} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#4a5568', fontSize: 13, cursor: saving ? 'default' : 'pointer' }}>
-                Sauvegarder en brouillon
+              <button onClick={() => setShowForm(false)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#4a5568', fontSize: 13, cursor: 'pointer' }}>
+                Annuler
               </button>
-              <button onClick={() => soumettre('soumise')} disabled={saving || !form.declaration_honneur || !eligible} style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: saving || !form.declaration_honneur || !eligible ? '#d4c5b0' : '#1a1a1a', color: saving || !form.declaration_honneur || !eligible ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: saving || !form.declaration_honneur || !eligible ? 'default' : 'pointer' }}>
-                {saving ? 'Envoi...' : 'Soumettre pour certification'}
+              <button onClick={demanderCertification} disabled={saving || !selectedLotId || !declarationHonneur}
+                style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: saving || !selectedLotId || !declarationHonneur ? '#d4c5b0' : '#1a1a1a', color: saving || !selectedLotId || !declarationHonneur ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: saving || !selectedLotId || !declarationHonneur ? 'default' : 'pointer' }}>
+                {saving ? 'Envoi...' : 'Soumettre la demande'}
               </button>
             </div>
           </div>
         )}
 
-        {/* Détail déclaration sélectionnée */}
+        {/* Detail certification selectionnee */}
         {selected && !showForm && (
-          <DetailDeclaration
-            declaration={selected}
-            isAdmin={isAdmin}
-            onCertifier={certifier}
-            onRefuser={refuser}
-            saving={saving}
-          />
+          <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '24px', maxWidth: 600 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: '#1a1a1a', marginBottom: 4 }}>
+                  {getLot(selected.lot)?.reference ?? 'Lot inconnu'}
+                </div>
+                <div style={{ fontSize: 12, color: '#8b7355' }}>Soumise le {formatDate(selected.created_at)}</div>
+              </div>
+              <span style={{ padding: '4px 12px', borderRadius: 4, fontSize: 11, fontWeight: 700, background: (STATUT_COLORS[selected.statut ?? ''] ?? ['#f5f3ef', '#4a5568'])[0], color: (STATUT_COLORS[selected.statut ?? ''] ?? ['#f5f3ef', '#4a5568'])[1] }}>
+                {STATUT_LABELS[selected.statut ?? ''] ?? selected.statut}
+              </span>
+            </div>
+
+            {(() => {
+              const lot = getLot(selected.lot)
+              const commande = getCommande(lot)
+              return (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
+                  {[
+                    ['Lot', lot?.reference ?? '-'],
+                    ['Volume', lot ? Math.round((lot.volume_tonnes ?? 0) * 1000).toLocaleString('fr-FR') + ' kg' : '-'],
+                    ['Marque', commande?.marque?.nom ?? '-'],
+                    ['Filature', commande?.filature?.nom ?? '-'],
+                    ['Composition', '51% recycle / 49% vierge'],
+                    ['Origine', lot?.origine ?? '-'],
+                  ].map(([label, val]) => (
+                    <div key={label} style={{ padding: '10px 14px', borderRadius: 8, background: '#f5f3ef', border: '1px solid #e8e3d8' }}>
+                      <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 4 }}>{label}</div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: '#1A202C' }}>{val}</div>
+                    </div>
+                  ))}
+                </div>
+              )
+            })()}
+
+            {selected.statut === 'certifiee' && (
+              <div style={{ padding: '16px', borderRadius: 8, background: '#f0f4ec', border: '1px solid #c8d8b8', marginBottom: 16, textAlign: 'center' }}>
+                <div style={{ fontSize: 14, fontWeight: 900, color: '#2d5016', marginBottom: 8 }}>Certification ETHYS obtenue</div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: '#1a1a1a', marginBottom: 4 }}>{selected.reference}</div>
+                <div style={{ fontSize: 12, color: '#4a5568' }}>
+                  Emise le {formatDate(selected.date_emission)} · Valide jusqu au {formatDate(selected.date_expiration)}
+                </div>
+              </div>
+            )}
+
+            {isAdmin && selected.statut === 'en_validation' && (
+              <div style={{ borderTop: '1px solid #e8e3d8', paddingTop: 16 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a', marginBottom: 12 }}>Decision TEXTILE LOOP</div>
+                {!showRefus ? (
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    <button onClick={() => setShowRefus(true)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #c8a0a0', background: '#fdf0f0', color: '#8b3a3a', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+                      Refuser
+                    </button>
+                    <button onClick={() => certifier(selected)} disabled={saving} style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: saving ? '#d4c5b0' : '#1a1a1a', color: saving ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: saving ? 'default' : 'pointer' }}>
+                      {saving ? 'Certification...' : 'Certifier ETHYS'}
+                    </button>
+                  </div>
+                ) : (
+                  <div>
+                    <textarea value={commentaire} onChange={e => setCommentaire(e.target.value)}
+                      placeholder="Motif du refus..."
+                      style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 12, boxSizing: 'border-box', outline: 'none', height: 80, marginBottom: 10, resize: 'vertical' }} />
+                    <div style={{ display: 'flex', gap: 10 }}>
+                      <button onClick={() => setShowRefus(false)} style={{ flex: 1, padding: '9px', borderRadius: 8, border: '1.5px solid #e8e3d8', background: '#f5f3ef', fontSize: 12, cursor: 'pointer' }}>Annuler</button>
+                      <button onClick={() => refuser(selected)} disabled={saving} style={{ flex: 2, padding: '9px', borderRadius: 8, border: 'none', background: '#8b3a3a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                        Confirmer le refus
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         )}
 
-        {/* État vide */}
         {!selected && !showForm && (
           <div style={{ textAlign: 'center', padding: '80px 40px', color: '#8b7355' }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}></div>
             <div style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a', marginBottom: 8 }}>Certification ETHYS</div>
             <div style={{ fontSize: 13, lineHeight: 1.6, maxWidth: 400, margin: '0 auto' }}>
               {isAdmin
-                ? 'Sélectionnez une déclaration pour la valider ou la refuser.'
-                : 'Déclarez votre utilisation de fil ETHYS pour obtenir la certification et générer votre QR code consommateur.'}
+                ? 'Selectionnez une demande pour la valider ou la refuser.'
+                : lotsEligibles.length > 0
+                  ? 'Vous avez des lots eligibles. Cliquez sur Demander pour soumettre une certification.'
+                  : 'Les lots de production termines apparaitront ici pour demande de certification.'}
             </div>
           </div>
         )}
@@ -417,123 +390,3 @@ export default function CertificationClient({ declarations: initial, userRole, e
     </div>
   )
 }
-
-function DetailDeclaration({ declaration: d, isAdmin, onCertifier, onRefuser, saving }: {
-  declaration: Declaration
-  isAdmin: boolean
-  onCertifier: (d: Declaration) => void
-  onRefuser: (d: Declaration, c: string) => void
-  saving: boolean
-}) {
-  const [commentaire, setCommentaire] = useState('')
-  const [showRefus, setShowRefus] = useState(false)
-  const [bg, tc] = STATUT_COLORS[d.statut] ?? ['#f5f3ef', '#4a5568']
-
-  return (
-    <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '24px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
-        <div>
-          <div style={{ fontSize: 16, fontWeight: 800, color: '#1a1a1a', marginBottom: 4 }}>{TYPE_LABELS[d.type_produit]}</div>
-          <div style={{ fontSize: 12, color: '#8b7355' }}>Déclarée le {(d.created_at ? new Date(d.created_at).toLocaleDateString('fr-FR') : '-')}</div>
-        </div>
-        <span style={{ padding: '4px 12px', borderRadius: 4, fontSize: 11, fontWeight: 700, background: bg, color: tc }}>{STATUT_LABELS[d.statut]}</span>
-      </div>
-
-      {/* Composition */}
-      <div style={{ background: d.eligible_ethys ? '#f0f4ec' : '#fdf8ec', borderRadius: 6, padding: '16px', marginBottom: 16 }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: '#1a1a1a', marginBottom: 10, textTransform: 'uppercase' }}>Composition</div>
-        <div style={{ display: 'flex', gap: 12, marginBottom: 10 }}>
-          <div style={{ flex: d.pct_recycle, background: '#8b7355', borderRadius: 4, padding: '12px', textAlign: 'center' }}>
-            <div style={{ fontSize: 22, fontWeight: 900, color: '#fff' }}>{d.pct_recycle}%</div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}> Recyclé</div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>{d.volume_recycle_kg.toLocaleString('fr-FR')} kg</div>
-          </div>
-          <div style={{ flex: 100 - d.pct_recycle, background: 'rgba(0,0,0,0.06)', borderRadius: 8, padding: '12px', textAlign: 'center' }}>
-            <div style={{ fontSize: 22, fontWeight: 900, color: '#4a5568' }}>{100 - d.pct_recycle}%</div>
-            <div style={{ fontSize: 10, color: '#4a5568' }}> Vierge</div>
-            <div style={{ fontSize: 11, color: '#8b7355', marginTop: 2 }}>{d.volume_vierge_kg.toLocaleString('fr-FR')} kg</div>
-          </div>
-        </div>
-        <div style={{ textAlign: 'center', fontSize: 12, fontWeight: 700, color: d.eligible_ethys ? '#2d5016' : '#b8860b' }}>
-          {d.eligible_ethys ? ' Éligible à la certification ETHYS' : '✗ Non éligible — minimum 51% requis'}
-        </div>
-      </div>
-
-      {/* Informations */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
-        {[
-          ['Filature', d.filature_nom ?? '-'],
-          ['Tisseur', d.tisseur_nom ?? '-'],
-          ['Provenance', d.provenance_pays ?? '-'],
-          ['Déclaration honneur', d.declaration_honneur ? ' Signée' : '✗ Non signée'],
-        ].map(([label, val]) => (
-          <div key={label} style={{ padding: '10px 14px', borderRadius: 8, background: '#f5f3ef', border: '1px solid #e8e3d8' }}>
-            <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 4 }}>{label}</div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#1A202C' }}>{val}</div>
-          </div>
-        ))}
-      </div>
-
-      {d.description && (
-        <div style={{ padding: '12px 14px', borderRadius: 8, background: '#f5f3ef', marginBottom: 16, fontSize: 12, color: '#4a5568', lineHeight: 1.6 }}>
-          {d.description}
-        </div>
-      )}
-
-      {d.commentaire_admin && (
-        <div style={{ padding: '12px 14px', borderRadius: 8, background: '#fdf0f0', border: '1px solid #c8a0a0', marginBottom: 16 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#8b3a3a', marginBottom: 4 }}>Commentaire TEXTILE LOOP</div>
-          <div style={{ fontSize: 12, color: '#991B1B' }}>{d.commentaire_admin}</div>
-        </div>
-      )}
-
-      {/* Actions admin */}
-      {isAdmin && d.statut === 'soumise' && (
-        <div style={{ borderTop: '1px solid #e8e3d8', paddingTop: 16 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a', marginBottom: 12 }}>Décision TEXTILE LOOP</div>
-          {!showRefus ? (
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => setShowRefus(true)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #c8a0a0', background: '#fdf0f0', color: '#8b3a3a', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
-                Refuser
-              </button>
-              <button onClick={() => onCertifier(d)} disabled={saving || !d.eligible_ethys} style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: saving || !d.eligible_ethys ? '#d4c5b0' : '#1a1a1a', color: saving || !d.eligible_ethys ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: saving || !d.eligible_ethys ? 'default' : 'pointer' }}>
-                {saving ? 'Certification...' : ' Certifier ETHYS'}
-              </button>
-            </div>
-          ) : (
-            <div>
-              <textarea value={commentaire} onChange={e => setCommentaire(e.target.value)} placeholder="Motif du refus..." style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 12, boxSizing: 'border-box', outline: 'none', height: 80, marginBottom: 10, resize: 'vertical' }} />
-              <div style={{ display: 'flex', gap: 10 }}>
-                <button onClick={() => setShowRefus(false)} style={{ flex: 1, padding: '9px', borderRadius: 8, border: '1.5px solid #e8e3d8', background: '#f5f3ef', fontSize: 12, cursor: 'pointer' }}>Annuler</button>
-                <button onClick={() => onRefuser(d, commentaire)} disabled={saving} style={{ flex: 2, padding: '9px', borderRadius: 8, border: 'none', background: '#8b3a3a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
-                  Confirmer le refus
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {d.statut === 'certifiee' && (
-        <div style={{ padding: '14px 16px', borderRadius: 4, background: '#f0f4ec', border: '1px solid #c8d8b8' }}>
-          <div style={{ fontSize: 14, fontWeight: 900, color: '#c2956e', marginBottom: 8, textAlign: 'center' }}> Certification ETHYS obtenue</div>
-          {d.certification ? (
-            <div style={{ textAlign: 'center', marginBottom: 12 }}>
-              <div style={{ fontSize: 12, color: '#1a1a1a', fontWeight: 700 }}>{d.certification.numero}</div>
-              <div style={{ fontSize: 11, color: '#4a5568', marginTop: 2 }}>
-                Valide jusqu'au {(d.certification.date_validite ? new Date(d.certification.date_validite).toLocaleDateString('fr-FR') : '-')}
-              </div>
-            </div>
-          ) : null}
-          <button
-            onClick={() => window.location.href = `/qrcode?certification_id=${d.id}`}
-            style={{ width: '100%', padding: '10px', borderRadius: 4, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
-          >
-            Générer le QR Code consommateur
-          </button>
-        </div>
-      )}
-    </div>
-  )
-}
-
