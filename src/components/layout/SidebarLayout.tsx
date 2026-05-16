@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect, useRef } from 'react'
 import NotificationBell from './NotificationBell'
@@ -38,21 +38,30 @@ export default function SidebarLayout({ user, profil, children }: Props) {
   const supabase = createClient()
   const [open, setOpen] = useState(true)
   const [comptesEnAttente, setComptesEnAttente] = useState(0)
+  const [certifEnAttente, setCertifEnAttente] = useState(0)
 
   useEffect(() => {
-    const chargerComptesEnAttente = async () => {
+    const chargerBadges = async () => {
       if (profil?.role !== 'admin') return
-      const { count } = await supabase
+
+      const { count: countComptes } = await supabase
         .from('profils_utilisateurs')
         .select('*', { count: 'exact', head: true })
         .is('entreprise_id', null)
         .neq('role', 'admin')
-      setComptesEnAttente(count ?? 0)
+      setComptesEnAttente(countComptes ?? 0)
+
+      const { count: countCertif } = await supabase
+        .from('certifications_ethys')
+        .select('*', { count: 'exact', head: true })
+        .eq('statut', 'en_validation')
+      setCertifEnAttente(countCertif ?? 0)
     }
-    chargerComptesEnAttente()
-    const interval = setInterval(chargerComptesEnAttente, 30000)
+    chargerBadges()
+    const interval = setInterval(chargerBadges, 30000)
     return () => clearInterval(interval)
   }, [profil?.role])
+
   const [showUserMenu, setShowUserMenu] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
 
@@ -93,16 +102,23 @@ export default function SidebarLayout({ user, profil, children }: Props) {
             return (
               <button key={item.route} onClick={() => router.push(item.route)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '5px 10px', borderRadius: 6, border: 'none', cursor: 'pointer', background: active ? '#e8e3d8' : 'transparent', color: active ? '#1a1a1a' : '#4a5568', fontSize: 13, fontWeight: active ? 600 : 400, textAlign: 'left', width: '100%' }}>
                 <span style={{ flexShrink: 0, width: 20, display: 'flex', alignItems: 'center', justifyContent: 'center' }} dangerouslySetInnerHTML={{ __html: item.icon }} />
-                {open && <span style={{ flex: 1 }}>{item.label}</span>}{open && item.route === '/admin' && comptesEnAttente > 0 && (<span style={{ background: '#EF4444', color: '#fff', borderRadius: '50%', minWidth: 18, height: 18, fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>{comptesEnAttente}</span>)}
+                {open && <span style={{ flex: 1 }}>{item.label}</span>}
+                {open && item.route === '/admin' && comptesEnAttente > 0 && (
+                  <span style={{ background: '#EF4444', color: '#fff', borderRadius: '50%', minWidth: 18, height: 18, fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>{comptesEnAttente}</span>
+                )}
+                {open && item.route === '/certification' && certifEnAttente > 0 && profil?.role === 'admin' && (
+                  <span style={{ background: '#EF4444', color: '#fff', borderRadius: '50%', minWidth: 18, height: 18, fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>{certifEnAttente}</span>
+                )}
               </button>
             )
           })}
         </nav>
-      <div style={{ padding: '8px 12px', borderTop: '1px solid #e8e3d8' }}><a href="/mentions-legales" style={{ fontSize: 10, color: '#d4c5b0', textDecoration: 'none', display: 'block', textAlign: 'center' }}>Mentions legales</a></div>
-      <button onClick={() => setOpen(v => !v)} style={{ margin: '4px 8px', padding: '4px', borderRadius: 6, border: 'none', background: 'transparent', color: '#d4c5b0', cursor: 'pointer', fontSize: 11 }}>
+        <div style={{ padding: '8px 12px', borderTop: '1px solid #e8e3d8' }}>
+          <a href="/mentions-legales" style={{ fontSize: 10, color: '#d4c5b0', textDecoration: 'none', display: 'block', textAlign: 'center' }}>Mentions legales</a>
+        </div>
+        <button onClick={() => setOpen(v => !v)} style={{ margin: '4px 8px', padding: '4px', borderRadius: 6, border: 'none', background: 'transparent', color: '#d4c5b0', cursor: 'pointer', fontSize: 11 }}>
           {open ? '←' : '→'}
         </button>
-
       </aside>
 
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -113,34 +129,34 @@ export default function SidebarLayout({ user, profil, children }: Props) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <NotificationBell userId={profil?.id ?? ''} />
             <div ref={userMenuRef} style={{ fontSize: 12, color: '#8b7355', position: 'relative' }}>
-            <button
-              onClick={() => setShowUserMenu(v => !v)}
-              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 12px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', cursor: 'pointer' }}
-            >
-              <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#1a1a1a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: '#fff', flexShrink: 0 }}>
-                {initiales}
-              </div>
-              <div style={{ textAlign: 'left' }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#1A202C' }}>{nomEntreprise}</div>
-                <div style={{ fontSize: 10, color: '#8b7355', textTransform: 'capitalize' }}>{profil?.role ?? 'utilisateur'}</div>
-              </div>
-              <div style={{ fontSize: 10, color: '#8b7355', marginLeft: 4 }}>▼</div>
-            </button>
-            {showUserMenu && (
-              <div style={{ position: 'absolute', top: '110%', right: 0, background: '#fff', borderRadius: 6, border: '1px solid #e8e3d8', boxShadow: '0 8px 24px rgba(0,0,0,0.08)', minWidth: 200, zIndex: 100, overflow: 'hidden' }}>
-                <div style={{ padding: '12px 16px', borderBottom: '1px solid #f5f3ef' }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#1A202C' }}>{nomEntreprise}</div>
-                  <div style={{ fontSize: 11, color: '#8b7355', marginTop: 2 }}>{user?.email}</div>
+              <button
+                onClick={() => setShowUserMenu(v => !v)}
+                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 12px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', cursor: 'pointer' }}
+              >
+                <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#1a1a1a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: '#fff', flexShrink: 0 }}>
+                  {initiales}
                 </div>
-                <button onClick={() => { setShowUserMenu(false); router.push('/profil') }} style={{ display: 'block', width: '100%', padding: '10px 16px', border: 'none', background: 'none', textAlign: 'left', fontSize: 12, color: '#4a5568', cursor: 'pointer' }}>
-                  Mon profil
-                </button>
-                <button onClick={handleLogout} style={{ display: 'block', width: '100%', padding: '10px 16px', border: 'none', background: 'none', textAlign: 'left', fontSize: 12, color: '#8b3a3a', cursor: 'pointer', borderTop: '1px solid #f5f3ef' }}>
-                  Déconnexion
-                </button>
-              </div>
-            )}
-          </div>
+                <div style={{ textAlign: 'left' }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: '#1A202C' }}>{nomEntreprise}</div>
+                  <div style={{ fontSize: 10, color: '#8b7355', textTransform: 'capitalize' }}>{profil?.role ?? 'utilisateur'}</div>
+                </div>
+                <div style={{ fontSize: 10, color: '#8b7355', marginLeft: 4 }}>▼</div>
+              </button>
+              {showUserMenu && (
+                <div style={{ position: 'absolute', top: '110%', right: 0, background: '#fff', borderRadius: 6, border: '1px solid #e8e3d8', boxShadow: '0 8px 24px rgba(0,0,0,0.08)', minWidth: 200, zIndex: 100, overflow: 'hidden' }}>
+                  <div style={{ padding: '12px 16px', borderBottom: '1px solid #f5f3ef' }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#1A202C' }}>{nomEntreprise}</div>
+                    <div style={{ fontSize: 11, color: '#8b7355', marginTop: 2 }}>{user?.email}</div>
+                  </div>
+                  <button onClick={() => { setShowUserMenu(false); router.push('/profil') }} style={{ display: 'block', width: '100%', padding: '10px 16px', border: 'none', background: 'none', textAlign: 'left', fontSize: 12, color: '#4a5568', cursor: 'pointer' }}>
+                    Mon profil
+                  </button>
+                  <button onClick={handleLogout} style={{ display: 'block', width: '100%', padding: '10px 16px', border: 'none', background: 'none', textAlign: 'left', fontSize: 12, color: '#8b3a3a', cursor: 'pointer', borderTop: '1px solid #f5f3ef' }}>
+                    Deconnexion
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </header>
         <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', position: 'relative' }}>{children}</div>
@@ -148,4 +164,3 @@ export default function SidebarLayout({ user, profil, children }: Props) {
     </div>
   )
 }
-
