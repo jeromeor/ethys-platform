@@ -190,7 +190,7 @@ export default function SupportClient({ userId, isAdmin }: Props) {
               type="text"
               value={objet}
               onChange={e => setObjet(e.target.value)}
-              placeholder="Ex : Probleme de connexion, Question sur une commande..."
+              placeholder="Ex : Problème de connexion, question sur une commande..."
               style={{ width: '100%', border: '1px solid #d4c5b0', borderRadius: 8, padding: '9px 12px', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
             />
           </div>
@@ -201,7 +201,7 @@ export default function SupportClient({ userId, isAdmin }: Props) {
               value={message}
               onChange={e => setMessage(e.target.value)}
               rows={5}
-              placeholder="Decrivez votre demande en detail..."
+              placeholder="Décrivez votre demande en détail..."
               style={{ width: '100%', border: '1px solid #d4c5b0', borderRadius: 8, padding: '9px 12px', fontSize: 13, outline: 'none', resize: 'none', boxSizing: 'border-box' }}
             />
           </div>
@@ -214,7 +214,7 @@ export default function SupportClient({ userId, isAdmin }: Props) {
                 onChange={e => setAPieceJointe(e.target.checked)}
                 style={{ width: 16, height: 16 }}
               />
-              J ai une piece jointe - je l enverrai par email en reponse a la confirmation
+              J'ai une pièce jointe - je l'enverrai par email en réponse à la confirmation
             </label>
           </div>
 
@@ -234,7 +234,7 @@ export default function SupportClient({ userId, isAdmin }: Props) {
         <p style={{ fontSize: 13, color: '#8b7355' }}>Chargement...</p>
       ) : tickets.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '48px 0', color: '#8b7355', fontSize: 13 }}>
-          {isAdmin ? 'Aucune demande recue.' : 'Vous navez pas encore soumis de demande.'}
+          {isAdmin ? 'Aucune demande recue.' : 'Vous n'avez pas encore soumis de demande.'}
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
