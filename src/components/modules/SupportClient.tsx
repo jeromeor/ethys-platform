@@ -21,9 +21,9 @@ interface Props {
 }
 
 const STATUT_STYLE: Record<string, { label: string; background: string; color: string }> = {
-  envoyee:  { label: 'Envoyée',   background: '#dbeafe', color: '#1d4ed8' },
+  envoyee:  { label: 'Envoyee',   background: '#dbeafe', color: '#1d4ed8' },
   en_cours: { label: 'En cours',  background: '#fef3c7', color: '#b45309' },
-  cloturee: { label: 'Clôturée', background: '#dcfce7', color: '#15803d' },
+  cloturee: { label: 'Cloturee', background: '#dcfce7', color: '#15803d' },
 }
 
 function getStatutStyle(statut: string) {
@@ -155,13 +155,13 @@ export default function SupportClient({ userId, isAdmin }: Props) {
     new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })
 
   return (
-    <div style={{ padding: '24px 28px', maxWidth: 900, margin: '0 auto', overflowY: 'auto', height: '100%' }}>
+    <div style={{ padding: '24px 28px', overflowY: 'auto', height: '100%' }}>
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Support</h1>
           <p style={{ fontSize: 12, color: '#8b7355', margin: '4px 0 0' }}>
-            {isAdmin ? 'Toutes les demandes' : 'Suivez vos demandes assistance'}
+            {isAdmin ? 'Toutes les demandes' : 'Suivez vos demandes'}
           </p>
         </div>
         {!isAdmin && (
@@ -237,72 +237,45 @@ export default function SupportClient({ userId, isAdmin }: Props) {
           {isAdmin ? 'Aucune demande recue.' : 'Vous navez pas encore soumis de demande.'}
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           {tickets.map(ticket => {
             const st = getStatutStyle(ticket.statut)
             return (
-              <div key={ticket.id} style={{ background: '#fff', border: '1px solid #e8e3d8', borderRadius: 12, padding: '16px 18px' }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
-                      {ticket.reference && (
-                        <span style={{ fontSize: 11, fontWeight: 700, color: '#8b7355', letterSpacing: 0.5 }}>
-                          {ticket.reference}
-                        </span>
-                      )}
-                      <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: st.background, color: st.color }}>
-                        {st.label}
-                      </span>
-                      {ticket.a_piece_jointe && (
-                        <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 20, background: '#f5f3ef', color: '#8b7355' }}>
-                          PJ
-                        </span>
-                      )}
-                    </div>
-
-                    <p style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', margin: '0 0 4px' }}>{ticket.objet}</p>
-                    <p style={{ fontSize: 13, color: '#4a5568', margin: '0 0 8px' }}>{ticket.message}</p>
-
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 }}>
-                      <p style={{ fontSize: 11, color: '#a0aec0', margin: 0 }}>
-                        {formatDate(ticket.created_at)}
-                      </p>
-                     {!isAdmin && ticket.reference && (
+              <div key={ticket.id} style={{ background: '#fff', border: '1px solid #e8e3d8', borderRadius: 8, padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+                {ticket.reference && (
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#8b7355', letterSpacing: 0.5, flexShrink: 0 }}>{ticket.reference}</span>
+                )}
+                <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: st.background, color: st.color, flexShrink: 0 }}>{st.label}</span>
+                {ticket.a_piece_jointe && (
+                  <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 20, background: '#f5f3ef', color: '#8b7355', flexShrink: 0 }}>PJ</span>
+                )}
+                <span style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ticket.objet}</span>
+                <span style={{ fontSize: 11, color: '#a0aec0', flexShrink: 0 }}>{formatDate(ticket.created_at)}</span>
+                {!isAdmin && ticket.reference && (
+                  <button
+                    onClick={() => { window.location.href = getSupportMailto(ticket.reference, ticket.objet) }}
+                    style={{ fontSize: 11, color: '#1a1a1a', fontWeight: 600, border: '1px solid #e8e3d8', borderRadius: 6, background: '#f5f3ef', padding: '4px 10px', cursor: 'pointer', flexShrink: 0 }}
+                  >
+                    Repondre par email
+                  </button>
+                )}
+                {isAdmin && (
+                  <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+                    {(['envoyée', 'en_cours', 'clôturée'] as const).map(s => {
+                      const ss = getStatutStyle(s)
+                      return (
                         <button
-                          onClick={() => { window.location.href = getSupportMailto(ticket.reference, ticket.objet) }}
-                          style={{ fontSize: 11, color: '#1a1a1a', fontWeight: 600, border: '1px solid #e8e3d8', borderRadius: 6, background: '#f5f3ef', padding: '4px 10px', cursor: 'pointer' }}
+                          key={s}
+                          onClick={() => handleStatut(ticket.id, s)}
+                          disabled={ticket.statut === s}
+                          style={{ fontSize: 11, padding: '4px 10px', borderRadius: 6, border: '1px solid #e8e3d8', cursor: ticket.statut === s ? 'default' : 'pointer', background: ticket.statut === s ? ss.background : '#fff', color: ticket.statut === s ? ss.color : '#4a5568', fontWeight: ticket.statut === s ? 600 : 400 }}
                         >
-                          Repondre par email
+                          {ss.label}
                         </button>
-                      )}
-                    </div>
+                      )
+                    })}
                   </div>
-
-                  {isAdmin && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flexShrink: 0 }}>
-                      {(['envoyée', 'en_cours', 'clôturée'] as const).map(s => {
-                        const ss = getStatutStyle(s)
-                        return (
-                          <button
-                            key={s}
-                            onClick={() => handleStatut(ticket.id, s)}
-                            disabled={ticket.statut === s}
-                            style={{
-                              fontSize: 11, padding: '4px 10px', borderRadius: 6,
-                              border: '1px solid #e8e3d8',
-                              cursor: ticket.statut === s ? 'default' : 'pointer',
-                              background: ticket.statut === s ? ss.background : '#fff',
-                              color: ticket.statut === s ? ss.color : '#4a5568',
-                              fontWeight: ticket.statut === s ? 600 : 400,
-                            }}
-                          >
-                            {ss.label}
-                          </button>
-                        )
-                      })}
-                    </div>
-                  )}
-                </div>
+                )}
               </div>
             )
           })}
