@@ -267,13 +267,13 @@ export default function SupportClient({ userId, isAdmin }: Props) {
                       <p style={{ fontSize: 11, color: '#a0aec0', margin: 0 }}>
                         {formatDate(ticket.created_at)}
                       </p>
-                      {!isAdmin && ticket.reference && (
-                        
-                          href={getSupportMailto(ticket.reference, ticket.objet)}
-                          style={{ fontSize: 11, color: '#1a1a1a', fontWeight: 600, textDecoration: 'none', padding: '4px 10px', border: '1px solid #e8e3d8', borderRadius: 6, background: '#f5f3ef' }}
+                     {!isAdmin && ticket.reference && (
+                        <button
+                          onClick={() => { window.location.href = getSupportMailto(ticket.reference, ticket.objet) }}
+                          style={{ fontSize: 11, color: '#1a1a1a', fontWeight: 600, border: '1px solid #e8e3d8', borderRadius: 6, background: '#f5f3ef', padding: '4px 10px', cursor: 'pointer' }}
                         >
                           Repondre par email
-                        </a>
+                        </button>
                       )}
                     </div>
                   </div>
