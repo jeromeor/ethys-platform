@@ -127,7 +127,9 @@ export default function SupportClient({ userId, isAdmin }: Props) {
           .eq('id', ticket.user_id ?? '')
           .single()
         if (profil?.email) {
-          await fetch('/api/support/notify', {
+         const getSupportMailto = (ref: string, objet: string) => {
+    return 'mailto:contact@textile-loop.com?subject=[' + ref + '] ' + encodeURIComponent(objet)
+  }
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -233,11 +235,11 @@ export default function SupportClient({ userId, isAdmin }: Props) {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 }}>
                     <p style={{ fontSize: 11, color: '#a0aec0', margin: 0 }}>
                       Envoyée le {formatDate(ticket.created_at)}
-                      {ticket.updated_at !== ticket.created_at && ` · Mise à jour le ${formatDate(ticket.updated_at)}`}
+                      {ticket.updated_at !== ticket.created_at && ' · Mise à jour le ' + formatDate(ticket.updated_at)}
                     </p>
                     {!isAdmin && ticket.reference && (
                       
-                        href={'mailto:contact@textile-loop.com?subject=[' + ticket.reference + '] ' + encodeURIComponent(ticket.objet)}
+                        href={getSupportMailto(ticket.reference, ticket.objet)}
                         style={{ fontSize: 11, color: '#1a1a1a', fontWeight: 600, textDecoration: 'none', padding: '4px 10px', border: '1px solid #e8e3d8', borderRadius: 6, background: '#f5f3ef' }}
                       >
                         ✉ Répondre par email
