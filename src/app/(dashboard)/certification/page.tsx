@@ -54,6 +54,24 @@ export default async function CertificationPage() {
     lotsQuery = lotsQuery.not('id', 'in', '(' + lotIdsDejaCouverts.join(',') + ')')
   }
 
+  if (role === 'filature') {
+    const { data: cmdIds } = await supabase
+      .from('commandes')
+      .select('id')
+      .eq('filature_id', entrepriseId)
+    const ids = (cmdIds ?? []).map(c => c.id)
+    if (ids.length > 0) lotsQuery = lotsQuery.in('commande_id', ids)
+    else lotsQuery = lotsQuery.eq('commande_id', '00000000-0000-0000-0000-000000000000')
+  } else if (role === 'marque') {
+    const { data: cmdIds } = await supabase
+      .from('commandes')
+      .select('id')
+      .eq('marque_id', entrepriseId)
+    const ids = (cmdIds ?? []).map(c => c.id)
+    if (ids.length > 0) lotsQuery = lotsQuery.in('commande_id', ids)
+    else lotsQuery = lotsQuery.eq('commande_id', '00000000-0000-0000-0000-000000000000')
+  }
+
   const { data: lotsRaw } = await lotsQuery
 
   const commandeIds = [...new Set((lotsRaw ?? []).map(l => l.commande_id).filter(Boolean))]
