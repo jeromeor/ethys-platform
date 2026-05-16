@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
@@ -42,21 +42,21 @@ const STATUT_LABELS: Record<StatutCommande, string> = {
   validation_fournisseur: 'Val. fournisseur',
   validation_filature:    'Val. filature',
   validation_finale:      'Val. finale',
-  'en_production':      'En production',
-  controle_qualite:       'Contrôle qualité',
-  qr_genere:              'QR généré',
-  expediee:               'Expédiée',
-  livree:                 'Livrées',
-  annulee:                'Annulée',
+  en_production:          'En production',
+  controle_qualite:       'Controle qualite',
+  qr_genere:              'QR genere',
+  expediee:               'Expediee',
+  livree:                 'Livrees',
+  annulee:                'Annulee',
 }
 
 const STATUT_COLORS: Record<string, [string, string, string]> = {
   brouillon:              ['#f5f3ef', '#4a5568', '#8b7355'],
-  Soumise:                ['#DBEAFE', '#1E40AF', '#3B82F6'],
+  soumise:                ['#DBEAFE', '#1E40AF', '#3B82F6'],
   validation_fournisseur: ['#fdf8ec', '#b8860b', '#F59E0B'],
   validation_filature:    ['#fdf8ec', '#b8860b', '#F59E0B'],
   validation_finale:      ['#fdf8ec', '#b8860b', '#F59E0B'],
-  en_production:        ['#D1ECF1', '#0C5460', '#06B6D4'],
+  en_production:          ['#D1ECF1', '#0C5460', '#06B6D4'],
   controle_qualite:       ['#fdf8ec', '#b8860b', '#F59E0B'],
   qr_genere:              ['#f0f4ec', '#2d5016', '#2d5016'],
   expediee:               ['#f0f4ec', '#2d5016', '#2d5016'],
@@ -95,8 +95,8 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
 
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }))
 
-  const marques    = entreprises.filter(e => e.type === 'marque')
-  const filatures  = entreprises.filter(e => e.type === 'filature')
+  const marques     = entreprises.filter(e => e.type === 'marque')
+  const filatures   = entreprises.filter(e => e.type === 'filature')
   const fournisseurs = entreprises.filter(e => e.type === 'fournisseur_coton')
 
   const filtrees = commandes.filter(c =>
@@ -105,27 +105,27 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
 
   const etapeIndex = (statut: string) => ETAPES.indexOf(statut)
 
-const CréerCommande = async () => {
+  const creerCommande = async () => {
     if (!form.marque_id || !form.filature_id || !form.fournisseur_id || !form.date_livraison_souhaitee) {
       setError('Veuillez remplir tous les champs obligatoires : Marque, Filature, Fournisseur et Date de livraison.')
       return
     }
     if (form.type_coton === 'recycle' && (!form.volume_recycle_tonnes || parseFloat(form.volume_recycle_tonnes) <= 0)) {
-      setError('Veuillez indiquer un volume de coton recyclé supérieur a 0.')
+      setError('Veuillez indiquer un volume de coton recycle superieur a 0.')
       return
     }
     if (form.type_coton === 'vierge' && (!form.volume_vierge_tonnes || parseFloat(form.volume_vierge_tonnes) <= 0)) {
-      setError('Veuillez indiquer un volume de coton vierge supérieur a 0.')
+      setError('Veuillez indiquer un volume de coton vierge superieur a 0.')
       return
     }
     if (form.type_coton === 'mixte' && (!form.volume_recycle_tonnes || !form.volume_vierge_tonnes)) {
-      setError('Pour un type mixte, Veuillez indiquer les volumes recyclé et vierge.')
+      setError('Pour un type mixte, veuillez indiquer les volumes recycle et vierge.')
       return
     }
     setError('')
     setLoading(true)
 
-    const { data, error } = await supabase
+    const { data, error: insertError } = await supabase
       .from('commandes')
       .insert({
         titre: form.titre || null,
@@ -151,7 +151,13 @@ const CréerCommande = async () => {
       `)
       .single()
 
-    if (!error && data) {
+    if (insertError) {
+      setError('Erreur lors de la creation : ' + insertError.message)
+      setLoading(false)
+      return
+    }
+
+    if (data) {
       setCommandes(prev => [data as Commande, ...prev])
       setShowForm(false)
       setForm({
@@ -180,10 +186,8 @@ const CréerCommande = async () => {
   return (
     <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
 
-      {/* Liste */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
-        {/* Barre outils */}
         <div style={{
           padding: '14px 22px', background: '#fff', borderBottom: '1px solid #e8e3d8',
           display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexShrink: 0
@@ -201,14 +205,13 @@ const CréerCommande = async () => {
             ))}
           </div>
           {(profil?.role === 'admin' || profil?.role === 'marque' || profil?.role === 'filature') && (
-  <button onClick={() => setShowForm(true)} style={{
-    padding: '8px 16px', borderRadius: 4, border: 'none',
-    background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer'
-  }}>+ Nouvelle commande</button>
-)}
+            <button onClick={() => setShowForm(true)} style={{
+              padding: '8px 16px', borderRadius: 4, border: 'none',
+              background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer'
+            }}>+ Nouvelle commande</button>
+          )}
         </div>
 
-        {/* Table */}
         <div style={{ flex: 1, overflow: 'auto', padding: '16px 22px' }}>
           {filtrees.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '60px 0', color: '#8b7355' }}>
@@ -221,13 +224,13 @@ const CréerCommande = async () => {
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ background: '#f5f3ef' }}>
-                    {['Référence', 'Marque', 'Filature', 'Volume', 'Composition', 'Statut', 'Livraison'].concat(selected ? [] : ['Avancement']).map(h => (
+                    {['Reference', 'Marque', 'Filature', 'Volume', 'Composition', 'Statut', 'Livraison'].concat(selected ? [] : ['Avancement']).map(h => (
                       <th key={h} style={{ padding: '10px 14px', fontSize: 11, fontWeight: 600, color: '#8b7355', textAlign: 'left', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {filtrees.map((c, i) => {
+                  {filtrees.map((c) => {
                     const [bg, tc, dot] = STATUT_COLORS[c.statut] ?? ['#f5f3ef', '#4a5568', '#8b7355']
                     const etape = etapeIndex(c.statut)
                     return (
@@ -243,7 +246,7 @@ const CréerCommande = async () => {
                         <td style={{ padding: '12px 14px', fontSize: 12, fontWeight: 600 }}>{Math.round((c.volume_total_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg</td>
                         <td style={{ padding: '12px 14px' }}>
                           <span style={{ fontSize: 11, fontWeight: 600, color: '#059669' }}>
-                            {Math.round(c.pct_recycle ?? 0)}% 
+                            {Math.round(c.pct_recycle ?? 0)}%
                           </span>
                         </td>
                         <td style={{ padding: '12px 14px' }}>
@@ -259,17 +262,17 @@ const CréerCommande = async () => {
                           {new Date(c.date_livraison_souhaitee).toLocaleDateString('fr-FR')}
                         </td>
                         {!selected && (
-  <td style={{ padding: '12px 14px' }}>
-    <div style={{ display: 'flex', gap: 3 }}>
-      {ETAPES.map((_, idx) => (
-        <div key={idx} style={{
-          width: 14, height: 4, borderRadius: 2,
-          background: idx <= etape ? '#1a1a1a' : '#d4c5b0'
-        }} />
-      ))}
-    </div>
-  </td>
-)}
+                          <td style={{ padding: '12px 14px' }}>
+                            <div style={{ display: 'flex', gap: 3 }}>
+                              {ETAPES.map((_, idx) => (
+                                <div key={idx} style={{
+                                  width: 14, height: 4, borderRadius: 2,
+                                  background: idx <= etape ? '#1a1a1a' : '#d4c5b0'
+                                }} />
+                              ))}
+                            </div>
+                          </td>
+                        )}
                       </tr>
                     )
                   })}
@@ -280,7 +283,6 @@ const CréerCommande = async () => {
         </div>
       </div>
 
-      {/* Panneau détail */}
       {selected && (
         <div style={{
           width: 320, minWidth: 320, background: '#fff',
@@ -291,7 +293,7 @@ const CréerCommande = async () => {
             display: 'flex', justifyContent: 'space-between', alignItems: 'center'
           }}>
             <span style={{ fontWeight: 700, fontSize: 13, color: '#1a1a1a' }}>{selected.reference}</span>
-            <button onClick={() => setSelected(null)} style={{ border: 'none', background: 'none', fontSize: 16, color: '#8b7355', cursor: 'pointer' }}>âœ•</button>
+            <button onClick={() => setSelected(null)} style={{ border: 'none', background: 'none', fontSize: 16, color: '#8b7355', cursor: 'pointer' }}>x</button>
           </div>
           <div style={{ flex: 1, overflow: 'auto', padding: '18px' }}>
             <div style={{ background: 'linear-gradient(135deg,#1a1a1a,#2a2a2a)', borderRadius: 6, padding: '16px', color: '#fff', marginBottom: 16 }}>
@@ -300,8 +302,8 @@ const CréerCommande = async () => {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                 {[
                   ['Volume', `${Math.round((selected.volume_total_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg`],
-                  ['Recyclé', `${Math.round(selected.pct_recycle ?? 0)}%`],
-                  ['priorite', selected.priorite],
+                  ['Recycle', `${Math.round(selected.pct_recycle ?? 0)}%`],
+                  ['Priorite', selected.priorite],
                   ['Livraison', new Date(selected.date_livraison_souhaitee).toLocaleDateString('fr-FR')],
                 ].map(([l, v]) => (
                   <div key={l} style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 10px' }}>
@@ -326,7 +328,6 @@ const CréerCommande = async () => {
               </div>
             ))}
 
-            {/* Validations */}
             {selected.validations?.length > 0 && (
               <div style={{ marginTop: 14 }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#1a1a1a', marginBottom: 8, textTransform: 'uppercase' }}>
@@ -348,7 +349,6 @@ const CréerCommande = async () => {
         </div>
       )}
 
-      {/* Modal nouvelle commande */}
       {showForm && (
         <div style={{
           position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)',
@@ -365,7 +365,7 @@ const CréerCommande = async () => {
             <div style={{ padding: '22px 28px', display: 'flex', flexDirection: 'column', gap: 14 }}>
 
               <div>
-                {labelInput('Titre / référence interne')}
+                {labelInput('Titre / reference interne')}
                 <input value={form.titre} onChange={e => set('titre', e.target.value)}
                   placeholder="Ex : Collection Printemps 2024" style={inputStyle} />
               </div>
@@ -374,21 +374,21 @@ const CréerCommande = async () => {
                 <div>
                   {labelInput('Marque *')}
                   <select value={form.marque_id} onChange={e => set('marque_id', e.target.value)} style={selectStyle}>
-                    <option value="">Sélectionner…</option>
+                    <option value="">Selectionner...</option>
                     {marques.map(m => <option key={m.id} value={m.id}>{m.nom}</option>)}
                   </select>
                 </div>
                 <div>
                   {labelInput('Filature *')}
                   <select value={form.filature_id} onChange={e => set('filature_id', e.target.value)} style={selectStyle}>
-                    <option value="">Sélectionner…</option>
+                    <option value="">Selectionner...</option>
                     {filatures.map(f => <option key={f.id} value={f.id}>{f.nom}</option>)}
                   </select>
                 </div>
                 <div>
                   {labelInput('Fournisseur *')}
                   <select value={form.fournisseur_id} onChange={e => set('fournisseur_id', e.target.value)} style={selectStyle}>
-                    <option value="">Sélectionner…</option>
+                    <option value="">Selectionner...</option>
                     {fournisseurs.map(f => <option key={f.id} value={f.id}>{f.nom}</option>)}
                   </select>
                 </div>
@@ -397,7 +397,7 @@ const CréerCommande = async () => {
               <div>
                 {labelInput('Type de coton')}
                 <div style={{ display: 'flex', gap: 8 }}>
-                  {[['mixte', 'Fil ETHYS (recyclé + vierge)']].map(([v, l]) => (
+                  {[['mixte', 'Fil ETHYS (recycle + vierge)']].map(([v, l]) => (
                     <button key={v} onClick={() => set('type_coton', v)} style={{
                       flex: 1, padding: '8px', borderRadius: 4, cursor: 'pointer',
                       border: `2px solid ${form.type_coton === v ? '#1a1a1a' : '#e8e3d8'}`,
@@ -412,7 +412,7 @@ const CréerCommande = async () => {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 {form.type_coton !== 'vierge' && (
                   <div>
-                    {labelInput('Volume recyclé (kg)')}
+                    {labelInput('Volume recycle (kg)')}
                     <input type="number" min="0" value={form.volume_recycle_tonnes}
                       onChange={e => set('volume_recycle_tonnes', e.target.value)}
                       placeholder="Ex : 80" style={inputStyle} />
@@ -439,12 +439,12 @@ const CréerCommande = async () => {
                   </select>
                 </div>
                 <div>
-                  {labelInput('Livraison souhaitée *')}
+                  {labelInput('Livraison souhaitee *')}
                   <input type="date" value={form.date_livraison_souhaitee}
                     onChange={e => set('date_livraison_souhaitee', e.target.value)} style={inputStyle} />
                 </div>
                 <div>
-                  {labelInput('priorite')}
+                  {labelInput('Priorite')}
                   <select value={form.priorite} onChange={e => set('priorite', e.target.value)} style={selectStyle}>
                     <option value="normale">Normale</option>
                     <option value="haute">Haute</option>
@@ -456,9 +456,13 @@ const CréerCommande = async () => {
               <div>
                 {labelInput('Notes')}
                 <textarea value={form.notes} onChange={e => set('notes', e.target.value)}
-                  placeholder="Instructions particulières…" rows={3}
+                  placeholder="Instructions particulieres..." rows={3}
                   style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit' }} />
               </div>
+
+              {error && (
+                <div style={{ padding: '10px 14px', borderRadius: 8, background: '#fdf0f0', border: '1px solid #c8a0a0', fontSize: 12, color: '#8b3a3a' }}>{error}</div>
+              )}
 
               <div style={{ display: 'flex', gap: 10, paddingTop: 4 }}>
                 <button onClick={() => setShowForm(false)} style={{
@@ -466,20 +470,16 @@ const CréerCommande = async () => {
                   border: '1.5px solid #e8e3d8', background: '#f5f3ef',
                   color: '#8b7355', fontSize: 13, cursor: 'pointer'
                 }}>Annuler</button>
-                <button onClick={CréerCommande} disabled={loading} style={{
+                <button onClick={creerCommande} disabled={loading} style={{
                   flex: 2, padding: '10px', borderRadius: 4, border: 'none',
                   background: loading ? '#d4c5b0' : '#1a1a1a',
                   color: loading ? '#8b7355' : '#fff',
                   fontSize: 13, fontWeight: 700, cursor: loading ? 'default' : 'pointer'
-                }}>{error && (
-  <div style={{
-    padding: '10px 14px', borderRadius: 8, background: '#fdf0f0',
-    border: '1px solid #c8a0a0', fontSize: 12, color: '#8b3a3a', marginBottom: 16
-  }}>{error}</div>
-)}
-                  {loading ? 'Creation...' : ' Creer la commande ETHYS'}
-		</button>
+                }}>
+                  {loading ? 'Creation...' : 'Creer la commande ETHYS'}
+                </button>
               </div>
+
             </div>
           </div>
         </div>
@@ -487,11 +487,3 @@ const CréerCommande = async () => {
     </div>
   )
 }
-
-
-
-
-
-
-
-
