@@ -70,8 +70,8 @@ export default async function CertificationPage() {
 
   return (
     <CertificationClient
-      certifications={certifications ?? []}
-      lotsEligibles={lotsEligibles ?? []}
+      certifications={(certifications ?? []) as any}
+      lotsEligibles={(lotsEligibles ?? []) as any}
       userRole={role}
       entrepriseId={entrepriseId}
       userId={user.id}
