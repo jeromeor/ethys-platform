@@ -41,6 +41,12 @@ export default async function CertificationPage() {
   const { data: certifications } = await certsQuery
 
   // Recuperer les lots eligibles (avancement 100%) sans certification
+  const { data: lotsAvecCert } = await supabase
+    .from('certifications_ethys')
+    .select('lot_id')
+
+  const lotIdsDejaCouverts = (lotsAvecCert ?? []).map(c => c.lot_id).filter(Boolean)
+
   let lotsQuery = supabase
     .from('lots')
     .select(`
@@ -54,7 +60,10 @@ export default async function CertificationPage() {
       )
     `)
     .eq('avancement_pct', 100)
-    .not('id', 'in', `(${(certifications ?? []).map(c => c.lot_id).filter(Boolean).join(',') || '00000000-0000-0000-0000-000000000000'})`)
+
+  if (lotIdsDejaCouverts.length > 0) {
+    lotsQuery = lotsQuery.not('id', 'in', '(' + lotIdsDejaCouverts.join(',') + ')')
+  }
 
   if (role === 'filature') {
     const { data: cmdIds } = await supabase
@@ -67,7 +76,6 @@ export default async function CertificationPage() {
   }
 
   const { data: lotsEligibles } = await lotsQuery
-
   return (
     <CertificationClient
       certifications={(certifications ?? []) as any}
