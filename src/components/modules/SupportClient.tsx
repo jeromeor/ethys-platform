@@ -155,7 +155,7 @@ export default function SupportClient({ userId, isAdmin }: Props) {
     new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })
 
   return (
-    <div style={{ padding: '24px 28px', maxWidth: 900, margin: '0 auto' }}>
+    <div style={{ padding: '24px 28px', maxWidth: 900, margin: '0 auto', overflowY: 'auto', height: '100%' }}>
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
         <div>
