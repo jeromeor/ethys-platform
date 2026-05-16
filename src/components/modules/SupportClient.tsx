@@ -234,7 +234,7 @@ export default function SupportClient({ userId, isAdmin }: Props) {
         <p style={{ fontSize: 13, color: '#8b7355' }}>Chargement...</p>
       ) : tickets.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '48px 0', color: '#8b7355', fontSize: 13 }}>
-          {isAdmin ? 'Aucune demande recue.' : {'Vous n\u2019avez pas encore soumis de demande.'}}
+          {isAdmin ? "Aucune demande recue." : "Vous n avez pas encore soumis de demande."}
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
