@@ -30,7 +30,7 @@ export async function POST(req: Request) {
           </p>
         </div>
       `,
-      reply_to: email,
+      replyTo: email,
     })
 
     // Email de confirmation à l'utilisateur
