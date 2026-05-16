@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
 
 type StatutCommande =
   | 'brouillon' | 'soumise' | 'validation_fournisseur'
@@ -26,7 +25,6 @@ interface Commande {
   marque: { nom: string } | null
   filature: { nom: string } | null
   fournisseur: { nom: string } | null
-  validations: { type: string; statut: string }[]
 }
 
 interface Props {
@@ -71,7 +69,6 @@ const ETAPES = [
 
 export default function CommandesClient({ user, profil, commandes: initial, entreprises }: Props) {
   const supabase = createClient()
-  const router = useRouter()
   const [commandes, setCommandes] = useState<Commande[]>(initial)
   const [showForm, setShowForm] = useState(false)
   const [selected, setSelected] = useState<Commande | null>(null)
@@ -95,8 +92,8 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
 
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }))
 
-  const marques     = entreprises.filter(e => e.type === 'marque')
-  const filatures   = entreprises.filter(e => e.type === 'filature')
+  const marques      = entreprises.filter(e => e.type === 'marque')
+  const filatures    = entreprises.filter(e => e.type === 'filature')
   const fournisseurs = entreprises.filter(e => e.type === 'fournisseur_coton')
 
   const filtrees = commandes.filter(c =>
@@ -146,8 +143,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
         *,
         marque:entreprises!commandes_marque_id_fkey(nom),
         filature:entreprises!commandes_filature_id_fkey(nom),
-        fournisseur:entreprises!commandes_fournisseur_id_fkey(nom),
-        validations(*)
+        fournisseur:entreprises!commandes_fournisseur_id_fkey(nom)
       `)
       .single()
 
@@ -301,8 +297,8 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
               {selected.titre && <div style={{ fontSize: 11, opacity: 0.75, marginBottom: 10 }}>{selected.titre}</div>}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                 {[
-                  ['Volume', `${Math.round((selected.volume_total_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg`],
-                  ['Recycle', `${Math.round(selected.pct_recycle ?? 0)}%`],
+                  ['Volume', String(Math.round((selected.volume_total_tonnes ?? 0) * 1000).toLocaleString('fr-FR')) + ' kg'],
+                  ['Recycle', String(Math.round(selected.pct_recycle ?? 0)) + '%'],
                   ['Priorite', selected.priorite],
                   ['Livraison', new Date(selected.date_livraison_souhaitee).toLocaleDateString('fr-FR')],
                 ].map(([l, v]) => (
@@ -327,24 +323,6 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
                 <span style={{ fontSize: 12, fontWeight: 600, color: '#1A202C' }}>{v ?? '-'}</span>
               </div>
             ))}
-
-            {selected.validations?.length > 0 && (
-              <div style={{ marginTop: 14 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#1a1a1a', marginBottom: 8, textTransform: 'uppercase' }}>
-                  Validations
-                </div>
-                {selected.validations.map((v, i) => (
-                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 6 }}>
-                    <span style={{ color: '#4a5568', textTransform: 'capitalize' }}>{v.type}</span>
-                    <span style={{
-                      padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700,
-                      background: v.statut === 'approuve' ? '#f0f4ec' : v.statut === 'refuse' ? '#FEE2E2' : '#fdf8ec',
-                      color: v.statut === 'approuve' ? '#2d5016' : v.statut === 'refuse' ? '#991B1B' : '#b8860b'
-                    }}>{v.statut}</span>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         </div>
       )}
@@ -400,7 +378,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
                   {[['mixte', 'Fil ETHYS (recycle + vierge)']].map(([v, l]) => (
                     <button key={v} onClick={() => set('type_coton', v)} style={{
                       flex: 1, padding: '8px', borderRadius: 4, cursor: 'pointer',
-                      border: `2px solid ${form.type_coton === v ? '#1a1a1a' : '#e8e3d8'}`,
+                      border: '2px solid ' + (form.type_coton === v ? '#1a1a1a' : '#e8e3d8'),
                       background: form.type_coton === v ? '#F0FDF4' : '#FAFAFA',
                       color: form.type_coton === v ? '#1a1a1a' : '#4a5568',
                       fontSize: 11, fontWeight: form.type_coton === v ? 700 : 400
