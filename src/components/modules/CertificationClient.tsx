@@ -189,7 +189,7 @@ export default function CertificationClient({ certifications: initial, lotsEligi
               <span style={{ fontWeight: 700, color: '#b45309' }}>{certifications.filter(c => c.statut === 'en_validation').length}</span> en attente
             </div>
           </div>
-          {!isAdmin && lotsEligibles.length > 0 && (
+          {lotsEligibles.length > 0 && (
             <button onClick={() => { setShowForm(true); setSelected(null) }} style={{ padding: '7px 12px', borderRadius: 8, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
               + Demander
             </button>
