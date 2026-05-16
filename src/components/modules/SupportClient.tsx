@@ -230,10 +230,20 @@ export default function SupportClient({ userId, isAdmin }: Props) {
       {loading ? (
         <p style={{ fontSize: 13, color: '#8b7355' }}>Chargement...</p>
       ) : tickets.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '48px 0', color: '#8b7355', fontSize: 13 }}>
-          {isAdmin ? 'Aucune demande reçue.' : 'Vous n\'avez pas encore soumis de demande.'}
-        </div>
-      ) : (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 }}>
+                    <p style={{ fontSize: 11, color: '#a0aec0', margin: 0 }}>
+                      Envoyée le {formatDate(ticket.created_at)}
+                      {ticket.updated_at !== ticket.created_at && ` · Mise à jour le ${formatDate(ticket.updated_at)}`}
+                    </p>
+                    {!isAdmin && ticket.reference && (
+                      
+                        href={`mailto:contact@textile-loop.com?subject=[${ticket.reference}] ${encodeURIComponent(ticket.objet)}`}
+                        style={{ fontSize: 11, color: '#1a1a1a', fontWeight: 600, textDecoration: 'none', padding: '4px 10px', border: '1px solid #e8e3d8', borderRadius: 6, background: '#f5f3ef' }}
+                      >
+                        ✉ Répondre par email
+                      </a>
+                    )}
+                  </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {tickets.map(ticket => (
             <div key={ticket.id} style={{ background: '#fff', border: '1px solid #e8e3d8', borderRadius: 12, padding: '16px 18px' }}>
