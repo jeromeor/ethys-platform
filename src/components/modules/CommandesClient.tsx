@@ -144,6 +144,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
         type_coton: 'mixte',
         volume_recycle_tonnes: volumeRecycle / 1000,
         volume_vierge_tonnes: volumeVierge / 1000,
+        volume_total_tonnes: (volumeRecycle + volumeVierge) / 1000,
         grammage: grammageNum,
         date_livraison_souhaitee: form.date_livraison_souhaitee,
         priorite: form.priorite,
