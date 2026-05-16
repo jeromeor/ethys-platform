@@ -33,7 +33,7 @@ const STATUT_LABELS: Record<string, { label: string; color: string }> = {
 }
 
 export default function SupportClient({ userId, isAdmin }: Props) {
-  const supabase = createClientComponentClient()
+  const supabase = createClient()
 
   const [tickets, setTickets] = useState<Ticket[]>([])
   const [loading, setLoading] = useState(true)
