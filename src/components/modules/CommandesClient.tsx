@@ -125,9 +125,18 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
 
     const grammageNum = form.grammage ? extractGrammageNumber(form.grammage) : null
 
+    const { data: refData } = await supabase.rpc('generate_commande_reference')
+
+    if (!refData) {
+      setError('Erreur lors de la generation de la reference.')
+      setLoading(false)
+      return
+    }
+
     const { data, error: insertError } = await supabase
       .from('commandes')
       .insert({
+        reference: refData,
         titre: form.titre || null,
         marque_id: form.marque_id,
         filature_id: form.filature_id,
