@@ -67,6 +67,13 @@ const ETAPES = [
   'validation_finale', 'en_production', 'qr_genere', 'livree'
 ]
 
+const GRAMMAGES = ['Ne 10/1','Ne 20/1','Ne 30/1','Ne 40/1','Ne 50/1','Ne 20/2','Ne 30/2']
+
+function extractGrammageNumber(g: string): number | null {
+  const match = g.match(/Ne\s*(\d+)/)
+  return match ? parseInt(match[1]) : null
+}
+
 export default function CommandesClient({ user, profil, commandes: initial, entreprises }: Props) {
   const supabase = createClient()
   const [commandes, setCommandes] = useState<Commande[]>(initial)
@@ -81,9 +88,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
     marque_id: '',
     filature_id: '',
     fournisseur_id: '',
-    type_coton: 'mixte',
-    volume_recycle_tonnes: '',
-    volume_vierge_tonnes: '',
+    volume_recycle_kg: '',
     grammage: '',
     date_livraison_souhaitee: '',
     priorite: 'normale',
@@ -102,25 +107,23 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
 
   const etapeIndex = (statut: string) => ETAPES.indexOf(statut)
 
+  const volumeRecycle = parseFloat(form.volume_recycle_kg) || 0
+  const volumeVierge  = Math.round(volumeRecycle * 49 / 51 * 100) / 100
+  const volumeTotal   = Math.round((volumeRecycle + volumeVierge) * 100) / 100
+
   const creerCommande = async () => {
     if (!form.marque_id || !form.filature_id || !form.fournisseur_id || !form.date_livraison_souhaitee) {
       setError('Veuillez remplir tous les champs obligatoires : Marque, Filature, Fournisseur et Date de livraison.')
       return
     }
-    if (form.type_coton === 'recycle' && (!form.volume_recycle_tonnes || parseFloat(form.volume_recycle_tonnes) <= 0)) {
+    if (!form.volume_recycle_kg || volumeRecycle <= 0) {
       setError('Veuillez indiquer un volume de coton recycle superieur a 0.')
-      return
-    }
-    if (form.type_coton === 'vierge' && (!form.volume_vierge_tonnes || parseFloat(form.volume_vierge_tonnes) <= 0)) {
-      setError('Veuillez indiquer un volume de coton vierge superieur a 0.')
-      return
-    }
-    if (form.type_coton === 'mixte' && (!form.volume_recycle_tonnes || !form.volume_vierge_tonnes)) {
-      setError('Pour un type mixte, veuillez indiquer les volumes recycle et vierge.')
       return
     }
     setError('')
     setLoading(true)
+
+    const grammageNum = form.grammage ? extractGrammageNumber(form.grammage) : null
 
     const { data, error: insertError } = await supabase
       .from('commandes')
@@ -129,10 +132,10 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
         marque_id: form.marque_id,
         filature_id: form.filature_id,
         fournisseur_id: form.fournisseur_id,
-        type_coton: form.type_coton,
-        volume_recycle_tonnes: parseFloat(form.volume_recycle_tonnes) || 0,
-        volume_vierge_tonnes: parseFloat(form.volume_vierge_tonnes) || 0,
-        grammage: form.grammage || null,
+        type_coton: 'mixte',
+        volume_recycle_tonnes: volumeRecycle / 1000,
+        volume_vierge_tonnes: volumeVierge / 1000,
+        grammage: grammageNum,
         date_livraison_souhaitee: form.date_livraison_souhaitee,
         priorite: form.priorite,
         notes: form.notes || null,
@@ -158,8 +161,8 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
       setShowForm(false)
       setForm({
         titre: '', marque_id: '', filature_id: '', fournisseur_id: '',
-        type_coton: 'mixte', volume_recycle_tonnes: '', volume_vierge_tonnes: '',
-        grammage: '', date_livraison_souhaitee: '', priorite: 'normale', notes: '',
+        volume_recycle_kg: '', grammage: '',
+        date_livraison_souhaitee: '', priorite: 'normale', notes: '',
       })
     }
     setLoading(false)
@@ -314,8 +317,8 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
               ['Marque', selected.marque?.nom],
               ['Filature', selected.filature?.nom],
               ['Fournisseur', selected.fournisseur?.nom],
-              ['Type coton', selected.type_coton],
-              ['Grammage', selected.grammage ?? '-'],
+              ['Type coton', 'Fil ETHYS (51% recycle / 49% vierge)'],
+              ['Grammage', selected.grammage ? 'Ne ' + selected.grammage + '/1' : '-'],
               ['Statut', STATUT_LABELS[selected.statut]],
             ].map(([l, v]) => (
               <div key={l} style={{ display: 'flex', gap: 12, marginBottom: 10 }}>
@@ -372,36 +375,20 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
                 </div>
               </div>
 
-              <div>
-                {labelInput('Type de coton')}
-                <div style={{ display: 'flex', gap: 8 }}>
-                  {[['mixte', 'Fil ETHYS (recycle + vierge)']].map(([v, l]) => (
-                    <button key={v} onClick={() => set('type_coton', v)} style={{
-                      flex: 1, padding: '8px', borderRadius: 4, cursor: 'pointer',
-                      border: '2px solid ' + (form.type_coton === v ? '#1a1a1a' : '#e8e3d8'),
-                      background: form.type_coton === v ? '#F0FDF4' : '#FAFAFA',
-                      color: form.type_coton === v ? '#1a1a1a' : '#4a5568',
-                      fontSize: 11, fontWeight: form.type_coton === v ? 700 : 400
-                    }}>{l}</button>
-                  ))}
-                </div>
+              <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, padding: '12px 14px' }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#15803d', marginBottom: 4 }}>Composition Fil ETHYS</div>
+                <div style={{ fontSize: 11, color: '#4a5568' }}>51% coton recycle + 49% coton vierge</div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                {form.type_coton !== 'vierge' && (
-                  <div>
-                    {labelInput('Volume recycle (kg)')}
-                    <input type="number" min="0" value={form.volume_recycle_tonnes}
-                      onChange={e => set('volume_recycle_tonnes', e.target.value)}
-                      placeholder="Ex : 80" style={inputStyle} />
-                  </div>
-                )}
-                {form.type_coton !== 'recycle' && (
-                  <div>
-                    {labelInput('Volume vierge (kg)')}
-                    <input type="number" min="0" value={form.volume_vierge_tonnes}
-                      onChange={e => set('volume_vierge_tonnes', e.target.value)}
-                      placeholder="Ex : 40" style={inputStyle} />
+              <div>
+                {labelInput('Volume de coton recycle (kg) *')}
+                <input type="number" min="0" value={form.volume_recycle_kg}
+                  onChange={e => set('volume_recycle_kg', e.target.value)}
+                  placeholder="Ex : 510" style={inputStyle} />
+                {volumeRecycle > 0 && (
+                  <div style={{ marginTop: 8, padding: '10px 12px', background: '#f5f3ef', borderRadius: 6, fontSize: 12, color: '#4a5568' }}>
+                    Volume vierge calcule : <strong>{volumeVierge.toLocaleString('fr-FR')} kg</strong>
+                    {' — '}Volume total : <strong>{volumeTotal.toLocaleString('fr-FR')} kg</strong>
                   </div>
                 )}
               </div>
@@ -411,9 +398,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
                   {labelInput('Grammage')}
                   <select value={form.grammage} onChange={e => set('grammage', e.target.value)} style={selectStyle}>
                     <option value="">-</option>
-                    {['Ne 10/1','Ne 20/1','Ne 30/1','Ne 40/1','Ne 50/1','Ne 20/2','Ne 30/2'].map(g => (
-                      <option key={g}>{g}</option>
-                    ))}
+                    {GRAMMAGES.map(g => <option key={g} value={g}>{g}</option>)}
                   </select>
                 </div>
                 <div>
