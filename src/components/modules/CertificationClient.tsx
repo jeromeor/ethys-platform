@@ -146,15 +146,19 @@ export default function CertificationClient({ certifications: initial, lotsEligi
     const expiration = new Date(now)
     expiration.setFullYear(expiration.getFullYear() + 2)
 
+    const dateEmission = now.toISOString().split('T')[0]
+    const dateExpiration = expiration.toISOString().split('T')[0]
+
     await supabase.from('certifications_ethys').update({
       statut: 'certifiee',
       reference,
-      date_emission: now.toISOString().split('T')[0],
-      date_expiration: expiration.toISOString().split('T')[0],
+      date_emission: dateEmission,
+      date_expiration: dateExpiration,
     }).eq('id', cert.id)
 
-    setCertifications(prev => prev.map(c => c.id === cert.id ? { ...c, statut: 'certifiee', reference } : c))
-    setSelected(null)
+    const updatedCert = { ...cert, statut: 'certifiee', reference, date_emission: dateEmission, date_expiration: dateExpiration }
+    setCertifications(prev => prev.map(c => c.id === cert.id ? updatedCert : c))
+    setSelected(updatedCert)
     setMessage('Certification accordee. Reference : ' + reference)
     setSaving(false)
   }
@@ -178,7 +182,6 @@ export default function CertificationClient({ certifications: initial, lotsEligi
   return (
     <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
 
-      {/* Liste gauche */}
       <div style={{ width: 320, minWidth: 320, background: '#fff', borderRight: '1px solid #e8e3d8', display: 'flex', flexDirection: 'column' }}>
         <div style={{ padding: '14px 16px', borderBottom: '1px solid #f5f3ef', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
@@ -224,7 +227,6 @@ export default function CertificationClient({ certifications: initial, lotsEligi
         </div>
       </div>
 
-      {/* Zone principale */}
       <div style={{ flex: 1, overflow: 'auto', padding: '24px 28px' }}>
 
         {message && (
@@ -233,7 +235,6 @@ export default function CertificationClient({ certifications: initial, lotsEligi
           </div>
         )}
 
-        {/* Formulaire demande certification */}
         {showForm && (
           <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '24px', marginBottom: 24, maxWidth: 600 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
@@ -297,7 +298,6 @@ export default function CertificationClient({ certifications: initial, lotsEligi
           </div>
         )}
 
-        {/* Detail certification selectionnee */}
         {selected && !showForm && (
           <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '24px', maxWidth: 600 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
@@ -339,7 +339,7 @@ export default function CertificationClient({ certifications: initial, lotsEligi
                 <div style={{ fontSize: 14, fontWeight: 900, color: '#2d5016', marginBottom: 8 }}>Certification ETHYS obtenue</div>
                 <div style={{ fontSize: 16, fontWeight: 800, color: '#1a1a1a', marginBottom: 4 }}>{selected.reference}</div>
                 <div style={{ fontSize: 12, color: '#4a5568' }}>
-                  Emise le {formatDate(selected.date_emission)} · Valide jusqu au {formatDate(selected.date_expiration)}
+                  Emise le {formatDate(selected.date_emission)} - Valide jusqu au {formatDate(selected.date_expiration)}
                 </div>
               </div>
             )}
