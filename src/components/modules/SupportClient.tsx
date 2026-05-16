@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 
 interface Ticket {
   id: string
+  user_id: string
   reference: string
   objet: string
   message: string
