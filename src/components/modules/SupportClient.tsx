@@ -237,7 +237,7 @@ export default function SupportClient({ userId, isAdmin }: Props) {
                     </p>
                     {!isAdmin && ticket.reference && (
                       
-                        href={`mailto:contact@textile-loop.com?subject=[${ticket.reference}] ${encodeURIComponent(ticket.objet)}`}
+                        href={'mailto:contact@textile-loop.com?subject=[' + ticket.reference + '] ' + encodeURIComponent(ticket.objet)}
                         style={{ fontSize: 11, color: '#1a1a1a', fontWeight: 600, textDecoration: 'none', padding: '4px 10px', border: '1px solid #e8e3d8', borderRadius: 6, background: '#f5f3ef' }}
                       >
                         ✉ Répondre par email
