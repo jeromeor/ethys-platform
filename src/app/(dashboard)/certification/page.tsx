@@ -1,4 +1,4 @@
-﻿import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import CertificationClient from '@/components/modules/CertificationClient'
 import { redirect } from 'next/navigation'
 
@@ -13,16 +13,67 @@ export default async function CertificationPage() {
     .eq('id', user.id)
     .single()
 
-  const { data: declarations } = await supabase
-    .from('declarations_ethys')
-    .select('*, certification:certifications_ethys(numero, date_emission, date_validite), entreprise:entreprises(pays)')
+  const role = profil?.role ?? 'marque'
+  const entrepriseId = profil?.entreprise_id ?? ''
+
+  // Recuperer les certifications avec leurs lots et commandes
+  let certsQuery = supabase
+    .from('certifications_ethys')
+    .select(`
+      *,
+      lot:lots(
+        id, reference, volume_tonnes, avancement_pct, origine, certification,
+        commande:commandes(
+          id, reference, marque_id, filature_id,
+          marque:entreprises!commandes_marque_id_fkey(nom),
+          filature:entreprises!commandes_filature_id_fkey(nom)
+        )
+      ),
+      createur:profils_utilisateurs!certifications_ethys_created_by_fkey(prenom, nom)
+    `)
     .order('created_at', { ascending: false })
+
+  if (role !== 'admin') {
+    if (role === 'filature') certsQuery = certsQuery.eq('filature_id', entrepriseId)
+    else if (role === 'marque') certsQuery = certsQuery.eq('marque_id', entrepriseId)
+  }
+
+  const { data: certifications } = await certsQuery
+
+  // Recuperer les lots eligibles (avancement 100%) sans certification
+  let lotsQuery = supabase
+    .from('lots')
+    .select(`
+      id, reference, volume_tonnes, avancement_pct, origine, statut,
+      commande:commandes(
+        id, reference, marque_id, filature_id,
+        marque:entreprises!commandes_marque_id_fkey(nom),
+        filature:entreprises!commandes_filature_id_fkey(nom),
+        fournisseur:entreprises!commandes_fournisseur_id_fkey(nom),
+        volume_recycle_tonnes, volume_vierge_tonnes, pct_recycle
+      )
+    `)
+    .eq('avancement_pct', 100)
+    .not('id', 'in', `(${(certifications ?? []).map(c => c.lot_id).filter(Boolean).join(',') || '00000000-0000-0000-0000-000000000000'})`)
+
+  if (role === 'filature') {
+    const { data: cmdIds } = await supabase
+      .from('commandes')
+      .select('id')
+      .eq('filature_id', entrepriseId)
+    const ids = (cmdIds ?? []).map(c => c.id)
+    if (ids.length > 0) lotsQuery = lotsQuery.in('commande_id', ids)
+    else lotsQuery = lotsQuery.eq('commande_id', '00000000-0000-0000-0000-000000000000')
+  }
+
+  const { data: lotsEligibles } = await lotsQuery
 
   return (
     <CertificationClient
-      declarations={declarations ?? []}
-      userRole={profil?.role ?? 'marque'}
-      entrepriseId={profil?.entreprise_id ?? ''}
+      certifications={certifications ?? []}
+      lotsEligibles={lotsEligibles ?? []}
+      userRole={role}
+      entrepriseId={entrepriseId}
       userId={user.id}
     />
   )
