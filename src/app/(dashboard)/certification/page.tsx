@@ -16,13 +16,12 @@ export default async function CertificationPage() {
   const role = profil?.role ?? 'marque'
   const entrepriseId = profil?.entreprise_id ?? ''
 
-  // Recuperer les certifications avec leurs lots et commandes
   let certsQuery = supabase
     .from('certifications_ethys')
     .select(`
       *,
       lot:lots(
-        id, reference, volume_tonnes, avancement_pct, origine, certification,
+        id, reference, volume_tonnes, avancement_pct, origine,
         commande:commandes(
           id, reference, marque_id, filature_id,
           marque:entreprises!commandes_marque_id_fkey(nom),
@@ -40,7 +39,6 @@ export default async function CertificationPage() {
 
   const { data: certifications } = await certsQuery
 
-  // Recuperer les lots eligibles (avancement 100%) sans certification
   const { data: lotsAvecCert } = await supabase
     .from('certifications_ethys')
     .select('lot_id')
@@ -58,8 +56,8 @@ export default async function CertificationPage() {
 
   const { data: lotsRaw } = await lotsQuery
 
-  // Recuperer les commandes associees
   const commandeIds = [...new Set((lotsRaw ?? []).map(l => l.commande_id).filter(Boolean))]
+
   const { data: commandesRaw } = commandeIds.length > 0
     ? await supabase
         .from('commandes')
@@ -71,6 +69,8 @@ export default async function CertificationPage() {
     ...lot,
     commande: (commandesRaw ?? []).find(c => c.id === lot.commande_id) ?? null,
   }))
+
+  return (
     <CertificationClient
       certifications={(certifications ?? []) as any}
       lotsEligibles={(lotsEligibles ?? []) as any}
