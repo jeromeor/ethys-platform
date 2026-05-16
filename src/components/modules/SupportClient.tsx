@@ -50,11 +50,7 @@ export default function SupportClient({ userId, isAdmin }: Props) {
     setLoading(true)
     let query = supabase
       .from('support_tickets')
-      .select(`
-        *,
-        profils_utilisateurs (prenom, nom, email),
-        entreprises (nom)
-      `)
+      .select(`*`)
       .order('created_at', { ascending: false })
 
     if (!isAdmin) {
