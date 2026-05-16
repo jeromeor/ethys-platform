@@ -13,8 +13,6 @@ interface Ticket {
   statut: 'envoyée' | 'en_cours' | 'clôturée'
   created_at: string
   updated_at: string
-  profils_utilisateurs?: { prenom: string; nom: string; email: string }
-  entreprises?: { nom: string }
 }
 
 interface Props {
@@ -23,9 +21,20 @@ interface Props {
 }
 
 const STATUT_STYLE: Record<string, { label: string; background: string; color: string }> = {
-  'envoyée':  { label: 'Envoyée',   background: '#dbeafe', color: '#1d4ed8' },
-  'en_cours': { label: 'En cours',  background: '#fef3c7', color: '#b45309' },
-  'clôturée': { label: 'Clôturée', background: '#dcfce7', color: '#15803d' },
+  envoyee:  { label: 'Envoyée',   background: '#dbeafe', color: '#1d4ed8' },
+  en_cours: { label: 'En cours',  background: '#fef3c7', color: '#b45309' },
+  cloturee: { label: 'Clôturée', background: '#dcfce7', color: '#15803d' },
+}
+
+function getStatutStyle(statut: string) {
+  if (statut === 'envoyée') return STATUT_STYLE.envoyee
+  if (statut === 'en_cours') return STATUT_STYLE.en_cours
+  if (statut === 'clôturée') return STATUT_STYLE.cloturee
+  return { label: statut, background: '#f5f3ef', color: '#4a5568' }
+}
+
+function getSupportMailto(ref: string, objet: string) {
+  return 'mailto:contact@textile-loop.com?subject=[' + ref + '] ' + encodeURIComponent(objet)
 }
 
 export default function SupportClient({ userId, isAdmin }: Props) {
@@ -55,7 +64,7 @@ export default function SupportClient({ userId, isAdmin }: Props) {
 
   const handleSubmit = async () => {
     if (!objet.trim() || !message.trim()) {
-      setErrorMsg('Veuillez remplir l\'objet et le message.')
+      setErrorMsg('Veuillez remplir objet et message.')
       return
     }
     setSubmitting(true)
@@ -67,12 +76,10 @@ export default function SupportClient({ userId, isAdmin }: Props) {
       .eq('id', userId)
       .single()
 
-    // Générer la référence
-    const { data: refData } = await supabase
-      .rpc('generate_ticket_reference', {
-        p_entreprise_id: profil?.entreprise_id ?? null,
-        p_created_at: new Date().toISOString(),
-      })
+    const { data: refData } = await supabase.rpc('generate_ticket_reference', {
+      p_entreprise_id: profil?.entreprise_id ?? null,
+      p_created_at: new Date().toISOString(),
+    })
 
     const { error } = await supabase.from('support_tickets').insert({
       user_id: userId,
@@ -84,7 +91,7 @@ export default function SupportClient({ userId, isAdmin }: Props) {
     })
 
     if (error) {
-      setErrorMsg('Erreur lors de l\'envoi. Veuillez réessayer.')
+      setErrorMsg('Erreur lors de envoi. Veuillez reessayer.')
       setSubmitting(false)
       return
     }
@@ -103,7 +110,7 @@ export default function SupportClient({ userId, isAdmin }: Props) {
       }),
     })
 
-    setSuccessMsg('Votre demande a bien été envoyée. Vous recevrez une confirmation par email.')
+    setSuccessMsg('Votre demande a bien ete envoyee. Vous recevrez une confirmation par email.')
     setObjet('')
     setMessage('')
     setAPieceJointe(false)
@@ -124,12 +131,10 @@ export default function SupportClient({ userId, isAdmin }: Props) {
         const { data: profil } = await supabase
           .from('profils_utilisateurs')
           .select('email, prenom')
-          .eq('id', ticket.user_id ?? '')
+          .eq('id', ticket.user_id)
           .single()
         if (profil?.email) {
-         const getSupportMailto = (ref: string, objet: string) => {
-    return 'mailto:contact@textile-loop.com?subject=[' + ref + '] ' + encodeURIComponent(objet)
-  }
+          await fetch('/api/support/notify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -152,12 +157,11 @@ export default function SupportClient({ userId, isAdmin }: Props) {
   return (
     <div style={{ padding: '24px 28px', maxWidth: 900, margin: '0 auto' }}>
 
-      {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Support</h1>
           <p style={{ fontSize: 12, color: '#8b7355', margin: '4px 0 0' }}>
-            {isAdmin ? 'Toutes les demandes' : 'Suivez vos demandes d\'assistance'}
+            {isAdmin ? 'Toutes les demandes' : 'Suivez vos demandes assistance'}
           </p>
         </div>
         {!isAdmin && (
@@ -170,36 +174,34 @@ export default function SupportClient({ userId, isAdmin }: Props) {
         )}
       </div>
 
-      {/* Message succès */}
       {successMsg && (
         <div style={{ marginBottom: 16, padding: '12px 16px', background: '#dcfce7', border: '1px solid #bbf7d0', borderRadius: 8, color: '#15803d', fontSize: 13 }}>
           {successMsg}
         </div>
       )}
 
-      {/* Formulaire */}
       {showForm && !isAdmin && (
         <div style={{ marginBottom: 24, padding: 20, background: '#fff', border: '1px solid #e8e3d8', borderRadius: 12 }}>
           <h2 style={{ fontSize: 15, fontWeight: 600, color: '#1a1a1a', margin: '0 0 16px' }}>Nouvelle demande</h2>
 
           <div style={{ marginBottom: 14 }}>
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#4a5568', marginBottom: 6 }}>Objet *</label>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#4a5568', marginBottom: 6 }}>Objet</label>
             <input
               type="text"
               value={objet}
               onChange={e => setObjet(e.target.value)}
-              placeholder="Ex : Problème de connexion, Question sur une commande..."
+              placeholder="Ex : Probleme de connexion, Question sur une commande..."
               style={{ width: '100%', border: '1px solid #d4c5b0', borderRadius: 8, padding: '9px 12px', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
             />
           </div>
 
           <div style={{ marginBottom: 14 }}>
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#4a5568', marginBottom: 6 }}>Message *</label>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#4a5568', marginBottom: 6 }}>Message</label>
             <textarea
               value={message}
               onChange={e => setMessage(e.target.value)}
               rows={5}
-              placeholder="Décrivez votre demande en détail..."
+              placeholder="Decrivez votre demande en detail..."
               style={{ width: '100%', border: '1px solid #d4c5b0', borderRadius: 8, padding: '9px 12px', fontSize: 13, outline: 'none', resize: 'none', boxSizing: 'border-box' }}
             />
           </div>
@@ -212,7 +214,7 @@ export default function SupportClient({ userId, isAdmin }: Props) {
                 onChange={e => setAPieceJointe(e.target.checked)}
                 style={{ width: 16, height: 16 }}
               />
-              J'ai une pièce jointe à envoyer — je l'enverrai par email en réponse à la confirmation
+              J ai une piece jointe - je l enverrai par email en reponse a la confirmation
             </label>
           </div>
 
@@ -228,83 +230,82 @@ export default function SupportClient({ userId, isAdmin }: Props) {
         </div>
       )}
 
-      {/* Liste tickets */}
       {loading ? (
         <p style={{ fontSize: 13, color: '#8b7355' }}>Chargement...</p>
       ) : tickets.length === 0 ? (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 }}>
-                    <p style={{ fontSize: 11, color: '#a0aec0', margin: 0 }}>
-                      Envoyée le {formatDate(ticket.created_at)}
-                      {ticket.updated_at !== ticket.created_at && ' · Mise à jour le ' + formatDate(ticket.updated_at)}
-                    </p>
-                    {!isAdmin && ticket.reference && (
-                      
-                        href={getSupportMailto(ticket.reference, ticket.objet)}
-                        style={{ fontSize: 11, color: '#1a1a1a', fontWeight: 600, textDecoration: 'none', padding: '4px 10px', border: '1px solid #e8e3d8', borderRadius: 6, background: '#f5f3ef' }}
-                      >
-                        ✉ Répondre par email
-                      </a>
-                    )}
-                  </div>
+        <div style={{ textAlign: 'center', padding: '48px 0', color: '#8b7355', fontSize: 13 }}>
+          {isAdmin ? 'Aucune demande recue.' : 'Vous navez pas encore soumis de demande.'}
+        </div>
+      ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {tickets.map(ticket => (
-            <div key={ticket.id} style={{ background: '#fff', border: '1px solid #e8e3d8', borderRadius: 12, padding: '16px 18px' }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
+          {tickets.map(ticket => {
+            const st = getStatutStyle(ticket.statut)
+            return (
+              <div key={ticket.id} style={{ background: '#fff', border: '1px solid #e8e3d8', borderRadius: 12, padding: '16px 18px' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
+                      {ticket.reference && (
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#8b7355', letterSpacing: 0.5 }}>
+                          {ticket.reference}
+                        </span>
+                      )}
+                      <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: st.background, color: st.color }}>
+                        {st.label}
+                      </span>
+                      {ticket.a_piece_jointe && (
+                        <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 20, background: '#f5f3ef', color: '#8b7355' }}>
+                          PJ
+                        </span>
+                      )}
+                    </div>
 
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  {/* Référence + statut + pièce jointe */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
-                    {ticket.reference && (
-                      <span style={{ fontSize: 11, fontWeight: 700, color: '#8b7355', letterSpacing: 0.5 }}>
-                        {ticket.reference}
-                      </span>
-                    )}
-                    <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: STATUT_STYLE[ticket.statut]?.background, color: STATUT_STYLE[ticket.statut]?.color }}>
-                      {STATUT_STYLE[ticket.statut]?.label}
-                    </span>
-                    {ticket.a_piece_jointe && (
-                      <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 20, background: '#f5f3ef', color: '#8b7355' }}>
-                        📎 Pièce jointe
-                      </span>
-                    )}
+                    <p style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', margin: '0 0 4px' }}>{ticket.objet}</p>
+                    <p style={{ fontSize: 13, color: '#4a5568', margin: '0 0 8px' }}>{ticket.message}</p>
+
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 }}>
+                      <p style={{ fontSize: 11, color: '#a0aec0', margin: 0 }}>
+                        {formatDate(ticket.created_at)}
+                      </p>
+                      {!isAdmin && ticket.reference && (
+                        
+                          href={getSupportMailto(ticket.reference, ticket.objet)}
+                          style={{ fontSize: 11, color: '#1a1a1a', fontWeight: 600, textDecoration: 'none', padding: '4px 10px', border: '1px solid #e8e3d8', borderRadius: 6, background: '#f5f3ef' }}
+                        >
+                          Repondre par email
+                        </a>
+                      )}
+                    </div>
                   </div>
 
-                  <p style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', margin: '0 0 4px' }}>{ticket.objet}</p>
-
-                  <p style={{ fontSize: 13, color: '#4a5568', margin: '0 0 8px', whiteSpace: 'pre-line', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                    {ticket.message}
-                  </p>
-
-                  <p style={{ fontSize: 11, color: '#a0aec0', margin: 0 }}>
-                    Envoyée le {formatDate(ticket.created_at)}
-                    {ticket.updated_at !== ticket.created_at && ` · Mise à jour le ${formatDate(ticket.updated_at)}`}
-                  </p>
+                  {isAdmin && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flexShrink: 0 }}>
+                      {(['envoyée', 'en_cours', 'clôturée'] as const).map(s => {
+                        const ss = getStatutStyle(s)
+                        return (
+                          <button
+                            key={s}
+                            onClick={() => handleStatut(ticket.id, s)}
+                            disabled={ticket.statut === s}
+                            style={{
+                              fontSize: 11, padding: '4px 10px', borderRadius: 6,
+                              border: '1px solid #e8e3d8',
+                              cursor: ticket.statut === s ? 'default' : 'pointer',
+                              background: ticket.statut === s ? ss.background : '#fff',
+                              color: ticket.statut === s ? ss.color : '#4a5568',
+                              fontWeight: ticket.statut === s ? 600 : 400,
+                            }}
+                          >
+                            {ss.label}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
                 </div>
-
-                {/* Boutons statut admin */}
-                {isAdmin && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flexShrink: 0 }}>
-                    {(['envoyée', 'en_cours', 'clôturée'] as const).map(s => (
-                      <button
-                        key={s}
-                        onClick={() => handleStatut(ticket.id, s)}
-                        disabled={ticket.statut === s}
-                        style={{
-                          fontSize: 11, padding: '4px 10px', borderRadius: 6,
-                          border: '1px solid #e8e3d8', cursor: ticket.statut === s ? 'default' : 'pointer',
-                          background: ticket.statut === s ? STATUT_STYLE[s].background : '#fff',
-                          color: ticket.statut === s ? STATUT_STYLE[s].color : '#4a5568',
-                          fontWeight: ticket.statut === s ? 600 : 400,
-                        }}
-                      >
-                        {STATUT_STYLE[s].label}
-                      </button>
-                    ))}
-                  </div>
-                )}
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>
