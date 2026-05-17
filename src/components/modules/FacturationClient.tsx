@@ -69,14 +69,17 @@ const TEXTILE_LOOP_ID = 'a0000000-0000-0000-0000-000000000001'
 
 const PAYS_UE = new Set([
   'Allemagne','Autriche','Belgique','Bulgarie','Chypre','Croatie','Danemark',
-  'Espagne','Estonie','Finlande','Grece','Hongrie','Irlande','Italie','Lettonie',
-  'Lituanie','Luxembourg','Malte','Pays-Bas','Pologne','Portugal','Roumanie',
-  'Slovaquie','Slovenie','Suede','Tcheque'
+  'Espagne','Estonie','Finlande','Grece','Grèce','Hongrie','Irlande','Italie',
+  'Lettonie','Lituanie','Luxembourg','Malte','Pays-Bas','Pologne','Portugal',
+  'Roumanie','Slovaquie','Slovenie','Slovénie','Suede','Suède','Tcheque','Tchequia',
+  'République tchèque','Republique tcheque'
 ])
 
 function regimeTVA(pays: string | undefined | null): 'france' | 'ue' | 'hors_ue' {
-  if (!pays || pays.toLowerCase() === 'france') return 'france'
-  if (PAYS_UE.has(pays)) return 'ue'
+  if (!pays) return 'france'
+  const p = pays.trim()
+  if (p.toLowerCase() === 'france') return 'france'
+  if (PAYS_UE.has(p)) return 'ue'
   return 'hors_ue'
 }
 
@@ -142,26 +145,21 @@ async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
   const montant_ttc = montant_ht + montant_tva
   const mention = mentionTVA(regime)
 
-  // Header banner noir
   doc.setFillColor(noir[0], noir[1], noir[2])
   doc.rect(0, 0, 210, 38, 'F')
-
   doc.setFontSize(9)
   doc.setTextColor(194, 149, 110)
   doc.setFont('helvetica', 'bold')
   doc.text('FACTURE ETHYS', 14, 13)
-
   doc.setFontSize(20)
   doc.setTextColor(255, 255, 255)
   doc.text(facture.reference, 14, 24)
-
   if (facture.commande?.reference) {
     doc.setFontSize(9)
     doc.setTextColor(180, 180, 180)
     doc.setFont('helvetica', 'normal')
     doc.text('Ref. commande : ' + facture.commande.reference, 14, 32)
   }
-
   doc.setFontSize(18)
   doc.setTextColor(194, 149, 110)
   doc.setFont('helvetica', 'bold')
@@ -176,8 +174,6 @@ async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
   doc.text(STATUT_LABELS[facture.statut], 196, 35, { align: 'right' })
 
   let y = 46
-
-  // Emetteur / Destinataire
   const colW = 86
   const cardH = 28
 
@@ -214,8 +210,6 @@ async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
   }
 
   y += cardH + 10
-
-  // Dates
   const dates = [
     ["Date d'emission", new Date(facture.date_emission).toLocaleDateString('fr-FR')],
     ["Date d'echeance", new Date(facture.date_echeance).toLocaleDateString('fr-FR')],
@@ -237,15 +231,12 @@ async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
   })
 
   y += 28
-
-  // Lignes de facturation
   if (facture.lignes && facture.lignes.length > 0) {
     doc.setFontSize(8)
     doc.setFont('helvetica', 'bold')
     doc.setTextColor(gris[0], gris[1], gris[2])
     doc.text('DETAIL DES PRESTATIONS', 14, y)
     y += 5
-
     doc.setFillColor(beige[0], beige[1], beige[2])
     doc.rect(14, y, 182, 8, 'F')
     doc.setFontSize(7)
@@ -257,7 +248,6 @@ async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
     doc.text('PU (EUR)', 163, y + 5, { align: 'right' })
     doc.text('TOTAL HT', 196, y + 5, { align: 'right' })
     y += 8
-
     facture.lignes.forEach((l, i) => {
       if (i % 2 === 0) {
         doc.setFillColor(252, 252, 250)
@@ -274,24 +264,16 @@ async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
       doc.text(fmt(l.total_ht || l.quantite * l.prix_unitaire), 196, y + 5, { align: 'right' })
       y += 8
     })
-
     y += 4
   }
 
-  // Totaux
-  const totW = 80
-  const totX = 196 - totW
-
-  const totaux: [string, string][] = [
-    ['Sous-total HT', fmt(montant_ht)],
-  ]
-
+  const totX = 196 - 80
+  const totaux: [string, string][] = [['Sous-total HT', fmt(montant_ht)]]
   if (regime === 'france') {
     totaux.push(['TVA ' + tva_pct + '%', fmt(montant_tva)])
   } else {
     totaux.push([regime === 'ue' ? 'TVA intracommunautaire' : 'TVA (exoneree)', '0,00 EUR'])
   }
-
   totaux.forEach(([label, val]) => {
     doc.setFontSize(9)
     doc.setFont('helvetica', 'normal')
@@ -302,21 +284,17 @@ async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
     doc.text(val, 196, y, { align: 'right' })
     y += 7
   })
-
   doc.setLineWidth(0.5)
   doc.setDrawColor(232, 227, 216)
   doc.line(totX, y - 2, 196, y - 2)
-
   doc.setFontSize(12)
   doc.setFont('helvetica', 'bold')
   doc.setTextColor(noir[0], noir[1], noir[2])
   doc.text('Total TTC', totX, y + 6)
   doc.setFontSize(14)
   doc.text(fmt(montant_ttc), 196, y + 6, { align: 'right' })
-
   y += 14
 
-  // Mention TVA si applicable
   if (mention) {
     doc.setFontSize(8)
     doc.setFont('helvetica', 'italic')
@@ -325,14 +303,12 @@ async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
     y += 8
   }
 
-  // Accord commercial si applicable
   const accord = accords.find(a => a.entreprise_id === facture.destinataire_id)
   if (accord) {
     const vol = facture.commande?.volume_total_tonnes ?? 0
     const remisePalier = vol >= 10 ? 2 : vol >= 5 ? 1 : 0
     const remiseAnnuelle = accord.remise_volume_annuel_pct ?? 0
     const prixFinal = accord.prix_base_kg * (1 - remisePalier / 100) * (1 - remiseAnnuelle / 100)
-
     doc.setFillColor(240, 244, 236)
     doc.roundedRect(14, y, 182, remisePalier > 0 || remiseAnnuelle > 0 ? 36 : 24, 3, 3, 'F')
     doc.setFontSize(7)
@@ -350,7 +326,6 @@ async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
     doc.text('Prix applicable : ' + prixFinal.toFixed(4) + ' EUR/kg', 130, y + 14)
   }
 
-  // Footer
   const pageH = 297
   doc.setFillColor(noir[0], noir[1], noir[2])
   doc.rect(0, pageH - 14, 210, 14, 'F')
@@ -370,6 +345,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
   const [selected, setSelected] = useState<Facture | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [filterStatut, setFilterStatut] = useState('tous')
+  const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(false)
   const [activeTab, setActiveTab] = useState<'factures' | 'accords'>('factures')
   const [accords, setAccords] = useState<AccordCommercial[]>(accordsInitial)
@@ -393,37 +369,36 @@ export default function FacturationClient({ factures: initial, commandes, entrep
     date_echeance: '',
     tva_pct: '20',
     notes: '',
-    lignes: [{ description: '', quantite: '', prix_unitaire: '', unite: 'T' }]
   })
-
-  const handleCommandeChange = (commandeId: string) => {
-    const commande = commandes.find(c => c.id === commandeId)
-    setForm(f => ({
-      ...f,
-      commande_id: commandeId,
-      destinataire_id: commande?.marque?.id ?? f.destinataire_id,
-    }))
-  }
 
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }))
 
-  const updateLigne = (i: number, k: string, v: string) => {
+  // Quand la commande change : pré-remplir destinataire + ligne automatique
+  const handleCommandeChange = (commandeId: string) => {
+    const commande = commandes.find(c => c.id === commandeId)
+    if (!commande) { setForm(f => ({ ...f, commande_id: commandeId })); return }
+
+    const destinataireId = commande.marque?.id ?? ''
+    const accord = accords.find(a => a.entreprise_id === destinataireId)
+    const vol_kg = Math.round((commande.volume_total_tonnes ?? 0) * 1000)
+    const prix_kg = accord ? accord.prix_base_kg : 0.60
+
     setForm(f => ({
       ...f,
-      lignes: f.lignes.map((l, idx) => idx === i ? { ...l, [k]: v } : l)
+      commande_id: commandeId,
+      destinataire_id: destinataireId,
     }))
+    setLigneAuto({
+      description: 'Fil ETHYS - ' + commande.reference,
+      quantite: vol_kg,
+      prix_unitaire: prix_kg,
+    })
   }
 
-  const addLigne = () => setForm(f => ({
-    ...f,
-    lignes: [...f.lignes, { description: '', quantite: '', prix_unitaire: '', unite: 'T' }]
-  }))
+  const [ligneAuto, setLigneAuto] = useState<{ description: string; quantite: number; prix_unitaire: number } | null>(null)
 
-  const totalHT = form.lignes.reduce((s, l) => {
-    return s + (parseFloat(l.quantite) || 0) * (parseFloat(l.prix_unitaire) || 0)
-  }, 0)
+  const totalHT = ligneAuto ? ligneAuto.quantite * ligneAuto.prix_unitaire : 0
 
-  // Calcul TVA selon pays du destinataire
   const destinataireSelectionne = entreprises.find(e => e.id === form.destinataire_id)
   const regimeForm = regimeTVA(destinataireSelectionne?.pays)
   const tvaPctNum = parseFloat(form.tva_pct) || 0
@@ -431,16 +406,25 @@ export default function FacturationClient({ factures: initial, commandes, entrep
   const totalTTC = totalHT + totalTVA
   const mentionForm = mentionTVA(regimeForm)
 
-  const filtrees = factures.filter(f =>
-    filterStatut === 'tous' || f.statut === filterStatut
-  )
+  const filtrees = factures.filter(f => {
+    if (filterStatut !== 'tous' && f.statut !== filterStatut) return false
+    if (search) {
+      const s = search.toLowerCase()
+      const matchSociete = f.destinataire?.nom?.toLowerCase().includes(s) || f.emetteur?.nom?.toLowerCase().includes(s)
+      const matchCommande = f.commande?.reference?.toLowerCase().includes(s)
+      const matchRef = f.reference?.toLowerCase().includes(s)
+      const matchDate = new Date(f.date_emission).toLocaleDateString('fr-FR').includes(s)
+      if (!matchSociete && !matchCommande && !matchRef && !matchDate) return false
+    }
+    return true
+  })
 
   const totalCA = factures.filter(f => f.statut === 'payee').reduce((s, f) => s + (f.montant_ttc || 0), 0)
   const totalAttente = factures.filter(f => f.statut === 'en_attente').reduce((s, f) => s + (f.montant_ttc || 0), 0)
   const totalRetard = factures.filter(f => f.statut === 'en_retard').reduce((s, f) => s + (f.montant_ttc || 0), 0)
 
   const creerFacture = async () => {
-    if (!form.commande_id || !form.emetteur_id || !form.destinataire_id || !form.date_echeance) return
+    if (!form.commande_id || !form.destinataire_id || !form.date_echeance || !ligneAuto) return
     setLoading(true)
 
     const montant_ht = totalHT
@@ -451,7 +435,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
       .from('factures')
       .insert({
         commande_id: form.commande_id,
-        emetteur_id: form.emetteur_id,
+        emetteur_id: TEXTILE_LOOP_ID,
         destinataire_id: form.destinataire_id,
         montant_ht,
         montant_tva,
@@ -465,18 +449,14 @@ export default function FacturationClient({ factures: initial, commandes, entrep
       .single()
 
     if (!error && facture) {
-      await supabase.from('lignes_facture').insert(
-        form.lignes
-          .filter(l => l.description && l.quantite && l.prix_unitaire)
-          .map(l => ({
-            facture_id: facture.id,
-            description: l.description,
-            quantite: parseFloat(l.quantite),
-            unite: l.unite,
-            prix_unitaire: parseFloat(l.prix_unitaire),
-            total_ht: (parseFloat(l.quantite) || 0) * (parseFloat(l.prix_unitaire) || 0),
-          }))
-      )
+      await supabase.from('lignes_facture').insert({
+        facture_id: facture.id,
+        description: ligneAuto.description,
+        quantite: ligneAuto.quantite,
+        unite: 'kg',
+        prix_unitaire: ligneAuto.prix_unitaire,
+        total_ht: ligneAuto.quantite * ligneAuto.prix_unitaire,
+      })
 
       const { data: newFacture } = await supabase
         .from('factures')
@@ -492,6 +472,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
 
       if (newFacture) setFactures(prev => [newFacture as Facture, ...prev])
       setShowForm(false)
+      setLigneAuto(null)
       setForm({
         commande_id: '',
         emetteur_id: TEXTILE_LOOP_ID,
@@ -499,7 +480,6 @@ export default function FacturationClient({ factures: initial, commandes, entrep
         date_echeance: '',
         tva_pct: '20',
         notes: '',
-        lignes: [{ description: '', quantite: '', prix_unitaire: '', unite: 'T' }]
       })
     }
     setLoading(false)
@@ -510,7 +490,6 @@ export default function FacturationClient({ factures: initial, commandes, entrep
       statut: 'payee',
       date_paiement: new Date().toISOString().split('T')[0]
     }).eq('id', id)
-
     setFactures(prev => prev.map(f =>
       f.id === id ? { ...f, statut: 'payee', date_paiement: new Date().toISOString().split('T')[0] } : f
     ))
@@ -519,11 +498,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
 
   const handleTelechargerPDF = async (facture: Facture) => {
     setPdfLoading(true)
-    try {
-      await telechargerPDF(facture, accords)
-    } catch (e) {
-      console.error('PDF error:', e)
-    }
+    try { await telechargerPDF(facture, accords) } catch (e) { console.error('PDF error:', e) }
     setPdfLoading(false)
   }
 
@@ -552,11 +527,8 @@ export default function FacturationClient({ factures: initial, commandes, entrep
       </div>
 
       {/* Barre outils */}
-      <div style={{
-        padding: '10px 22px', background: '#fff', borderBottom: '1px solid #e8e3d8',
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0
-      }}>
-        <div style={{ display: 'flex', gap: 6 }}>
+      <div style={{ padding: '10px 22px', background: '#fff', borderBottom: '1px solid #e8e3d8', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
           {['tous', 'emise', 'en_attente', 'payee', 'en_retard'].map(s => (
             <button key={s} onClick={() => setFilterStatut(s)} style={{
               padding: '5px 12px', borderRadius: 4, border: 'none', cursor: 'pointer',
@@ -567,6 +539,18 @@ export default function FacturationClient({ factures: initial, commandes, entrep
               {s === 'tous' ? 'Toutes' : STATUT_LABELS[s as StatutFacture]}
             </button>
           ))}
+          <input
+            type="text"
+            placeholder="Rechercher : societe, n° commande, date..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            style={{ padding: '5px 12px', borderRadius: 6, border: '1.5px solid #d4c5b0', fontSize: 11, outline: 'none', width: 260 }}
+          />
+          {search && (
+            <button onClick={() => setSearch('')} style={{ padding: '5px 10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', fontSize: 11, color: '#8b7355', cursor: 'pointer' }}>
+              x
+            </button>
+          )}
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           {isAdmin && (
@@ -691,7 +675,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
         </div>
       )}
 
-      {/* Table */}
+      {/* Table factures */}
       {activeTab === 'factures' && (
         <div style={{ flex: 1, overflow: 'auto', padding: '16px 22px' }}>
           {filtrees.length === 0 ? (
@@ -734,10 +718,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
                           </span>
                         </td>
                         <td style={{ padding: '12px 14px' }}>
-                          <button onClick={e => { e.stopPropagation(); setSelected(f) }} style={{
-                            padding: '4px 10px', borderRadius: 7, border: '1.5px solid #e8e3d8',
-                            background: '#f5f3ef', fontSize: 11, cursor: 'pointer'
-                          }}>Voir</button>
+                          <button onClick={e => { e.stopPropagation(); setSelected(f) }} style={{ padding: '4px 10px', borderRadius: 7, border: '1.5px solid #e8e3d8', background: '#f5f3ef', fontSize: 11, cursor: 'pointer' }}>Voir</button>
                         </td>
                       </tr>
                     )
@@ -757,20 +738,9 @@ export default function FacturationClient({ factures: initial, commandes, entrep
         const ttcAffiche = ht + tvaAffichee
         const mentionSelected = mentionTVA(regimeSelected)
         return (
-          <div style={{
-            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            zIndex: 200, padding: 20
-          }} onClick={() => setSelected(null)}>
-            <div style={{
-              background: '#fff', borderRadius: 4, width: '100%', maxWidth: 620,
-              maxHeight: '90vh', overflow: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.2)'
-            }} onClick={e => e.stopPropagation()}>
-
-              <div style={{
-                background: 'linear-gradient(135deg,#1a1a1a,#2a2a2a)',
-                borderRadius: '20px 20px 0 0', padding: '24px 28px', color: '#fff'
-              }}>
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: 20 }} onClick={() => setSelected(null)}>
+            <div style={{ background: '#fff', borderRadius: 4, width: '100%', maxWidth: 620, maxHeight: '90vh', overflow: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.2)' }} onClick={e => e.stopPropagation()}>
+              <div style={{ background: 'linear-gradient(135deg,#1a1a1a,#2a2a2a)', borderRadius: '20px 20px 0 0', padding: '24px 28px', color: '#fff' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
                     <div style={{ fontSize: 10, color: '#c2956e', fontWeight: 600, letterSpacing: 1, marginBottom: 4 }}>FACTURE ETHYS</div>
@@ -811,11 +781,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
                     <div style={{ fontSize: 26, fontWeight: 900, color: '#c2956e' }}>{fmt(ttcAffiche)}</div>
                     <div style={{ fontSize: 10, opacity: 0.65 }}>TTC</div>
                     <div style={{ marginTop: 6 }}>
-                      <span style={{
-                        padding: '3px 10px', borderRadius: 4, fontSize: 11, fontWeight: 700,
-                        background: STATUT_COLORS[selected.statut][0],
-                        color: STATUT_COLORS[selected.statut][1]
-                      }}>{STATUT_LABELS[selected.statut]}</span>
+                      <span style={{ padding: '3px 10px', borderRadius: 4, fontSize: 11, fontWeight: 700, background: STATUT_COLORS[selected.statut][0], color: STATUT_COLORS[selected.statut][1] }}>{STATUT_LABELS[selected.statut]}</span>
                     </div>
                   </div>
                 </div>
@@ -823,10 +789,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
 
               <div style={{ padding: '22px 28px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 20 }}>
-                  {[
-                    { titre: 'Emetteur', data: selected.emetteur },
-                    { titre: 'Destinataire', data: selected.destinataire },
-                  ].map(({ titre, data }) => (
+                  {[{ titre: 'Emetteur', data: selected.emetteur }, { titre: 'Destinataire', data: selected.destinataire }].map(({ titre, data }) => (
                     <div key={titre} style={{ padding: '12px 14px', borderRadius: 4, background: '#f5f3ef', border: '1px solid #e8e3d8' }}>
                       <div style={{ fontSize: 10, fontWeight: 700, color: '#8b7355', marginBottom: 6, textTransform: 'uppercase' }}>{titre}</div>
                       <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>{data?.nom ?? '-'}</div>
@@ -850,9 +813,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
 
                 {selected.lignes?.length > 0 && (
                   <div style={{ marginBottom: 18 }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                      Detail des prestations
-                    </div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>Detail des prestations</div>
                     <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #e8e3d8', borderRadius: 8, overflow: 'hidden' }}>
                       <thead>
                         <tr style={{ background: '#f5f3ef' }}>
@@ -884,9 +845,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', borderBottom: '1px solid #f5f3ef', fontSize: 12 }}>
                       <span style={{ color: '#4a5568' }}>
-                        {regimeSelected === 'france'
-                          ? 'TVA ' + (selected.tva_pct || 0) + '%'
-                          : regimeSelected === 'ue' ? 'TVA intracommunautaire' : 'TVA (exoneree)'}
+                        {regimeSelected === 'france' ? ('TVA ' + (selected.tva_pct || 0) + '%') : regimeSelected === 'ue' ? 'TVA intracommunautaire' : 'TVA (exoneree)'}
                       </span>
                       <span style={{ fontWeight: 600 }}>{fmt(tvaAffichee)}</span>
                     </div>
@@ -905,28 +864,12 @@ export default function FacturationClient({ factures: initial, commandes, entrep
 
                 <div style={{ display: 'flex', gap: 10 }}>
                   {selected.statut !== 'payee' && selected.statut !== 'annulee' && (
-                    <button onClick={() => marquerPayee(selected.id)} style={{
-                      flex: 2, padding: '10px', borderRadius: 4, border: 'none',
-                      background: '#1a1a1a', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer'
-                    }}>Marquer comme payee</button>
+                    <button onClick={() => marquerPayee(selected.id)} style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Marquer comme payee</button>
                   )}
-                  <button
-                    onClick={() => handleTelechargerPDF(selected)}
-                    disabled={pdfLoading}
-                    style={{
-                      flex: 1, padding: '10px', borderRadius: 4,
-                      border: '1.5px solid #2d5016',
-                      background: pdfLoading ? '#f5f3ef' : '#f0f4ec',
-                      color: pdfLoading ? '#8b7355' : '#2d5016',
-                      fontSize: 13, fontWeight: 700, cursor: pdfLoading ? 'default' : 'pointer'
-                    }}>
+                  <button onClick={() => handleTelechargerPDF(selected)} disabled={pdfLoading} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #2d5016', background: pdfLoading ? '#f5f3ef' : '#f0f4ec', color: pdfLoading ? '#8b7355' : '#2d5016', fontSize: 13, fontWeight: 700, cursor: pdfLoading ? 'default' : 'pointer' }}>
                     {pdfLoading ? 'Generation...' : 'Telecharger PDF'}
                   </button>
-                  <button onClick={() => setSelected(null)} style={{
-                    flex: 1, padding: '10px', borderRadius: 4,
-                    border: '1.5px solid #e8e3d8', background: '#f5f3ef',
-                    color: '#8b7355', fontSize: 13, cursor: 'pointer'
-                  }}>Fermer</button>
+                  <button onClick={() => setSelected(null)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#8b7355', fontSize: 13, cursor: 'pointer' }}>Fermer</button>
                 </div>
               </div>
             </div>
@@ -936,15 +879,8 @@ export default function FacturationClient({ factures: initial, commandes, entrep
 
       {/* Modal nouvelle facture */}
       {showForm && (
-        <div style={{
-          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 200, padding: 20
-        }}>
-          <div style={{
-            background: '#fff', borderRadius: 18, width: '100%', maxWidth: 560,
-            maxHeight: '90vh', overflow: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.2)'
-          }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: 20 }}>
+          <div style={{ background: '#fff', borderRadius: 18, width: '100%', maxWidth: 520, maxHeight: '90vh', overflow: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.2)' }}>
             <div style={{ padding: '20px 24px', borderBottom: '1px solid #f5f3ef', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>Nouvelle facture</span>
               <button onClick={() => setShowForm(false)} style={{ border: 'none', background: 'none', fontSize: 18, color: '#8b7355', cursor: 'pointer' }}>x</button>
@@ -954,10 +890,34 @@ export default function FacturationClient({ factures: initial, commandes, entrep
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Commande *</label>
                 <select value={form.commande_id} onChange={e => handleCommandeChange(e.target.value)} style={inputStyle}>
-                  <option value="">Selectionner...</option>
+                  <option value="">Selectionner une commande...</option>
                   {commandes.map(c => <option key={c.id} value={c.id}>{c.reference + ' - ' + (c.marque?.nom ?? '')}</option>)}
                 </select>
               </div>
+
+              {form.commande_id && ligneAuto && (
+                <div style={{ padding: '14px 16px', borderRadius: 8, background: '#f0f4ec', border: '1px solid #c8d8b8' }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#2d5016', marginBottom: 10 }}>Ligne de facturation (generee automatiquement)</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 8 }}>
+                    <div>
+                      <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 3 }}>Description</div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a' }}>{ligneAuto.description}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 3 }}>Quantite (kg)</div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a' }}>{ligneAuto.quantite.toLocaleString('fr-FR')}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 3 }}>PU (EUR/kg)</div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a' }}>{ligneAuto.prix_unitaire.toFixed(4)}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 3 }}>Total HT</div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: '#2d5016' }}>{fmt(totalHT)}</div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div>
@@ -984,13 +944,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
                   <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>
                     {'TVA (%)' + (regimeForm !== 'france' ? ' - Non applicable' : '')}
                   </label>
-                  <input
-                    type="number"
-                    value={form.tva_pct}
-                    onChange={e => set('tva_pct', e.target.value)}
-                    disabled={regimeForm !== 'france'}
-                    style={{ ...inputStyle, background: regimeForm !== 'france' ? '#f5f3ef' : '#fff', color: regimeForm !== 'france' ? '#8b7355' : '#1a1a1a' }}
-                  />
+                  <input type="number" value={form.tva_pct} onChange={e => set('tva_pct', e.target.value)} disabled={regimeForm !== 'france'} style={{ ...inputStyle, background: regimeForm !== 'france' ? '#f5f3ef' : '#fff', color: regimeForm !== 'france' ? '#8b7355' : '#1a1a1a' }} />
                 </div>
               </div>
 
@@ -1000,28 +954,6 @@ export default function FacturationClient({ factures: initial, commandes, entrep
                 </div>
               )}
 
-              <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 8 }}>Lignes de facturation</label>
-                {form.lignes.map((l, i) => (
-                  <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 8, marginBottom: 8 }}>
-                    <input value={l.description} onChange={e => updateLigne(i, 'description', e.target.value)}
-                      placeholder="Description" style={inputStyle} />
-                    <input type="number" value={l.quantite} onChange={e => updateLigne(i, 'quantite', e.target.value)}
-                      placeholder="Qte" style={inputStyle} />
-                    <input type="number" value={l.prix_unitaire} onChange={e => updateLigne(i, 'prix_unitaire', e.target.value)}
-                      placeholder="PU EUR" style={inputStyle} />
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>
-                      {((parseFloat(l.quantite) || 0) * (parseFloat(l.prix_unitaire) || 0)).toLocaleString('fr-FR') + ' EUR'}
-                    </div>
-                  </div>
-                ))}
-                <button onClick={addLigne} style={{
-                  width: '100%', padding: '7px', borderRadius: 8,
-                  border: '2px dashed #f0f4ec', background: '#F0FDF4',
-                  color: '#1a1a1a', fontSize: 12, cursor: 'pointer'
-                }}>+ Ajouter une ligne</button>
-              </div>
-
               <div style={{ padding: '12px 14px', borderRadius: 4, background: '#f5f3ef', border: '1px solid #e8e3d8' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
                   <span style={{ color: '#4a5568' }}>Total HT</span>
@@ -1029,7 +961,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
                   <span style={{ color: '#4a5568' }}>
-                    {regimeForm === 'france' ? ('TVA ' + form.tva_pct + '%') : (regimeForm === 'ue' ? 'TVA intracommunautaire' : 'TVA (exoneree)')}
+                    {regimeForm === 'france' ? ('TVA ' + form.tva_pct + '%') : regimeForm === 'ue' ? 'TVA intracommunautaire' : 'TVA (exoneree)'}
                   </span>
                   <span style={{ fontWeight: 700 }}>{fmt(totalTVA)}</span>
                 </div>
@@ -1040,17 +972,8 @@ export default function FacturationClient({ factures: initial, commandes, entrep
               </div>
 
               <div style={{ display: 'flex', gap: 10 }}>
-                <button onClick={() => setShowForm(false)} style={{
-                  flex: 1, padding: '10px', borderRadius: 4,
-                  border: '1.5px solid #e8e3d8', background: '#f5f3ef',
-                  color: '#8b7355', fontSize: 13, cursor: 'pointer'
-                }}>Annuler</button>
-                <button onClick={creerFacture} disabled={loading} style={{
-                  flex: 2, padding: '10px', borderRadius: 4, border: 'none',
-                  background: loading ? '#d4c5b0' : '#1a1a1a',
-                  color: loading ? '#8b7355' : '#fff',
-                  fontSize: 13, fontWeight: 700, cursor: loading ? 'default' : 'pointer'
-                }}>
+                <button onClick={() => setShowForm(false)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#8b7355', fontSize: 13, cursor: 'pointer' }}>Annuler</button>
+                <button onClick={creerFacture} disabled={loading || !ligneAuto} style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: (loading || !ligneAuto) ? '#d4c5b0' : '#1a1a1a', color: (loading || !ligneAuto) ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: (loading || !ligneAuto) ? 'default' : 'pointer' }}>
                   {loading ? 'Creation...' : 'Creer la facture'}
                 </button>
               </div>
