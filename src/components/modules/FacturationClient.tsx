@@ -389,7 +389,8 @@ export default function FacturationClient({ factures: initial, commandes, entrep
   const [activeTab, setActiveTab] = useState<'factures' | 'accords'>('factures')
   const [accords, setAccords] = useState<AccordCommercial[]>(accordsInitial)
   const [showAccordForm, setShowAccordForm] = useState(false)
-  const [pdfLoading, setPdfLoading] = useState(false)   const [showDecomp, setShowDecomp] = useState(false)
+  const [pdfLoading, setPdfLoading] = useState(false)   
+  const [showDecomp, setShowDecomp] = useState(false)
   const [accordForm, setAccordForm] = useState({
     entreprise_id: '',
     prix_base_kg: '0.60',
