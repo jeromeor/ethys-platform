@@ -16,7 +16,7 @@ export default async function FacturationPage() {
       emetteur_id,
       destinataire_id,
       emetteur:entreprises!factures_emetteur_id_fkey(nom, adresse, email_contact),
-      destinataire:entreprises!factures_destinataire_id_fkey(nom, adresse, email_contact)
+     destinataire:entreprises!factures_destinataire_id_fkey(nom, adresse, email_contact, pays)
     `)
     .order('created_at', { ascending: false })
 
