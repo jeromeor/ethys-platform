@@ -364,7 +364,7 @@ async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
   doc.text('TEXTILE LOOP', 14, pageH - 15)
   doc.setFont('helvetica', 'normal')
   doc.setTextColor(180, 180, 180)
-  const adresseTL = (facture.emetteur?.adresse_rue ?? '15 Rue d'Upsal') + ' - ' + (facture.emetteur?.code_postal ?? '67000') + ' ' + (facture.emetteur?.ville ?? 'Strasbourg') + ' - ' + (facture.emetteur?.pays ?? 'France')
+  const adresseTL = (facture.emetteur?.adresse_rue ?? '15 Rue d' + String.fromCharCode(39) + 'Upsal') + ' - ' + (facture.emetteur?.code_postal ?? '67000') + ' ' + (facture.emetteur?.ville ?? 'Strasbourg') + ' - ' + (facture.emetteur?.pays ?? 'France')
   doc.text(adresseTL, 14, pageH - 10)
   const coordTL = 'Tel : ' + (facture.emetteur?.telephone ?? '+33 1 01 01 01 01') + '  |  ' + (facture.emetteur?.email_contact ?? 'contact@textile-loop.com')
   doc.text(coordTL, 14, pageH - 5)
