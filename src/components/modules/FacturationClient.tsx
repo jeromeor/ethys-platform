@@ -28,8 +28,7 @@ interface Facture {
   notes: string | null
   lignes: LigneFacture[]
   commande: { reference: string; volume_total_tonnes: number } | null
-  emetteur: { nom: string; adresse: string | null; adresse_rue: string | null; code_postal: string | null; ville: string | null; pays: string | null; telephone: string | null; email_contact: string | null; siret: string | null; tva: string | null } | null
-  destinataire_nom_cache?: string | null
+  emetteur: { nom: string; adresse: string | null; email_contact: string | null } | null
   destinataire_id: string | null
   destinataire: { nom: string; adresse: string | null; email_contact: string | null; pays?: string } | null
 }
@@ -122,6 +121,15 @@ function fmt(n: number | null | undefined) {
   return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(n)
 }
 
+function fmtPDF(n: number | null | undefined) {
+  if (n == null || isNaN(n)) return '0,00 EUR'
+  const abs = Math.abs(n)
+  const entier = Math.floor(abs)
+  const dec = Math.round((abs - entier) * 100).toString().padStart(2, '0')
+  const entierStr = entier.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+  return (n < 0 ? '-' : '') + entierStr + ',' + dec + ' EUR'
+}
+
 function calcTVA(montant_ht: number, tva_pct: number, regime: 'france' | 'ue' | 'hors_ue'): number {
   if (regime !== 'france') return 0
   return montant_ht * (tva_pct || 0) / 100
@@ -173,7 +181,7 @@ async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
   doc.setFontSize(18)
   doc.setTextColor(194, 149, 110)
   doc.setFont('helvetica', 'bold')
-  doc.text(fmt(montant_ttc), 196, 22, { align: 'right' })
+  doc.text(fmtPDF(montant_ttc), 196, 22, { align: 'right' })
   doc.setFontSize(8)
   doc.setTextColor(180, 180, 180)
   doc.setFont('helvetica', 'normal')
@@ -187,39 +195,50 @@ async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
   const colW = 86
   const cardH = 28
 
+  // Emetteur - carte haute avec coordonnees completes
+  const emCardH = 42
   doc.setFillColor(beige[0], beige[1], beige[2])
-  doc.roundedRect(14, y, colW, cardH, 3, 3, 'F')
+  doc.roundedRect(14, y, colW, emCardH, 3, 3, 'F')
   doc.setFontSize(7)
   doc.setTextColor(gris[0], gris[1], gris[2])
   doc.setFont('helvetica', 'bold')
   doc.text('EMETTEUR', 19, y + 7)
-  doc.setFontSize(11)
+  doc.setFontSize(10)
   doc.setTextColor(noir[0], noir[1], noir[2])
-  doc.text(facture.emetteur?.nom ?? 'TEXTILE LOOP', 19, y + 15)
-  if (facture.emetteur?.email_contact) {
-    doc.setFontSize(8)
-    doc.setFont('helvetica', 'normal')
-    doc.setTextColor(gris[0], gris[1], gris[2])
-    doc.text(facture.emetteur.email_contact, 19, y + 22)
-  }
+  doc.text(facture.emetteur?.nom ?? 'TEXTILE LOOP', 19, y + 14)
+  doc.setFontSize(7)
+  doc.setFont('helvetica', 'normal')
+  doc.setTextColor(gris[0], gris[1], gris[2])
+  const adresseEm = [
+    facture.emetteur?.adresse_rue,
+    (facture.emetteur?.code_postal ?? '') + ' ' + (facture.emetteur?.ville ?? ''),
+    facture.emetteur?.pays,
+  ].filter(Boolean) as string[]
+  adresseEm.forEach((line, i) => doc.text(line, 19, y + 20 + i * 5))
+  if (facture.emetteur?.siret) doc.text('SIRET : ' + facture.emetteur.siret, 19, y + 35)
+  if (facture.emetteur?.email_contact) doc.text(facture.emetteur.email_contact, 56, y + 35, { align: 'right' })
 
+  // Destinataire - carte haute avec coordonnees completes
   doc.setFillColor(beige[0], beige[1], beige[2])
-  doc.roundedRect(110, y, colW, cardH, 3, 3, 'F')
+  doc.roundedRect(110, y, colW, emCardH, 3, 3, 'F')
   doc.setFontSize(7)
   doc.setTextColor(gris[0], gris[1], gris[2])
   doc.setFont('helvetica', 'bold')
   doc.text('DESTINATAIRE', 115, y + 7)
-  doc.setFontSize(11)
+  doc.setFontSize(10)
   doc.setTextColor(noir[0], noir[1], noir[2])
-  doc.text(facture.destinataire?.nom ?? '-', 115, y + 15)
-  if (facture.destinataire?.email_contact) {
-    doc.setFontSize(8)
-    doc.setFont('helvetica', 'normal')
-    doc.setTextColor(gris[0], gris[1], gris[2])
-    doc.text(facture.destinataire.email_contact, 115, y + 22)
-  }
+  doc.text(facture.destinataire?.nom ?? '-', 115, y + 14)
+  doc.setFontSize(7)
+  doc.setFont('helvetica', 'normal')
+  doc.setTextColor(gris[0], gris[1], gris[2])
+  const adresseDest = [
+    facture.destinataire?.adresse_rue,
+    facture.destinataire?.pays,
+  ].filter(Boolean) as string[]
+  adresseDest.forEach((line, i) => doc.text(line, 115, y + 20 + i * 5))
+  if (facture.destinataire?.email_contact) doc.text(facture.destinataire.email_contact, 115, y + 35)
 
-  y += cardH + 10
+  y += emCardH + 10
   const dates = [
     ["Date d'emission", new Date(facture.date_emission).toLocaleDateString('fr-FR')],
     ["Date d'echeance", new Date(facture.date_echeance).toLocaleDateString('fr-FR')],
@@ -269,18 +288,18 @@ async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
       doc.text(l.description, 17, y + 5)
       doc.text(String(l.quantite), 115, y + 5, { align: 'right' })
       doc.text(l.unite, 135, y + 5, { align: 'right' })
-      doc.text(fmt(l.prix_unitaire), 163, y + 5, { align: 'right' })
+      doc.text(fmtPDF(l.prix_unitaire), 163, y + 5, { align: 'right' })
       doc.setFont('helvetica', 'bold')
-      doc.text(fmt(l.total_ht || l.quantite * l.prix_unitaire), 196, y + 5, { align: 'right' })
+      doc.text(fmtPDF(l.total_ht || l.quantite * l.prix_unitaire), 196, y + 5, { align: 'right' })
       y += 8
     })
     y += 4
   }
 
   const totX = 196 - 80
-  const totaux: [string, string][] = [['Sous-total HT', fmt(montant_ht)]]
+  const totaux: [string, string][] = [['Sous-total HT', fmtPDF(montant_ht)]]
   if (regime === 'france') {
-    totaux.push(['TVA ' + tva_pct + '%', fmt(montant_tva)])
+    totaux.push(['TVA ' + tva_pct + '%', fmtPDF(montant_tva)])
   } else {
     totaux.push([regime === 'ue' ? 'TVA intracommunautaire' : 'TVA (exoneree)', '0,00 EUR'])
   }
@@ -302,7 +321,7 @@ async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
   doc.setTextColor(noir[0], noir[1], noir[2])
   doc.text('Total TTC', totX, y + 6)
   doc.setFontSize(14)
-  doc.text(fmt(montant_ttc), 196, y + 6, { align: 'right' })
+  doc.text(fmtPDF(montant_ttc), 196, y + 6, { align: 'right' })
   y += 14
 
   if (mention) {
@@ -338,12 +357,19 @@ async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
 
   const pageH = 297
   doc.setFillColor(noir[0], noir[1], noir[2])
-  doc.rect(0, pageH - 14, 210, 14, 'F')
+  doc.rect(0, pageH - 22, 210, 22, 'F')
   doc.setFontSize(7)
+  doc.setFont('helvetica', 'bold')
+  doc.setTextColor(255, 255, 255)
+  doc.text('TEXTILE LOOP', 14, pageH - 15)
   doc.setFont('helvetica', 'normal')
   doc.setTextColor(180, 180, 180)
-  const today = new Date().toLocaleDateString('fr-FR')
-  doc.text('ETHYS - Textile Loop - Document genere le ' + today, 14, pageH - 5)
+  const adresseTL = (facture.emetteur?.adresse_rue ?? '15 Rue d'Upsal') + ' - ' + (facture.emetteur?.code_postal ?? '67000') + ' ' + (facture.emetteur?.ville ?? 'Strasbourg') + ' - ' + (facture.emetteur?.pays ?? 'France')
+  doc.text(adresseTL, 14, pageH - 10)
+  const coordTL = 'Tel : ' + (facture.emetteur?.telephone ?? '+33 1 01 01 01 01') + '  |  ' + (facture.emetteur?.email_contact ?? 'contact@textile-loop.com')
+  doc.text(coordTL, 14, pageH - 5)
+  const siretTL = 'SIRET : ' + (facture.emetteur?.siret ?? '810 401 018 00025') + (facture.emetteur?.tva ? '  |  TVA : ' + facture.emetteur.tva : '')
+  doc.text(siretTL, 130, pageH - 10)
   doc.text(facture.reference, 196, pageH - 5, { align: 'right' })
 
   doc.save('facture-' + facture.reference + '.pdf')
@@ -456,11 +482,9 @@ export default function FacturationClient({ factures: initial, commandes, entrep
     const montant_tva = totalTVA
     const montant_ttc = totalTTC
 
-    const { data: refData } = await supabase.rpc('generate_facture_reference')
     const { data: facture, error } = await supabase
       .from('factures')
       .insert({
-        reference: refData,
         commande_id: form.commande_id,
         emetteur_id: TEXTILE_LOOP_ID,
         destinataire_id: form.destinataire_id,
@@ -468,7 +492,6 @@ export default function FacturationClient({ factures: initial, commandes, entrep
         montant_tva,
         montant_ttc,
         tva_pct: regimeForm === 'france' ? tvaPctNum : 0,
-        date_emission: new Date().toISOString().split('T')[0],
         date_echeance: form.date_echeance,
         statut: 'emise',
         notes: form.notes || null,
@@ -492,7 +515,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
           *,
           lignes:lignes_facture(*),
           commande:commandes(reference, volume_total_tonnes),
-          emetteur:entreprises!factures_emetteur_id_fkey(nom, adresse, adresse_rue, code_postal, ville, pays, telephone, email_contact, siret, tva),
+          emetteur:entreprises!factures_emetteur_id_fkey(nom, adresse, email_contact),
           destinataire:entreprises!factures_destinataire_id_fkey(nom, adresse, email_contact, pays)
         `)
         .eq('id', facture.id)
