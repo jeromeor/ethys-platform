@@ -264,7 +264,7 @@ export default function ReportingClient({ commandes, factures, entreprises, lots
                 { label: 'CA total', value: fmt(totalCA) },
                 { label: 'Factures payées', value: `${factures.filter(f => f.statut === 'payee').length}` },
                 { label: 'Factures en attente', value: `${factures.filter(f => f.statut === 'en_attente' || f.statut === 'emise').length}` },
-                { label: 'Taux encaissement', value: totalCA > 0 ? `${Math.round(factures.filter(f => f.statut === 'payee').reduce((s, f) => s + f.montant_ht, 0) / totalCA * 100)}%` : 'â€”' },
+                { label: 'Taux encaissement', value: totalCA > 0 ? (Math.round(factures.filter(f => f.statut === 'payee').reduce((s, f) => s + f.montant_ht, 0) / totalCA * 100) + '%') : '-' },
               ].map((k, i) => (
                 <div key={i} style={{ background: '#fff', borderRadius: 6, border: '1px solid #e8e3d8', padding: '14px 18px' }}>
                   <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 4 }}>{k.label}</div>
