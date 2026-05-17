@@ -216,8 +216,8 @@ async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
     facture.emetteur?.pays,
   ].filter((x): x is string => !!x && x.trim() !== '')
   adresseEm.forEach((line, i) => doc.text(line, 19, y + 20 + i * 5))
-  if (facture.emetteur?.siret) doc.text('SIRET : ' + facture.emetteur.siret, 19, y + 35)
-  if (facture.emetteur?.email_contact) doc.text(facture.emetteur.email_contact, 56, y + 35, { align: 'right' })
+   if (facture.emetteur?.siret) doc.text('SIRET : ' + facture.emetteur.siret, 19, y + 35)
+  if (facture.emetteur?.email_contact) doc.text(facture.emetteur.email_contact, 19, y + 40)
 
   // Destinataire - carte haute avec coordonnees completes
   doc.setFillColor(beige[0], beige[1], beige[2])
