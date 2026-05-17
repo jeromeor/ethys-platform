@@ -814,25 +814,29 @@ export default function FacturationClient({ factures: initial, commandes, entrep
                       const remiseAnnuelle = accord?.remise_volume_annuel_pct ?? 0
                       const prixFinal = prixBase * (1 - remisePalier/100) * (1 - remiseAnnuelle/100)
                       return (
-                        <div style={{ marginTop: 12, padding: '12px 14px', borderRadius: 4, background: '#F0FDF4', border: '1px solid #c8d8b8' }}>
-                          <div style={{ fontSize: 10, fontWeight: 700, color: '#2d5016', marginBottom: 8, textTransform: 'uppercase' }}>
-                            {accord ? 'Prix accord commercial' : 'Decomposition du prix'}
-                          </div>
-                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
-                            <div style={{ fontSize: 11, color: '#4a5568' }}>Prix de base</div>
-                            <div style={{ fontSize: 11, fontWeight: 600, color: '#1a1a1a', textAlign: 'right' }}>{prixBase.toFixed(4) + ' EUR/kg'}</div>
-                            {remisePalier > 0 && <>
-                              <div style={{ fontSize: 11, color: '#4a5568' }}>Remise volume commande</div>
-                              <div style={{ fontSize: 11, fontWeight: 600, color: '#2d5016', textAlign: 'right' }}>{'-' + remisePalier + '%'}</div>
-                            </>}
-                            {remiseAnnuelle > 0 && <>
-                              <div style={{ fontSize: 11, color: '#4a5568' }}>Remise volume annuel</div>
-                              <div style={{ fontSize: 11, fontWeight: 600, color: '#2d5016', textAlign: 'right' }}>{'-' + remiseAnnuelle + '%'}</div>
-                            </>}
-                            <div style={{ fontSize: 11, fontWeight: 700, color: '#1a1a1a', borderTop: '1px solid #c8d8b8', paddingTop: 6 }}>Prix applicable</div>
-                            <div style={{ fontSize: 12, fontWeight: 900, color: '#1a1a1a', textAlign: 'right', borderTop: '1px solid #c8d8b8', paddingTop: 6 }}>{prixFinal.toFixed(4) + ' EUR/kg'}</div>
-                          </div>
-                          {accord?.notes && <div style={{ fontSize: 10, color: '#4a5568', marginTop: 8, fontStyle: 'italic' }}>{accord.notes}</div>}
+                        <div style={{ marginTop: 10 }}>
+                          <button onClick={() => setShowDecomp(v => !v)} style={{ fontSize: 10, fontWeight: 700, color: '#2d5016', background: '#F0FDF4', border: '1px solid #c8d8b8', borderRadius: 4, padding: '4px 10px', cursor: 'pointer' }}>
+                            {showDecomp ? 'Masquer le detail prix' : (accord ? 'Voir prix accord commercial' : 'Voir detail prix')}
+                          </button>
+                          {showDecomp && (
+                            <div style={{ marginTop: 6, padding: '10px 14px', borderRadius: 4, background: '#F0FDF4', border: '1px solid #c8d8b8' }}>
+                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+                                <div style={{ fontSize: 11, color: '#4a5568' }}>Prix de base</div>
+                                <div style={{ fontSize: 11, fontWeight: 600, color: '#1a1a1a', textAlign: 'right' }}>{prixBase.toFixed(4) + ' EUR/kg'}</div>
+                                {remisePalier > 0 && <>
+                                  <div style={{ fontSize: 11, color: '#4a5568' }}>Remise volume commande</div>
+                                  <div style={{ fontSize: 11, fontWeight: 600, color: '#2d5016', textAlign: 'right' }}>{'-' + remisePalier + '%'}</div>
+                                </>}
+                                {remiseAnnuelle > 0 && <>
+                                  <div style={{ fontSize: 11, color: '#4a5568' }}>Remise volume annuel</div>
+                                  <div style={{ fontSize: 11, fontWeight: 600, color: '#2d5016', textAlign: 'right' }}>{'-' + remiseAnnuelle + '%'}</div>
+                                </>}
+                                <div style={{ fontSize: 11, fontWeight: 700, color: '#1a1a1a', borderTop: '1px solid #c8d8b8', paddingTop: 6 }}>Prix applicable</div>
+                                <div style={{ fontSize: 12, fontWeight: 900, color: '#1a1a1a', textAlign: 'right', borderTop: '1px solid #c8d8b8', paddingTop: 6 }}>{prixFinal.toFixed(4) + ' EUR/kg'}</div>
+                              </div>
+                              {accord?.notes && <div style={{ fontSize: 10, color: '#4a5568', marginTop: 8, fontStyle: 'italic' }}>{accord.notes}</div>}
+                            </div>
+                          )}
                         </div>
                       )
                     })()}
