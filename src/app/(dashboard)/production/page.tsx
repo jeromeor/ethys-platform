@@ -26,7 +26,7 @@ export default async function ProductionPage() {
       lots(
         id, reference, type_coton, volume_tonnes,
         statut, avancement_pct, machine, origine,
-        certification, date_debut, date_fin_prevue,
+        certification, date_debut, date_fin_prevue, updated_at,
         controles_qualite(*)
       )
     `)
