@@ -50,10 +50,19 @@ interface AccordCommercial {
   prix_base_kg: number
   remise_volume_annuel_pct: number
   seuil_volume_annuel_tonnes: number
+  delai_paiement_jours: number | null
   date_debut: string
   date_fin: string | null
   notes: string | null
   entreprise: { nom: string } | null
+}
+
+function calcEcheance(delaiJours: number | null | undefined): string {
+  const jours = delaiJours ?? 60
+  const base = new Date()
+  base.setDate(base.getDate() + jours)
+  const finMois = new Date(base.getFullYear(), base.getMonth() + 1, 0)
+  return finMois.toISOString().split('T')[0]
 }
 
 interface Props {
@@ -346,6 +355,8 @@ export default function FacturationClient({ factures: initial, commandes, entrep
   const [showForm, setShowForm] = useState(false)
   const [filterStatut, setFilterStatut] = useState('tous')
   const [search, setSearch] = useState('')
+  const [filterSociete, setFilterSociete] = useState('')
+  const societesUniques = Array.from(new Set(factures.map(f => f.destinataire?.nom).filter(Boolean))) as string[]
   const [loading, setLoading] = useState(false)
   const [activeTab, setActiveTab] = useState<'factures' | 'accords'>('factures')
   const [accords, setAccords] = useState<AccordCommercial[]>(accordsInitial)
@@ -383,10 +394,14 @@ export default function FacturationClient({ factures: initial, commandes, entrep
     const vol_kg = Math.round((commande.volume_total_tonnes ?? 0) * 1000)
     const prix_kg = accord ? accord.prix_base_kg : 0.60
 
+    const accordDestinataire = accords.find(a => a.entreprise_id === destinataireId)
+    const dateEcheance = calcEcheance(accordDestinataire?.delai_paiement_jours)
+
     setForm(f => ({
       ...f,
       commande_id: commandeId,
       destinataire_id: destinataireId,
+      date_echeance: dateEcheance,
     }))
     setLigneAuto({
       description: 'Fil ETHYS - ' + commande.reference,
@@ -408,6 +423,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
 
   const filtrees = factures.filter(f => {
     if (filterStatut !== 'tous' && f.statut !== filterStatut) return false
+    if (filterSociete && f.destinataire?.nom !== filterSociete) return false
     if (search) {
       const s = search.toLowerCase()
       const matchSociete = f.destinataire?.nom?.toLowerCase().includes(s) || f.emetteur?.nom?.toLowerCase().includes(s)
@@ -539,16 +555,24 @@ export default function FacturationClient({ factures: initial, commandes, entrep
               {s === 'tous' ? 'Toutes' : STATUT_LABELS[s as StatutFacture]}
             </button>
           ))}
+          <select
+            value={filterSociete}
+            onChange={e => setFilterSociete(e.target.value)}
+            style={{ padding: '5px 10px', borderRadius: 6, border: '1.5px solid #d4c5b0', fontSize: 11, outline: 'none', background: filterSociete ? '#1a1a1a' : '#f5f3ef', color: filterSociete ? '#fff' : '#4a5568' }}
+          >
+            <option value="">Toutes societes</option>
+            {societesUniques.sort().map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
           <input
             type="text"
-            placeholder="Rechercher : societe, n° commande, date..."
+            placeholder="N commande ou reference..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            style={{ padding: '5px 12px', borderRadius: 6, border: '1.5px solid #d4c5b0', fontSize: 11, outline: 'none', width: 260 }}
+            style={{ padding: '5px 12px', borderRadius: 6, border: '1.5px solid #d4c5b0', fontSize: 11, outline: 'none', width: 200 }}
           />
-          {search && (
-            <button onClick={() => setSearch('')} style={{ padding: '5px 10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', fontSize: 11, color: '#8b7355', cursor: 'pointer' }}>
-              x
+          {(search || filterSociete) && (
+            <button onClick={() => { setSearch(''); setFilterSociete('') }} style={{ padding: '5px 10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', fontSize: 11, color: '#8b7355', cursor: 'pointer' }}>
+              Reinit.
             </button>
           )}
         </div>
