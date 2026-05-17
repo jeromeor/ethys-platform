@@ -30,7 +30,7 @@ interface Facture {
   commande: { reference: string; volume_total_tonnes: number } | null
   emetteur: { nom: string; adresse: string | null; adresse_rue: string | null; code_postal: string | null; ville: string | null; pays: string | null; telephone: string | null; email_contact: string | null; siret: string | null; tva: string | null } | null
   destinataire_id: string | null
-  destinataire: { nom: string; adresse: string | null; email_contact: string | null; pays?: string } | null
+  destinataire: { nom: string; adresse: string | null; adresse_rue: string | null; code_postal: string | null; ville: string | null; pays: string | null; telephone: string | null; email_contact: string | null; siret: string | null; tva: string | null } | null
 }
 
 interface Commande {
