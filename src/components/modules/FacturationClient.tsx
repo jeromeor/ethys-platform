@@ -28,9 +28,9 @@ interface Facture {
   notes: string | null
   lignes: LigneFacture[]
   commande: { reference: string; volume_total_tonnes: number } | null
-  emetteur: { nom: string; adresse: string | null; adresse_rue: string | null; code_postal: string | null; ville: string | null; pays: string | null; telephone: string | null; email_contact: string | null; siret: string | null; tva: string | null } | null
+  emetteur: { nom: string; adresse: string | null; email_contact: string | null } | null
   destinataire_id: string | null
-  destinataire: { nom: string; adresse: string | null; adresse_rue: string | null; code_postal: string | null; ville: string | null; pays: string | null; telephone: string | null; email_contact: string | null; siret: string | null; tva: string | null } | null
+  destinataire: { nom: string; adresse: string | null; email_contact: string | null; pays?: string } | null
 }
 
 interface Commande {
@@ -135,13 +135,20 @@ function calcTVA(montant_ht: number, tva_pct: number, regime: 'france' | 'ue' | 
   return montant_ht * (tva_pct || 0) / 100
 }
 
-async function loadJsPDF(): Promise<any> {
-  const { jsPDF } = await import('jspdf')
-  return jsPDF
+function loadJsPDF(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if ((window as any).jspdf) { resolve(); return }
+    const script = document.createElement('script')
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
+    script.onload = () => resolve()
+    script.onerror = () => reject(new Error('jsPDF load failed'))
+    document.head.appendChild(script)
+  })
 }
 
 async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
- const jsPDF = await loadJsPDF()
+  await loadJsPDF()
+  const { jsPDF } = (window as any).jspdf
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
 
   const noir = [26, 26, 26]
@@ -202,11 +209,12 @@ async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
   doc.setFontSize(7)
   doc.setFont('helvetica', 'normal')
   doc.setTextColor(gris[0], gris[1], gris[2])
+  const cpVilleEm = [facture.emetteur?.code_postal, facture.emetteur?.ville].filter(Boolean).join(' ')
   const adresseEm = [
     facture.emetteur?.adresse_rue,
-    (facture.emetteur?.code_postal ?? '') + ' ' + (facture.emetteur?.ville ?? ''),
+    cpVilleEm || null,
     facture.emetteur?.pays,
-  ].filter(Boolean) as string[]
+  ].filter((x): x is string => !!x && x.trim() !== '')
   adresseEm.forEach((line, i) => doc.text(line, 19, y + 20 + i * 5))
   if (facture.emetteur?.siret) doc.text('SIRET : ' + facture.emetteur.siret, 19, y + 35)
   if (facture.emetteur?.email_contact) doc.text(facture.emetteur.email_contact, 56, y + 35, { align: 'right' })
@@ -227,7 +235,7 @@ async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
   const adresseDest = [
     facture.destinataire?.adresse_rue,
     facture.destinataire?.pays,
-  ].filter(Boolean) as string[]
+  ].filter((x): x is string => !!x && x.trim() !== '')
   adresseDest.forEach((line, i) => doc.text(line, 115, y + 20 + i * 5))
   if (facture.destinataire?.email_contact) doc.text(facture.destinataire.email_contact, 115, y + 35)
 
