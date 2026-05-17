@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 type StatutFacture = 'brouillon' | 'emise' | 'en_attente' | 'payee' | 'en_retard' | 'annulee'
@@ -19,7 +19,7 @@ interface Facture {
   reference: string
   statut: StatutFacture
   montant_ht: number
-  montant_tva: number
+  montant_tva: number | null
   montant_ttc: number
   tva_pct: number
   date_emission: string
@@ -30,7 +30,7 @@ interface Facture {
   commande: { reference: string; volume_total_tonnes: number } | null
   emetteur: { nom: string; adresse: string | null; email_contact: string | null } | null
   destinataire_id: string | null
-  destinataire: { nom: string; adresse: string | null; email_contact: string | null } | null
+  destinataire: { nom: string; adresse: string | null; email_contact: string | null; pays?: string } | null
 }
 
 interface Commande {
@@ -42,7 +42,7 @@ interface Commande {
   filature: { id: string; nom: string } | null
 }
 
-interface Entreprise { id: string; nom: string; type: string }
+interface Entreprise { id: string; nom: string; type: string; pays?: string }
 
 interface AccordCommercial {
   id: string
@@ -65,6 +65,27 @@ interface Props {
   user: { id: string }
 }
 
+const TEXTILE_LOOP_ID = 'a0000000-0000-0000-0000-000000000001'
+
+const PAYS_UE = new Set([
+  'Allemagne','Autriche','Belgique','Bulgarie','Chypre','Croatie','Danemark',
+  'Espagne','Estonie','Finlande','Grece','Hongrie','Irlande','Italie','Lettonie',
+  'Lituanie','Luxembourg','Malte','Pays-Bas','Pologne','Portugal','Roumanie',
+  'Slovaquie','Slovenie','Suede','Tcheque'
+])
+
+function regimeTVA(pays: string | undefined | null): 'france' | 'ue' | 'hors_ue' {
+  if (!pays || pays.toLowerCase() === 'france') return 'france'
+  if (PAYS_UE.has(pays)) return 'ue'
+  return 'hors_ue'
+}
+
+function mentionTVA(regime: 'france' | 'ue' | 'hors_ue'): string {
+  if (regime === 'france') return ''
+  if (regime === 'ue') return 'TVA intracommunautaire - autoliquidation par le preneur'
+  return 'Exoneration de la TVA - Article 262 1 du CGI'
+}
+
 const STATUT_COLORS: Record<StatutFacture, [string, string, string]> = {
   brouillon:  ['#f5f3ef', '#4a5568', '#8b7355'],
   emise:      ['#DBEAFE', '#1E40AF', '#3B82F6'],
@@ -83,8 +104,14 @@ const STATUT_LABELS: Record<StatutFacture, string> = {
   annulee:    'Annulee',
 }
 
-function fmt(n: number) {
+function fmt(n: number | null | undefined) {
+  if (n == null || isNaN(n)) return '0,00 EUR'
   return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(n)
+}
+
+function calcTVA(montant_ht: number, tva_pct: number, regime: 'france' | 'ue' | 'hors_ue'): number {
+  if (regime !== 'france') return 0
+  return montant_ht * (tva_pct || 0) / 100
 }
 
 function loadJsPDF(): Promise<void> {
@@ -107,9 +134,15 @@ async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
   const vert = [45, 80, 22]
   const beige = [245, 243, 239]
   const gris = [74, 85, 104]
-  const or = [194, 149, 110]
 
-  // -- Header banner noir --
+  const regime = regimeTVA(facture.destinataire?.pays)
+  const montant_ht = facture.montant_ht || 0
+  const tva_pct = facture.tva_pct || 0
+  const montant_tva = calcTVA(montant_ht, tva_pct, regime)
+  const montant_ttc = montant_ht + montant_tva
+  const mention = mentionTVA(regime)
+
+  // Header banner noir
   doc.setFillColor(noir[0], noir[1], noir[2])
   doc.rect(0, 0, 210, 38, 'F')
 
@@ -129,31 +162,25 @@ async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
     doc.text('Ref. commande : ' + facture.commande.reference, 14, 32)
   }
 
-  // Montant TTC en haut a droite
   doc.setFontSize(18)
   doc.setTextColor(194, 149, 110)
   doc.setFont('helvetica', 'bold')
-  const ttcStr = fmt(facture.montant_ttc)
-  doc.text(ttcStr, 196, 22, { align: 'right' })
+  doc.text(fmt(montant_ttc), 196, 22, { align: 'right' })
   doc.setFontSize(8)
   doc.setTextColor(180, 180, 180)
   doc.setFont('helvetica', 'normal')
   doc.text('TTC', 196, 29, { align: 'right' })
-
-  // Statut badge
-  const statutLabel = STATUT_LABELS[facture.statut]
   doc.setFontSize(8)
   doc.setTextColor(255, 255, 255)
   doc.setFont('helvetica', 'bold')
-  doc.text(statutLabel, 196, 35, { align: 'right' })
+  doc.text(STATUT_LABELS[facture.statut], 196, 35, { align: 'right' })
 
   let y = 46
 
-  // -- Emetteur / Destinataire --
+  // Emetteur / Destinataire
   const colW = 86
   const cardH = 28
 
-  // Emetteur
   doc.setFillColor(beige[0], beige[1], beige[2])
   doc.roundedRect(14, y, colW, cardH, 3, 3, 'F')
   doc.setFontSize(7)
@@ -162,7 +189,7 @@ async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
   doc.text('EMETTEUR', 19, y + 7)
   doc.setFontSize(11)
   doc.setTextColor(noir[0], noir[1], noir[2])
-  doc.text(facture.emetteur?.nom ?? '-', 19, y + 15)
+  doc.text(facture.emetteur?.nom ?? 'TEXTILE LOOP', 19, y + 15)
   if (facture.emetteur?.email_contact) {
     doc.setFontSize(8)
     doc.setFont('helvetica', 'normal')
@@ -170,7 +197,6 @@ async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
     doc.text(facture.emetteur.email_contact, 19, y + 22)
   }
 
-  // Destinataire
   doc.setFillColor(beige[0], beige[1], beige[2])
   doc.roundedRect(110, y, colW, cardH, 3, 3, 'F')
   doc.setFontSize(7)
@@ -189,7 +215,7 @@ async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
 
   y += cardH + 10
 
-  // -- Dates --
+  // Dates
   const dates = [
     ["Date d'emission", new Date(facture.date_emission).toLocaleDateString('fr-FR')],
     ["Date d'echeance", new Date(facture.date_echeance).toLocaleDateString('fr-FR')],
@@ -212,7 +238,7 @@ async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
 
   y += 28
 
-  // -- Lignes de facturation --
+  // Lignes de facturation
   if (facture.lignes && facture.lignes.length > 0) {
     doc.setFontSize(8)
     doc.setFont('helvetica', 'bold')
@@ -220,7 +246,6 @@ async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
     doc.text('DETAIL DES PRESTATIONS', 14, y)
     y += 5
 
-    // En-tete tableau
     doc.setFillColor(beige[0], beige[1], beige[2])
     doc.rect(14, y, 182, 8, 'F')
     doc.setFontSize(7)
@@ -253,15 +278,20 @@ async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
     y += 4
   }
 
-  // -- Totaux --
+  // Totaux
   const totW = 80
   const totX = 196 - totW
-  doc.setDrawColor(232, 227, 216)
 
-  const totaux = [
-    ['Sous-total HT', fmt(facture.montant_ht)],
-    ['TVA ' + facture.tva_pct + '%', fmt(facture.montant_tva)],
+  const totaux: [string, string][] = [
+    ['Sous-total HT', fmt(montant_ht)],
   ]
+
+  if (regime === 'france') {
+    totaux.push(['TVA ' + tva_pct + '%', fmt(montant_tva)])
+  } else {
+    totaux.push([regime === 'ue' ? 'TVA intracommunautaire' : 'TVA (exoneree)', '0,00 EUR'])
+  }
+
   totaux.forEach(([label, val]) => {
     doc.setFontSize(9)
     doc.setFont('helvetica', 'normal')
@@ -282,11 +312,20 @@ async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
   doc.setTextColor(noir[0], noir[1], noir[2])
   doc.text('Total TTC', totX, y + 6)
   doc.setFontSize(14)
-  doc.text(fmt(facture.montant_ttc), 196, y + 6, { align: 'right' })
+  doc.text(fmt(montant_ttc), 196, y + 6, { align: 'right' })
 
-  y += 16
+  y += 14
 
-  // -- Accord commercial si applicable --
+  // Mention TVA si applicable
+  if (mention) {
+    doc.setFontSize(8)
+    doc.setFont('helvetica', 'italic')
+    doc.setTextColor(gris[0], gris[1], gris[2])
+    doc.text(mention, 14, y)
+    y += 8
+  }
+
+  // Accord commercial si applicable
   const accord = accords.find(a => a.entreprise_id === facture.destinataire_id)
   if (accord) {
     const vol = facture.commande?.volume_total_tonnes ?? 0
@@ -311,7 +350,7 @@ async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
     doc.text('Prix applicable : ' + prixFinal.toFixed(4) + ' EUR/kg', 130, y + 14)
   }
 
-  // -- Footer --
+  // Footer
   const pageH = 297
   doc.setFillColor(noir[0], noir[1], noir[2])
   doc.rect(0, pageH - 14, 210, 14, 'F')
@@ -319,7 +358,7 @@ async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
   doc.setFont('helvetica', 'normal')
   doc.setTextColor(180, 180, 180)
   const today = new Date().toLocaleDateString('fr-FR')
-  doc.text('ETHYS — Textile Loop — Document genere le ' + today, 14, pageH - 5)
+  doc.text('ETHYS - Textile Loop - Document genere le ' + today, 14, pageH - 5)
   doc.text(facture.reference, 196, pageH - 5, { align: 'right' })
 
   doc.save('facture-' + facture.reference + '.pdf')
@@ -347,9 +386,6 @@ export default function FacturationClient({ factures: initial, commandes, entrep
   })
   const isAdmin = profil.role === 'admin'
 
-  // Emetteur toujours Textile Loop, destinataire pre-rempli depuis la commande
-  const TEXTILE_LOOP_ID = 'a0000000-0000-0000-0000-000000000001'
-
   const [form, setForm] = useState({
     commande_id: '',
     emetteur_id: TEXTILE_LOOP_ID,
@@ -360,7 +396,6 @@ export default function FacturationClient({ factures: initial, commandes, entrep
     lignes: [{ description: '', quantite: '', prix_unitaire: '', unite: 'T' }]
   })
 
-  // Quand la commande change, pre-remplir le destinataire avec la marque
   const handleCommandeChange = (commandeId: string) => {
     const commande = commandes.find(c => c.id === commandeId)
     setForm(f => ({
@@ -388,22 +423,29 @@ export default function FacturationClient({ factures: initial, commandes, entrep
     return s + (parseFloat(l.quantite) || 0) * (parseFloat(l.prix_unitaire) || 0)
   }, 0)
 
+  // Calcul TVA selon pays du destinataire
+  const destinataireSelectionne = entreprises.find(e => e.id === form.destinataire_id)
+  const regimeForm = regimeTVA(destinataireSelectionne?.pays)
+  const tvaPctNum = parseFloat(form.tva_pct) || 0
+  const totalTVA = calcTVA(totalHT, tvaPctNum, regimeForm)
+  const totalTTC = totalHT + totalTVA
+  const mentionForm = mentionTVA(regimeForm)
+
   const filtrees = factures.filter(f =>
     filterStatut === 'tous' || f.statut === filterStatut
   )
 
-  const totalCA = factures.filter(f => f.statut === 'payee').reduce((s, f) => s + f.montant_ttc, 0)
-  const totalAttente = factures.filter(f => f.statut === 'en_attente').reduce((s, f) => s + f.montant_ttc, 0)
-  const totalRetard = factures.filter(f => f.statut === 'en_retard').reduce((s, f) => s + f.montant_ttc, 0)
+  const totalCA = factures.filter(f => f.statut === 'payee').reduce((s, f) => s + (f.montant_ttc || 0), 0)
+  const totalAttente = factures.filter(f => f.statut === 'en_attente').reduce((s, f) => s + (f.montant_ttc || 0), 0)
+  const totalRetard = factures.filter(f => f.statut === 'en_retard').reduce((s, f) => s + (f.montant_ttc || 0), 0)
 
   const creerFacture = async () => {
     if (!form.commande_id || !form.emetteur_id || !form.destinataire_id || !form.date_echeance) return
     setLoading(true)
 
-    const tva = parseFloat(form.tva_pct) || 0
     const montant_ht = totalHT
-    const montant_tva = montant_ht * tva / 100
-    const montant_ttc = montant_ht + montant_tva
+    const montant_tva = totalTVA
+    const montant_ttc = totalTTC
 
     const { data: facture, error } = await supabase
       .from('factures')
@@ -414,7 +456,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
         montant_ht,
         montant_tva,
         montant_ttc,
-        tva_pct: tva,
+        tva_pct: regimeForm === 'france' ? tvaPctNum : 0,
         date_echeance: form.date_echeance,
         statut: 'emise',
         notes: form.notes || null,
@@ -443,7 +485,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
           lignes:lignes_facture(*),
           commande:commandes(reference, volume_total_tonnes),
           emetteur:entreprises!factures_emetteur_id_fkey(nom, adresse, email_contact),
-          destinataire:entreprises!factures_destinataire_id_fkey(nom, adresse, email_contact)
+          destinataire:entreprises!factures_destinataire_id_fkey(nom, adresse, email_contact, pays)
         `)
         .eq('id', facture.id)
         .single()
@@ -497,7 +539,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
       {/* KPIs */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, padding: '16px 22px', background: '#f5f3ef', flexShrink: 0 }}>
         {[
-          { label: 'Total facture', value: fmt(factures.reduce((s, f) => s + f.montant_ttc, 0)), bg: '#fff', color: '#1a1a1a' },
+          { label: 'Total facture', value: fmt(factures.reduce((s, f) => s + (f.montant_ttc || 0), 0)), bg: '#fff', color: '#1a1a1a' },
           { label: 'Encaisse', value: fmt(totalCA), bg: '#F0FDF4', color: '#2d5016' },
           { label: 'En attente', value: fmt(totalAttente), bg: '#FFFBEB', color: '#b8860b' },
           { label: 'En retard', value: fmt(totalRetard), bg: '#fdf0f0', color: '#991B1B' },
@@ -549,7 +591,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
             <button onClick={() => setShowAccordForm(true)} style={{ padding: '7px 14px', borderRadius: 8, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>+ Nouvel accord</button>
           </div>
           {accords.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '60px 0', color: '#8b7355', fontSize: 13 }}>Aucun accord commercial. Cliquez sur "+ Nouvel accord" pour en creer un.</div>
+            <div style={{ textAlign: 'center', padding: '60px 0', color: '#8b7355', fontSize: 13 }}>Aucun accord commercial.</div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {accords.map(a => (
@@ -566,8 +608,8 @@ export default function FacturationClient({ factures: initial, commandes, entrep
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
                     <div style={{ padding: '10px 12px', borderRadius: 8, background: '#F0FDF4' }}>
                       <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 2 }}>Prix negocie/kg</div>
-                      <div style={{ fontSize: 16, fontWeight: 800, color: '#1a1a1a' }}>{Number(a.prix_base_kg).toFixed(4) + 'EUR'}</div>
-                      <div style={{ fontSize: 10, color: '#8b7355' }}>Base: 0.60EUR</div>
+                      <div style={{ fontSize: 16, fontWeight: 800, color: '#1a1a1a' }}>{Number(a.prix_base_kg).toFixed(4) + ' EUR'}</div>
+                      <div style={{ fontSize: 10, color: '#8b7355' }}>Base: 0.60 EUR</div>
                     </div>
                     <div style={{ padding: '10px 12px', borderRadius: 8, background: '#fdf8ec' }}>
                       <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 2 }}>Remise volume annuel</div>
@@ -586,7 +628,6 @@ export default function FacturationClient({ factures: initial, commandes, entrep
             </div>
           )}
 
-          {/* Modal nouvel accord */}
           {showAccordForm && (
             <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }} onClick={() => setShowAccordForm(false)}>
               <div style={{ background: '#fff', borderRadius: 8, padding: '28px 32px', width: 460, boxShadow: '0 24px 64px rgba(0,0,0,0.15)' }} onClick={e => e.stopPropagation()}>
@@ -669,7 +710,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
                   </tr>
                 </thead>
                 <tbody>
-                  {filtrees.map((f, i) => {
+                  {filtrees.map((f) => {
                     const [bg, tc, dot] = STATUT_COLORS[f.statut]
                     return (
                       <tr key={f.id}
@@ -709,179 +750,189 @@ export default function FacturationClient({ factures: initial, commandes, entrep
       )}
 
       {/* Modal detail facture */}
-      {selected && (
-        <div style={{
-          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 200, padding: 20
-        }} onClick={() => setSelected(null)}>
+      {selected && (() => {
+        const regimeSelected = regimeTVA(selected.destinataire?.pays)
+        const ht = selected.montant_ht || 0
+        const tvaAffichee = calcTVA(ht, selected.tva_pct || 0, regimeSelected)
+        const ttcAffiche = ht + tvaAffichee
+        const mentionSelected = mentionTVA(regimeSelected)
+        return (
           <div style={{
-            background: '#fff', borderRadius: 4, width: '100%', maxWidth: 620,
-            maxHeight: '90vh', overflow: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.2)'
-          }} onClick={e => e.stopPropagation()}>
-
-            {/* En-tete */}
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            zIndex: 200, padding: 20
+          }} onClick={() => setSelected(null)}>
             <div style={{
-              background: 'linear-gradient(135deg,#1a1a1a,#2a2a2a)',
-              borderRadius: '20px 20px 0 0', padding: '24px 28px', color: '#fff'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                  <div style={{ fontSize: 10, color: '#c2956e', fontWeight: 600, letterSpacing: 1, marginBottom: 4 }}>FACTURE ETHYS</div>
-                  <div style={{ fontSize: 22, fontWeight: 900 }}>{selected.reference}</div>
-                  <div style={{ fontSize: 11, opacity: 0.75, marginTop: 2 }}>{'Ref. commande : ' + selected.commande?.reference}</div>
-                  {(isAdmin || accords.some(a => a.entreprise_id === selected.destinataire_id)) && (() => {
-                    const accord = accords.find(a => a.entreprise_id === selected.destinataire_id)
-                    const vol = selected.commande?.volume_total_tonnes ?? 0
-                    const prixBase = accord ? accord.prix_base_kg : 0.60
-                    const remisePalier = vol >= 10 ? 2 : vol >= 5 ? 1 : 0
-                    const remiseAnnuelle = accord?.remise_volume_annuel_pct ?? 0
-                    const prixFinal = prixBase * (1 - remisePalier/100) * (1 - remiseAnnuelle/100)
-                    return (
-                      <div style={{ marginTop: 12, padding: '12px 14px', borderRadius: 4, background: '#F0FDF4', border: '1px solid #c8d8b8' }}>
-                        <div style={{ fontSize: 10, fontWeight: 700, color: '#2d5016', marginBottom: 8, textTransform: 'uppercase' }}>
-                          {accord ? 'Prix accord commercial' : 'Decomposition du prix'}
+              background: '#fff', borderRadius: 4, width: '100%', maxWidth: 620,
+              maxHeight: '90vh', overflow: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.2)'
+            }} onClick={e => e.stopPropagation()}>
+
+              <div style={{
+                background: 'linear-gradient(135deg,#1a1a1a,#2a2a2a)',
+                borderRadius: '20px 20px 0 0', padding: '24px 28px', color: '#fff'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div>
+                    <div style={{ fontSize: 10, color: '#c2956e', fontWeight: 600, letterSpacing: 1, marginBottom: 4 }}>FACTURE ETHYS</div>
+                    <div style={{ fontSize: 22, fontWeight: 900 }}>{selected.reference}</div>
+                    <div style={{ fontSize: 11, opacity: 0.75, marginTop: 2 }}>{'Ref. commande : ' + selected.commande?.reference}</div>
+                    {(isAdmin || accords.some(a => a.entreprise_id === selected.destinataire_id)) && (() => {
+                      const accord = accords.find(a => a.entreprise_id === selected.destinataire_id)
+                      const vol = selected.commande?.volume_total_tonnes ?? 0
+                      const prixBase = accord ? accord.prix_base_kg : 0.60
+                      const remisePalier = vol >= 10 ? 2 : vol >= 5 ? 1 : 0
+                      const remiseAnnuelle = accord?.remise_volume_annuel_pct ?? 0
+                      const prixFinal = prixBase * (1 - remisePalier/100) * (1 - remiseAnnuelle/100)
+                      return (
+                        <div style={{ marginTop: 12, padding: '12px 14px', borderRadius: 4, background: '#F0FDF4', border: '1px solid #c8d8b8' }}>
+                          <div style={{ fontSize: 10, fontWeight: 700, color: '#2d5016', marginBottom: 8, textTransform: 'uppercase' }}>
+                            {accord ? 'Prix accord commercial' : 'Decomposition du prix'}
+                          </div>
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+                            <div style={{ fontSize: 11, color: '#4a5568' }}>Prix de base</div>
+                            <div style={{ fontSize: 11, fontWeight: 600, color: '#1a1a1a', textAlign: 'right' }}>{prixBase.toFixed(4) + ' EUR/kg'}</div>
+                            {remisePalier > 0 && <>
+                              <div style={{ fontSize: 11, color: '#4a5568' }}>Remise volume commande</div>
+                              <div style={{ fontSize: 11, fontWeight: 600, color: '#2d5016', textAlign: 'right' }}>{'-' + remisePalier + '%'}</div>
+                            </>}
+                            {remiseAnnuelle > 0 && <>
+                              <div style={{ fontSize: 11, color: '#4a5568' }}>Remise volume annuel</div>
+                              <div style={{ fontSize: 11, fontWeight: 600, color: '#2d5016', textAlign: 'right' }}>{'-' + remiseAnnuelle + '%'}</div>
+                            </>}
+                            <div style={{ fontSize: 11, fontWeight: 700, color: '#1a1a1a', borderTop: '1px solid #c8d8b8', paddingTop: 6 }}>Prix applicable</div>
+                            <div style={{ fontSize: 12, fontWeight: 900, color: '#1a1a1a', textAlign: 'right', borderTop: '1px solid #c8d8b8', paddingTop: 6 }}>{prixFinal.toFixed(4) + ' EUR/kg'}</div>
+                          </div>
+                          {accord?.notes && <div style={{ fontSize: 10, color: '#4a5568', marginTop: 8, fontStyle: 'italic' }}>{accord.notes}</div>}
                         </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
-                          <div style={{ fontSize: 11, color: '#4a5568' }}>Prix de base</div>
-                          <div style={{ fontSize: 11, fontWeight: 600, color: '#1a1a1a', textAlign: 'right' }}>{prixBase.toFixed(4) + 'EUR/kg'}</div>
-                          {remisePalier > 0 && <>
-                            <div style={{ fontSize: 11, color: '#4a5568' }}>Remise volume commande</div>
-                            <div style={{ fontSize: 11, fontWeight: 600, color: '#2d5016', textAlign: 'right' }}>{'-' + remisePalier + '%'}</div>
-                          </>}
-                          {remiseAnnuelle > 0 && <>
-                            <div style={{ fontSize: 11, color: '#4a5568' }}>Remise volume annuel</div>
-                            <div style={{ fontSize: 11, fontWeight: 600, color: '#2d5016', textAlign: 'right' }}>{'-' + remiseAnnuelle + '%'}</div>
-                          </>}
-                          <div style={{ fontSize: 11, fontWeight: 700, color: '#1a1a1a', borderTop: '1px solid #c8d8b8', paddingTop: 6 }}>Prix applicable</div>
-                          <div style={{ fontSize: 12, fontWeight: 900, color: '#1a1a1a', textAlign: 'right', borderTop: '1px solid #c8d8b8', paddingTop: 6 }}>{prixFinal.toFixed(4) + 'EUR/kg'}</div>
-                        </div>
-                        {accord?.notes && <div style={{ fontSize: 10, color: '#4a5568', marginTop: 8, fontStyle: 'italic' }}>{accord.notes}</div>}
-                      </div>
-                    )
-                  })()}
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: 26, fontWeight: 900, color: '#c2956e' }}>{fmt(selected.montant_ttc)}</div>
-                  <div style={{ fontSize: 10, opacity: 0.65 }}>TTC</div>
-                  <div style={{ marginTop: 6 }}>
-                    <span style={{
-                      padding: '3px 10px', borderRadius: 4, fontSize: 11, fontWeight: 700,
-                      background: STATUT_COLORS[selected.statut][0],
-                      color: STATUT_COLORS[selected.statut][1]
-                    }}>{STATUT_LABELS[selected.statut]}</span>
+                      )
+                    })()}
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: 26, fontWeight: 900, color: '#c2956e' }}>{fmt(ttcAffiche)}</div>
+                    <div style={{ fontSize: 10, opacity: 0.65 }}>TTC</div>
+                    <div style={{ marginTop: 6 }}>
+                      <span style={{
+                        padding: '3px 10px', borderRadius: 4, fontSize: 11, fontWeight: 700,
+                        background: STATUT_COLORS[selected.statut][0],
+                        color: STATUT_COLORS[selected.statut][1]
+                      }}>{STATUT_LABELS[selected.statut]}</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div style={{ padding: '22px 28px' }}>
-              {/* Parties */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 20 }}>
-                {[
-                  { titre: 'Emetteur', data: selected.emetteur },
-                  { titre: 'Destinataire', data: selected.destinataire },
-                ].map(({ titre, data }) => (
-                  <div key={titre} style={{ padding: '12px 14px', borderRadius: 4, background: '#f5f3ef', border: '1px solid #e8e3d8' }}>
-                    <div style={{ fontSize: 10, fontWeight: 700, color: '#8b7355', marginBottom: 6, textTransform: 'uppercase' }}>{titre}</div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>{data?.nom ?? '-'}</div>
-                    {data?.email_contact && <div style={{ fontSize: 11, color: '#4a5568', marginTop: 2 }}>{data.email_contact}</div>}
-                  </div>
-                ))}
-              </div>
-
-              {/* Dates */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 20 }}>
-                {[
-                  ["Date d'emission", new Date(selected.date_emission).toLocaleDateString('fr-FR')],
-                  ["Date d'echeance", new Date(selected.date_echeance).toLocaleDateString('fr-FR')],
-                  ["Date de paiement", selected.date_paiement ? new Date(selected.date_paiement).toLocaleDateString('fr-FR') : '-'],
-                ].map(([l, v]) => (
-                  <div key={l} style={{ padding: '10px 12px', borderRadius: 8, background: '#f5f3ef', border: '1px solid #e8e3d8' }}>
-                    <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 3 }}>{l}</div>
-                    <div style={{ fontSize: 12, fontWeight: 700 }}>{v}</div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Lignes */}
-              {selected.lignes?.length > 0 && (
-                <div style={{ marginBottom: 18 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                    Detail des prestations
-                  </div>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #e8e3d8', borderRadius: 8, overflow: 'hidden' }}>
-                    <thead>
-                      <tr style={{ background: '#f5f3ef' }}>
-                        {['Description', 'Qte', 'Unite', 'PU (EUR)', 'Total HT'].map(h => (
-                          <th key={h} style={{ padding: '8px 12px', fontSize: 10, fontWeight: 600, color: '#8b7355', textAlign: h === 'Description' ? 'left' : 'right', textTransform: 'uppercase' }}>{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {selected.lignes.map((l, i) => (
-                        <tr key={i} style={{ borderTop: '1px solid #f5f3ef' }}>
-                          <td style={{ padding: '10px 12px', fontSize: 12 }}>{l.description}</td>
-                          <td style={{ padding: '10px 12px', fontSize: 12, textAlign: 'right' }}>{l.quantite}</td>
-                          <td style={{ padding: '10px 12px', fontSize: 12, textAlign: 'right' }}>{l.unite}</td>
-                          <td style={{ padding: '10px 12px', fontSize: 12, textAlign: 'right' }}>{fmt(l.prix_unitaire)}</td>
-                          <td style={{ padding: '10px 12px', fontSize: 12, fontWeight: 700, textAlign: 'right', color: '#1a1a1a' }}>{fmt(l.total_ht || l.quantite * l.prix_unitaire)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-
-              {/* Totaux */}
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 }}>
-                <div style={{ width: 240 }}>
+              <div style={{ padding: '22px 28px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 20 }}>
                   {[
-                    ['Sous-total HT', fmt(selected.montant_ht)],
-                    ['TVA ' + selected.tva_pct + '%', fmt(selected.montant_tva)],
-                  ].map(([l, v]) => (
-                    <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', borderBottom: '1px solid #f5f3ef', fontSize: 12 }}>
-                      <span style={{ color: '#4a5568' }}>{l}</span>
-                      <span style={{ fontWeight: 600 }}>{v}</span>
+                    { titre: 'Emetteur', data: selected.emetteur },
+                    { titre: 'Destinataire', data: selected.destinataire },
+                  ].map(({ titre, data }) => (
+                    <div key={titre} style={{ padding: '12px 14px', borderRadius: 4, background: '#f5f3ef', border: '1px solid #e8e3d8' }}>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: '#8b7355', marginBottom: 6, textTransform: 'uppercase' }}>{titre}</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>{data?.nom ?? '-'}</div>
+                      {data?.email_contact && <div style={{ fontSize: 11, color: '#4a5568', marginTop: 2 }}>{data.email_contact}</div>}
                     </div>
                   ))}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', fontSize: 14 }}>
-                    <span style={{ fontWeight: 700, color: '#1a1a1a' }}>Total TTC</span>
-                    <span style={{ fontWeight: 900, color: '#1a1a1a', fontSize: 16 }}>{fmt(selected.montant_ttc)}</span>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 20 }}>
+                  {[
+                    ["Date d'emission", new Date(selected.date_emission).toLocaleDateString('fr-FR')],
+                    ["Date d'echeance", new Date(selected.date_echeance).toLocaleDateString('fr-FR')],
+                    ["Date de paiement", selected.date_paiement ? new Date(selected.date_paiement).toLocaleDateString('fr-FR') : '-'],
+                  ].map(([l, v]) => (
+                    <div key={l} style={{ padding: '10px 12px', borderRadius: 8, background: '#f5f3ef', border: '1px solid #e8e3d8' }}>
+                      <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 3 }}>{l}</div>
+                      <div style={{ fontSize: 12, fontWeight: 700 }}>{v}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {selected.lignes?.length > 0 && (
+                  <div style={{ marginBottom: 18 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                      Detail des prestations
+                    </div>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #e8e3d8', borderRadius: 8, overflow: 'hidden' }}>
+                      <thead>
+                        <tr style={{ background: '#f5f3ef' }}>
+                          {['Description', 'Qte', 'Unite', 'PU (EUR)', 'Total HT'].map(h => (
+                            <th key={h} style={{ padding: '8px 12px', fontSize: 10, fontWeight: 600, color: '#8b7355', textAlign: h === 'Description' ? 'left' : 'right', textTransform: 'uppercase' }}>{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {selected.lignes.map((l, i) => (
+                          <tr key={i} style={{ borderTop: '1px solid #f5f3ef' }}>
+                            <td style={{ padding: '10px 12px', fontSize: 12 }}>{l.description}</td>
+                            <td style={{ padding: '10px 12px', fontSize: 12, textAlign: 'right' }}>{l.quantite}</td>
+                            <td style={{ padding: '10px 12px', fontSize: 12, textAlign: 'right' }}>{l.unite}</td>
+                            <td style={{ padding: '10px 12px', fontSize: 12, textAlign: 'right' }}>{fmt(l.prix_unitaire)}</td>
+                            <td style={{ padding: '10px 12px', fontSize: 12, fontWeight: 700, textAlign: 'right', color: '#1a1a1a' }}>{fmt(l.total_ht || l.quantite * l.prix_unitaire)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: mentionSelected ? 10 : 20 }}>
+                  <div style={{ width: 260 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', borderBottom: '1px solid #f5f3ef', fontSize: 12 }}>
+                      <span style={{ color: '#4a5568' }}>Sous-total HT</span>
+                      <span style={{ fontWeight: 600 }}>{fmt(ht)}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', borderBottom: '1px solid #f5f3ef', fontSize: 12 }}>
+                      <span style={{ color: '#4a5568' }}>
+                        {regimeSelected === 'france'
+                          ? 'TVA ' + (selected.tva_pct || 0) + '%'
+                          : regimeSelected === 'ue' ? 'TVA intracommunautaire' : 'TVA (exoneree)'}
+                      </span>
+                      <span style={{ fontWeight: 600 }}>{fmt(tvaAffichee)}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', fontSize: 14 }}>
+                      <span style={{ fontWeight: 700, color: '#1a1a1a' }}>Total TTC</span>
+                      <span style={{ fontWeight: 900, color: '#1a1a1a', fontSize: 16 }}>{fmt(ttcAffiche)}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Actions */}
-              <div style={{ display: 'flex', gap: 10 }}>
-                {selected.statut !== 'payee' && selected.statut !== 'annulee' && (
-                  <button onClick={() => marquerPayee(selected.id)} style={{
-                    flex: 2, padding: '10px', borderRadius: 4, border: 'none',
-                    background: '#1a1a1a', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer'
-                  }}>Marquer comme payee</button>
+                {mentionSelected && (
+                  <div style={{ padding: '8px 12px', borderRadius: 6, background: '#fdf8ec', border: '1px solid #e8d5a0', fontSize: 11, color: '#8b6914', marginBottom: 20, fontStyle: 'italic' }}>
+                    {mentionSelected}
+                  </div>
                 )}
-                <button
-                  onClick={() => handleTelechargerPDF(selected)}
-                  disabled={pdfLoading}
-                  style={{
+
+                <div style={{ display: 'flex', gap: 10 }}>
+                  {selected.statut !== 'payee' && selected.statut !== 'annulee' && (
+                    <button onClick={() => marquerPayee(selected.id)} style={{
+                      flex: 2, padding: '10px', borderRadius: 4, border: 'none',
+                      background: '#1a1a1a', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer'
+                    }}>Marquer comme payee</button>
+                  )}
+                  <button
+                    onClick={() => handleTelechargerPDF(selected)}
+                    disabled={pdfLoading}
+                    style={{
+                      flex: 1, padding: '10px', borderRadius: 4,
+                      border: '1.5px solid #2d5016',
+                      background: pdfLoading ? '#f5f3ef' : '#f0f4ec',
+                      color: pdfLoading ? '#8b7355' : '#2d5016',
+                      fontSize: 13, fontWeight: 700, cursor: pdfLoading ? 'default' : 'pointer'
+                    }}>
+                    {pdfLoading ? 'Generation...' : 'Telecharger PDF'}
+                  </button>
+                  <button onClick={() => setSelected(null)} style={{
                     flex: 1, padding: '10px', borderRadius: 4,
-                    border: '1.5px solid #2d5016',
-                    background: pdfLoading ? '#f5f3ef' : '#f0f4ec',
-                    color: pdfLoading ? '#8b7355' : '#2d5016',
-                    fontSize: 13, fontWeight: 700, cursor: pdfLoading ? 'default' : 'pointer'
-                  }}>
-                  {pdfLoading ? 'Generation...' : 'Telecharger PDF'}
-                </button>
-                <button onClick={() => setSelected(null)} style={{
-                  flex: 1, padding: '10px', borderRadius: 4,
-                  border: '1.5px solid #e8e3d8', background: '#f5f3ef',
-                  color: '#8b7355', fontSize: 13, cursor: 'pointer'
-                }}>Fermer</button>
+                    border: '1.5px solid #e8e3d8', background: '#f5f3ef',
+                    color: '#8b7355', fontSize: 13, cursor: 'pointer'
+                  }}>Fermer</button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      })()}
 
       {/* Modal nouvelle facture */}
       {showForm && (
@@ -930,12 +981,25 @@ export default function FacturationClient({ factures: initial, commandes, entrep
                   <input type="date" value={form.date_echeance} onChange={e => set('date_echeance', e.target.value)} style={inputStyle} />
                 </div>
                 <div>
-                  <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>TVA (%)</label>
-                  <input type="number" value={form.tva_pct} onChange={e => set('tva_pct', e.target.value)} style={inputStyle} />
+                  <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>
+                    {'TVA (%)' + (regimeForm !== 'france' ? ' - Non applicable' : '')}
+                  </label>
+                  <input
+                    type="number"
+                    value={form.tva_pct}
+                    onChange={e => set('tva_pct', e.target.value)}
+                    disabled={regimeForm !== 'france'}
+                    style={{ ...inputStyle, background: regimeForm !== 'france' ? '#f5f3ef' : '#fff', color: regimeForm !== 'france' ? '#8b7355' : '#1a1a1a' }}
+                  />
                 </div>
               </div>
 
-              {/* Lignes */}
+              {mentionForm && (
+                <div style={{ padding: '8px 12px', borderRadius: 6, background: '#fdf8ec', border: '1px solid #e8d5a0', fontSize: 11, color: '#8b6914', fontStyle: 'italic' }}>
+                  {mentionForm}
+                </div>
+              )}
+
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 8 }}>Lignes de facturation</label>
                 {form.lignes.map((l, i) => (
@@ -958,19 +1022,20 @@ export default function FacturationClient({ factures: initial, commandes, entrep
                 }}>+ Ajouter une ligne</button>
               </div>
 
-              {/* Total */}
               <div style={{ padding: '12px 14px', borderRadius: 4, background: '#f5f3ef', border: '1px solid #e8e3d8' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
                   <span style={{ color: '#4a5568' }}>Total HT</span>
                   <span style={{ fontWeight: 700 }}>{fmt(totalHT)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
-                  <span style={{ color: '#4a5568' }}>{'TVA ' + form.tva_pct + '%'}</span>
-                  <span style={{ fontWeight: 700 }}>{fmt(totalHT * parseFloat(form.tva_pct) / 100)}</span>
+                  <span style={{ color: '#4a5568' }}>
+                    {regimeForm === 'france' ? ('TVA ' + form.tva_pct + '%') : (regimeForm === 'ue' ? 'TVA intracommunautaire' : 'TVA (exoneree)')}
+                  </span>
+                  <span style={{ fontWeight: 700 }}>{fmt(totalTVA)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14 }}>
                   <span style={{ fontWeight: 700, color: '#1a1a1a' }}>Total TTC</span>
-                  <span style={{ fontWeight: 900, color: '#1a1a1a' }}>{fmt(totalHT * (1 + parseFloat(form.tva_pct) / 100))}</span>
+                  <span style={{ fontWeight: 900, color: '#1a1a1a' }}>{fmt(totalTTC)}</span>
                 </div>
               </div>
 
