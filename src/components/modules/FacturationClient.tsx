@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 type StatutFacture = 'brouillon' | 'emise' | 'en_attente' | 'payee' | 'en_retard' | 'annulee'
@@ -76,15 +76,253 @@ const STATUT_COLORS: Record<StatutFacture, [string, string, string]> = {
 
 const STATUT_LABELS: Record<StatutFacture, string> = {
   brouillon:  'Brouillon',
-  emise:      'Émises',
+  emise:      'Emise',
   en_attente: 'En attente',
-  payee:      'Payée',
+  payee:      'Payee',
   en_retard:  'En retard',
-  annulee:    'Annulée',
+  annulee:    'Annulee',
 }
 
 function fmt(n: number) {
   return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(n)
+}
+
+function loadJsPDF(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if ((window as any).jspdf) { resolve(); return }
+    const script = document.createElement('script')
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
+    script.onload = () => resolve()
+    script.onerror = () => reject(new Error('jsPDF load failed'))
+    document.head.appendChild(script)
+  })
+}
+
+async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
+  await loadJsPDF()
+  const { jsPDF } = (window as any).jspdf
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+
+  const noir = [26, 26, 26]
+  const vert = [45, 80, 22]
+  const beige = [245, 243, 239]
+  const gris = [74, 85, 104]
+  const or = [194, 149, 110]
+
+  // -- Header banner noir --
+  doc.setFillColor(noir[0], noir[1], noir[2])
+  doc.rect(0, 0, 210, 38, 'F')
+
+  doc.setFontSize(9)
+  doc.setTextColor(194, 149, 110)
+  doc.setFont('helvetica', 'bold')
+  doc.text('FACTURE ETHYS', 14, 13)
+
+  doc.setFontSize(20)
+  doc.setTextColor(255, 255, 255)
+  doc.text(facture.reference, 14, 24)
+
+  if (facture.commande?.reference) {
+    doc.setFontSize(9)
+    doc.setTextColor(180, 180, 180)
+    doc.setFont('helvetica', 'normal')
+    doc.text('Ref. commande : ' + facture.commande.reference, 14, 32)
+  }
+
+  // Montant TTC en haut a droite
+  doc.setFontSize(18)
+  doc.setTextColor(194, 149, 110)
+  doc.setFont('helvetica', 'bold')
+  const ttcStr = fmt(facture.montant_ttc)
+  doc.text(ttcStr, 196, 22, { align: 'right' })
+  doc.setFontSize(8)
+  doc.setTextColor(180, 180, 180)
+  doc.setFont('helvetica', 'normal')
+  doc.text('TTC', 196, 29, { align: 'right' })
+
+  // Statut badge
+  const statutLabel = STATUT_LABELS[facture.statut]
+  doc.setFontSize(8)
+  doc.setTextColor(255, 255, 255)
+  doc.setFont('helvetica', 'bold')
+  doc.text(statutLabel, 196, 35, { align: 'right' })
+
+  let y = 46
+
+  // -- Emetteur / Destinataire --
+  const colW = 86
+  const cardH = 28
+
+  // Emetteur
+  doc.setFillColor(beige[0], beige[1], beige[2])
+  doc.roundedRect(14, y, colW, cardH, 3, 3, 'F')
+  doc.setFontSize(7)
+  doc.setTextColor(gris[0], gris[1], gris[2])
+  doc.setFont('helvetica', 'bold')
+  doc.text('EMETTEUR', 19, y + 7)
+  doc.setFontSize(11)
+  doc.setTextColor(noir[0], noir[1], noir[2])
+  doc.text(facture.emetteur?.nom ?? '-', 19, y + 15)
+  if (facture.emetteur?.email_contact) {
+    doc.setFontSize(8)
+    doc.setFont('helvetica', 'normal')
+    doc.setTextColor(gris[0], gris[1], gris[2])
+    doc.text(facture.emetteur.email_contact, 19, y + 22)
+  }
+
+  // Destinataire
+  doc.setFillColor(beige[0], beige[1], beige[2])
+  doc.roundedRect(110, y, colW, cardH, 3, 3, 'F')
+  doc.setFontSize(7)
+  doc.setTextColor(gris[0], gris[1], gris[2])
+  doc.setFont('helvetica', 'bold')
+  doc.text('DESTINATAIRE', 115, y + 7)
+  doc.setFontSize(11)
+  doc.setTextColor(noir[0], noir[1], noir[2])
+  doc.text(facture.destinataire?.nom ?? '-', 115, y + 15)
+  if (facture.destinataire?.email_contact) {
+    doc.setFontSize(8)
+    doc.setFont('helvetica', 'normal')
+    doc.setTextColor(gris[0], gris[1], gris[2])
+    doc.text(facture.destinataire.email_contact, 115, y + 22)
+  }
+
+  y += cardH + 10
+
+  // -- Dates --
+  const dates = [
+    ["Date d'emission", new Date(facture.date_emission).toLocaleDateString('fr-FR')],
+    ["Date d'echeance", new Date(facture.date_echeance).toLocaleDateString('fr-FR')],
+    ["Date de paiement", facture.date_paiement ? new Date(facture.date_paiement).toLocaleDateString('fr-FR') : '-'],
+  ]
+  const dateW = 56
+  dates.forEach(([label, val], i) => {
+    const dx = 14 + i * (dateW + 5)
+    doc.setFillColor(beige[0], beige[1], beige[2])
+    doc.roundedRect(dx, y, dateW, 18, 2, 2, 'F')
+    doc.setFontSize(7)
+    doc.setFont('helvetica', 'normal')
+    doc.setTextColor(gris[0], gris[1], gris[2])
+    doc.text(label, dx + 4, y + 6)
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(noir[0], noir[1], noir[2])
+    doc.text(val, dx + 4, y + 14)
+  })
+
+  y += 28
+
+  // -- Lignes de facturation --
+  if (facture.lignes && facture.lignes.length > 0) {
+    doc.setFontSize(8)
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(gris[0], gris[1], gris[2])
+    doc.text('DETAIL DES PRESTATIONS', 14, y)
+    y += 5
+
+    // En-tete tableau
+    doc.setFillColor(beige[0], beige[1], beige[2])
+    doc.rect(14, y, 182, 8, 'F')
+    doc.setFontSize(7)
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(gris[0], gris[1], gris[2])
+    doc.text('DESCRIPTION', 17, y + 5)
+    doc.text('QTE', 115, y + 5, { align: 'right' })
+    doc.text('UNITE', 135, y + 5, { align: 'right' })
+    doc.text('PU (EUR)', 163, y + 5, { align: 'right' })
+    doc.text('TOTAL HT', 196, y + 5, { align: 'right' })
+    y += 8
+
+    facture.lignes.forEach((l, i) => {
+      if (i % 2 === 0) {
+        doc.setFillColor(252, 252, 250)
+        doc.rect(14, y, 182, 8, 'F')
+      }
+      doc.setFontSize(8)
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor(noir[0], noir[1], noir[2])
+      doc.text(l.description, 17, y + 5)
+      doc.text(String(l.quantite), 115, y + 5, { align: 'right' })
+      doc.text(l.unite, 135, y + 5, { align: 'right' })
+      doc.text(fmt(l.prix_unitaire), 163, y + 5, { align: 'right' })
+      doc.setFont('helvetica', 'bold')
+      doc.text(fmt(l.total_ht || l.quantite * l.prix_unitaire), 196, y + 5, { align: 'right' })
+      y += 8
+    })
+
+    y += 4
+  }
+
+  // -- Totaux --
+  const totW = 80
+  const totX = 196 - totW
+  doc.setDrawColor(232, 227, 216)
+
+  const totaux = [
+    ['Sous-total HT', fmt(facture.montant_ht)],
+    ['TVA ' + facture.tva_pct + '%', fmt(facture.montant_tva)],
+  ]
+  totaux.forEach(([label, val]) => {
+    doc.setFontSize(9)
+    doc.setFont('helvetica', 'normal')
+    doc.setTextColor(gris[0], gris[1], gris[2])
+    doc.text(label, totX, y)
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(noir[0], noir[1], noir[2])
+    doc.text(val, 196, y, { align: 'right' })
+    y += 7
+  })
+
+  doc.setLineWidth(0.5)
+  doc.setDrawColor(232, 227, 216)
+  doc.line(totX, y - 2, 196, y - 2)
+
+  doc.setFontSize(12)
+  doc.setFont('helvetica', 'bold')
+  doc.setTextColor(noir[0], noir[1], noir[2])
+  doc.text('Total TTC', totX, y + 6)
+  doc.setFontSize(14)
+  doc.text(fmt(facture.montant_ttc), 196, y + 6, { align: 'right' })
+
+  y += 16
+
+  // -- Accord commercial si applicable --
+  const accord = accords.find(a => a.entreprise_id === facture.destinataire_id)
+  if (accord) {
+    const vol = facture.commande?.volume_total_tonnes ?? 0
+    const remisePalier = vol >= 10 ? 2 : vol >= 5 ? 1 : 0
+    const remiseAnnuelle = accord.remise_volume_annuel_pct ?? 0
+    const prixFinal = accord.prix_base_kg * (1 - remisePalier / 100) * (1 - remiseAnnuelle / 100)
+
+    doc.setFillColor(240, 244, 236)
+    doc.roundedRect(14, y, 182, remisePalier > 0 || remiseAnnuelle > 0 ? 36 : 24, 3, 3, 'F')
+    doc.setFontSize(7)
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(vert[0], vert[1], vert[2])
+    doc.text('PRIX ACCORD COMMERCIAL', 19, y + 7)
+    doc.setFontSize(8)
+    doc.setFont('helvetica', 'normal')
+    doc.setTextColor(noir[0], noir[1], noir[2])
+    doc.text('Prix de base : ' + accord.prix_base_kg.toFixed(4) + ' EUR/kg', 19, y + 14)
+    let ay = y + 14
+    if (remisePalier > 0) { ay += 6; doc.text('Remise volume commande : -' + remisePalier + '%', 19, ay) }
+    if (remiseAnnuelle > 0) { ay += 6; doc.text('Remise volume annuel : -' + remiseAnnuelle + '%', 19, ay) }
+    doc.setFont('helvetica', 'bold')
+    doc.text('Prix applicable : ' + prixFinal.toFixed(4) + ' EUR/kg', 130, y + 14)
+  }
+
+  // -- Footer --
+  const pageH = 297
+  doc.setFillColor(noir[0], noir[1], noir[2])
+  doc.rect(0, pageH - 14, 210, 14, 'F')
+  doc.setFontSize(7)
+  doc.setFont('helvetica', 'normal')
+  doc.setTextColor(180, 180, 180)
+  const today = new Date().toLocaleDateString('fr-FR')
+  doc.text('ETHYS — Textile Loop — Document genere le ' + today, 14, pageH - 5)
+  doc.text(facture.reference, 196, pageH - 5, { align: 'right' })
+
+  doc.save('facture-' + facture.reference + '.pdf')
 }
 
 export default function FacturationClient({ factures: initial, commandes, entreprises, accords: accordsInitial, profil, user }: Props) {
@@ -97,6 +335,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
   const [activeTab, setActiveTab] = useState<'factures' | 'accords'>('factures')
   const [accords, setAccords] = useState<AccordCommercial[]>(accordsInitial)
   const [showAccordForm, setShowAccordForm] = useState(false)
+  const [pdfLoading, setPdfLoading] = useState(false)
   const [accordForm, setAccordForm] = useState({
     entreprise_id: '',
     prix_base_kg: '0.60',
@@ -108,15 +347,28 @@ export default function FacturationClient({ factures: initial, commandes, entrep
   })
   const isAdmin = profil.role === 'admin'
 
+  // Emetteur toujours Textile Loop, destinataire pre-rempli depuis la commande
+  const TEXTILE_LOOP_ID = 'a0000000-0000-0000-0000-000000000001'
+
   const [form, setForm] = useState({
     commande_id: '',
-    emetteur_id: '',
+    emetteur_id: TEXTILE_LOOP_ID,
     destinataire_id: '',
     date_echeance: '',
     tva_pct: '20',
     notes: '',
     lignes: [{ description: '', quantite: '', prix_unitaire: '', unite: 'T' }]
   })
+
+  // Quand la commande change, pre-remplir le destinataire avec la marque
+  const handleCommandeChange = (commandeId: string) => {
+    const commande = commandes.find(c => c.id === commandeId)
+    setForm(f => ({
+      ...f,
+      commande_id: commandeId,
+      destinataire_id: commande?.marque?.id ?? f.destinataire_id,
+    }))
+  }
 
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }))
 
@@ -148,14 +400,21 @@ export default function FacturationClient({ factures: initial, commandes, entrep
     if (!form.commande_id || !form.emetteur_id || !form.destinataire_id || !form.date_echeance) return
     setLoading(true)
 
+    const tva = parseFloat(form.tva_pct) || 0
+    const montant_ht = totalHT
+    const montant_tva = montant_ht * tva / 100
+    const montant_ttc = montant_ht + montant_tva
+
     const { data: facture, error } = await supabase
       .from('factures')
       .insert({
         commande_id: form.commande_id,
         emetteur_id: form.emetteur_id,
         destinataire_id: form.destinataire_id,
-        montant_ht: totalHT,
-        tva_pct: parseFloat(form.tva_pct),
+        montant_ht,
+        montant_tva,
+        montant_ttc,
+        tva_pct: tva,
         date_echeance: form.date_echeance,
         statut: 'emise',
         notes: form.notes || null,
@@ -164,7 +423,6 @@ export default function FacturationClient({ factures: initial, commandes, entrep
       .single()
 
     if (!error && facture) {
-      // Insérer les lignes
       await supabase.from('lignes_facture').insert(
         form.lignes
           .filter(l => l.description && l.quantite && l.prix_unitaire)
@@ -174,10 +432,10 @@ export default function FacturationClient({ factures: initial, commandes, entrep
             quantite: parseFloat(l.quantite),
             unite: l.unite,
             prix_unitaire: parseFloat(l.prix_unitaire),
+            total_ht: (parseFloat(l.quantite) || 0) * (parseFloat(l.prix_unitaire) || 0),
           }))
       )
 
-      // Recharger
       const { data: newFacture } = await supabase
         .from('factures')
         .select(`
@@ -192,6 +450,15 @@ export default function FacturationClient({ factures: initial, commandes, entrep
 
       if (newFacture) setFactures(prev => [newFacture as Facture, ...prev])
       setShowForm(false)
+      setForm({
+        commande_id: '',
+        emetteur_id: TEXTILE_LOOP_ID,
+        destinataire_id: '',
+        date_echeance: '',
+        tva_pct: '20',
+        notes: '',
+        lignes: [{ description: '', quantite: '', prix_unitaire: '', unite: 'T' }]
+      })
     }
     setLoading(false)
   }
@@ -208,6 +475,16 @@ export default function FacturationClient({ factures: initial, commandes, entrep
     if (selected?.id === id) setSelected(prev => prev ? { ...prev, statut: 'payee' } : null)
   }
 
+  const handleTelechargerPDF = async (facture: Facture) => {
+    setPdfLoading(true)
+    try {
+      await telechargerPDF(facture, accords)
+    } catch (e) {
+      console.error('PDF error:', e)
+    }
+    setPdfLoading(false)
+  }
+
   const inputStyle = {
     width: '100%', padding: '8px 12px', borderRadius: 8,
     border: '1.5px solid #d4c5b0', fontSize: 12,
@@ -220,8 +497,8 @@ export default function FacturationClient({ factures: initial, commandes, entrep
       {/* KPIs */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, padding: '16px 22px', background: '#f5f3ef', flexShrink: 0 }}>
         {[
-          { label: 'Total facturé', value: fmt(factures.reduce((s, f) => s + f.montant_ttc, 0)), bg: '#fff', color: '#1a1a1a' },
-          { label: 'Encaissé', value: fmt(totalCA), bg: '#F0FDF4', color: '#2d5016' },
+          { label: 'Total facture', value: fmt(factures.reduce((s, f) => s + f.montant_ttc, 0)), bg: '#fff', color: '#1a1a1a' },
+          { label: 'Encaisse', value: fmt(totalCA), bg: '#F0FDF4', color: '#2d5016' },
           { label: 'En attente', value: fmt(totalAttente), bg: '#FFFBEB', color: '#b8860b' },
           { label: 'En retard', value: fmt(totalRetard), bg: '#fdf0f0', color: '#991B1B' },
         ].map((k, i) => (
@@ -255,12 +532,12 @@ export default function FacturationClient({ factures: initial, commandes, entrep
               padding: '7px 14px', borderRadius: 8, border: '1.5px solid #1a1a1a',
               background: activeTab === 'accords' ? '#1a1a1a' : '#fff',
               color: activeTab === 'accords' ? '#fff' : '#1a1a1a', fontSize: 12, fontWeight: 700, cursor: 'pointer'
-            }}> Accords commerciaux</button>
+            }}>Accords commerciaux</button>
           )}
           <button onClick={() => setShowForm(true)} style={{
             padding: '7px 14px', borderRadius: 8, border: 'none',
             background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer'
-          }}>＋ Nouvelle facture</button>
+          }}>+ Nouvelle facture</button>
         </div>
       </div>
 
@@ -272,7 +549,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
             <button onClick={() => setShowAccordForm(true)} style={{ padding: '7px 14px', borderRadius: 8, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>+ Nouvel accord</button>
           </div>
           {accords.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '60px 0', color: '#8b7355', fontSize: 13 }}>Aucun accord commercial. Cliquez sur "+ Nouvel accord" pour en créer un.</div>
+            <div style={{ textAlign: 'center', padding: '60px 0', color: '#8b7355', fontSize: 13 }}>Aucun accord commercial. Cliquez sur "+ Nouvel accord" pour en creer un.</div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {accords.map(a => (
@@ -281,26 +558,25 @@ export default function FacturationClient({ factures: initial, commandes, entrep
                     <div>
                       <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>{a.entreprise?.nom ?? '-'}</div>
                       <div style={{ fontSize: 11, color: '#8b7355', marginTop: 2 }}>
-                        Du {new Date(a.date_debut).toLocaleDateString('fr-FR')} 
-                        {a.date_fin ? ` au ${new Date(a.date_fin).toLocaleDateString('fr-FR')}` : ' (illimité)'}
+                        {'Du ' + new Date(a.date_debut).toLocaleDateString('fr-FR') + (a.date_fin ? ' au ' + new Date(a.date_fin).toLocaleDateString('fr-FR') : ' (illimite)')}
                       </div>
                     </div>
                     <span style={{ padding: '3px 10px', borderRadius: 4, fontSize: 11, fontWeight: 700, background: '#f0f4ec', color: '#2d5016' }}>Actif</span>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
                     <div style={{ padding: '10px 12px', borderRadius: 8, background: '#F0FDF4' }}>
-                      <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 2 }}>Prix négocié/kg</div>
-                      <div style={{ fontSize: 16, fontWeight: 800, color: '#1a1a1a' }}>{Number(a.prix_base_kg).toFixed(4)}€</div>
-                      <div style={{ fontSize: 10, color: '#8b7355' }}>Base: 0.60€</div>
+                      <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 2 }}>Prix negocie/kg</div>
+                      <div style={{ fontSize: 16, fontWeight: 800, color: '#1a1a1a' }}>{Number(a.prix_base_kg).toFixed(4) + 'EUR'}</div>
+                      <div style={{ fontSize: 10, color: '#8b7355' }}>Base: 0.60EUR</div>
                     </div>
                     <div style={{ padding: '10px 12px', borderRadius: 8, background: '#fdf8ec' }}>
                       <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 2 }}>Remise volume annuel</div>
-                      <div style={{ fontSize: 16, fontWeight: 800, color: '#b8860b' }}>{a.remise_volume_annuel_pct}%</div>
-                      <div style={{ fontSize: 10, color: '#8b7355' }}>Dès {a.seuil_volume_annuel_tonnes}T/an</div>
+                      <div style={{ fontSize: 16, fontWeight: 800, color: '#b8860b' }}>{a.remise_volume_annuel_pct + '%'}</div>
+                      <div style={{ fontSize: 10, color: '#8b7355' }}>{'Des ' + a.seuil_volume_annuel_tonnes + 'T/an'}</div>
                     </div>
                     <div style={{ padding: '10px 12px', borderRadius: 8, background: '#f5f3ef' }}>
                       <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 2 }}>Remise palier commande</div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#4a5568' }}>1% ≥ 5T · 2% ≥ 10T</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#4a5568' }}>{'1% >= 5T  2% >= 10T'}</div>
                       <div style={{ fontSize: 10, color: '#8b7355' }}>Standard ETHYS</div>
                     </div>
                   </div>
@@ -321,13 +597,13 @@ export default function FacturationClient({ factures: initial, commandes, entrep
                 <div style={{ marginBottom: 14 }}>
                   <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Marque *</label>
                   <select value={accordForm.entreprise_id} onChange={e => setAccordForm(f => ({ ...f, entreprise_id: e.target.value }))} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none' }}>
-                    <option value="">Sélectionner une marque...</option>
+                    <option value="">Selectionner une marque...</option>
                     {entreprises.filter(e => e.type === 'marque').map(e => <option key={e.id} value={e.id}>{e.nom}</option>)}
                   </select>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
                   <div>
-                    <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Prix négocié (€/kg) *</label>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Prix negocie (EUR/kg) *</label>
                     <input type="number" step="0.0001" value={accordForm.prix_base_kg} onChange={e => setAccordForm(f => ({ ...f, prix_base_kg: e.target.value }))} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none', boxSizing: 'border-box' as const }} />
                   </div>
                   <div>
@@ -375,62 +651,64 @@ export default function FacturationClient({ factures: initial, commandes, entrep
       )}
 
       {/* Table */}
-      {activeTab === 'factures' && <div style={{ flex: 1, overflow: 'auto', padding: '16px 22px' }}>
-        {filtrees.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '60px 0', color: '#8b7355' }}>
-            <div style={{ fontSize: 32, marginBottom: 10 }}>◫</div>
-            <div style={{ fontSize: 14, fontWeight: 600 }}>Aucune facture</div>
-          </div>
-        ) : (
-          <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', overflow: 'hidden' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ background: '#f5f3ef' }}>
-                  {['Référence', 'Émetteur', 'Destinataire', 'Montant TTC', 'Émission', 'Échéance', 'Statut', ''].map(h => (
-                    <th key={h} style={{ padding: '10px 14px', fontSize: 11, fontWeight: 600, color: '#8b7355', textAlign: 'left', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filtrees.map((f, i) => {
-                  const [bg, tc, dot] = STATUT_COLORS[f.statut]
-                  return (
-                    <tr key={f.id}
-                      onClick={() => setSelected(f)}
-                      style={{ borderTop: '1px solid #f5f3ef', cursor: 'pointer' }}
-                      onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = '#f5f3ef'}
-                      onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = 'transparent'}
-                    >
-                      <td style={{ padding: '12px 14px', fontSize: 12, fontWeight: 800, color: '#1a1a1a' }}>{f.reference}</td>
-                      <td style={{ padding: '12px 14px', fontSize: 12, color: '#4a5568' }}>{f.emetteur?.nom ?? '—'}</td>
-                      <td style={{ padding: '12px 14px', fontSize: 12, color: '#4a5568' }}>{f.destinataire?.nom ?? '—'}</td>
-                      <td style={{ padding: '12px 14px', fontSize: 13, fontWeight: 800, color: '#1A202C' }}>{fmt(f.montant_ttc)}</td>
-                      <td style={{ padding: '12px 14px', fontSize: 11, color: '#8b7355' }}>{new Date(f.date_emission).toLocaleDateString('fr-FR')}</td>
-                      <td style={{ padding: '12px 14px', fontSize: 11, color: f.statut === 'en_retard' ? '#8b3a3a' : '#8b7355', fontWeight: f.statut === 'en_retard' ? 700 : 400 }}>
-                        {new Date(f.date_echeance).toLocaleDateString('fr-FR')}
-                      </td>
-                      <td style={{ padding: '12px 14px' }}>
-                        <span style={{ padding: '3px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: bg, color: tc, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                          <span style={{ width: 5, height: 5, borderRadius: '50%', background: dot }} />
-                          {STATUT_LABELS[f.statut]}
-                        </span>
-                      </td>
-                      <td style={{ padding: '12px 14px' }}>
-                        <button onClick={e => { e.stopPropagation(); setSelected(f) }} style={{
-                          padding: '4px 10px', borderRadius: 7, border: '1.5px solid #e8e3d8',
-                          background: '#f5f3ef', fontSize: 11, cursor: 'pointer'
-                        }}>Voir →</button>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>}
+      {activeTab === 'factures' && (
+        <div style={{ flex: 1, overflow: 'auto', padding: '16px 22px' }}>
+          {filtrees.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '60px 0', color: '#8b7355' }}>
+              <div style={{ fontSize: 32, marginBottom: 10 }}>◫</div>
+              <div style={{ fontSize: 14, fontWeight: 600 }}>Aucune facture</div>
+            </div>
+          ) : (
+            <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', overflow: 'hidden' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ background: '#f5f3ef' }}>
+                    {['Reference', 'Emetteur', 'Destinataire', 'Montant TTC', 'Emission', 'Echeance', 'Statut', ''].map(h => (
+                      <th key={h} style={{ padding: '10px 14px', fontSize: 11, fontWeight: 600, color: '#8b7355', textAlign: 'left', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtrees.map((f, i) => {
+                    const [bg, tc, dot] = STATUT_COLORS[f.statut]
+                    return (
+                      <tr key={f.id}
+                        onClick={() => setSelected(f)}
+                        style={{ borderTop: '1px solid #f5f3ef', cursor: 'pointer' }}
+                        onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = '#f5f3ef'}
+                        onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = 'transparent'}
+                      >
+                        <td style={{ padding: '12px 14px', fontSize: 12, fontWeight: 800, color: '#1a1a1a' }}>{f.reference}</td>
+                        <td style={{ padding: '12px 14px', fontSize: 12, color: '#4a5568' }}>{f.emetteur?.nom ?? '-'}</td>
+                        <td style={{ padding: '12px 14px', fontSize: 12, color: '#4a5568' }}>{f.destinataire?.nom ?? '-'}</td>
+                        <td style={{ padding: '12px 14px', fontSize: 13, fontWeight: 800, color: '#1A202C' }}>{fmt(f.montant_ttc)}</td>
+                        <td style={{ padding: '12px 14px', fontSize: 11, color: '#8b7355' }}>{new Date(f.date_emission).toLocaleDateString('fr-FR')}</td>
+                        <td style={{ padding: '12px 14px', fontSize: 11, color: f.statut === 'en_retard' ? '#8b3a3a' : '#8b7355', fontWeight: f.statut === 'en_retard' ? 700 : 400 }}>
+                          {new Date(f.date_echeance).toLocaleDateString('fr-FR')}
+                        </td>
+                        <td style={{ padding: '12px 14px' }}>
+                          <span style={{ padding: '3px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: bg, color: tc, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                            <span style={{ width: 5, height: 5, borderRadius: '50%', background: dot }} />
+                            {STATUT_LABELS[f.statut]}
+                          </span>
+                        </td>
+                        <td style={{ padding: '12px 14px' }}>
+                          <button onClick={e => { e.stopPropagation(); setSelected(f) }} style={{
+                            padding: '4px 10px', borderRadius: 7, border: '1.5px solid #e8e3d8',
+                            background: '#f5f3ef', fontSize: 11, cursor: 'pointer'
+                          }}>Voir</button>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
 
-      {/* Modal détail facture */}
+      {/* Modal detail facture */}
       {selected && (
         <div style={{
           position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)',
@@ -442,7 +720,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
             maxHeight: '90vh', overflow: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.2)'
           }} onClick={e => e.stopPropagation()}>
 
-            {/* En-tête */}
+            {/* En-tete */}
             <div style={{
               background: 'linear-gradient(135deg,#1a1a1a,#2a2a2a)',
               borderRadius: '20px 20px 0 0', padding: '24px 28px', color: '#fff'
@@ -451,8 +729,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
                 <div>
                   <div style={{ fontSize: 10, color: '#c2956e', fontWeight: 600, letterSpacing: 1, marginBottom: 4 }}>FACTURE ETHYS</div>
                   <div style={{ fontSize: 22, fontWeight: 900 }}>{selected.reference}</div>
-                  <div style={{ fontSize: 11, opacity: 0.75, marginTop: 2 }}>Réf. commande : {selected.commande?.reference}</div>
-                  {/* Decomposition prix - visible admin et marque uniquement */}
+                  <div style={{ fontSize: 11, opacity: 0.75, marginTop: 2 }}>{'Ref. commande : ' + selected.commande?.reference}</div>
                   {(isAdmin || accords.some(a => a.entreprise_id === selected.destinataire_id)) && (() => {
                     const accord = accords.find(a => a.entreprise_id === selected.destinataire_id)
                     const vol = selected.commande?.volume_total_tonnes ?? 0
@@ -463,21 +740,21 @@ export default function FacturationClient({ factures: initial, commandes, entrep
                     return (
                       <div style={{ marginTop: 12, padding: '12px 14px', borderRadius: 4, background: '#F0FDF4', border: '1px solid #c8d8b8' }}>
                         <div style={{ fontSize: 10, fontWeight: 700, color: '#2d5016', marginBottom: 8, textTransform: 'uppercase' }}>
-                          {accord ? ' Prix accord commercial' : 'Décomposition du prix'}
+                          {accord ? 'Prix accord commercial' : 'Decomposition du prix'}
                         </div>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
                           <div style={{ fontSize: 11, color: '#4a5568' }}>Prix de base</div>
-                          <div style={{ fontSize: 11, fontWeight: 600, color: '#1a1a1a', textAlign: 'right' }}>{prixBase.toFixed(4)}€/kg</div>
+                          <div style={{ fontSize: 11, fontWeight: 600, color: '#1a1a1a', textAlign: 'right' }}>{prixBase.toFixed(4) + 'EUR/kg'}</div>
                           {remisePalier > 0 && <>
                             <div style={{ fontSize: 11, color: '#4a5568' }}>Remise volume commande</div>
-                            <div style={{ fontSize: 11, fontWeight: 600, color: '#2d5016', textAlign: 'right' }}>-{remisePalier}%</div>
+                            <div style={{ fontSize: 11, fontWeight: 600, color: '#2d5016', textAlign: 'right' }}>{'-' + remisePalier + '%'}</div>
                           </>}
                           {remiseAnnuelle > 0 && <>
                             <div style={{ fontSize: 11, color: '#4a5568' }}>Remise volume annuel</div>
-                            <div style={{ fontSize: 11, fontWeight: 600, color: '#2d5016', textAlign: 'right' }}>-{remiseAnnuelle}%</div>
+                            <div style={{ fontSize: 11, fontWeight: 600, color: '#2d5016', textAlign: 'right' }}>{'-' + remiseAnnuelle + '%'}</div>
                           </>}
                           <div style={{ fontSize: 11, fontWeight: 700, color: '#1a1a1a', borderTop: '1px solid #c8d8b8', paddingTop: 6 }}>Prix applicable</div>
-                          <div style={{ fontSize: 12, fontWeight: 900, color: '#1a1a1a', textAlign: 'right', borderTop: '1px solid #c8d8b8', paddingTop: 6 }}>{prixFinal.toFixed(4)}€/kg</div>
+                          <div style={{ fontSize: 12, fontWeight: 900, color: '#1a1a1a', textAlign: 'right', borderTop: '1px solid #c8d8b8', paddingTop: 6 }}>{prixFinal.toFixed(4) + 'EUR/kg'}</div>
                         </div>
                         {accord?.notes && <div style={{ fontSize: 10, color: '#4a5568', marginTop: 8, fontStyle: 'italic' }}>{accord.notes}</div>}
                       </div>
@@ -502,12 +779,12 @@ export default function FacturationClient({ factures: initial, commandes, entrep
               {/* Parties */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 20 }}>
                 {[
-                  { titre: 'Émetteur', data: selected.emetteur },
+                  { titre: 'Emetteur', data: selected.emetteur },
                   { titre: 'Destinataire', data: selected.destinataire },
                 ].map(({ titre, data }) => (
                   <div key={titre} style={{ padding: '12px 14px', borderRadius: 4, background: '#f5f3ef', border: '1px solid #e8e3d8' }}>
                     <div style={{ fontSize: 10, fontWeight: 700, color: '#8b7355', marginBottom: 6, textTransform: 'uppercase' }}>{titre}</div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>{data?.nom ?? '—'}</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>{data?.nom ?? '-'}</div>
                     {data?.email_contact && <div style={{ fontSize: 11, color: '#4a5568', marginTop: 2 }}>{data.email_contact}</div>}
                   </div>
                 ))}
@@ -516,9 +793,9 @@ export default function FacturationClient({ factures: initial, commandes, entrep
               {/* Dates */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 20 }}>
                 {[
-                  ["Date d'émission", new Date(selected.date_emission).toLocaleDateString('fr-FR')],
-                  ["Date d'échéance", new Date(selected.date_echeance).toLocaleDateString('fr-FR')],
-                  ["Date de paiement", selected.date_paiement ? new Date(selected.date_paiement).toLocaleDateString('fr-FR') : '—'],
+                  ["Date d'emission", new Date(selected.date_emission).toLocaleDateString('fr-FR')],
+                  ["Date d'echeance", new Date(selected.date_echeance).toLocaleDateString('fr-FR')],
+                  ["Date de paiement", selected.date_paiement ? new Date(selected.date_paiement).toLocaleDateString('fr-FR') : '-'],
                 ].map(([l, v]) => (
                   <div key={l} style={{ padding: '10px 12px', borderRadius: 8, background: '#f5f3ef', border: '1px solid #e8e3d8' }}>
                     <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 3 }}>{l}</div>
@@ -531,12 +808,12 @@ export default function FacturationClient({ factures: initial, commandes, entrep
               {selected.lignes?.length > 0 && (
                 <div style={{ marginBottom: 18 }}>
                   <div style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                    Détail des prestations
+                    Detail des prestations
                   </div>
                   <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #e8e3d8', borderRadius: 8, overflow: 'hidden' }}>
                     <thead>
                       <tr style={{ background: '#f5f3ef' }}>
-                        {['Description', 'Qté', 'Unité', 'PU (€)', 'Total HT'].map(h => (
+                        {['Description', 'Qte', 'Unite', 'PU (EUR)', 'Total HT'].map(h => (
                           <th key={h} style={{ padding: '8px 12px', fontSize: 10, fontWeight: 600, color: '#8b7355', textAlign: h === 'Description' ? 'left' : 'right', textTransform: 'uppercase' }}>{h}</th>
                         ))}
                       </tr>
@@ -548,7 +825,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
                           <td style={{ padding: '10px 12px', fontSize: 12, textAlign: 'right' }}>{l.quantite}</td>
                           <td style={{ padding: '10px 12px', fontSize: 12, textAlign: 'right' }}>{l.unite}</td>
                           <td style={{ padding: '10px 12px', fontSize: 12, textAlign: 'right' }}>{fmt(l.prix_unitaire)}</td>
-                          <td style={{ padding: '10px 12px', fontSize: 12, fontWeight: 700, textAlign: 'right', color: '#1a1a1a' }}>{fmt(l.total_ht)}</td>
+                          <td style={{ padding: '10px 12px', fontSize: 12, fontWeight: 700, textAlign: 'right', color: '#1a1a1a' }}>{fmt(l.total_ht || l.quantite * l.prix_unitaire)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -561,7 +838,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
                 <div style={{ width: 240 }}>
                   {[
                     ['Sous-total HT', fmt(selected.montant_ht)],
-                    [`TVA ${selected.tva_pct}%`, fmt(selected.montant_tva)],
+                    ['TVA ' + selected.tva_pct + '%', fmt(selected.montant_tva)],
                   ].map(([l, v]) => (
                     <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', borderBottom: '1px solid #f5f3ef', fontSize: 12 }}>
                       <span style={{ color: '#4a5568' }}>{l}</span>
@@ -581,8 +858,20 @@ export default function FacturationClient({ factures: initial, commandes, entrep
                   <button onClick={() => marquerPayee(selected.id)} style={{
                     flex: 2, padding: '10px', borderRadius: 4, border: 'none',
                     background: '#1a1a1a', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer'
-                  }}> Marquer comme payée</button>
+                  }}>Marquer comme payee</button>
                 )}
+                <button
+                  onClick={() => handleTelechargerPDF(selected)}
+                  disabled={pdfLoading}
+                  style={{
+                    flex: 1, padding: '10px', borderRadius: 4,
+                    border: '1.5px solid #2d5016',
+                    background: pdfLoading ? '#f5f3ef' : '#f0f4ec',
+                    color: pdfLoading ? '#8b7355' : '#2d5016',
+                    fontSize: 13, fontWeight: 700, cursor: pdfLoading ? 'default' : 'pointer'
+                  }}>
+                  {pdfLoading ? 'Generation...' : 'Telecharger PDF'}
+                </button>
                 <button onClick={() => setSelected(null)} style={{
                   flex: 1, padding: '10px', borderRadius: 4,
                   border: '1.5px solid #e8e3d8', background: '#f5f3ef',
@@ -607,38 +896,37 @@ export default function FacturationClient({ factures: initial, commandes, entrep
           }}>
             <div style={{ padding: '20px 24px', borderBottom: '1px solid #f5f3ef', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>Nouvelle facture</span>
-              <button onClick={() => setShowForm(false)} style={{ border: 'none', background: 'none', fontSize: 18, color: '#8b7355', cursor: 'pointer' }}>✕</button>
+              <button onClick={() => setShowForm(false)} style={{ border: 'none', background: 'none', fontSize: 18, color: '#8b7355', cursor: 'pointer' }}>x</button>
             </div>
             <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 14 }}>
 
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Commande *</label>
-                <select value={form.commande_id} onChange={e => set('commande_id', e.target.value)} style={inputStyle}>
-                  <option value="">Sélectionner…</option>
-                  {commandes.map(c => <option key={c.id} value={c.id}>{c.reference} — {c.marque?.nom}</option>)}
+                <select value={form.commande_id} onChange={e => handleCommandeChange(e.target.value)} style={inputStyle}>
+                  <option value="">Selectionner...</option>
+                  {commandes.map(c => <option key={c.id} value={c.id}>{c.reference + ' - ' + (c.marque?.nom ?? '')}</option>)}
                 </select>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div>
-                  <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Émetteur *</label>
-                  <select value={form.emetteur_id} onChange={e => set('emetteur_id', e.target.value)} style={inputStyle}>
-                    <option value="">Sélectionner…</option>
-                    {entreprises.map(e => <option key={e.id} value={e.id}>{e.nom}</option>)}
-                  </select>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Emetteur</label>
+                  <div style={{ ...inputStyle, background: '#f5f3ef', color: '#4a5568', display: 'flex', alignItems: 'center', cursor: 'not-allowed' }}>
+                    TEXTILE LOOP
+                  </div>
                 </div>
                 <div>
                   <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Destinataire *</label>
                   <select value={form.destinataire_id} onChange={e => set('destinataire_id', e.target.value)} style={inputStyle}>
-                    <option value="">Sélectionner…</option>
-                    {entreprises.map(e => <option key={e.id} value={e.id}>{e.nom}</option>)}
+                    <option value="">Selectionner...</option>
+                    {entreprises.filter(e => e.id !== TEXTILE_LOOP_ID).map(e => <option key={e.id} value={e.id}>{e.nom}</option>)}
                   </select>
                 </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div>
-                  <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Date d'échéance *</label>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Date d'echeance *</label>
                   <input type="date" value={form.date_echeance} onChange={e => set('date_echeance', e.target.value)} style={inputStyle} />
                 </div>
                 <div>
@@ -655,11 +943,11 @@ export default function FacturationClient({ factures: initial, commandes, entrep
                     <input value={l.description} onChange={e => updateLigne(i, 'description', e.target.value)}
                       placeholder="Description" style={inputStyle} />
                     <input type="number" value={l.quantite} onChange={e => updateLigne(i, 'quantite', e.target.value)}
-                      placeholder="Qté" style={inputStyle} />
+                      placeholder="Qte" style={inputStyle} />
                     <input type="number" value={l.prix_unitaire} onChange={e => updateLigne(i, 'prix_unitaire', e.target.value)}
-                      placeholder="PU €" style={inputStyle} />
+                      placeholder="PU EUR" style={inputStyle} />
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>
-                      {((parseFloat(l.quantite) || 0) * (parseFloat(l.prix_unitaire) || 0)).toLocaleString('fr-FR')} €
+                      {((parseFloat(l.quantite) || 0) * (parseFloat(l.prix_unitaire) || 0)).toLocaleString('fr-FR') + ' EUR'}
                     </div>
                   </div>
                 ))}
@@ -667,7 +955,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
                   width: '100%', padding: '7px', borderRadius: 8,
                   border: '2px dashed #f0f4ec', background: '#F0FDF4',
                   color: '#1a1a1a', fontSize: 12, cursor: 'pointer'
-                }}>＋ Ajouter une ligne</button>
+                }}>+ Ajouter une ligne</button>
               </div>
 
               {/* Total */}
@@ -677,7 +965,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
                   <span style={{ fontWeight: 700 }}>{fmt(totalHT)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
-                  <span style={{ color: '#4a5568' }}>TVA {form.tva_pct}%</span>
+                  <span style={{ color: '#4a5568' }}>{'TVA ' + form.tva_pct + '%'}</span>
                   <span style={{ fontWeight: 700 }}>{fmt(totalHT * parseFloat(form.tva_pct) / 100)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14 }}>
@@ -698,7 +986,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
                   color: loading ? '#8b7355' : '#fff',
                   fontSize: 13, fontWeight: 700, cursor: loading ? 'default' : 'pointer'
                 }}>
-                  {loading ? 'Création…' : ' Créer la facture'}
+                  {loading ? 'Creation...' : 'Creer la facture'}
                 </button>
               </div>
             </div>
