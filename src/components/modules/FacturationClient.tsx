@@ -372,6 +372,14 @@ export default function FacturationClient({ factures: initial, commandes, entrep
     notes: ''
   })
   const isAdmin = profil.role === 'admin'
+  const [filterMarqueForm, setFilterMarqueForm] = useState('')
+  const [searchCommande, setSearchCommande] = useState('')
+  const marquesUniques = Array.from(new Set(commandes.map(c => c.marque?.nom).filter(Boolean))) as string[]
+  const commandesFiltrees = commandes.filter(c => {
+    if (filterMarqueForm && c.marque?.nom !== filterMarqueForm) return false
+    if (searchCommande && !c.reference.toLowerCase().includes(searchCommande.toLowerCase())) return false
+    return true
+  })
 
   const [form, setForm] = useState({
     commande_id: '',
@@ -913,9 +921,16 @@ export default function FacturationClient({ factures: initial, commandes, entrep
 
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Commande *</label>
+                <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                  <select value={filterMarqueForm} onChange={e => setFilterMarqueForm(e.target.value)} style={{ flex: 1, padding: '7px 10px', borderRadius: 6, border: '1.5px solid #d4c5b0', fontSize: 11, outline: 'none', background: filterMarqueForm ? '#1a1a1a' : '#f5f3ef', color: filterMarqueForm ? '#fff' : '#4a5568' }}>
+                    <option value="">Toutes marques</option>
+                    {marquesUniques.sort().map(m => <option key={m} value={m}>{m}</option>)}
+                  </select>
+                  <input type="text" placeholder="Rechercher n° commande..." value={searchCommande} onChange={e => setSearchCommande(e.target.value)} style={{ flex: 1, padding: '7px 10px', borderRadius: 6, border: '1.5px solid #d4c5b0', fontSize: 11, outline: 'none' }} />
+                </div>
                 <select value={form.commande_id} onChange={e => handleCommandeChange(e.target.value)} style={inputStyle}>
                   <option value="">Selectionner une commande...</option>
-                  {commandes.map(c => <option key={c.id} value={c.id}>{c.reference + ' - ' + (c.marque?.nom ?? '')}</option>)}
+                  {commandesFiltrees.map(c => <option key={c.id} value={c.id}>{c.reference + ' - ' + (c.marque?.nom ?? '')}</option>)}
                 </select>
               </div>
 
@@ -998,7 +1013,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
               <div style={{ display: 'flex', gap: 10 }}>
                 <button onClick={() => setShowForm(false)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#8b7355', fontSize: 13, cursor: 'pointer' }}>Annuler</button>
                 <button onClick={creerFacture} disabled={loading || !ligneAuto} style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: (loading || !ligneAuto) ? '#d4c5b0' : '#1a1a1a', color: (loading || !ligneAuto) ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: (loading || !ligneAuto) ? 'default' : 'pointer' }}>
-                  {loading ? 'Creation...' : 'Creer la facture'}
+                  {loading ? 'Création...' : 'Créer la facture'}
                 </button>
               </div>
             </div>
