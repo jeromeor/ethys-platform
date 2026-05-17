@@ -82,6 +82,10 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [filterStatut, setFilterStatut] = useState('tous')
+  const [filterMarque, setFilterMarque] = useState('')
+  const [filterFilature, setFilterFilature] = useState('')
+  const [filterDateDebut, setFilterDateDebut] = useState('')
+  const [filterDateFin, setFilterDateFin] = useState('')
 
   const [form, setForm] = useState({
     titre: '',
@@ -101,9 +105,14 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
   const filatures    = entreprises.filter(e => e.type === 'filature')
   const fournisseurs = entreprises.filter(e => e.type === 'fournisseur_coton')
 
-  const filtrees = commandes.filter(c =>
-    filterStatut === 'tous' || c.statut === filterStatut
-  )
+ const filtrees = commandes.filter(c => {
+    if (filterStatut !== 'tous' && c.statut !== filterStatut) return false
+    if (filterMarque && c.marque?.nom !== filterMarque) return false
+    if (filterFilature && c.filature?.nom !== filterFilature) return false
+    if (filterDateDebut && new Date(c.created_at) < new Date(filterDateDebut)) return false
+    if (filterDateFin && new Date(c.created_at) > new Date(filterDateFin)) return false
+    return true
+  })
 
   const etapeIndex = (statut: string) => ETAPES.indexOf(statut)
 
@@ -201,7 +210,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
           padding: '14px 22px', background: '#fff', borderBottom: '1px solid #e8e3d8',
           display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexShrink: 0
         }}>
-          <div style={{ display: 'flex', gap: 6 }}>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
             {['tous', 'soumise', 'en_production', 'livree'].map(s => (
               <button key={s} onClick={() => setFilterStatut(s)} style={{
                 padding: '5px 12px', borderRadius: 4, border: 'none', cursor: 'pointer',
@@ -212,11 +221,26 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
                 {s === 'tous' ? 'Toutes' : s === 'soumise' ? 'Transmises' : STATUT_LABELS[s as StatutCommande]}
               </button>
             ))}
+            <select value={filterMarque} onChange={e => setFilterMarque(e.target.value)} style={{ padding: '5px 10px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 11, outline: 'none', background: filterMarque ? '#1a1a1a' : '#f5f3ef', color: filterMarque ? '#fff' : '#4a5568' }}>
+              <option value="">Toutes marques</option>
+              {marques.map(m => <option key={m.id} value={m.nom}>{m.nom}</option>)}
+            </select>
+            <select value={filterFilature} onChange={e => setFilterFilature(e.target.value)} style={{ padding: '5px 10px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 11, outline: 'none', background: filterFilature ? '#1a1a1a' : '#f5f3ef', color: filterFilature ? '#fff' : '#4a5568' }}>
+              <option value="">Toutes filatures</option>
+              {filatures.map(f => <option key={f.id} value={f.nom}>{f.nom}</option>)}
+            </select>
+            <input type="date" value={filterDateDebut} onChange={e => setFilterDateDebut(e.target.value)} style={{ padding: '5px 8px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 11, outline: 'none' }} />
+            <input type="date" value={filterDateFin} onChange={e => setFilterDateFin(e.target.value)} style={{ padding: '5px 8px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 11, outline: 'none' }} />
+            {(filterMarque || filterFilature || filterDateDebut || filterDateFin) && (
+              <button onClick={() => { setFilterMarque(''); setFilterFilature(''); setFilterDateDebut(''); setFilterDateFin('') }} style={{ padding: '5px 10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#fff', fontSize: 11, color: '#8b7355', cursor: 'pointer' }}>
+                Reinitialiser
+              </button>
+            )}
           </div>
           {(profil?.role === 'admin' || profil?.role === 'marque' || profil?.role === 'filature') && (
             <button onClick={() => setShowForm(true)} style={{
               padding: '8px 16px', borderRadius: 4, border: 'none',
-              background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer'
+              background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', flexShrink: 0
             }}>+ Nouvelle commande</button>
           )}
         </div>
