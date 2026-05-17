@@ -24,6 +24,7 @@ interface Lot {
   certification: string | null
   date_debut: string | null
   date_fin_prevue: string | null
+  updated_at: string | null
   controles_qualite: ControleQualite[]
 }
 
@@ -73,6 +74,32 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
   const [certifications, setCertifications] = useState<{ id: string; reference: string; type_produit: string | null; statut: string }[]>([])
   const [selectedCertifId, setSelectedCertifId] = useState('')
 
+  useState(() => {
+    const verifierLotsbloques = async () => {
+      if (role !== 'admin') return
+      const aujourdhui = new Date()
+      const lotsAVerifier = initial.flatMap(c => c.lots).filter(l => {
+        if (l.avancement_pct === 100 || l.statut === 'livre') return false
+        const derniereMaj = new Date(l.updated_at ?? l.date_debut ?? '')
+        if (isNaN(derniereMaj.getTime())) return false
+        const jours = Math.floor((aujourdhui.getTime() - derniereMaj.getTime()) / (1000 * 60 * 60 * 24))
+        return jours >= 14
+      })
+      for (const lot of lotsAVerifier) {
+        await supabase.from('notifications').insert({
+          utilisateur_id: '1e48a840-8329-4595-be9b-f04d9ef1562a',
+          user_id: '1e48a840-8329-4595-be9b-f04d9ef1562a',
+          type: 'lot_bloque',
+          titre: 'Lot bloque : ' + lot.reference,
+          message: 'Le lot ' + lot.reference + ' n\'a pas progresse depuis plus de 14 jours.',
+          lien: '/production',
+          lu: false,
+        })
+      }
+    }
+    verifierLotsbloques()
+  })
+
   const chargerCertifications = async () => {
     const { data } = await supabase.from('certifications_ethys').select('id, reference, type_produit, statut').order('created_at', { ascending: false })
     setCertifications(data ?? [])
@@ -88,6 +115,10 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
   }
 
   const updateAvancement = async (lotId: string, pct: number) => {
+    if (role === 'admin') {
+      window.alert('En tant qu\'admin, vous ne pouvez pas modifier l\'avancement d\'un lot. Cette action revient a la filature ou a la marque.')
+      return
+    }
     const lot = selected?.lots.find(l => l.id === lotId)
     if (lot && pct < lot.avancement_pct) {
       const ok1 = window.confirm('Attention : vous reduisez l\'avancement du lot ' + lot.reference + '. Cette action va generer une alerte admin. Confirmer ?')
@@ -103,11 +134,20 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
         lu: false,
       })
     }
-    if (pct === 100) {
+   if (pct === 100) {
       const ok1 = window.confirm('Confirmer la completion a 100% du lot ' + (lot?.reference ?? '') + ' ?')
       if (!ok1) return
       const ok2 = window.confirm('Deuxieme confirmation : le lot sera marque comme termine. Cette action est definitive. Continuer ?')
       if (!ok2) return
+      await supabase.from('notifications').insert({
+        utilisateur_id: '1e48a840-8329-4595-be9b-f04d9ef1562a',
+        user_id: '1e48a840-8329-4595-be9b-f04d9ef1562a',
+        type: 'lot_complete',
+        titre: 'Lot ' + (lot?.reference ?? '') + ' termine',
+        message: 'Le lot ' + (lot?.reference ?? '') + ' a atteint 100% d\'avancement.',
+        lien: '/production',
+        lu: false,
+      })
     }
     setUpdatingLot(lotId)
     const { error } = await supabase
