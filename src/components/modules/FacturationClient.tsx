@@ -28,7 +28,8 @@ interface Facture {
   notes: string | null
   lignes: LigneFacture[]
   commande: { reference: string; volume_total_tonnes: number } | null
-  emetteur: { nom: string; adresse: string | null; email_contact: string | null } | null
+  emetteur: { nom: string; adresse: string | null; adresse_rue: string | null; code_postal: string | null; ville: string | null; pays: string | null; telephone: string | null; email_contact: string | null; siret: string | null; tva: string | null } | null
+  destinataire_nom_cache?: string | null
   destinataire_id: string | null
   destinataire: { nom: string; adresse: string | null; email_contact: string | null; pays?: string } | null
 }
@@ -455,9 +456,11 @@ export default function FacturationClient({ factures: initial, commandes, entrep
     const montant_tva = totalTVA
     const montant_ttc = totalTTC
 
+    const { data: refData } = await supabase.rpc('generate_facture_reference')
     const { data: facture, error } = await supabase
       .from('factures')
       .insert({
+        reference: refData,
         commande_id: form.commande_id,
         emetteur_id: TEXTILE_LOOP_ID,
         destinataire_id: form.destinataire_id,
@@ -465,6 +468,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
         montant_tva,
         montant_ttc,
         tva_pct: regimeForm === 'france' ? tvaPctNum : 0,
+        date_emission: new Date().toISOString().split('T')[0],
         date_echeance: form.date_echeance,
         statut: 'emise',
         notes: form.notes || null,
@@ -488,7 +492,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
           *,
           lignes:lignes_facture(*),
           commande:commandes(reference, volume_total_tonnes),
-          emetteur:entreprises!factures_emetteur_id_fkey(nom, adresse, email_contact),
+          emetteur:entreprises!factures_emetteur_id_fkey(nom, adresse, adresse_rue, code_postal, ville, pays, telephone, email_contact, siret, tva),
           destinataire:entreprises!factures_destinataire_id_fkey(nom, adresse, email_contact, pays)
         `)
         .eq('id', facture.id)
