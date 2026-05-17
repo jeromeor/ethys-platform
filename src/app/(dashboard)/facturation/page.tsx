@@ -27,7 +27,7 @@ export default async function FacturationPage() {
 
   const { data: entreprises } = await supabase
     .from('entreprises')
-    .select('id, nom, type')
+    .select('id, nom, type, pays')
     .order('nom')
 
   const { data: profil } = await supabase
