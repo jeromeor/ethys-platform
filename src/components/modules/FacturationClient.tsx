@@ -261,7 +261,7 @@ async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
   })
 
   y += 28
-  if (facture.lignes && facture.lignes.length > 0) {
+  if (facture.lignes && facture.lignes.length > 0 && !facture.lignes.some(l => !l.description)) {
     doc.setFontSize(8)
     doc.setFont('helvetica', 'bold')
     doc.setTextColor(gris[0], gris[1], gris[2])
