@@ -1,6 +1,6 @@
-﻿'use client'
+'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 interface Props {
@@ -18,6 +18,11 @@ export default function ProfilClient({ user, profil, entreprise, certifications,
   const [editContact, setEditContact] = useState(false)
   const [saving, setSaving] = useState(false)
   const [successMsg, setSuccessMsg] = useState('')
+  const [showUpload, setShowUpload] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [docs, setDocs] = useState<Record<string, string>[]>(documents ?? [])
+  const [uploadForm, setUploadForm] = useState({ nom: '', type: 'kbis', date_expiration: '' })
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [formEntreprise, setFormEntreprise] = useState({
     nom: entreprise?.nom ?? '',
@@ -51,7 +56,8 @@ export default function ProfilClient({ user, profil, entreprise, certifications,
     }).eq('id', profil.entreprise_id)
     setSaving(false)
     setEditEntreprise(false)
-    setSuccessMsg('Entreprise mise à jour')
+    setEditContact(false)
+    setSuccessMsg('Entreprise mise a jour')
     setTimeout(() => setSuccessMsg(''), 3000)
   }
 
@@ -66,8 +72,46 @@ export default function ProfilClient({ user, profil, entreprise, certifications,
     }).eq('id', user.id)
     setSaving(false)
     setEditContact(false)
-    setSuccessMsg('Profil mis à jour')
+    setSuccessMsg('Profil mis a jour')
     setTimeout(() => setSuccessMsg(''), 3000)
+  }
+
+  const telechargerDocument = async (url: string, nom: string) => {
+    const { data } = await supabase.storage.from('documents-entreprises').createSignedUrl(url, 60)
+    if (data?.signedUrl) window.open(data.signedUrl, '_blank')
+  }
+
+  const supprimerDocument = async (id: string, url: string) => {
+    await supabase.storage.from('documents-entreprises').remove([url])
+    await supabase.from('documents_entreprise').delete().eq('id', id)
+    setDocs(prev => prev.filter(d => d.id !== id))
+  }
+
+  const uploaderDocument = async () => {
+    const file = fileInputRef.current?.files?.[0]
+    if (!file || !uploadForm.nom || !profil?.entreprise_id) return
+    setUploading(true)
+    const ext = file.name.split('.').pop()
+    const path = profil.entreprise_id + '/' + Date.now() + '.' + ext
+    const { error: uploadError } = await supabase.storage.from('documents-entreprises').upload(path, file)
+    if (!uploadError) {
+      const { data: doc } = await supabase.from('documents_entreprise').insert({
+        entreprise_id: profil.entreprise_id,
+        nom: uploadForm.nom,
+        type: uploadForm.type,
+        url: path,
+        taille_kb: Math.round(file.size / 1024),
+        date_expiration: uploadForm.date_expiration || null,
+        created_by: user?.id,
+      }).select().single()
+      if (doc) setDocs(prev => [...prev, doc as Record<string, string>])
+      setShowUpload(false)
+      setUploadForm({ nom: '', type: 'kbis', date_expiration: '' })
+      if (fileInputRef.current) fileInputRef.current.value = ''
+      setSuccessMsg('Document ajoute')
+      setTimeout(() => setSuccessMsg(''), 3000)
+    }
+    setUploading(false)
   }
 
   const inputStyle = {
@@ -93,7 +137,7 @@ export default function ProfilClient({ user, profil, entreprise, certifications,
 
       {successMsg && (
         <div style={{ position: 'fixed', top: 20, right: 28, background: '#2d5016', color: '#fff', padding: '10px 20px', borderRadius: 6, fontSize: 12, fontWeight: 700, zIndex: 999 }}>
-          ✓ {successMsg}
+          {'OK ' + successMsg}
         </div>
       )}
 
@@ -106,15 +150,15 @@ export default function ProfilClient({ user, profil, entreprise, certifications,
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6 }}>
             <span style={{ fontSize: 22, fontWeight: 900 }}>{entreprise?.nom ?? user?.email}</span>
             <span style={{ padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: entreprise?.statut === 'verifie' ? '#2d5016' : '#b8860b', color: '#fff' }}>
-              {entreprise?.statut === 'verifie' ? '✓ Profil vérifié' : '⏳ En cours de vérification'}
+              {entreprise?.statut === 'verifie' ? 'Profil verifie' : 'En cours de verification'}
             </span>
           </div>
           <div style={{ fontSize: 13, opacity: 0.75 }}>
-            {entreprise?.type ?? profil?.role} · {entreprise?.ville ?? ''}{entreprise?.pays ? ', ' + entreprise.pays : ''}
+            {(entreprise?.type ?? profil?.role) + ' · ' + (entreprise?.ville ?? '') + (entreprise?.pays ? ', ' + entreprise.pays : '')}
           </div>
         </div>
         <div style={{ textAlign: 'right', flexShrink: 0 }}>
-          <div style={{ fontSize: 11, opacity: 0.65, marginBottom: 4 }}>Rôle plateforme</div>
+          <div style={{ fontSize: 11, opacity: 0.65, marginBottom: 4 }}>Role plateforme</div>
           <div style={{ padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 700, background: 'rgba(255,255,255,0.12)', color: '#c2956e', textTransform: 'capitalize' }}>{profil?.role}</div>
         </div>
       </div>
@@ -125,7 +169,7 @@ export default function ProfilClient({ user, profil, entreprise, certifications,
         <div>
           <div style={cardStyle}>
             <div style={cardHeaderStyle}>
-              <span>Informations légales & adresse</span>
+              <span>Informations legales et adresse</span>
               {!editEntreprise
                 ? <button style={btnEdit} onClick={() => setEditEntreprise(true)}>Modifier</button>
                 : <div><button style={btnCancel} onClick={() => setEditEntreprise(false)}>Annuler</button><button style={btnSave} onClick={sauvegarderEntreprise} disabled={saving}>{saving ? '...' : 'Enregistrer'}</button></div>
@@ -136,12 +180,12 @@ export default function ProfilClient({ user, profil, entreprise, certifications,
                 <>
                   {[
                     ['Raison sociale', formEntreprise.nom],
-                    ['SIRET', formEntreprise.siret || '—'],
-                    ['TVA', formEntreprise.tva || '—'],
-                    ['Adresse', formEntreprise.adresse_rue || '—'],
-                    ['Code postal', formEntreprise.code_postal || '—'],
-                    ['Ville', formEntreprise.ville || '—'],
-                    ['Pays', formEntreprise.pays || '—'],
+                    ['SIRET', formEntreprise.siret || '-'],
+                    ['TVA', formEntreprise.tva || '-'],
+                    ['Adresse', formEntreprise.adresse_rue || '-'],
+                    ['Code postal', formEntreprise.code_postal || '-'],
+                    ['Ville', formEntreprise.ville || '-'],
+                    ['Pays', formEntreprise.pays || '-'],
                   ].map(([l, v]) => (
                     <div key={l} style={rowStyle}><span style={lblStyle}>{l}</span><span style={valStyle}>{v}</span></div>
                   ))}
@@ -168,6 +212,7 @@ export default function ProfilClient({ user, profil, entreprise, certifications,
 
         {/* Colonne droite */}
         <div>
+
           {/* Contact entreprise */}
           <div style={cardStyle}>
             <div style={cardHeaderStyle}>
@@ -181,12 +226,12 @@ export default function ProfilClient({ user, profil, entreprise, certifications,
               {!editContact ? (
                 <>
                   {[
-                    ['Email', formEntreprise.email_contact || user?.email || '—'],
-                    ['Téléphone', formEntreprise.telephone || '—'],
-                    ['Site web', formEntreprise.site_web || '—'],
-                    ['Nom contact', formEntreprise.contact_nom || '—'],
-                    ['Prénom contact', formEntreprise.contact_prenom || '—'],
-                    ['Fonction', formEntreprise.contact_fonction || '—'],
+                    ['Email', formEntreprise.email_contact || user?.email || '-'],
+                    ['Telephone', formEntreprise.telephone || '-'],
+                    ['Site web', formEntreprise.site_web || '-'],
+                    ['Nom contact', formEntreprise.contact_nom || '-'],
+                    ['Prenom contact', formEntreprise.contact_prenom || '-'],
+                    ['Fonction', formEntreprise.contact_fonction || '-'],
                   ].map(([l, v]) => (
                     <div key={l} style={rowStyle}><span style={lblStyle}>{l}</span><span style={valStyle}>{v}</span></div>
                   ))}
@@ -194,11 +239,11 @@ export default function ProfilClient({ user, profil, entreprise, certifications,
               ) : (
                 <>
                   <div style={fieldStyle}><label style={labelStyle}>Email contact</label><input style={inputStyle} value={formEntreprise.email_contact} onChange={e => setFormEntreprise(p => ({ ...p, email_contact: e.target.value }))} /></div>
-                  <div style={fieldStyle}><label style={labelStyle}>Téléphone</label><input style={inputStyle} value={formEntreprise.telephone} onChange={e => setFormEntreprise(p => ({ ...p, telephone: e.target.value }))} /></div>
+                  <div style={fieldStyle}><label style={labelStyle}>Telephone</label><input style={inputStyle} value={formEntreprise.telephone} onChange={e => setFormEntreprise(p => ({ ...p, telephone: e.target.value }))} /></div>
                   <div style={fieldStyle}><label style={labelStyle}>Site web</label><input style={inputStyle} value={formEntreprise.site_web} onChange={e => setFormEntreprise(p => ({ ...p, site_web: e.target.value }))} /></div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                     <div style={fieldStyle}><label style={labelStyle}>Nom contact</label><input style={inputStyle} value={formEntreprise.contact_nom} onChange={e => setFormEntreprise(p => ({ ...p, contact_nom: e.target.value }))} /></div>
-                    <div style={fieldStyle}><label style={labelStyle}>Prénom contact</label><input style={inputStyle} value={formEntreprise.contact_prenom} onChange={e => setFormEntreprise(p => ({ ...p, contact_prenom: e.target.value }))} /></div>
+                    <div style={fieldStyle}><label style={labelStyle}>Prenom contact</label><input style={inputStyle} value={formEntreprise.contact_prenom} onChange={e => setFormEntreprise(p => ({ ...p, contact_prenom: e.target.value }))} /></div>
                   </div>
                   <div style={fieldStyle}><label style={labelStyle}>Fonction</label><input style={inputStyle} value={formEntreprise.contact_fonction} onChange={e => setFormEntreprise(p => ({ ...p, contact_fonction: e.target.value }))} /></div>
                 </>
@@ -219,10 +264,10 @@ export default function ProfilClient({ user, profil, entreprise, certifications,
               {!editContact ? (
                 <>
                   {[
-                    ['Prénom', formProfil.prenom || '—'],
-                    ['Nom', formProfil.nom || '—'],
-                    ['Téléphone', formProfil.telephone || '—'],
-                    ['Email', user?.email || '—'],
+                    ['Prenom', formProfil.prenom || '-'],
+                    ['Nom', formProfil.nom || '-'],
+                    ['Telephone', formProfil.telephone || '-'],
+                    ['Email', user?.email || '-'],
                   ].map(([l, v]) => (
                     <div key={l} style={rowStyle}><span style={lblStyle}>{l}</span><span style={valStyle}>{v}</span></div>
                   ))}
@@ -230,10 +275,10 @@ export default function ProfilClient({ user, profil, entreprise, certifications,
               ) : (
                 <>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                    <div style={fieldStyle}><label style={labelStyle}>Prénom</label><input style={inputStyle} value={formProfil.prenom} onChange={e => setFormProfil(p => ({ ...p, prenom: e.target.value }))} /></div>
+                    <div style={fieldStyle}><label style={labelStyle}>Prenom</label><input style={inputStyle} value={formProfil.prenom} onChange={e => setFormProfil(p => ({ ...p, prenom: e.target.value }))} /></div>
                     <div style={fieldStyle}><label style={labelStyle}>Nom</label><input style={inputStyle} value={formProfil.nom} onChange={e => setFormProfil(p => ({ ...p, nom: e.target.value }))} /></div>
                   </div>
-                  <div style={fieldStyle}><label style={labelStyle}>Téléphone</label><input style={inputStyle} value={formProfil.telephone} onChange={e => setFormProfil(p => ({ ...p, telephone: e.target.value }))} /></div>
+                  <div style={fieldStyle}><label style={labelStyle}>Telephone</label><input style={inputStyle} value={formProfil.telephone} onChange={e => setFormProfil(p => ({ ...p, telephone: e.target.value }))} /></div>
                   <div style={fieldStyle}><label style={labelStyle}>Email (non modifiable)</label><input style={{ ...inputStyle, background: '#f5f3ef', color: '#8b7355' }} value={user?.email ?? ''} disabled /></div>
                 </>
               )}
@@ -242,21 +287,63 @@ export default function ProfilClient({ user, profil, entreprise, certifications,
 
           {/* Certifications */}
           <div style={cardStyle}>
-            <div style={cardHeaderStyle}><span>Certifications ({certifications?.length ?? 0})</span></div>
+            <div style={cardHeaderStyle}><span>{'Certifications (' + (certifications?.length ?? 0) + ')'}</span></div>
             <div style={{ padding: '14px 18px' }}>
               {!certifications || certifications.length === 0 ? (
-                <div style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', padding: '10px 0' }}>Aucune certification enregistrée</div>
+                <div style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', padding: '10px 0' }}>Aucune certification enregistree</div>
               ) : (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                   {certifications.map((c, i) => (
                     <span key={i} style={{ padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: c.valide ? '#d1fae5' : '#fee2e2', color: c.valide ? '#065f46' : '#991b1b' }}>
-                      {c.valide ? '✓' : '✕'} {c.label} — {c.date_expiration}
+                      {(c.valide ? 'OK ' : 'KO ') + c.label + ' - ' + c.date_expiration}
                     </span>
                   ))}
                 </div>
               )}
             </div>
           </div>
+
+          {/* Documents */}
+          <div style={cardStyle}>
+            <div style={cardHeaderStyle}>
+              <span>{'Documents (' + docs.length + ')'}</span>
+              <button style={btnEdit} onClick={() => setShowUpload(true)}>+ Ajouter</button>
+            </div>
+            <div style={{ padding: '14px 18px' }}>
+              {docs.length === 0 ? (
+                <div style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', padding: '10px 0' }}>Aucun document</div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {docs.map((d, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 10px', borderRadius: 6, background: '#f5f3ef', border: '1px solid #e8e3d8' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div style={{ width: 32, height: 32, borderRadius: 6, background: '#1a1a1a', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, flexShrink: 0 }}>
+                          {d.type === 'kbis' ? 'KB' : d.type === 'certificat' ? 'CE' : d.type === 'assurance' ? 'AS' : 'DO'}
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>{d.nom}</div>
+                          <div style={{ fontSize: 10, color: '#8b7355' }}>
+                            {(d.type === 'kbis' ? 'Kbis' : d.type === 'certificat' ? 'Certificat' : d.type === 'assurance' ? 'Assurance' : 'Autre') +
+                              (d.date_expiration ? ' - Exp. ' + new Date(d.date_expiration).toLocaleDateString('fr-FR') : '') +
+                              (d.taille_kb ? ' - ' + d.taille_kb + ' ko' : '')}
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <button onClick={() => telechargerDocument(d.url, d.nom)} style={{ padding: '4px 10px', borderRadius: 4, border: '1.5px solid #d4c5b0', background: '#fff', fontSize: 11, cursor: 'pointer', color: '#4a5568' }}>
+                          Voir
+                        </button>
+                        <button onClick={() => supprimerDocument(d.id, d.url)} style={{ padding: '4px 10px', borderRadius: 4, border: '1.5px solid #fde8e8', background: '#fff', fontSize: 11, cursor: 'pointer', color: '#8b3a3a' }}>
+                          Sup.
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -264,12 +351,52 @@ export default function ProfilClient({ user, profil, entreprise, certifications,
       <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #fde8e8', padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
         <div>
           <div style={{ fontSize: 14, fontWeight: 700, color: '#8b3a3a', marginBottom: 4 }}>Supprimer mon compte</div>
-          <div style={{ fontSize: 12, color: '#8b7355' }}>Cette action est irréversible. Toutes vos données seront supprimées conformément au RGPD.</div>
+          <div style={{ fontSize: 12, color: '#8b7355' }}>Cette action est irreversible. Toutes vos donnees seront supprimees conformement au RGPD.</div>
         </div>
         <a href="/profil/supprimer" style={{ padding: '8px 16px', borderRadius: 4, border: '1.5px solid #8b3a3a', background: '#fff', color: '#8b3a3a', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'none', display: 'inline-block' }}>
           Supprimer mon compte
         </a>
       </div>
+
+      {/* Modal upload document */}
+      {showUpload && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }} onClick={() => setShowUpload(false)}>
+          <div style={{ background: '#fff', borderRadius: 8, padding: '28px 32px', width: 420, boxShadow: '0 24px 64px rgba(0,0,0,0.15)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+              <span style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>Ajouter un document</span>
+              <button onClick={() => setShowUpload(false)} style={{ border: 'none', background: 'none', fontSize: 18, cursor: 'pointer', color: '#8b7355' }}>x</button>
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <label style={labelStyle}>Nom du document *</label>
+              <input style={inputStyle} value={uploadForm.nom} onChange={e => setUploadForm(p => ({ ...p, nom: e.target.value }))} placeholder="Ex: Kbis 2026, Certificat GOTS..." />
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <label style={labelStyle}>Type *</label>
+              <select style={inputStyle} value={uploadForm.type} onChange={e => setUploadForm(p => ({ ...p, type: e.target.value }))}>
+                <option value="kbis">Kbis</option>
+                <option value="certificat">Certificat</option>
+                <option value="assurance">Assurance RC Pro</option>
+                <option value="autre">Autre</option>
+              </select>
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <label style={labelStyle}>Date d'expiration (optionnel)</label>
+              <input type="date" style={inputStyle} value={uploadForm.date_expiration} onChange={e => setUploadForm(p => ({ ...p, date_expiration: e.target.value }))} />
+            </div>
+            <div style={{ marginBottom: 20 }}>
+              <label style={labelStyle}>Fichier *</label>
+              <input ref={fileInputRef} type="file" accept=".pdf,.jpg,.jpeg,.png" style={{ ...inputStyle, padding: '6px 10px' }} />
+            </div>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={() => setShowUpload(false)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#8b7355', fontSize: 13, cursor: 'pointer' }}>Annuler</button>
+              <button onClick={uploaderDocument} disabled={uploading} style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: uploading ? '#d4c5b0' : '#1a1a1a', color: uploading ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: uploading ? 'default' : 'pointer' }}>
+                {uploading ? 'Upload...' : 'Enregistrer'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }
