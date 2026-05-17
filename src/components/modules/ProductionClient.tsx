@@ -43,6 +43,7 @@ interface Commande {
 interface Props {
   commandes: Commande[]
   user: { id: string }
+  role: string
 }
 
 const ETAPES_PROD = [
@@ -58,7 +59,7 @@ const STATUT_LOT_COLORS: Record<string, [string, string]> = {
   livré:            ['#f0f4ec', '#2d5016'],
 }
 
-export default function ProductionClient({ commandes: initial, user }: Props) {
+export default function ProductionClient({ commandes: initial, user, role }: Props) {
   const supabase = createClient()
   const [commandes, setCommandes] = useState<Commande[]>(initial)
   const [selected, setSelected] = useState<Commande | null>(initial[0] ?? null)
