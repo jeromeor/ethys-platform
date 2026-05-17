@@ -54,5 +54,5 @@ export default async function ProductionPage() {
     lots: c.lots ?? [],
   }))
 
-  return <ProductionClient commandes={commandes} user={user} />
+  return <ProductionClient commandes={commandes} user={user} role={role ?? ''} />
 }
