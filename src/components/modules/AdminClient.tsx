@@ -63,6 +63,8 @@ const TABS = ['Utilisateurs', 'Comptes à valider', 'Demandes en attente', 'Séc
 export default function AdminClient({ utilisateurs: initial = [], audit = [], entreprises = [], currentUserId }: Props) {
   const supabase = createClient()
   const [filtreEntreprise, setFiltreEntreprise] = useState('')
+  const [filtreDateDebut, setFiltreDateDebut] = useState('')
+  const [filtreDateFin, setFiltreDateFin] = useState('')
   const [utilisateurs, setUtilisateurs] = useState<Utilisateur[]>((initial ?? []).slice().sort((a, b) => (a.nom ?? '').localeCompare(b.nom ?? '')))
   const [activeTab, setActiveTab] = useState('Utilisateurs')
   const [selectedUser, setSelectedUser] = useState<Utilisateur | null>(null)
@@ -229,11 +231,19 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
 
 
           <>
-          <div style={{ padding: '12px 22px', borderBottom: '1px solid #e8e3d8', display: 'flex', gap: 12, alignItems: 'center' }}>
+          <div style={{ padding: '12px 22px', borderBottom: '1px solid #e8e3d8', display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
             <select value={filtreEntreprise} onChange={e => setFiltreEntreprise(e.target.value)} style={{ padding: '6px 12px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 12, color: '#1a1a1a', background: '#fff' }}>
               <option value=''>Toutes les entreprises</option>
               {entreprises.map(e => <option key={e.id} value={e.id}>{e.nom}</option>)}
             </select>
+            <input type="date" value={filtreDateDebut} onChange={e => setFiltreDateDebut(e.target.value)} style={{ padding: '6px 10px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none' }} />
+            <span style={{ fontSize: 12, color: '#8b7355' }}>au</span>
+            <input type="date" value={filtreDateFin} onChange={e => setFiltreDateFin(e.target.value)} style={{ padding: '6px 10px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none' }} />
+            {(filtreDateDebut || filtreDateFin) && (
+              <button onClick={() => { setFiltreDateDebut(''); setFiltreDateFin('') }} style={{ padding: '6px 10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', fontSize: 11, color: '#8b7355', cursor: 'pointer' }}>
+                Reinitialiser
+              </button>
+            )}
           </div>
           <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', overflow: 'hidden' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -245,7 +255,12 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
                 </tr>
               </thead>
               <tbody>
-                {utilisateurs.filter(u => !filtreEntreprise || u.entreprise_id === filtreEntreprise).map((u, i) => {
+                {utilisateurs.filter(u => {
+                  if (filtreEntreprise && u.entreprise_id !== filtreEntreprise) return false
+                  if (filtreDateDebut && new Date(u.created_at) < new Date(filtreDateDebut)) return false
+                  if (filtreDateFin && new Date(u.created_at) > new Date(filtreDateFin)) return false
+                  return true
+                }).map((u, i) => {
                   const [rbg, rtc] = ROLE_COLORS[u.role] ?? ['#f5f3ef', '#4a5568']
                   return (
                     <tr key={i} style={{ borderTop: '1px solid #f5f3ef' }}>
@@ -313,7 +328,8 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
                         const sel = document.getElementById(`select-${u.id}`) as HTMLSelectElement
                         if (!sel?.value) return
                         const entreprise = entreprises.find(e => e.id === sel.value)
-                        if (!window.confirm(`Confirmer l'association de ${u.email} avec ${entreprise?.nom} ?`)) return
+                        if (!window.confirm('Premiere confirmation : associer ' + u.email + ' avec ' + entreprise?.nom + ' ?')) return
+                        if (!window.confirm('Deuxieme confirmation : cette action est immediate et donnera acces complet a ' + u.email + '. Continuer ?')) return
                         const { createClient } = await import('@/lib/supabase/client')
                         const sb = createClient()
                         await sb.from('profils_utilisateurs').update({ entreprise_id: sel.value }).eq('id', u.id)
