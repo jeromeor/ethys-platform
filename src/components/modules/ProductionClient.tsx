@@ -68,14 +68,45 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
   const [newLot, setNewLot] = useState({
     type_coton: 'recycle', volume_tonnes: '', origine: '', certification: ''
   })
+  const [showAssocCertif, setShowAssocCertif] = useState<string | null>(null)
+  const [certifications, setCertifications] = useState<{ id: string; reference: string; type_produit: string | null; statut: string }[]>([])
+  const [selectedCertifId, setSelectedCertifId] = useState('')
+
+  const chargerCertifications = async () => {
+    const { data } = await supabase.from('certifications_ethys').select('id, reference, type_produit, statut').order('created_at', { ascending: false })
+    setCertifications(data ?? [])
+  }
+
+  const associerCertification = async (lotId: string) => {
+    if (!selectedCertifId) return
+    await supabase.from('certifications_ethys').update({ lot_id: lotId }).eq('id', selectedCertifId)
+    setCommandes(prev => prev.map(c => ({ ...c, lots: c.lots.map(l => l.id === lotId ? { ...l, certification: selectedCertifId } : l) })))
+    if (selected) setSelected(prev => prev ? { ...prev, lots: prev.lots.map(l => l.id === lotId ? { ...l, certification: selectedCertifId } : l) } : null)
+    setShowAssocCertif(null)
+    setSelectedCertifId('')
+  }
 
   const updateAvancement = async (lotId: string, pct: number) => {
     const lot = selected?.lots.find(l => l.id === lotId)
     if (lot && pct < lot.avancement_pct) {
-      const confirm = window.confirm(
-        'Attention : vous essayez de réduire l\'avancement. Un retour en arrière nécessite une validation admin. Voulez-vous soumettre une demande de correction ?'
-      )
-      if (!confirm) return
+      const ok1 = window.confirm('Attention : vous reduisez l\'avancement du lot ' + lot.reference + '. Cette action va generer une alerte admin. Confirmer ?')
+      if (!ok1) return
+      // Notifier l'admin
+      await supabase.from('notifications').insert({
+        utilisateur_id: '1e48a840-8329-4595-be9b-f04d9ef1562a',
+        user_id: '1e48a840-8329-4595-be9b-f04d9ef1562a',
+        type: 'alerte_production',
+        titre: 'Retour arriere sur lot ' + lot.reference,
+        message: 'L\'avancement du lot ' + lot.reference + ' a ete reduit de ' + lot.avancement_pct + '% a ' + pct + '% par l\'utilisateur ' + user.id,
+        lien: '/production',
+        lu: false,
+      })
+    }
+    if (pct === 100) {
+      const ok1 = window.confirm('Confirmer la completion a 100% du lot ' + (lot?.reference ?? '') + ' ?')
+      if (!ok1) return
+      const ok2 = window.confirm('Deuxieme confirmation : le lot sera marque comme termine. Cette action est definitive. Continuer ?')
+      if (!ok2) return
     }
     setUpdatingLot(lotId)
     const { error } = await supabase
@@ -97,7 +128,6 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
     }
     setUpdatingLot(null)
   }
-
   const updateStatutLot = async (lotId: string, statut: string) => {
     await supabase.from('lots').update({ statut }).eq('id', lotId)
     setCommandes(prev => prev.map(c => ({
@@ -309,6 +339,19 @@ export default function ProductionClient({ commandes: initial, user }: Props) {
                         />
                       </div>
                     </div>
+                    {lot.avancement_pct === 100 && (
+                      <div style={{ marginTop: 10 }}>
+                        {lot.certification ? (
+                          <div style={{ fontSize: 11, color: '#2d5016', fontWeight: 600, padding: '6px 10px', borderRadius: 6, background: '#f0f4ec', display: 'inline-block' }}>
+                            {'Certification associee : ' + lot.certification}
+                          </div>
+                        ) : (
+                          <button onClick={() => { setShowAssocCertif(lot.id); chargerCertifications() }} style={{ padding: '6px 14px', borderRadius: 6, border: '1.5px solid #2d5016', background: '#f0f4ec', color: '#2d5016', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
+                            Associer une certification ETHYS
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
 
