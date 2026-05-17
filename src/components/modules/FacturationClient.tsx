@@ -135,20 +135,13 @@ function calcTVA(montant_ht: number, tva_pct: number, regime: 'france' | 'ue' | 
   return montant_ht * (tva_pct || 0) / 100
 }
 
-function loadJsPDF(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if ((window as any).jspdf) { resolve(); return }
-    const script = document.createElement('script')
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
-    script.onload = () => resolve()
-    script.onerror = () => reject(new Error('jsPDF load failed'))
-    document.head.appendChild(script)
-  })
+async function loadJsPDF(): Promise<any> {
+  const { jsPDF } = await import('jspdf')
+  return jsPDF
 }
 
 async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
-  await loadJsPDF()
-  const { jsPDF } = (window as any).jspdf
+ const jsPDF = await loadJsPDF()
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
 
   const noir = [26, 26, 26]
