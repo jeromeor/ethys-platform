@@ -15,7 +15,7 @@ export default async function FacturationPage() {
       commande:commandes(reference, volume_total_tonnes),
       emetteur_id,
       destinataire_id,
-      emetteur:entreprises!factures_emetteur_id_fkey(nom, adresse, email_contact),
+      emetteur:entreprises!factures_emetteur_id_fkey(nom, adresse, adresse_rue, code_postal, ville, pays, telephone, email_contact, siret, tva),
      destinataire:entreprises!factures_destinataire_id_fkey(nom, adresse, email_contact, pays)
     `)
     .order('created_at', { ascending: false })
