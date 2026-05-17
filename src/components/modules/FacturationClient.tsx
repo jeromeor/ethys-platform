@@ -196,7 +196,7 @@ async function telechargerPDF(facture: Facture, accords: AccordCommercial[]) {
   const cardH = 28
 
   // Emetteur - carte haute avec coordonnees completes
-  const emCardH = 42
+  const emCardH = 48
   doc.setFillColor(beige[0], beige[1], beige[2])
   doc.roundedRect(14, y, colW, emCardH, 3, 3, 'F')
   doc.setFontSize(7)
