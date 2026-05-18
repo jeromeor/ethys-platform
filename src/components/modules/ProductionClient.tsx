@@ -116,12 +116,12 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
 
   const updateAvancement = async (lotId: string, pct: number) => {
     if (role === 'admin') {
-      window.alert('En tant qu\'admin, vous ne pouvez pas modifier l\'avancement d\'un lot. Cette action revient a la filature ou a la marque.')
+      window.alert('En tant qu\'admin, vous ne pouvez pas modifier l\'avancement d\'un lot. Cette action revient à la filature ou à la marque.')
       return
     }
     const lot = selected?.lots.find(l => l.id === lotId)
     if (lot && pct < lot.avancement_pct) {
-      const ok1 = window.confirm('Attention : vous reduisez l\'avancement du lot ' + lot.reference + '. Cette action va generer une alerte admin. Confirmer ?')
+      const ok1 = window.confirm('Attention : vous réduisez l\'avancement du lot ' + lot.reference + '. Cette action va générer une alerte admin. Confirmer ?')
       if (!ok1) return
       // Notifier l'admin
       await supabase.from('notifications').insert({
@@ -135,9 +135,9 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
       })
     }
    if (pct === 100) {
-      const ok1 = window.confirm('Confirmer la completion a 100% du lot ' + (lot?.reference ?? '') + ' ?')
+      const ok1 = window.confirm('Confirmer la complétion à 100% du lot ' + (lot?.reference ?? '') + ' ?')
       if (!ok1) return
-      const ok2 = window.confirm('Deuxieme confirmation : le lot sera marque comme termine. Cette action est definitive. Continuer ?')
+      const ok2 = window.confirm('Deuxième confirmation : le lot sera marqué comme terminé. Cette action est définitive. Continuer ?')
       if (!ok2) return
       await supabase.from('notifications').insert({
         utilisateur_id: '1e48a840-8329-4595-be9b-f04d9ef1562a',
@@ -330,6 +330,7 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
                               boxShadow: enCours ? '0 0 0 3px rgba(194,149,110,0.3)' : 'none'
                             }}>{fait ? <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='#c2956e' strokeWidth='3' strokeLinecap='round' strokeLinejoin='round'><polyline points='20 6 9 17 4 12'/></svg> : i + 1}</div>
                             <div style={{ fontSize: 9, color: fait ? '#4a5568' : enCours ? '#c2956e' : '#8b7355', fontWeight: enCours ? 700 : 400, textAlign: 'center', marginTop: 4, lineHeight: 1.3 }}>
+                              {etape}
                             </div>
                           </div>
                           {i < ETAPES_PROD.length - 1 && (
