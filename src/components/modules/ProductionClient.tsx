@@ -22,6 +22,7 @@ interface Lot {
   machine: string | null
   origine: string | null
   certification: string | null
+  certif_ethys_id: string | null
   date_debut: string | null
   date_fin_prevue: string | null
   updated_at: string | null
@@ -107,9 +108,10 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
 
   const associerCertification = async (lotId: string) => {
     if (!selectedCertifId) return
+    await supabase.from('lots').update({ certif_ethys_id: selectedCertifId }).eq('id', lotId)
     await supabase.from('certifications_ethys').update({ lot_id: lotId }).eq('id', selectedCertifId)
-    setCommandes(prev => prev.map(c => ({ ...c, lots: c.lots.map(l => l.id === lotId ? { ...l, certification: selectedCertifId } : l) })))
-    if (selected) setSelected(prev => prev ? { ...prev, lots: prev.lots.map(l => l.id === lotId ? { ...l, certification: selectedCertifId } : l) } : null)
+    setCommandes(prev => prev.map(c => ({ ...c, lots: c.lots.map(l => l.id === lotId ? { ...l, certif_ethys_id: selectedCertifId } : l) })))
+    if (selected) setSelected(prev => prev ? { ...prev, lots: prev.lots.map(l => l.id === lotId ? { ...l, certif_ethys_id: selectedCertifId } : l) } : null)
     setShowAssocCertif(null)
     setSelectedCertifId('')
   }
@@ -381,11 +383,11 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
                         />
                       </div>
                     </div>
-                    {lot.avancement_pct === 100 && (
+                   {lot.avancement_pct === 100 && (
                       <div style={{ marginTop: 10 }}>
-                        {lot.certification ? (
+                        {lot.certif_ethys_id ? (
                           <div style={{ fontSize: 11, color: '#2d5016', fontWeight: 600, padding: '6px 10px', borderRadius: 6, background: '#f0f4ec', display: 'inline-block' }}>
-                            {'Certification associee : ' + lot.certification}
+                            {'Certification ETHYS associee : ' + lot.certif_ethys_id}
                           </div>
                         ) : (
                           <button onClick={() => { setShowAssocCertif(lot.id); chargerCertifications() }} style={{ padding: '6px 14px', borderRadius: 6, border: '1.5px solid #2d5016', background: '#f0f4ec', color: '#2d5016', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
