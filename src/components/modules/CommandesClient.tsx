@@ -25,8 +25,8 @@ interface Commande {
   marque: { nom: string } | null
   filature: { nom: string } | null
   fournisseur: { nom: string } | null
+  lots: { id: string; avancement_pct: number }[] | null
 }
-
 interface Props {
   user: { id: string; email?: string }
   profil: { role?: string; entreprise_id?: string } | null
@@ -295,8 +295,8 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
                           {new Date(c.date_livraison_souhaitee).toLocaleDateString('fr-FR')}
                         </td>
                         {!selected && (
-                          <td style={{ padding: '12px 14px' }}>
-                            <div style={{ display: 'flex', gap: 3 }}>
+                          <td style={{ padding: '12px 14px', minWidth: 120 }}>
+                            <div style={{ display: 'flex', gap: 3, marginBottom: 4 }}>
                               {ETAPES.map((_, idx) => (
                                 <div key={idx} style={{
                                   width: 14, height: 4, borderRadius: 2,
@@ -304,6 +304,17 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
                                 }} />
                               ))}
                             </div>
+                            {c.lots && c.lots.length > 0 && (() => {
+                              const avProd = Math.round(c.lots!.reduce((s, l) => s + l.avancement_pct, 0) / c.lots!.length)
+                              return (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                                  <div style={{ flex: 1, height: 3, background: '#d4c5b0', borderRadius: 2 }}>
+                                    <div style={{ height: '100%', width: avProd + '%', background: avProd === 100 ? '#2d5016' : '#c2956e', borderRadius: 2 }} />
+                                  </div>
+                                  <span style={{ fontSize: 10, fontWeight: 700, color: avProd === 100 ? '#2d5016' : '#c2956e', flexShrink: 0 }}>{avProd + '%'}</span>
+                                </div>
+                              )
+                            })()}
                           </td>
                         )}
                       </tr>
