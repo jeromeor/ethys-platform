@@ -1,6 +1,6 @@
-﻿'use client'
+'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import QRCode from 'qrcode'
 
@@ -57,6 +57,7 @@ interface Props {
   certifications: Certification[]
   certificationIdActif: string | null
 }
+
 function CertQRImage({ url }: { url: string }) {
   const [dataUrl, setDataUrl] = useState<string | null>(null)
   useEffect(() => {
@@ -74,7 +75,7 @@ export default function QRCodeClient({ lots: initial, user, certifications, cert
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
   const [previewPublic, setPreviewPublic] = useState(false)
   const [source, setSource] = useState<'lots' | 'certs'>(certificationIdActif ? 'certs' : 'lots')
-const [selectedCert, setSelectedCert] = useState<Certification | null>(
+  const [selectedCert, setSelectedCert] = useState<Certification | null>(
     certificationIdActif ? (certifications.find(c => c.declaration?.type_produit && c.id === certificationIdActif) ?? null) : null
   )
   const [urlCopied, setUrlCopied] = useState(false)
@@ -92,7 +93,7 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
   const genererQR = async () => {
     if (!selected) return
     setGenerating(true)
-    const reference = `ETHYS-QR-${selected.commande?.reference ?? 'CMD'}-${selected.reference.split('-').pop()}`
+    const reference = 'ETHYS-QR-' + (selected.commande?.reference ?? 'CMD') + '-' + selected.reference.split('-').pop()
     const { data: existing } = await supabase.from('qr_codes').select('*').eq('reference', reference).single()
     if (existing) {
       const updatedLot = { ...selected, qr_codes: [existing as QRCodeData] }
@@ -101,7 +102,7 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
       setGenerating(false)
       return
     }
-    const urlPublique = `${window.location.origin}/tracabilite/${reference}`
+    const urlPublique = window.location.origin + '/tracabilite/' + reference
     const dataEncodee = {
       lot_id: selected.id,
       lot_reference: selected.reference,
@@ -130,23 +131,25 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
   }
 
   const copierURL = () => {
-  if (qrActif) {
-    navigator.clipboard.writeText(qrActif.url_publique)
-    setUrlCopied(true)
-    setTimeout(() => setUrlCopied(false), 3000)
+    if (qrActif) {
+      navigator.clipboard.writeText(qrActif.url_publique)
+      setUrlCopied(true)
+      setTimeout(() => setUrlCopied(false), 3000)
+    }
   }
-}
 
-  const TéléchargerQR = () => {
+  const telechargerQR = () => {
     if (!qrDataUrl) return
     const a = document.createElement('a')
     a.href = qrDataUrl
-    a.download = `${qrActif?.reference ?? 'qr-ethys'}.png`
+    a.download = (qrActif?.reference ?? 'qr-ethys') + '.png'
     a.click()
   }
 
   return (
     <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
+
+      {/* Sidebar */}
       <div style={{ width: 280, minWidth: 280, background: '#fff', borderRight: '1px solid #e8e3d8', display: 'flex', flexDirection: 'column' }}>
         <div style={{ padding: '10px 16px', borderBottom: '1px solid #f5f3ef' }}>
           <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
@@ -159,13 +162,13 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
           </div>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 2 }}>{source === 'lots' ? 'Lots de production' : 'Certifications ETHYS'}</div>
           <div style={{ fontSize: 11, color: '#8b7355' }}>
-            <span style={{ fontWeight: 700, color: '#1a1a1a' }}>{source === 'lots' ? lots.filter(l => l.qr_codes?.length > 0).length : certifications.filter(c => c.qr_codes?.length > 0).length}</span> QR générés
-            {' · '}
-            <span style={{ fontWeight: 700, color: '#D97706' }}>{source === 'lots' ? lots.filter(l => !l.qr_codes?.length).length : certifications.filter(c => !c.qr_codes?.length).length}</span> en attente
+            <span style={{ fontWeight: 700, color: '#1a1a1a' }}>{source === 'lots' ? lots.filter(l => l.qr_codes?.length > 0).length : certifications.filter(c => c.qr_codes?.length > 0).length}</span>{' QR generés · '}
+            <span style={{ fontWeight: 700, color: '#D97706' }}>{source === 'lots' ? lots.filter(l => !l.qr_codes?.length).length : certifications.filter(c => !c.qr_codes?.length).length}</span>{' en attente'}
           </div>
         </div>
+
         <div style={{ flex: 1, overflowY: 'auto' }}>
-{source === 'certs' && (
+          {source === 'certs' && (
             <>
               {certifications.length === 0 ? (
                 <div style={{ padding: '40px 16px', textAlign: 'center', color: '#8b7355', fontSize: 12 }}>Aucune certification disponible.</div>
@@ -173,7 +176,7 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
                 const hasQR = cert.qr_codes?.length > 0
                 const isActive = selectedCert?.id === cert.id
                 return (
-                  <div key={cert.id} onClick={() => { setSelectedCert(cert); setSelected(null) }} style={{ padding: '12px 16px', cursor: 'pointer', background: isActive ? '#F0FDF4' : 'transparent', borderLeft: `3px solid ${isActive ? '#1a1a1a' : 'transparent'}`, borderBottom: '1px solid #f5f3ef' }}>
+                  <div key={cert.id} onClick={() => { setSelectedCert(cert); setSelected(null) }} style={{ padding: '12px 16px', cursor: 'pointer', background: isActive ? '#F0FDF4' : 'transparent', borderLeft: '3px solid ' + (isActive ? '#1a1a1a' : 'transparent'), borderBottom: '1px solid #f5f3ef' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                       <span style={{ fontSize: 12, fontWeight: 800, color: '#1a1a1a' }}>{cert.numero}</span>
                       <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 4, background: hasQR ? '#f0f4ec' : '#fdf8ec', color: hasQR ? '#2d5016' : '#b8860b' }}>
@@ -187,14 +190,15 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
               })}
             </>
           )}
+
           {source === 'lots' && lots.length === 0 && (
             <div style={{ padding: '40px 16px', textAlign: 'center', color: '#8b7355', fontSize: 12 }}>Aucun lot disponible.</div>
           )}
-          {source === 'lots' && lots.length > 0 && lots.map(lot => {
+          {source === 'lots' && lots.map(lot => {
             const hasQR = lot.qr_codes?.length > 0
             const isActive = selected?.id === lot.id
             return (
-              <div key={lot.id} onClick={() => setSelected(lot)} style={{ padding: '12px 16px', cursor: 'pointer', background: isActive ? '#F0FDF4' : 'transparent', borderLeft: `3px solid ${isActive ? '#1a1a1a' : 'transparent'}`, borderBottom: '1px solid #f5f3ef' }}>
+              <div key={lot.id} onClick={() => setSelected(lot)} style={{ padding: '12px 16px', cursor: 'pointer', background: isActive ? '#F0FDF4' : 'transparent', borderLeft: '3px solid ' + (isActive ? '#1a1a1a' : 'transparent'), borderBottom: '1px solid #f5f3ef' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                   <span style={{ fontSize: 12, fontWeight: 800, color: '#1a1a1a' }}>{lot.reference}</span>
                   <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 4, background: hasQR ? '#f0f4ec' : '#fdf8ec', color: hasQR ? '#2d5016' : '#b8860b' }}>
@@ -202,7 +206,7 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
                   </span>
                 </div>
                 <div style={{ fontSize: 11, color: '#4a5568', marginBottom: 2 }}>{lot.commande?.reference} · {lot.commande?.marque?.nom}</div>
-                <div style={{ fontSize: 11, color: '#8b7355' }}>{Math.round((lot.volume_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg · {lot.type_coton === 'recycle' ? 'Recyclé' : 'Vierge'}</div>
+                <div style={{ fontSize: 11, color: '#8b7355' }}>{Math.round((lot.volume_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg · {lot.type_coton === 'recycle' ? 'Recycle' : 'Vierge'}</div>
                 {hasQR && <div style={{ fontSize: 10, color: '#8b7355', marginTop: 4 }}>{lot.qr_codes[0].nb_scans} scan(s)</div>}
               </div>
             )
@@ -210,39 +214,44 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
         </div>
       </div>
 
-      {selected ? (
+      {/* Panneau lot */}
+      {selected && (
         <div style={{ flex: 1, overflow: 'auto', padding: '24px 28px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+
+            {/* Infos lot */}
             <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '22px 24px' }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 16 }}>Informations du lot</div>
               {[
-              ['Référence lot', selected.reference],
+                ['Reference lot', selected.reference],
                 ['Commande', selected.commande?.reference ?? '-'],
                 ['Marque', selected.commande?.marque?.nom ?? '-'],
                 ['Filature', selected.commande?.filature?.nom ?? '-'],
                 ['Fournisseur', selected.commande?.fournisseur?.nom ?? '-'],
-              ['Type coton', selected.type_coton === 'recycle' ? 'Recyclé' : 'Vierge'],
-                ['Volume', `${Math.round((selected.volume_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg`],
+                ['Type coton', selected.type_coton === 'recycle' ? 'Recycle' : 'Vierge'],
+                ['Volume', Math.round((selected.volume_tonnes ?? 0) * 1000).toLocaleString('fr-FR') + ' kg'],
                 ['Origine', selected.origine ?? '-'],
                 ['Certification fil', 'ETHYS'],
-                ['Avancement', `${selected.avancement_pct}%`],
+                ['Avancement', selected.avancement_pct + '%'],
               ].map(([l, v]) => (
                 <div key={l} style={{ display: 'flex', gap: 12, marginBottom: 10 }}>
                   <span style={{ fontSize: 12, color: '#8b7355', width: 120, flexShrink: 0 }}>{l}</span>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: l === 'Certification fil' ? '#1a1a1a' : '#1A202C' }}>{v}</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: '#1A202C' }}>{v}</span>
                 </div>
               ))}
             </div>
 
+            {/* QR Code */}
             <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '22px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 20, alignSelf: 'flex-start' }}>
-                {qrActif ? 'QR Code actif' : 'Générer le QR Code ETHYS'}
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 16, alignSelf: 'flex-start' }}>
+                {qrActif ? 'QR Code actif' : 'Generer le QR Code ETHYS'}
               </div>
-              <div style={{ padding: 16, borderRadius: 8, marginBottom: 16, border: `2px solid ${qrActif ? '#f0f4ec' : '#e8e3d8'}`, background: qrActif ? '#fff' : '#f5f3ef', position: 'relative' }}>
+
+              {/* Image QR */}
+              <div style={{ padding: 16, borderRadius: 8, marginBottom: 12, border: '2px solid ' + (qrActif ? '#f0f4ec' : '#e8e3d8'), background: qrActif ? '#fff' : '#f5f3ef', position: 'relative' }}>
                 {generating ? (
-                  <div style={{ width: 180, height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 10 }}>
-                    <div style={{ fontSize: 32 }}></div>
-                    <div style={{ fontSize: 12, color: '#8b7355' }}>Génération...</div>
+                  <div style={{ width: 180, height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ fontSize: 12, color: '#8b7355' }}>Generation...</div>
                   </div>
                 ) : qrDataUrl ? (
                   <img src={qrDataUrl} alt="QR Code ETHYS" style={{ width: 180, height: 180, display: 'block' }} />
@@ -252,18 +261,22 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
                   </div>
                 )}
                 {qrActif && !generating && (
-                  <div style={{ position: 'absolute', top: -8, right: -8, width: 24, height: 24, borderRadius: '50%', background: '#8b7355', border: '2px solid #fff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 12, fontWeight: 700 }}><svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='#fff' strokeWidth='3' strokeLinecap='round' strokeLinejoin='round'><polyline points='20 6 9 17 4 12'/></svg></div>
+                  <div style={{ position: 'absolute', top: -8, right: -8, width: 24, height: 24, borderRadius: '50%', background: '#2d5016', border: '2px solid #fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='#fff' strokeWidth='3'><polyline points='20 6 9 17 4 12'/></svg>
+                  </div>
                 )}
               </div>
+
               {qrActif && (
-                <div style={{ textAlign: 'center', marginBottom: 16 }}>
+                <div style={{ textAlign: 'center', marginBottom: 12 }}>
                   <div style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>{qrActif.reference}</div>
                   <div style={{ fontSize: 11, color: '#8b7355', marginTop: 2 }}>{qrActif.nb_scans} scan(s)</div>
                 </div>
               )}
-              <div style={{ width: '100%', marginBottom: 16 }}>
-               <div style={{ width: '100%', marginBottom: 16 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#1a1a1a', marginBottom: 8, textTransform: 'uppercase' }}>{"Données encodées"}</div>
+
+              {/* Donnees encodees 2x2 */}
+              <div style={{ width: '100%', marginBottom: 14 }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: '#8b7355', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>{"Données encodées"}</div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
                   {[
                     ['Origine', selected.origine ?? '-'],
@@ -278,13 +291,15 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
                   ))}
                 </div>
               </div>
+
+              {/* Boutons */}
               {!qrActif ? (
                 <button onClick={genererQR} disabled={generating} style={{ width: '100%', padding: '11px', borderRadius: 4, border: 'none', background: generating ? '#d4c5b0' : '#1a1a1a', color: generating ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: generating ? 'default' : 'pointer' }}>
-                  {generating ? 'Génération...' : 'Générer le QR Code ETHYS'}
+                  {generating ? 'Generation...' : 'Generer le QR Code ETHYS'}
                 </button>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%' }}>
-                 <div style={{ display: 'flex', gap: 8, width: '100%' }}>
+                  <div style={{ display: 'flex', gap: 8 }}>
                     <button onClick={() => window.open(qrActif.url_publique, '_blank')} style={{ flex: 1, padding: '10px', borderRadius: 4, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
                       {"Voir page publique"}
                     </button>
@@ -293,24 +308,22 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
                     </button>
                   </div>
                   <div style={{ display: 'flex', gap: 8 }}>
-                    <button onClick={TéléchargerQR} style={{ flex: 1, padding: '8px', borderRadius: 8, border: '1.5px solid #e8e3d8', background: '#f5f3ef', fontSize: 12, cursor: 'pointer', color: '#4a5568' }}>Télécharger</button>
-                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
-  <button onClick={copierURL} style={{ width: '100%', padding: '8px', borderRadius: 8, border: '1.5px solid #e8e3d8', background: urlCopied ? '#f0f4ec' : '#f5f3ef', fontSize: 12, cursor: 'pointer', color: urlCopied ? '#2d5016' : '#4a5568', fontWeight: urlCopied ? 700 : 400 }}>
-    {urlCopied ? 'URL copiee !' : 'Copier URL'}
-  </button>
-  {urlCopied && (
-    <div style={{ fontSize: 10, color: '#2d5016', textAlign: 'center' }}>
-      Lien copie dans le presse-papier
-    </div>
-  )}
-</div>
+                    <button onClick={telechargerQR} style={{ flex: 1, padding: '8px', borderRadius: 8, border: '1.5px solid #e8e3d8', background: '#f5f3ef', fontSize: 12, cursor: 'pointer', color: '#4a5568' }}>
+                      {"Télécharger"}
+                    </button>
+                    <button onClick={copierURL} style={{ flex: 1, padding: '8px', borderRadius: 8, border: '1.5px solid #e8e3d8', background: urlCopied ? '#f0f4ec' : '#f5f3ef', fontSize: 12, cursor: 'pointer', color: urlCopied ? '#2d5016' : '#4a5568', fontWeight: urlCopied ? 700 : 400 }}>
+                      {urlCopied ? 'URL copiee !' : 'Copier URL'}
+                    </button>
                   </div>
                 </div>
               )}
             </div>
           </div>
         </div>
-      ) : (
+      )}
+
+      {/* Etat vide */}
+      {!selected && !selectedCert && (
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8b7355' }}>
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: 40, marginBottom: 12 }}>▣</div>
@@ -319,17 +332,18 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
         </div>
       )}
 
+      {/* Modal apercu public */}
       {previewPublic && qrActif && selected && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: 20 }} onClick={() => setPreviewPublic(false)}>
-          <div style={{ background: '#fff', borderRadius: 4, width: '100%', maxWidth: 420, maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 32px 80px rgba(0,0,0,0.2)' }} onClick={e => e.stopPropagation()}>
-            <div style={{ background: 'linear-gradient(135deg,#1a1a1a,#2a2a2a)', borderRadius: '20px 20px 0 0', padding: '16px', color: '#fff' }}>
+          <div style={{ background: '#fff', borderRadius: 12, width: '100%', maxWidth: 420, maxHeight: '90vh', overflow: 'auto', boxShadow: '0 32px 80px rgba(0,0,0,0.2)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ background: 'linear-gradient(135deg,#1a1a1a,#2a2a2a)', borderRadius: '12px 12px 0 0', padding: '16px', color: '#fff' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
                 <div>
-                  <div style={{ fontSize: 10, color: '#c2956e', fontWeight: 600, letterSpacing: 1, marginBottom: 4 }}>ETHYS · Traçabilité TOTALE</div>
+                  <div style={{ fontSize: 10, color: '#c2956e', fontWeight: 600, letterSpacing: 1, marginBottom: 4 }}>ETHYS · Tracabilite TOTALE</div>
                   <div style={{ fontSize: 20, fontWeight: 900 }}>Votre fil ETHYS</div>
-                  <div style={{ fontSize: 11, opacity: 0.7 }}>Lot #{selected.reference}</div>
+                  <div style={{ fontSize: 11, opacity: 0.7 }}>{'Lot #' + selected.reference}</div>
                 </div>
-                <button onClick={() => setPreviewPublic(false)} style={{ border: 'none', background: 'rgba(255,255,255,0.15)', color: '#fff', borderRadius: 8, width: 28, height: 28, cursor: 'pointer' }}>x</button>
+                <button onClick={() => setPreviewPublic(false)} style={{ border: 'none', background: 'rgba(255,255,255,0.15)', color: '#fff', borderRadius: 8, width: 28, height: 28, cursor: 'pointer', fontSize: 14 }}>x</button>
               </div>
 
               {qrDataUrl && (
@@ -340,19 +354,16 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
                 </div>
               )}
 
-              {/* Matieres premieres */}
               <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 6, padding: '14px', marginBottom: 12 }}>
                 <div style={{ fontSize: 10, color: '#c2956e', fontWeight: 600, marginBottom: 10, letterSpacing: 1 }}>MATIERES PREMIERES</div>
                 <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
                   <div style={{ flex: 51, background: '#8b7355', borderRadius: 6, padding: '10px 8px', textAlign: 'center' }}>
                     <div style={{ fontSize: 20, fontWeight: 900, color: '#fff' }}>51%</div>
-                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>Coton recyclé</div>
-                    <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>61 200 kg</div>
+                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>Coton recycle</div>
                   </div>
                   <div style={{ flex: 49, background: 'rgba(255,255,255,0.15)', borderRadius: 6, padding: '10px 8px', textAlign: 'center' }}>
                     <div style={{ fontSize: 20, fontWeight: 900, color: '#fff' }}>49%</div>
                     <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>Coton vierge</div>
-                    <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>58 800 kg</div>
                   </div>
                 </div>
                 <div style={{ height: 6, background: 'rgba(255,255,255,0.15)', borderRadius: 3, overflow: 'hidden' }}>
@@ -360,11 +371,10 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
                 </div>
               </div>
 
-              {/* Certification fil ETHYS */}
               <div style={{ background: 'rgba(110,231,183,0.2)', borderRadius: 4, padding: '12px 14px', border: '1px solid rgba(110,231,183,0.4)', textAlign: 'center' }}>
-                <div style={{ fontSize: 14, fontWeight: 900, color: '#c2956e', marginBottom: 4 }}>Fil certifié ETHYS</div>
+                <div style={{ fontSize: 14, fontWeight: 900, color: '#c2956e', marginBottom: 4 }}>Fil certifie ETHYS</div>
                 <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
-              Ce fil certifié ETHYS est le résultat de la transformation de coton recyclé (51 %) et de coton vierge (49 %). Il a été réalisé par {selected.commande?.filature?.nom ?? 'la filature'}.
+                  {'Ce fil certifie ETHYS est le resultat de la transformation de coton recycle (51%) et de coton vierge (49%). Il a ete realise par ' + (selected.commande?.filature?.nom ?? 'la filature') + '.'}
                 </div>
               </div>
             </div>
@@ -377,7 +387,7 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
                 ['Fournisseur coton', selected.commande?.fournisseur?.nom ?? '-'],
               ].map(([label, val]) => (
                 <div key={label} style={{ display: 'flex', gap: 12, alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #f5f3ef' }}>
-                  <div style={{ width: 32, height: 32, borderRadius: 8, background: label === 'Certification fil' ? '#f0f4ec' : '#F0FDF4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 14 }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 8, background: label === 'Certification fil' ? '#f0f4ec' : '#F0FDF4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>
                     {label === 'Certification fil' ? 'E' : label === 'Filature' ? 'F' : label === 'Origine matiere' ? 'O' : 'C'}
                   </div>
                   <div>
@@ -387,14 +397,18 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
                 </div>
               ))}
               <div style={{ marginTop: 14, padding: '10px 14px', borderRadius: 4, background: '#f5f3ef', fontSize: 10, color: '#8b7355', textAlign: 'center' }}>
-                Données vérifiées et certifiees par TEXTILE LOOP
-                <br />Plateforme ETHYS · {qrActif.reference}
+                {'Donnees verifiees et certifiees par TEXTILE LOOP'}
+                <br />{'Plateforme ETHYS · ' + qrActif.reference}
               </div>
+              <button onClick={() => window.open(qrActif.url_publique, '_blank')} style={{ width: '100%', marginTop: 12, padding: '10px', borderRadius: 4, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                {"Ouvrir la page publique"}
+              </button>
             </div>
           </div>
         </div>
       )}
 
+      {/* Panneau certification */}
       {selectedCert && !selected && (
         <div style={{ flex: 1, overflow: 'auto', padding: '24px 28px' }}>
           <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '24px' }}>
@@ -405,24 +419,24 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
                 </div>
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#2d5016' }}>{selectedCert.numero}</div>
                 <div style={{ fontSize: 11, color: '#8b7355', marginTop: 2 }}>
-                  Validé jusqu'au {new Date(selectedCert.date_validite).toLocaleDateString('fr-FR')}
+                  {'Valide jusqu\'au ' + new Date(selectedCert.date_validite).toLocaleDateString('fr-FR')}
                 </div>
               </div>
-              <span style={{ padding: '4px 12px', borderRadius: 4, fontSize: 11, fontWeight: 700, background: '#f0f4ec', color: '#2d5016' }}> Certifié</span>
+              <span style={{ padding: '4px 12px', borderRadius: 4, fontSize: 11, fontWeight: 700, background: '#f0f4ec', color: '#2d5016' }}>Certifie</span>
             </div>
 
             <div style={{ background: '#F0FDF4', borderRadius: 6, padding: '16px', marginBottom: 16 }}>
               <div style={{ fontSize: 11, fontWeight: 700, color: '#1a1a1a', marginBottom: 10, textTransform: 'uppercase' }}>Composition</div>
               <div style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
                 <div style={{ flex: selectedCert.declaration?.pct_recycle ?? 51, background: '#8b7355', borderRadius: 8, padding: '10px', textAlign: 'center' }}>
-                  <div style={{ fontSize: 20, fontWeight: 900, color: '#fff' }}>{selectedCert.declaration?.pct_recycle ?? 0}%</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}> Recyclé</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>{(selectedCert.declaration?.volume_recycle_kg ?? 0).toLocaleString('fr-FR')} kg</div>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: '#fff' }}>{selectedCert.declaration?.pct_recycle ?? 0}{'%'}</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>Recycle</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>{(selectedCert.declaration?.volume_recycle_kg ?? 0).toLocaleString('fr-FR') + ' kg'}</div>
                 </div>
                 <div style={{ flex: 100 - (selectedCert.declaration?.pct_recycle ?? 51), background: '#d4c5b0', borderRadius: 8, padding: '10px', textAlign: 'center' }}>
-                  <div style={{ fontSize: 20, fontWeight: 900, color: '#4a5568' }}>{100 - (selectedCert.declaration?.pct_recycle ?? 0)}%</div>
-                  <div style={{ fontSize: 10, color: '#4a5568' }}> Vierge</div>
-                  <div style={{ fontSize: 11, color: '#8b7355', marginTop: 2 }}>{(selectedCert.declaration?.volume_vierge_kg ?? 0).toLocaleString('fr-FR')} kg</div>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: '#4a5568' }}>{100 - (selectedCert.declaration?.pct_recycle ?? 0)}{'%'}</div>
+                  <div style={{ fontSize: 10, color: '#4a5568' }}>Vierge</div>
+                  <div style={{ fontSize: 11, color: '#8b7355', marginTop: 2 }}>{(selectedCert.declaration?.volume_vierge_kg ?? 0).toLocaleString('fr-FR') + ' kg'}</div>
                 </div>
               </div>
             </div>
@@ -440,14 +454,14 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
             ))}
 
             <div style={{ marginTop: 20 }}>
-             {selectedCert.qr_codes?.length > 0 ? (
+              {selectedCert.qr_codes?.length > 0 ? (
                 <div style={{ padding: '16px', borderRadius: 8, background: '#f0f4ec', border: '1px solid #c8d8b8' }}>
                   <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 14 }}>
                     <CertQRImage url={selectedCert.qr_codes[0].url_publique} />
                     <div>
                       <div style={{ fontSize: 13, fontWeight: 700, color: '#2d5016', marginBottom: 4 }}>QR Code actif</div>
                       <div style={{ fontSize: 11, color: '#2d5016', marginBottom: 2 }}>{selectedCert.qr_codes[0].reference}</div>
-                      <div style={{ fontSize: 11, color: '#8b7355' }}>{selectedCert.qr_codes[0].nb_scans} scan(s)</div>
+                      <div style={{ fontSize: 11, color: '#8b7355' }}>{selectedCert.qr_codes[0].nb_scans + ' scan(s)'}</div>
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: 8 }}>
@@ -462,7 +476,7 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
               ) : (
                 <button
                   onClick={async () => {
-                    const reference = `ETHYS-CERT-${selectedCert.numero.replace(/\//g, '-')}`
+                    const reference = 'ETHYS-CERT-' + selectedCert.numero.replace(/\//g, '-')
                     const res = await fetch('/api/qr-certification', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
@@ -482,13 +496,12 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
                       })
                     })
                     const result = await res.json()
-                    console.log('API result:', result)
                     if (result.data) window.location.reload()
                     else console.error('Error:', result.error)
                   }}
                   style={{ width: '100%', padding: '11px', borderRadius: 4, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
                 >
-                  Générer le QR Code consommateur
+                  Generer le QR Code consommateur
                 </button>
               )}
             </div>
@@ -498,6 +511,3 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
     </div>
   )
 }
-
-
-
