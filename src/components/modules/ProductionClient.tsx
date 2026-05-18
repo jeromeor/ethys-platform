@@ -1,6 +1,6 @@
 ﻿'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 interface ControleQualite {
@@ -75,7 +75,7 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
   const [certifications, setCertifications] = useState<{ id: string; reference: string; type_produit: string | null; statut: string }[]>([])
   const [selectedCertifId, setSelectedCertifId] = useState('')
 
-  useState(() => {
+  useEffect(() => {
     const verifierLotsbloques = async () => {
       if (role !== 'admin') return
       const aujourdhui = new Date()
@@ -99,7 +99,7 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
       }
     }
     verifierLotsbloques()
-  })
+  }, [])
 
   const chargerCertifications = async () => {
     const { data } = await supabase.from('certifications_ethys').select('id, reference, type_produit, statut').order('created_at', { ascending: false })
