@@ -101,7 +101,7 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
       user_id: '1e48a840-8329-4595-be9b-f04d9ef1562a',
       type: 'logistique',
       titre: 'Dates logistiques saisies - ' + selected.reference,
-      message: 'Expedition prevue le ' + new Date(logistiqueForm.date_expedition_prevue).toLocaleDateString('fr-FR') + (logistiqueForm.date_livraison_prevue ? ', livraison prévue le ' + new Date(logistiqueForm.date_livraison_prevue).toLocaleDateString('fr-FR') : ''),
+      message: 'Expedition prévue le ' + new Date(logistiqueForm.date_expedition_prevue).toLocaleDateString('fr-FR') + (logistiqueForm.date_livraison_prevue ? ', livraison prévue le ' + new Date(logistiqueForm.date_livraison_prevue).toLocaleDateString('fr-FR') : ''),
       lien: '/production',
       lu: false,
     })
@@ -328,12 +328,12 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
                 {selected.date_expedition_prevue ? (
                   <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
                     <div>
-                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginBottom: 2 }}>Expedition prevue</div>
+                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginBottom: 2 }}>Expedition prévue</div>
                       <div style={{ fontSize: 12, fontWeight: 700, color: '#c2956e' }}>{new Date(selected.date_expedition_prevue).toLocaleDateString('fr-FR')}</div>
                     </div>
                     {selected.date_livraison_prevue && (
                       <div>
-                        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginBottom: 2 }}>Livraison prevue</div>
+                        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginBottom: 2 }}>Livraison prévue</div>
                         <div style={{ fontSize: 12, fontWeight: 700, color: '#c2956e' }}>{new Date(selected.date_livraison_prevue).toLocaleDateString('fr-FR')}</div>
                       </div>
                     )}
@@ -622,7 +622,7 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
               <button onClick={() => setShowLogistique(false)} style={{ border: 'none', background: 'none', fontSize: 18, cursor: 'pointer', color: '#8b7355' }}>x</button>
             </div>
             <div style={{ marginBottom: 14 }}>
-              <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Date d'expedition prevue *</label>
+              <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Date d'expedition prévue *</label>
               <input type="date" value={logistiqueForm.date_expedition_prevue} onChange={e => setLogistiqueForm(p => ({ ...p, date_expedition_prevue: e.target.value }))} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none', boxSizing: 'border-box' as const }} />
             </div>
             <div style={{ marginBottom: 20 }}>
