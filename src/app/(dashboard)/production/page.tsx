@@ -22,6 +22,8 @@ export default async function ProductionPage() {
       id, reference, statut, priorite,
       volume_total_tonnes, pct_recycle,
       date_livraison_souhaitee,
+      date_expedition_prevue, date_livraison_prevue,
+      expedition_confirmee, livraison_confirmee,
       marque_id, filature_id,
       lots(
         id, reference, type_coton, volume_tonnes,
