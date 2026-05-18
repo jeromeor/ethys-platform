@@ -76,31 +76,28 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
   const [selectedCertifId, setSelectedCertifId] = useState('')
 
   useEffect(() => {
-    const verifierLotsbloques = async () => {
-      if (role !== 'admin') return
-      const aujourdhui = new Date()
-      const lotsAVerifier = initial.flatMap(c => c.lots).filter(l => {
-        if (l.avancement_pct === 100 || l.statut === 'livre') return false
-        const derniereMaj = new Date(l.updated_at ?? l.date_debut ?? '')
-        if (isNaN(derniereMaj.getTime())) return false
-        const jours = Math.floor((aujourdhui.getTime() - derniereMaj.getTime()) / (1000 * 60 * 60 * 24))
-        return jours >= 14
+    if (role !== 'admin') return
+    const aujourdhui = new Date()
+    const lotsAVerifier = initial.flatMap(c => c.lots).filter(l => {
+      if (l.avancement_pct === 100 || l.statut === 'livre') return false
+      const derniereMaj = new Date(l.updated_at ?? l.date_debut ?? '')
+      if (isNaN(derniereMaj.getTime())) return false
+      const jours = Math.floor((aujourdhui.getTime() - derniereMaj.getTime()) / (1000 * 60 * 60 * 24))
+      return jours >= 14
+    })
+    if (lotsAVerifier.length === 0) return
+    Promise.all(lotsAVerifier.map(lot =>
+      supabase.from('notifications').insert({
+        utilisateur_id: '1e48a840-8329-4595-be9b-f04d9ef1562a',
+        user_id: '1e48a840-8329-4595-be9b-f04d9ef1562a',
+        type: 'lot_bloque',
+        titre: 'Lot bloque : ' + lot.reference,
+        message: 'Le lot ' + lot.reference + ' n\'a pas progresse depuis plus de 14 jours.',
+        lien: '/production',
+        lu: false,
       })
-      for (const lot of lotsAVerifier) {
-        await supabase.from('notifications').insert({
-          utilisateur_id: '1e48a840-8329-4595-be9b-f04d9ef1562a',
-          user_id: '1e48a840-8329-4595-be9b-f04d9ef1562a',
-          type: 'lot_bloque',
-          titre: 'Lot bloque : ' + lot.reference,
-          message: 'Le lot ' + lot.reference + ' n\'a pas progresse depuis plus de 14 jours.',
-          lien: '/production',
-          lu: false,
-        })
-      }
-    }
-    verifierLotsbloques()
+    )).catch(console.error)
   }, [])
-
   const chargerCertifications = async () => {
     const { data } = await supabase.from('certifications_ethys').select('id, reference, type_produit, statut').order('created_at', { ascending: false })
     setCertifications(data ?? [])
