@@ -337,7 +337,7 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
                         <div style={{ fontSize: 12, fontWeight: 700, color: '#c2956e' }}>{new Date(selected.date_livraison_prevue).toLocaleDateString('fr-FR')}</div>
                       </div>
                     )}
-                    <button onClick={() => { setShowLogistique(true); setLogistiqueForm({ date_expédition_prévue: selected.date_expedition_prevue ?? '', date_livraison_prevue: selected.date_livraison_prevue ?? '' }) }} style={{ marginLeft: 'auto', padding: '4px 10px', borderRadius: 4, border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: '#fff', fontSize: 11, cursor: 'pointer' }}>
+                    <button onClick={() => { setShowLogistique(true); setLogistiqueForm({ date_expedition_prevue: selected.date_expedition_prevue ?? '', date_livraison_prevue: selected.date_livraison_prevue ?? '' }) }} style={{ marginLeft: 'auto', padding: '4px 10px', borderRadius: 4, border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: '#fff', fontSize: 11, cursor: 'pointer' }}>
                       Modifier
                     </button>
                   </div>
