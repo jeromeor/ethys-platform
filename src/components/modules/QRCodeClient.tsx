@@ -57,7 +57,16 @@ interface Props {
   certifications: Certification[]
   certificationIdActif: string | null
 }
-export default function QRCodeClient({ lots: initial, user, certifications, certificationIdActif }: Props) {
+function CertQRImage({ url }: { url: string }) {
+  const [dataUrl, setDataUrl] = useState<string | null>(null)
+  useEffect(() => {
+    QRCode.toDataURL(url, { width: 80, margin: 1, color: { dark: '#1a1a1a', light: '#FFFFFF' } }).then(setDataUrl)
+  }, [url])
+  if (!dataUrl) return <div style={{ width: 80, height: 80, background: '#e8e3d8', borderRadius: 4 }} />
+  return <img src={dataUrl} alt="QR" style={{ width: 80, height: 80, borderRadius: 4, border: '2px solid #fff' }} />
+}
+
+export default function QRCodeClient(export default function QRCodeClient({ lots: initial, user, certifications, certificationIdActif }: Props) {
   const supabase = createClient()
   const [lots, setLots] = useState<Lot[]>(initial)
   const [selected, setSelected] = useState<Lot | null>(initial[0] ?? null)
@@ -253,21 +262,21 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
                 </div>
               )}
               <div style={{ width: '100%', marginBottom: 16 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#1a1a1a', marginBottom: 8, textTransform: 'uppercase' }}>Données encodées</div>
-                {[
-                  ['Origine', selected.origine ?? '-'],
-                  ['Filature', selected.commande?.filature?.nom ?? '-'],
-              ['Type coton', selected.type_coton === 'recycle' ? 'Recyclé' : 'Vierge'],
-                  ['Certification fil', 'ETHYS'],
-                ].map(([label, val]) => (
-                  <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 10px', borderRadius: 8, background: '#f5f3ef', marginBottom: 6 }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 10, color: '#8b7355' }}>{label}</div>
-                      <div style={{ fontSize: 11, fontWeight: 600, color: label === 'Certification fil' ? '#1a1a1a' : '#1A202C' }}>{val}</div>
+               <div style={{ width: '100%', marginBottom: 16 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#1a1a1a', marginBottom: 8, textTransform: 'uppercase' }}>{"Données encodées"}</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+                  {[
+                    ['Origine', selected.origine ?? '-'],
+                    ['Filature', selected.commande?.filature?.nom ?? '-'],
+                    ['Type coton', selected.type_coton === 'recycle' ? 'Recycle' : 'Vierge'],
+                    ['Certification', 'ETHYS'],
+                  ].map(([label, val]) => (
+                    <div key={label} style={{ padding: '8px 10px', borderRadius: 8, background: '#f5f3ef' }}>
+                      <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 2 }}>{label}</div>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: '#1a1a1a' }}>{val}</div>
                     </div>
-                    <span style={{ fontSize: 11, color: '#2d5016' }}><svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='#2d5016' strokeWidth='3' strokeLinecap='round' strokeLinejoin='round'><polyline points='20 6 9 17 4 12'/></svg></span>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
               {!qrActif ? (
                 <button onClick={genererQR} disabled={generating} style={{ width: '100%', padding: '11px', borderRadius: 4, border: 'none', background: generating ? '#d4c5b0' : '#1a1a1a', color: generating ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: generating ? 'default' : 'pointer' }}>
@@ -275,9 +284,14 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
                 </button>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%' }}>
-                  <button onClick={() => setPreviewPublic(true)} style={{ width: '100%', padding: '10px', borderRadius: 4, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
-                    Voir page publique consommateur
-                  </button>
+                 <div style={{ display: 'flex', gap: 8, width: '100%' }}>
+                    <button onClick={() => window.open(qrActif.url_publique, '_blank')} style={{ flex: 1, padding: '10px', borderRadius: 4, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                      {"Voir page publique"}
+                    </button>
+                    <button onClick={() => setPreviewPublic(true)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #1a1a1a', background: '#fff', color: '#1a1a1a', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                      {"Aperçu"}
+                    </button>
+                  </div>
                   <div style={{ display: 'flex', gap: 8 }}>
                     <button onClick={TéléchargerQR} style={{ flex: 1, padding: '8px', borderRadius: 8, border: '1.5px solid #e8e3d8', background: '#f5f3ef', fontSize: 12, cursor: 'pointer', color: '#4a5568' }}>Télécharger</button>
                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -426,26 +440,22 @@ const [selectedCert, setSelectedCert] = useState<Certification | null>(
             ))}
 
             <div style={{ marginTop: 20 }}>
-              {selectedCert.qr_codes?.length > 0 ? (
-                <div style={{ padding: '12px 16px', borderRadius: 4, background: '#f0f4ec', border: '1px solid #c8d8b8', textAlign: 'center' }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#2d5016' }}> QR Code actif</div>
-                  <div style={{ fontSize: 11, color: '#2d5016', marginTop: 4 }}>{selectedCert.qr_codes[0].reference}</div>
-                  <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-                    <button
-                      onClick={() => window.open(selectedCert.qr_codes[0].url_publique, '_blank')}
-                      style={{ flex: 1, padding: '8px', borderRadius: 8, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
-                    >
-                      Voir page publique
+             {selectedCert.qr_codes?.length > 0 ? (
+                <div style={{ padding: '16px', borderRadius: 8, background: '#f0f4ec', border: '1px solid #c8d8b8' }}>
+                  <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 14 }}>
+                    <CertQRImage url={selectedCert.qr_codes[0].url_publique} />
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#2d5016', marginBottom: 4 }}>QR Code actif</div>
+                      <div style={{ fontSize: 11, color: '#2d5016', marginBottom: 2 }}>{selectedCert.qr_codes[0].reference}</div>
+                      <div style={{ fontSize: 11, color: '#8b7355' }}>{selectedCert.qr_codes[0].nb_scans} scan(s)</div>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button onClick={() => window.open(selectedCert.qr_codes[0].url_publique, '_blank')} style={{ flex: 1, padding: '8px', borderRadius: 8, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
+                      {"Voir page publique"}
                     </button>
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(selectedCert.qr_codes[0].url_publique)
-                        setUrlCopied(true)
-                        setTimeout(() => setUrlCopied(false), 2000)
-                      }}
-                      style={{ flex: 1, padding: '8px', borderRadius: 8, border: '1.5px solid #1a1a1a', background: '#fff', color: '#1a1a1a', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
-                    >
-                      {urlCopied ? 'Copiée !' : 'Copier URL'}
+                    <button onClick={() => { navigator.clipboard.writeText(selectedCert.qr_codes[0].url_publique); setUrlCopied(true); setTimeout(() => setUrlCopied(false), 2000) }} style={{ flex: 1, padding: '8px', borderRadius: 8, border: '1.5px solid #1a1a1a', background: '#fff', color: '#1a1a1a', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
+                      {urlCopied ? 'Copiee !' : 'Copier URL'}
                     </button>
                   </div>
                 </div>
