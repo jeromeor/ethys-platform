@@ -37,6 +37,10 @@ interface Commande {
   volume_total_tonnes: number
   pct_recycle: number
   date_livraison_souhaitee: string
+  date_expedition_prevue: string | null
+  date_livraison_prevue: string | null
+  expedition_confirmee: boolean | null
+  livraison_confirmee: boolean | null
   marque: { nom: string } | null
   filature: { nom: string } | null
   lots: Lot[]
@@ -72,6 +76,36 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
     type_coton: 'recycle', volume_tonnes: '', origine: '', certification: ''
   })
   const [showAssocCertif, setShowAssocCertif] = useState<string | null>(null)
+  const [showLogistique, setShowLogistique] = useState(false)
+  const [logistiqueForm, setLogistiqueForm] = useState({ date_expedition_prevue: '', date_livraison_prevue: '' })
+
+  const sauvegarderLogistique = async () => {
+    if (!selected || !logistiqueForm.date_expedition_prevue) return
+    await supabase.from('commandes').update({
+      date_expedition_prevue: logistiqueForm.date_expedition_prevue,
+      date_livraison_prevue: logistiqueForm.date_livraison_prevue || null,
+    }).eq('id', selected.id)
+    setCommandes(prev => prev.map(c => c.id === selected.id ? {
+      ...c,
+      date_expedition_prevue: logistiqueForm.date_expedition_prevue,
+      date_livraison_prevue: logistiqueForm.date_livraison_prevue || null,
+    } : c))
+    setSelected(prev => prev ? {
+      ...prev,
+      date_expedition_prevue: logistiqueForm.date_expedition_prevue,
+      date_livraison_prevue: logistiqueForm.date_livraison_prevue || null,
+    } : null)
+    setShowLogistique(false)
+    await supabase.from('notifications').insert({
+      utilisateur_id: '1e48a840-8329-4595-be9b-f04d9ef1562a',
+      user_id: '1e48a840-8329-4595-be9b-f04d9ef1562a',
+      type: 'logistique',
+      titre: 'Dates logistiques saisies - ' + selected.reference,
+      message: 'Expedition prevue le ' + new Date(logistiqueForm.date_expedition_prevue).toLocaleDateString('fr-FR') + (logistiqueForm.date_livraison_prevue ? ', livraison prevue le ' + new Date(logistiqueForm.date_livraison_prevue).toLocaleDateString('fr-FR') : ''),
+      lien: '/production',
+      lu: false,
+    })
+  }
   const [certifications, setCertifications] = useState<{ id: string; reference: string; type_produit: string | null; statut: string }[]>([])
   const [selectedCertifId, setSelectedCertifId] = useState('')
 
@@ -287,6 +321,36 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
             <div style={{ height: 6, background: 'rgba(255,255,255,0.15)', borderRadius: 3 }}>
               <div style={{ height: '100%', width: `${AvancementGlobal(selected)}%`, background: '#c2956e', borderRadius: 3, transition: 'width 0.3s' }} />
             </div>
+
+            {/* Logistique si production 100% */}
+            {AvancementGlobal(selected) === 100 && role !== 'admin' && (
+              <div style={{ marginTop: 12, padding: '10px 14px', borderRadius: 6, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}>
+                {selected.date_expedition_prevue ? (
+                  <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
+                    <div>
+                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginBottom: 2 }}>Expedition prevue</div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: '#c2956e' }}>{new Date(selected.date_expedition_prevue).toLocaleDateString('fr-FR')}</div>
+                    </div>
+                    {selected.date_livraison_prevue && (
+                      <div>
+                        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginBottom: 2 }}>Livraison prevue</div>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: '#c2956e' }}>{new Date(selected.date_livraison_prevue).toLocaleDateString('fr-FR')}</div>
+                      </div>
+                    )}
+                    <button onClick={() => { setShowLogistique(true); setLogistiqueForm({ date_expedition_prevue: selected.date_expedition_prevue ?? '', date_livraison_prevue: selected.date_livraison_prevue ?? '' }) }} style={{ marginLeft: 'auto', padding: '4px 10px', borderRadius: 4, border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: '#fff', fontSize: 11, cursor: 'pointer' }}>
+                      Modifier
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)' }}>Production terminee - saisir les dates logistiques</span>
+                    <button onClick={() => { setShowLogistique(true); setLogistiqueForm({ date_expedition_prevue: '', date_livraison_prevue: '' }) }} style={{ padding: '5px 12px', borderRadius: 4, border: 'none', background: '#c2956e', color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
+                      Saisir les dates
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Tabs */}
             <div style={{ display: 'flex', gap: 0, marginTop: 14 }}>
@@ -550,7 +614,35 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
           </div>
         </div>
       )}
-   {showAssocCertif && (
+   {showLogistique && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }} onClick={() => setShowLogistique(false)}>
+          <div style={{ background: '#fff', borderRadius: 12, width: '100%', maxWidth: 420, boxShadow: '0 24px 64px rgba(0,0,0,0.2)', padding: '24px 28px' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+              <span style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>Dates logistiques</span>
+              <button onClick={() => setShowLogistique(false)} style={{ border: 'none', background: 'none', fontSize: 18, cursor: 'pointer', color: '#8b7355' }}>x</button>
+            </div>
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Date d'expedition prevue *</label>
+              <input type="date" value={logistiqueForm.date_expedition_prevue} onChange={e => setLogistiqueForm(p => ({ ...p, date_expedition_prevue: e.target.value }))} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none', boxSizing: 'border-box' as const }} />
+            </div>
+            <div style={{ marginBottom: 20 }}>
+              <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Date de livraison prevue (optionnel)</label>
+              <input type="date" value={logistiqueForm.date_livraison_prevue} onChange={e => setLogistiqueForm(p => ({ ...p, date_livraison_prevue: e.target.value }))} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none', boxSizing: 'border-box' as const }} />
+            </div>
+            <div style={{ padding: '10px 12px', borderRadius: 6, background: '#fdf8ec', border: '1px solid #e8d5a0', fontSize: 11, color: '#8b6914', marginBottom: 16 }}>
+              Par defaut : expedition 14 jours apres validation, livraison confirmee 30 jours apres expedition si aucune action.
+            </div>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={() => setShowLogistique(false)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#8b7355', fontSize: 13, cursor: 'pointer' }}>Annuler</button>
+              <button onClick={sauvegarderLogistique} disabled={!logistiqueForm.date_expedition_prevue} style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: !logistiqueForm.date_expedition_prevue ? '#d4c5b0' : '#1a1a1a', color: !logistiqueForm.date_expedition_prevue ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: !logistiqueForm.date_expedition_prevue ? 'default' : 'pointer' }}>
+                Enregistrer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showAssocCertif && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }} onClick={() => setShowAssocCertif(null)}>
           <div style={{ background: '#fff', borderRadius: 12, width: '100%', maxWidth: 480, maxHeight: '80vh', overflow: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.2)', padding: '24px 28px' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
