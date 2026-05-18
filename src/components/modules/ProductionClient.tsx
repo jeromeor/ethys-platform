@@ -101,7 +101,7 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
       user_id: '1e48a840-8329-4595-be9b-f04d9ef1562a',
       type: 'logistique',
       titre: 'Dates logistiques saisies - ' + selected.reference,
-      message: 'Expedition prevue le ' + new Date(logistiqueForm.date_expedition_prevue).toLocaleDateString('fr-FR') + (logistiqueForm.date_livraison_prevue ? ', livraison prevue le ' + new Date(logistiqueForm.date_livraison_prevue).toLocaleDateString('fr-FR') : ''),
+      message: 'Expedition prevue le ' + new Date(logistiqueForm.date_expedition_prevue).toLocaleDateString('fr-FR') + (logistiqueForm.date_livraison_prevue ? ', livraison prévue le ' + new Date(logistiqueForm.date_livraison_prevue).toLocaleDateString('fr-FR') : ''),
       lien: '/production',
       lu: false,
     })
@@ -337,14 +337,14 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
                         <div style={{ fontSize: 12, fontWeight: 700, color: '#c2956e' }}>{new Date(selected.date_livraison_prevue).toLocaleDateString('fr-FR')}</div>
                       </div>
                     )}
-                    <button onClick={() => { setShowLogistique(true); setLogistiqueForm({ date_expedition_prevue: selected.date_expedition_prevue ?? '', date_livraison_prevue: selected.date_livraison_prevue ?? '' }) }} style={{ marginLeft: 'auto', padding: '4px 10px', borderRadius: 4, border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: '#fff', fontSize: 11, cursor: 'pointer' }}>
+                    <button onClick={() => { setShowLogistique(true); setLogistiqueForm({ date_expédition_prévue: selected.date_expedition_prevue ?? '', date_livraison_prevue: selected.date_livraison_prevue ?? '' }) }} style={{ marginLeft: 'auto', padding: '4px 10px', borderRadius: 4, border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: '#fff', fontSize: 11, cursor: 'pointer' }}>
                       Modifier
                     </button>
                   </div>
                 ) : (
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)' }}>Production terminee - saisir les dates logistiques</span>
-                    <button onClick={() => { setShowLogistique(true); setLogistiqueForm({ date_expedition_prevue: '', date_livraison_prevue: '' }) }} style={{ padding: '5px 12px', borderRadius: 4, border: 'none', background: '#c2956e', color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
+                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)' }}>Production terminée - saisir les dates logistiques</span>
+                    <button onClick={() => { setShowLogistique(true); setLogistiqueForm({ date_expédition_prévue: '', date_livraison_prevue: '' }) }} style={{ padding: '5px 12px', borderRadius: 4, border: 'none', background: '#c2956e', color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
                       Saisir les dates
                     </button>
                   </div>
@@ -626,11 +626,11 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
               <input type="date" value={logistiqueForm.date_expedition_prevue} onChange={e => setLogistiqueForm(p => ({ ...p, date_expedition_prevue: e.target.value }))} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none', boxSizing: 'border-box' as const }} />
             </div>
             <div style={{ marginBottom: 20 }}>
-              <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Date de livraison prevue (optionnel)</label>
+              <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Date de livraison prévue (optionnel)</label>
               <input type="date" value={logistiqueForm.date_livraison_prevue} onChange={e => setLogistiqueForm(p => ({ ...p, date_livraison_prevue: e.target.value }))} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none', boxSizing: 'border-box' as const }} />
             </div>
             <div style={{ padding: '10px 12px', borderRadius: 6, background: '#fdf8ec', border: '1px solid #e8d5a0', fontSize: 11, color: '#8b6914', marginBottom: 16 }}>
-              Par defaut : expedition 14 jours apres validation, livraison confirmee 30 jours apres expedition si aucune action.
+              {"Par défaut : expédition 14 jours après validation, livraison confirmée 30 jours après expédition si aucune action."}
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
               <button onClick={() => setShowLogistique(false)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#8b7355', fontSize: 13, cursor: 'pointer' }}>Annuler</button>
