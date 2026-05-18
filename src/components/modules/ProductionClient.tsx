@@ -328,7 +328,7 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
                 {selected.date_expedition_prevue ? (
                   <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
                     <div>
-                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginBottom: 2 }}>Expedition prévue</div>
+                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginBottom: 2 }}>Expédition prévue</div>
                       <div style={{ fontSize: 12, fontWeight: 700, color: '#c2956e' }}>{new Date(selected.date_expedition_prevue).toLocaleDateString('fr-FR')}</div>
                     </div>
                     {selected.date_livraison_prevue && (
@@ -622,7 +622,7 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
               <button onClick={() => setShowLogistique(false)} style={{ border: 'none', background: 'none', fontSize: 18, cursor: 'pointer', color: '#8b7355' }}>x</button>
             </div>
             <div style={{ marginBottom: 14 }}>
-              <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Date d'expedition prévue *</label>
+              <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Date d'expédition prévue *</label>
               <input type="date" value={logistiqueForm.date_expedition_prevue} onChange={e => setLogistiqueForm(p => ({ ...p, date_expedition_prevue: e.target.value }))} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none', boxSizing: 'border-box' as const }} />
             </div>
             <div style={{ marginBottom: 20 }}>
