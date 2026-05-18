@@ -344,7 +344,7 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
                 ) : (
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)' }}>Production terminée - saisir les dates logistiques</span>
-                    <button onClick={() => { setShowLogistique(true); setLogistiqueForm({ date_expédition_prévue: '', date_livraison_prevue: '' }) }} style={{ padding: '5px 12px', borderRadius: 4, border: 'none', background: '#c2956e', color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
+                    <button onClick={() => { setShowLogistique(true); setLogistiqueForm({ date_expedition_prevue: '', date_livraison_prevue: '' }) }} style={{ padding: '5px 12px', borderRadius: 4, border: 'none', background: '#c2956e', color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
                       Saisir les dates
                     </button>
                   </div>
