@@ -550,10 +550,37 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
           </div>
         </div>
       )}
+   {showAssocCertif && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }} onClick={() => setShowAssocCertif(null)}>
+          <div style={{ background: '#fff', borderRadius: 12, width: '100%', maxWidth: 480, maxHeight: '80vh', overflow: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.2)', padding: '24px 28px' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+              <span style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>Associer une certification</span>
+              <button onClick={() => setShowAssocCertif(null)} style={{ border: 'none', background: 'none', fontSize: 18, cursor: 'pointer', color: '#8b7355' }}>x</button>
+            </div>
+            {certifications.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '30px', color: '#8b7355', fontSize: 13 }}>Aucune certification disponible</div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
+                {certifications.map(c => (
+                  <div key={c.id} onClick={() => setSelectedCertifId(c.id)} style={{ padding: '12px 14px', borderRadius: 8, border: '1.5px solid ' + (selectedCertifId === c.id ? '#2d5016' : '#e8e3d8'), background: selectedCertifId === c.id ? '#f0f4ec' : '#fff', cursor: 'pointer' }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>{c.reference}</div>
+                    <div style={{ fontSize: 11, color: '#8b7355', marginTop: 2 }}>{(c.type_produit ?? '-') + ' - ' + c.statut}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={() => setShowAssocCertif(null)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#8b7355', fontSize: 13, cursor: 'pointer' }}>Annuler</button>
+              <button onClick={() => associerCertification(showAssocCertif)} disabled={!selectedCertifId} style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: !selectedCertifId ? '#d4c5b0' : '#1a1a1a', color: !selectedCertifId ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: !selectedCertifId ? 'default' : 'pointer' }}>
+                Associer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
-
 
 
 
