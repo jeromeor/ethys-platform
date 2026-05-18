@@ -66,7 +66,7 @@ function CertQRImage({ url }: { url: string }) {
   return <img src={dataUrl} alt="QR" style={{ width: 80, height: 80, borderRadius: 4, border: '2px solid #fff' }} />
 }
 
-export default function QRCodeClient(export default function QRCodeClient({ lots: initial, user, certifications, certificationIdActif }: Props) {
+export default function QRCodeClient({ lots: initial,
   const supabase = createClient()
   const [lots, setLots] = useState<Lot[]>(initial)
   const [selected, setSelected] = useState<Lot | null>(initial[0] ?? null)
