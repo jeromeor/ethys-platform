@@ -119,18 +119,28 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
       const jours = Math.floor((aujourdhui.getTime() - derniereMaj.getTime()) / (1000 * 60 * 60 * 24))
       return jours >= 14
     })
-    if (lotsAVerifier.length === 0) return
-    Promise.all(lotsAVerifier.map(lot =>
-      supabase.from('notifications').insert({
-        utilisateur_id: '1e48a840-8329-4595-be9b-f04d9ef1562a',
-        user_id: '1e48a840-8329-4595-be9b-f04d9ef1562a',
-        type: 'lot_bloque',
-        titre: 'Lot bloque : ' + lot.reference,
-        message: 'Le lot ' + lot.reference + ' n\'a pas progresse depuis plus de 14 jours.',
-        lien: '/production',
-        lu: false,
-      })
-    )).catch(console.error)
+   if (lotsAVerifier.length === 0) return
+    const aujourdhuiStr = new Date().toISOString().split('T')[0]
+    Promise.all(lotsAVerifier.map(async lot => {
+      const { count } = await supabase
+        .from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('type', 'lot_bloque')
+        .eq('utilisateur_id', '1e48a840-8329-4595-be9b-f04d9ef1562a')
+        .ilike('titre', '%' + lot.reference + '%')
+        .gte('created_at', aujourdhuiStr)
+      if (!count || count === 0) {
+        await supabase.from('notifications').insert({
+          utilisateur_id: '1e48a840-8329-4595-be9b-f04d9ef1562a',
+          user_id: '1e48a840-8329-4595-be9b-f04d9ef1562a',
+          type: 'lot_bloque',
+          titre: 'Lot bloque : ' + lot.reference,
+          message: 'Le lot ' + lot.reference + ' n\'a pas progresse depuis plus de 14 jours.',
+          lien: '/production',
+          lu: false,
+        })
+      }
+    })).catch(console.error)
   }, [])
   const chargerCertifications = async () => {
     const { data } = await supabase.from('certifications_ethys').select('id, reference, type_produit, statut').order('created_at', { ascending: false })
