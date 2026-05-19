@@ -63,11 +63,6 @@ const STATUT_COLORS: Record<string, [string, string, string]> = {
   annulee:                ['#FEE2E2', '#991B1B', '#EF4444'],
 }
 
-const ETAPES = [
-  'soumise', 'validation_fournisseur', 'validation_filature',
-  'validation_finale', 'en_production', 'qr_genere', 'livree'
-]
-
 const GRAMMAGES = ['Ne 10/1','Ne 20/1','Ne 30/1','Ne 40/1','Ne 50/1','Ne 20/2','Ne 30/2']
 
 function extractGrammageNumber(g: string): number | null {
@@ -91,7 +86,6 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
   const role = profil?.role
   const monEntrepriseId = profil?.entreprise_id ?? ''
 
-  // Pré-sélectionne automatiquement la société de l'utilisateur selon son rôle
   const [form, setForm] = useState({
     titre: '',
     marque_id:      role === 'marque'            ? monEntrepriseId : '',
@@ -106,7 +100,6 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
 
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }))
 
-  // Les listes sont déjà filtrées en amont (partenaires uniquement + sa propre entreprise)
   const marques      = entreprises.filter(e => e.type === 'marque')
   const filatures    = entreprises.filter(e => e.type === 'filature')
   const fournisseurs = entreprises.filter(e => e.type === 'fournisseur_coton')
@@ -119,8 +112,6 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
     if (filterDateFin && new Date(c.created_at) > new Date(filterDateFin)) return false
     return true
   })
-
-  const etapeIndex = (statut: string) => ETAPES.indexOf(statut)
 
   const volumeRecycle = parseFloat(form.volume_recycle_kg) || 0
   const volumeVierge  = Math.round(volumeRecycle * 49 / 51 * 100) / 100
@@ -178,7 +169,6 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
 
     setCommandes(prev => [result.data as Commande, ...prev])
     setShowForm(false)
-    // Réinitialise en conservant la pré-sélection de l'entreprise connectée
     setForm({
       titre: '',
       marque_id:      role === 'marque'            ? monEntrepriseId : '',
@@ -210,7 +200,6 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
-        {/* Barre filtres + bouton */}
         <div style={{
           padding: '14px 22px', background: '#fff', borderBottom: '1px solid #e8e3d8',
           display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexShrink: 0
@@ -250,7 +239,6 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
           )}
         </div>
 
-        {/* Liste commandes */}
         <div style={{ flex: 1, overflow: 'auto', padding: '16px 22px' }}>
           {filtrees.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '60px 0', color: '#8b7355' }}>
@@ -271,7 +259,6 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
                 <tbody>
                   {filtrees.map((c) => {
                     const [bg, tc, dot] = STATUT_COLORS[c.statut] ?? ['#f5f3ef', '#4a5568', '#8b7355']
-                    const etape = etapeIndex(c.statut)
                     return (
                       <tr key={c.id}
                         onClick={() => setSelected(c)}
@@ -301,26 +288,26 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
                           {new Date(c.date_livraison_souhaitee).toLocaleDateString('fr-FR')}
                         </td>
                         {!selected && (
-                          <td style={{ padding: '12px 14px', minWidth: 120 }}>
-                            <div style={{ display: 'flex', gap: 3, marginBottom: 4 }}>
-                              {ETAPES.map((_, idx) => (
-                                <div key={idx} style={{
-                                  width: 14, height: 4, borderRadius: 2,
-                                  background: idx <= etape ? '#1a1a1a' : '#d4c5b0'
-                                }} />
-                              ))}
-                            </div>
-                            {c.lots && c.lots.length > 0 && (() => {
+                          <td style={{ padding: '12px 14px', minWidth: 140 }}>
+                            {c.lots && c.lots.length > 0 ? (() => {
                               const avProd = Math.round(c.lots!.reduce((s, l) => s + l.avancement_pct, 0) / c.lots!.length)
                               return (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
-                                  <div style={{ flex: 1, height: 3, background: '#d4c5b0', borderRadius: 2 }}>
-                                    <div style={{ height: '100%', width: avProd + '%', background: avProd === 100 ? '#2d5016' : '#c2956e', borderRadius: 2 }} />
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                  <div style={{ flex: 1, height: 5, background: '#d4c5b0', borderRadius: 3 }}>
+                                    <div style={{
+                                      height: '100%', width: avProd + '%',
+                                      background: avProd === 100 ? '#2d5016' : '#c2956e',
+                                      borderRadius: 3, transition: 'width 0.3s ease'
+                                    }} />
                                   </div>
-                                  <span style={{ fontSize: 10, fontWeight: 700, color: avProd === 100 ? '#2d5016' : '#c2956e', flexShrink: 0 }}>{avProd + '%'}</span>
+                                  <span style={{ fontSize: 11, fontWeight: 700, color: avProd === 100 ? '#2d5016' : '#c2956e', flexShrink: 0, width: 32, textAlign: 'right' }}>
+                                    {avProd}%
+                                  </span>
                                 </div>
                               )
-                            })()}
+                            })() : (
+                              <span style={{ fontSize: 11, color: '#d4c5b0' }}>—</span>
+                            )}
                           </td>
                         )}
                       </tr>
@@ -333,7 +320,6 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
         </div>
       </div>
 
-      {/* Panneau détail commande */}
       {selected && (
         <div style={{
           width: 320, minWidth: 320, background: '#fff',
@@ -382,7 +368,6 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
         </div>
       )}
 
-      {/* Formulaire nouvelle commande */}
       {showForm && (
         <div style={{
           position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)',
@@ -405,43 +390,29 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
-                {/* Marque — verrouillé si l'utilisateur est une marque */}
                 <div>
                   {labelInput('Marque *')}
-                  <select
-                    value={form.marque_id}
-                    onChange={e => set('marque_id', e.target.value)}
+                  <select value={form.marque_id} onChange={e => set('marque_id', e.target.value)}
                     disabled={role === 'marque'}
-                    style={{ ...selectStyle, background: role === 'marque' ? '#f5f3ef' : '#fff', cursor: role === 'marque' ? 'default' : 'pointer' }}
-                  >
+                    style={{ ...selectStyle, background: role === 'marque' ? '#f5f3ef' : '#fff', cursor: role === 'marque' ? 'default' : 'pointer' }}>
                     <option value="">Selectionner...</option>
                     {marques.map(m => <option key={m.id} value={m.id}>{m.nom}</option>)}
                   </select>
                 </div>
-
-                {/* Filature — verrouillé si l'utilisateur est une filature */}
                 <div>
                   {labelInput('Filature *')}
-                  <select
-                    value={form.filature_id}
-                    onChange={e => set('filature_id', e.target.value)}
+                  <select value={form.filature_id} onChange={e => set('filature_id', e.target.value)}
                     disabled={role === 'filature'}
-                    style={{ ...selectStyle, background: role === 'filature' ? '#f5f3ef' : '#fff', cursor: role === 'filature' ? 'default' : 'pointer' }}
-                  >
+                    style={{ ...selectStyle, background: role === 'filature' ? '#f5f3ef' : '#fff', cursor: role === 'filature' ? 'default' : 'pointer' }}>
                     <option value="">Selectionner...</option>
                     {filatures.map(f => <option key={f.id} value={f.id}>{f.nom}</option>)}
                   </select>
                 </div>
-
-                {/* Fournisseur — verrouillé si l'utilisateur est un fournisseur */}
                 <div>
                   {labelInput('Fournisseur *')}
-                  <select
-                    value={form.fournisseur_id}
-                    onChange={e => set('fournisseur_id', e.target.value)}
+                  <select value={form.fournisseur_id} onChange={e => set('fournisseur_id', e.target.value)}
                     disabled={role === 'fournisseur_coton'}
-                    style={{ ...selectStyle, background: role === 'fournisseur_coton' ? '#f5f3ef' : '#fff', cursor: role === 'fournisseur_coton' ? 'default' : 'pointer' }}
-                  >
+                    style={{ ...selectStyle, background: role === 'fournisseur_coton' ? '#f5f3ef' : '#fff', cursor: role === 'fournisseur_coton' ? 'default' : 'pointer' }}>
                     <option value="">Selectionner...</option>
                     {fournisseurs.map(f => <option key={f.id} value={f.id}>{f.nom}</option>)}
                   </select>
