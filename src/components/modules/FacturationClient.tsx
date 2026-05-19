@@ -111,7 +111,7 @@ const STATUT_LABELS: Record<StatutFacture, string> = {
   brouillon:  'Brouillon',
   emise:      'Emise',
   en_attente: 'En attente',
-  payee:      'Payee',
+  payee:      'Payée',
   en_retard:  'En retard',
   annulee:    'Annulee',
 }
