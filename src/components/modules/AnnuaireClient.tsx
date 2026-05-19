@@ -61,12 +61,13 @@ export default function AnnuaireClient({ partenaires, paysList, userRole, userEn
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState<Partial<Partenaire>>({})
   const [partnershipState, setPartnershipState] = useState<Partnership[]>(partnerships)
-  const [sendingPartnership, setSendingPartnership] = useState(false)
+  const [sendingPartnership, setSendingPartnership] = useState(false) const [filterPartenaire, setFilterPartenaire] = useState(false)
 
   const filtered = useMemo(() => partenaires.filter(p => {
     if (search && !p.nom.toLowerCase().includes(search.toLowerCase()) && !p.ville?.toLowerCase().includes(search.toLowerCase())) return false
     if (filterType !== 'Tous' && p.type !== filterType) return false
     if (filterPays !== 'Tous' && p.pays !== filterPays) return false
+    if (filterPartenaire && getPartnership(p.id)?.status !== 'accepted') return false
     return true
   }), [partenaires, search, filterType, filterPays])
 
@@ -250,6 +251,17 @@ export default function AnnuaireClient({ partenaires, paysList, userRole, userEn
             {t === 'Tous' ? 'Tous' : typeLabels[t] ?? t}
           </button>
         ))}
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', padding: '7px 10px', borderRadius: 8, marginTop: 8, background: filterPartenaire ? '#f0f4ec' : 'transparent' }}>
+          <input
+            type="checkbox"
+            checked={filterPartenaire}
+            onChange={e => setFilterPartenaire(e.target.checked)}
+            style={{ accentColor: '#2d5016', width: 13, height: 13 }}
+          />
+          <span style={{ fontSize: 12, fontWeight: filterPartenaire ? 700 : 400, color: filterPartenaire ? '#2d5016' : '#4a5568' }}>
+            Mes partenaires
+          </span>
+        </label>
         <div style={{ fontSize: 11, fontWeight: 700, color: '#8b7355', margin: '14px 0 6px', textTransform: 'uppercase' }}>Pays</div>
         <select value={filterPays} onChange={e => setFilterPays(e.target.value)} style={{ width: '100%', padding: '7px 10px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 12, background: '#f5f3ef', outline: 'none', marginBottom: 12 }}>
           <option>Tous</option>
