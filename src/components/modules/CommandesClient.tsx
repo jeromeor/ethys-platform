@@ -158,7 +158,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
         date_livraison_souhaitee: form.date_livraison_souhaitee,
         priorite: form.priorite,
         notes: form.notes || null,
-        statut: 'soumise',
+        statut: 'en_production',
         created_by: user.id,
       })
       .select(`
