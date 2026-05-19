@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { creerCommandeAction } from '@/app/actions/commandes'
 
 type StatutCommande =
   | 'brouillon' | 'soumise' | 'validation_fournisseur'
@@ -134,48 +135,38 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
     setLoading(true)
 
     const grammageNum = form.grammage ? extractGrammageNumber(form.grammage) : null
-    
-const { data: { session } } = await supabase.auth.getSession()
-console.log('SESSION:', session?.user?.id, session?.access_token ? 'token OK' : 'NO TOKEN')
 
     const { data: refData, error: refError } = await supabase.rpc('generate_commande_reference')
-console.log('RPC refData:', refData, 'refError:', refError)
-    
     if (refError || !refData) {
       setError('Erreur lors de la generation de la reference.')
       setLoading(false)
       return
     }
 
-    const { data, error: insertError } = await supabase
-      .from('commandes')
-      .insert({
-        reference: refData,
-        titre: form.titre || null,
-        marque_id: form.marque_id,
-        filature_id: form.filature_id,
-        fournisseur_id: form.fournisseur_id,
-        type_coton: 'mixte',
-        volume_recycle_tonnes: volumeRecycle / 1000,
-        volume_vierge_tonnes: volumeVierge / 1000,
-        grammage: grammageNum,
-        date_livraison_souhaitee: form.date_livraison_souhaitee,
-        priorite: form.priorite,
-        notes: form.notes || null,
-        statut: 'en_production',
-        created_by: user.id,
-      })
-      .select('*')
-      .single()
+    const result = await creerCommandeAction({
+      reference: refData,
+      titre: form.titre || null,
+      marque_id: form.marque_id,
+      filature_id: form.filature_id,
+      fournisseur_id: form.fournisseur_id,
+      volume_recycle_tonnes: volumeRecycle / 1000,
+      volume_vierge_tonnes: volumeVierge / 1000,
+      grammage: grammageNum,
+      date_livraison_souhaitee: form.date_livraison_souhaitee,
+      priorite: form.priorite,
+      notes: form.notes || null,
+      statut: 'en_production',
+      created_by: user.id,
+      type_coton: 'mixte',
+    })
 
-    if (insertError) {
-      console.error('INSERT ERROR:', insertError)
-      setError('Erreur lors de la creation : ' + insertError.message)
+    if (result.error) {
+      setError('Erreur : ' + result.error)
       setLoading(false)
       return
     }
-    console.log('INSERT SUCCESS:', data)
-    setCommandes(prev => [data as Commande, ...prev])
+
+    setCommandes(prev => [result.data as Commande, ...prev])
     setShowForm(false)
     setForm({
       titre: '', marque_id: '', filature_id: '', fournisseur_id: '',
@@ -189,7 +180,6 @@ console.log('RPC refData:', refData, 'refError:', refError)
       {label}
     </label>
   )
-
   const inputStyle = {
     width: '100%', padding: '9px 12px', borderRadius: 8,
     border: '1.5px solid #d4c5b0', fontSize: 13,
