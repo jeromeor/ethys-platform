@@ -270,7 +270,7 @@ export default function AnnuaireClient({ partenaires, paysList, userRole, userEn
               const note = noteMoyenne(p)
               const ps = getPartnership(p.id)
               return (
-                <div key={p.id} onClick={() => { setSelected(p); setEditMode(false) }} style={{ background: '#fff', borderRadius: 6, border: `2px solid ${selected?.id === p.id ? '#1a1a1a' : '#e8e3d8'}``, padding: '14px 16px', cursor: 'pointer' }}>
+                <div key={p.id} onClick={() => { setSelected(p); setEditMode(false) }} style={{ background: ps?.status === 'accepted' ? '#f0f4ec' : ps?.status === 'pending' ? '#fdf8ec' : '#fff', borderRadius: 6, border: `2px solid ${selected?.id === p.id ? '#1a1a1a' : ps?.status === 'accepted' ? '#2d5016' : ps?.status === 'pending' ? '#b8860b' : '#e8e3d8'}`, padding: '14px 16px', cursor: 'pointer' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
                     <div>
                       <div style={{ fontSize: 13, fontWeight: 700, color: '#1A202C' }}>{p.nom}</div>
@@ -303,7 +303,7 @@ export default function AnnuaireClient({ partenaires, paysList, userRole, userEn
       </div>
 
       {selected && (
-        <div style={{ width: 320, minWidth: 320, background: ps?.status === 'accepted' ? '#f0f4ec' : ps?.status === 'pending' ? '#fdf8ec' : '#fff', borderLeft: '1px solid #e8e3d8', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ width: 320, minWidth: 320, background: (() => { const ps = getPartnership(selected.id); return ps?.status === 'accepted' ? '#f0f4ec' : ps?.status === 'pending' ? '#fdf8ec' : '#fff' })(), borderLeft: '1px solid #e8e3d8', display: 'flex', flexDirection: 'column' }}>
           <div style={{ padding: '14px 18px', borderBottom: '1px solid #f5f3ef', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontWeight: 700, fontSize: 13, color: '#1a1a1a' }}>Fiche partenaire</span>
             <div style={{ display: 'flex', gap: 8 }}>
