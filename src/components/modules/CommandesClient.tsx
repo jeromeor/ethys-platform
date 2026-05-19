@@ -136,9 +136,18 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
     const grammageNum = form.grammage ? extractGrammageNumber(form.grammage) : null
     
 
+    const { data: refData, error: refError } = await supabase.rpc('generate_commande_reference')
+
+    if (refError || !refData) {
+      setError('Erreur lors de la generation de la reference.')
+      setLoading(false)
+      return
+    }
+
     const { data, error: insertError } = await supabase
       .from('commandes')
       .insert({
+        reference: refData,
         titre: form.titre || null,
         marque_id: form.marque_id,
         filature_id: form.filature_id,
@@ -157,7 +166,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
       .select(`*,marque:entreprises!commandes_marque_id_fkey(nom),filature:entreprises!commandes_filature_id_fkey(nom),fournisseur:entreprises!commandes_fournisseur_id_fkey(nom)`)
       .single()
 
-  if (insertError) {
+    if (insertError) {
       console.error('INSERT ERROR:', insertError)
       setError('Erreur lors de la creation : ' + insertError.message)
       setLoading(false)
@@ -173,7 +182,6 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
     })
     setLoading(false)
   }
-
   const labelInput = (label: string) => (
     <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>
       {label}
