@@ -9,6 +9,7 @@ export async function creerCommandeAction(formData: {
   marque_id: string
   filature_id: string
   fournisseur_id: string
+  type_coton: string
   volume_recycle_tonnes: number
   volume_vierge_tonnes: number
   grammage: number | null
@@ -17,7 +18,7 @@ export async function creerCommandeAction(formData: {
   notes: string | null
   statut: string
   created_by: string
-}) {
+})
   // Vérifie que l'utilisateur est bien authentifié
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
