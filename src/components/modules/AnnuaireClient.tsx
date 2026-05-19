@@ -61,8 +61,8 @@ export default function AnnuaireClient({ partenaires, paysList, userRole, userEn
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState<Partial<Partenaire>>({})
   const [partnershipState, setPartnershipState] = useState<Partnership[]>(partnerships)
-  const [sendingPartnership, setSendingPartnership] = useState(false) const [filterPartenaire, setFilterPartenaire] = useState(false)
-
+  const [sendingPartnership, setSendingPartnership] = useState(false)
+const [filterPartenaire, setFilterPartenaire] = useState(false)
   const filtered = useMemo(() => partenaires.filter(p => {
     if (search && !p.nom.toLowerCase().includes(search.toLowerCase()) && !p.ville?.toLowerCase().includes(search.toLowerCase())) return false
     if (filterType !== 'Tous' && p.type !== filterType) return false
