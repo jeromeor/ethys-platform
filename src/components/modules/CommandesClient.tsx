@@ -27,6 +27,7 @@ interface Commande {
   fournisseur: { nom: string } | null
   lots: { id: string; avancement_pct: number }[] | null
 }
+
 interface Props {
   user: { id: string; email?: string }
   profil: { role?: string; entreprise_id?: string } | null
@@ -105,7 +106,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
   const filatures    = entreprises.filter(e => e.type === 'filature')
   const fournisseurs = entreprises.filter(e => e.type === 'fournisseur_coton')
 
- const filtrees = commandes.filter(c => {
+  const filtrees = commandes.filter(c => {
     if (filterStatut !== 'tous' && c.statut !== filterStatut) return false
     if (filterMarque && c.marque?.nom !== filterMarque) return false
     if (filterFilature && c.filature?.nom !== filterFilature) return false
@@ -164,8 +165,6 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
       .select(`*,marque:entreprises!commandes_marque_id_fkey(nom),filature:entreprises!commandes_filature_id_fkey(nom),fournisseur:entreprises!commandes_fournisseur_id_fkey(nom)`)
       .single()
 
-    console.log('insertError:', insertError, 'data:', data)
-
     if (!insertError) {
       setCommandes(prev => [data as Commande, ...prev])
       setShowForm(false)
@@ -174,14 +173,8 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
         volume_recycle_kg: '', grammage: '',
         date_livraison_souhaitee: '', priorite: 'normale', notes: '',
       })
-    }
-      setCommandes(prev => [data as Commande, ...prev])
-      setShowForm(false)
-      setForm({
-        titre: '', marque_id: '', filature_id: '', fournisseur_id: '',
-        volume_recycle_kg: '', grammage: '',
-        date_livraison_souhaitee: '', priorite: 'normale', notes: '',
-      })
+    } else {
+      setError('Erreur lors de la creation : ' + insertError.message)
     }
     setLoading(false)
   }
