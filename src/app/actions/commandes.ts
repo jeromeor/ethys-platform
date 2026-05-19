@@ -18,13 +18,11 @@ export async function creerCommandeAction(formData: {
   notes: string | null
   statut: string
   created_by: string
-})
-  // Vérifie que l'utilisateur est bien authentifié
+}) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Non authentifié' }
 
-  // INSERT avec service_role pour bypasser les problèmes PostgREST
   const admin = createAdminClient()
   const { data, error } = await admin
     .from('commandes')
