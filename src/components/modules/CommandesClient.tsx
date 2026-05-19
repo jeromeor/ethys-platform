@@ -165,8 +165,14 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
       .select(`*,marque:entreprises!commandes_marque_id_fkey(nom),filature:entreprises!commandes_filature_id_fkey(nom),fournisseur:entreprises!commandes_fournisseur_id_fkey(nom)`)
       .single()
 
-    if (!insertError) {
-      setCommandes(prev => [data as Commande, ...prev])
+  if (insertError) {
+  console.error('INSERT ERROR:', insertError)
+  setError('Erreur lors de la creation : ' + insertError.message)
+  setLoading(false)
+  return
+}
+console.log('INSERT SUCCESS:', data)
+setCommandes(prev => [data as Commande, ...prev])
       setShowForm(false)
       setForm({
         titre: '', marque_id: '', filature_id: '', fournisseur_id: '',
