@@ -142,8 +142,8 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
       return
     }
 
-    const { data: insertData, error: insertError } = await supabase.rpc('insert_commande', {
-      commande: {
+    const { data: insertData, error: insertError } = await supabase.rpc('creer_commande', {
+      p_data: {
         reference: refData,
         titre: form.titre || null,
         marque_id: form.marque_id,
