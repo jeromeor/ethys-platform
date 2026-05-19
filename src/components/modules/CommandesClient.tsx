@@ -163,7 +163,7 @@ console.log('RPC refData:', refData, 'refError:', refError)
         statut: 'en_production',
         created_by: user.id,
       })
-      .select(`*,marque:entreprises!commandes_marque_id_fkey(nom),filature:entreprises!commandes_filature_id_fkey(nom),fournisseur:entreprises!commandes_fournisseur_id_fkey(nom)`)
+      .select('*')
       .single()
 
     if (insertError) {
