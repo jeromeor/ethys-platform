@@ -177,7 +177,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
     setLoading(false)
   }
 
-    setCommandes(prev => [result.data as Commande, ...prev])
+    setCommandes(prev => [insertData as Commande, ...prev])
     setShowForm(false)
     setForm({
       titre: '', marque_id: '', filature_id: '', fournisseur_id: '',
