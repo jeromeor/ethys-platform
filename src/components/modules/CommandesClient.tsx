@@ -142,8 +142,6 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
       return
     }
 
-    console.log('refData:', refData, 'user.id:', user.id, 'form:', form)
-
     const { data, error: insertError } = await supabase
       .from('commandes')
       .insert({
@@ -171,8 +169,8 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
       `)
       .single()
 
+    console.log('refData:', refData, 'user.id:', user.id)
     console.log('insertError:', insertError, 'data:', data)
-      .select(`
         *,
         marque:entreprises!commandes_marque_id_fkey(nom),
         filature:entreprises!commandes_filature_id_fkey(nom),
