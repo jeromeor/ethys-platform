@@ -1,5 +1,6 @@
-﻿import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 
 const formatStatut = (s: string) => ({
   en_production: 'En production',
@@ -60,25 +61,125 @@ export default async function DashboardPage() {
     .select('*', { count: 'exact', head: true })
     .neq('type', 'plateforme')
 
-  const nomEntreprise = (profil?.entreprise as Record<string,string>)?.nom ?? ''
+  // Partenariats de l'entreprise connectée
+  let nbPartenariatsActifs = 0
+  let demandesRecues: { id: string; nom: string; type: string }[] = []
+  let demandesEnvoyees: { id: string; nom: string; type: string }[] = []
+
+  if (entrepriseId) {
+    // Partenariats acceptés
+    const { count } = await supabase
+      .from('partnerships')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'accepted')
+      .or(`requester_id.eq.${entrepriseId},receiver_id.eq.${entrepriseId}`)
+    nbPartenariatsActifs = count ?? 0
+
+    // Demandes reçues en attente (l'entreprise est receiver)
+    const { data: recues } = await supabase
+      .from('partnerships')
+      .select('id, requester:requester_id(id, nom, type)')
+      .eq('status', 'pending')
+      .eq('receiver_id', entrepriseId)
+    demandesRecues = (recues ?? []).map((p: any) => ({
+      id: p.id,
+      nom: p.requester?.nom ?? '',
+      type: p.requester?.type ?? '',
+    }))
+
+    // Demandes envoyées en attente (l'entreprise est requester)
+    const { data: envoyees } = await supabase
+      .from('partnerships')
+      .select('id, receiver:receiver_id(id, nom, type)')
+      .eq('status', 'pending')
+      .eq('requester_id', entrepriseId)
+    demandesEnvoyees = (envoyees ?? []).map((p: any) => ({
+      id: p.id,
+      nom: p.receiver?.nom ?? '',
+      type: p.receiver?.type ?? '',
+    }))
+  }
+
+  const nomEntreprise = (profil?.entreprise as Record<string, string>)?.nom ?? ''
+
+  const typeLabels: Record<string, string> = {
+    marque: 'Marque', filature: 'Filature', fournisseur_coton: 'Fournisseur',
+  }
 
   return (
     <div style={{ padding: '24px 28px' }}>
       <div style={{ marginBottom: 20, fontSize: 13, color: '#8b7355' }}>
         Bienvenue{nomEntreprise ? ' — ' + nomEntreprise : ''}{isAdmin ? ' (vue Admin globale)' : ''}
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 24 }}>
+
+      {/* KPIs */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 24 }}>
         {[
-          { label: 'Commandes actives', value: nbCommandes, color: '#0A3D26' },
-          { label: 'Partenaires', value: nbPartenaires ?? 0, color: '#0A3D26' },
-          { label: 'Conformite ESG', value: '94%', color: '#10B981' },
+          { label: 'Commandes actives', value: nbCommandes },
+          { label: 'Partenaires actifs', value: nbPartenariatsActifs },
+          { label: 'Annuaire', value: nbPartenaires ?? 0 },
+          { label: 'Conformite ESG', value: '94%' },
         ].map((k, i) => (
           <div key={i} style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '20px 22px' }}>
             <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.3 }}>{k.label}</div>
-            <div style={{ fontSize: 28, fontWeight: 800, color: k.color }}>{k.value}</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: '#0A3D26' }}>{k.value}</div>
           </div>
         ))}
       </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+
+        {/* Demandes reçues */}
+        <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', overflow: 'hidden' }}>
+          <div style={{ padding: '16px 22px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26' }}>Demandes reçues</span>
+            {demandesRecues.length > 0 && (
+              <span style={{ fontSize: 11, fontWeight: 700, background: '#b8860b', color: '#fff', borderRadius: 10, padding: '2px 8px' }}>{demandesRecues.length}</span>
+            )}
+          </div>
+          {demandesRecues.length === 0 ? (
+            <div style={{ padding: '28px', textAlign: 'center', color: '#94A3B8', fontSize: 12 }}>Aucune demande en attente</div>
+          ) : (
+            <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {demandesRecues.map(d => (
+                <div key={d.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', borderRadius: 8, background: '#fdf8ec', border: '1px solid #e8d9a0' }}>
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>{d.nom}</div>
+                    <div style={{ fontSize: 11, color: '#8b7355' }}>{typeLabels[d.type] ?? d.type}</div>
+                  </div>
+                  <Link href="/annuaire" style={{ fontSize: 11, fontWeight: 700, color: '#2d5016', textDecoration: 'none', padding: '4px 10px', borderRadius: 6, border: '1px solid #2d5016' }}>
+                    Répondre →
+                  </Link>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Demandes envoyées */}
+        <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', overflow: 'hidden' }}>
+          <div style={{ padding: '16px 22px', borderBottom: '1px solid #F1F5F9' }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26' }}>Demandes envoyées</span>
+          </div>
+          {demandesEnvoyees.length === 0 ? (
+            <div style={{ padding: '28px', textAlign: 'center', color: '#94A3B8', fontSize: 12 }}>Aucune demande en cours</div>
+          ) : (
+            <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {demandesEnvoyees.map(d => (
+                <div key={d.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', borderRadius: 8, background: '#f5f3ef', border: '1px solid #e8e3d8' }}>
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>{d.nom}</div>
+                    <div style={{ fontSize: 11, color: '#8b7355' }}>{typeLabels[d.type] ?? d.type}</div>
+                  </div>
+                  <span style={{ fontSize: 11, color: '#b8860b', fontWeight: 700 }}>⏳ En attente</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Commandes récentes */}
       <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', overflow: 'hidden' }}>
         <div style={{ padding: '16px 22px', borderBottom: '1px solid #F1F5F9', fontSize: 13, fontWeight: 700, color: '#0A3D26' }}>
           Commandes recentes
