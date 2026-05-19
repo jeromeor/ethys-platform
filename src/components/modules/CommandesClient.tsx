@@ -137,7 +137,9 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
     
 
     const { data: refData, error: refError } = await supabase.rpc('generate_commande_reference')
-
+const { data: refData, error: refError } = await supabase.rpc('generate_commande_reference')
+console.log('RPC refData:', refData, 'refError:', refError)
+    
     if (refError || !refData) {
       setError('Erreur lors de la generation de la reference.')
       setLoading(false)
