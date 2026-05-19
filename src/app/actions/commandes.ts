@@ -1,7 +1,5 @@
 'use server'
-console.log('SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL?.slice(0, 30))
-console.log('SERVICE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY?.slice(0, 20))
-import { createAdminClient } from '@/lib/supabase/admin'
+
 import { createClient } from '@/lib/supabase/server'
 
 export async function creerCommandeAction(formData: {
@@ -24,13 +22,24 @@ export async function creerCommandeAction(formData: {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Non authentifié' }
 
-  const admin = createAdminClient()
-  const { data, error } = await admin
-    .from('commandes')
-    .insert(formData)
-    .select('*, marque:entreprises!commandes_marque_id_fkey(nom), filature:entreprises!commandes_filature_id_fkey(nom), fournisseur:entreprises!commandes_fournisseur_id_fkey(nom)')
-    .single()
+  const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/commandes?select=*,marque:entreprises!commandes_marque_id_fkey(nom),filature:entreprises!commandes_filature_id_fkey(nom),fournisseur:entreprises!commandes_fournisseur_id_fkey(nom)`
 
-  if (error) return { error: error.message }
-  return { data }
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': process.env.SUPABASE_SECRET_KEY!,
+      'Authorization': `Bearer ${process.env.SUPABASE_SECRET_KEY!}`,
+      'Prefer': 'return=representation'
+    },
+    body: JSON.stringify(formData)
+  })
+
+  if (!res.ok) {
+    const err = await res.text()
+    return { error: err }
+  }
+
+  const rows = await res.json()
+  return { data: rows[0] }
 }
