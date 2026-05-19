@@ -1,5 +1,6 @@
 'use server'
-
+console.log('SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL?.slice(0, 30))
+console.log('SERVICE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY?.slice(0, 20))
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 
