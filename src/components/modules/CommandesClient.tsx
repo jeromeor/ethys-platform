@@ -166,22 +166,19 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
       .single()
 
   if (insertError) {
-  console.error('INSERT ERROR:', insertError)
-  setError('Erreur lors de la creation : ' + insertError.message)
-  setLoading(false)
-  return
-}
-console.log('INSERT SUCCESS:', data)
-setCommandes(prev => [data as Commande, ...prev])
-      setShowForm(false)
-      setForm({
-        titre: '', marque_id: '', filature_id: '', fournisseur_id: '',
-        volume_recycle_kg: '', grammage: '',
-        date_livraison_souhaitee: '', priorite: 'normale', notes: '',
-      })
-    } else {
+      console.error('INSERT ERROR:', insertError)
       setError('Erreur lors de la creation : ' + insertError.message)
+      setLoading(false)
+      return
     }
+    console.log('INSERT SUCCESS:', data)
+    setCommandes(prev => [data as Commande, ...prev])
+    setShowForm(false)
+    setForm({
+      titre: '', marque_id: '', filature_id: '', fournisseur_id: '',
+      volume_recycle_kg: '', grammage: '',
+      date_livraison_souhaitee: '', priorite: 'normale', notes: '',
+    })
     setLoading(false)
   }
 
