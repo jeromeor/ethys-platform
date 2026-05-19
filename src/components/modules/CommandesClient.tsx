@@ -138,7 +138,6 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
 const { data: { session } } = await supabase.auth.getSession()
 console.log('SESSION:', session?.user?.id, session?.access_token ? 'token OK' : 'NO TOKEN')
 
-const { data: refData, error: refError } = await supabase.rpc('generate_commande_reference')
     const { data: refData, error: refError } = await supabase.rpc('generate_commande_reference')
 console.log('RPC refData:', refData, 'refError:', refError)
     
