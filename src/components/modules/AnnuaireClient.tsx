@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useMemo } from 'react'
 
@@ -26,6 +26,13 @@ const typeLabels: Record<string, string> = {
   marque: 'Marque', filature: 'Filature', fournisseur_coton: 'Fournisseur',
 }
 
+interface Partnership {
+  id: string
+  requester_id: string
+  receiver_id: string
+  status: string
+}
+
 interface Partenaire {
   id: string; nom: string; type: string; statut: string; pays: string; ville: string
   adresse: string | null; adresse_rue: string | null; code_postal: string | null
@@ -41,9 +48,11 @@ interface Props {
   partenaires: Partenaire[]
   paysList: string[]
   userRole: string
+  userEntrepriseId: string
+  partnerships: Partnership[]
 }
 
-export default function AnnuaireClient({ partenaires, paysList, userRole }: Props) {
+export default function AnnuaireClient({ partenaires, paysList, userRole, userEntrepriseId, partnerships }: Props) {
   const [search, setSearch] = useState('')
   const [filterType, setFilterType] = useState('Tous')
   const [filterPays, setFilterPays] = useState('Tous')
@@ -51,6 +60,8 @@ export default function AnnuaireClient({ partenaires, paysList, userRole }: Prop
   const [editMode, setEditMode] = useState(false)
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState<Partial<Partenaire>>({})
+  const [partnershipState, setPartnershipState] = useState<Partnership[]>(partnerships)
+  const [sendingPartnership, setSendingPartnership] = useState(false)
 
   const filtered = useMemo(() => partenaires.filter(p => {
     if (search && !p.nom.toLowerCase().includes(search.toLowerCase()) && !p.ville?.toLowerCase().includes(search.toLowerCase())) return false
@@ -62,6 +73,49 @@ export default function AnnuaireClient({ partenaires, paysList, userRole }: Prop
   const noteMoyenne = (p: Partenaire) => {
     if (!p.notations?.length) return null
     return (p.notations.reduce((s, n) => s + n.note_moyenne, 0) / p.notations.length).toFixed(1)
+  }
+
+  // Retourne le partenariat entre l'utilisateur et une entreprise donnée
+  const getPartnership = (entrepriseId: string): Partnership | undefined => {
+    return partnershipState.find(p =>
+      (p.requester_id === userEntrepriseId && p.receiver_id === entrepriseId) ||
+      (p.receiver_id === userEntrepriseId && p.requester_id === entrepriseId)
+    )
+  }
+
+  const envoyerDemande = async (entreprise: Partenaire) => {
+    setSendingPartnership(true)
+    const res = await fetch('/api/partnerships', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        requester_id: userEntrepriseId,
+        receiver_id: entreprise.id,
+      })
+    })
+    const data = await res.json()
+    if (!data.error) {
+      setPartnershipState(prev => [...prev, data])
+    }
+    setSendingPartnership(false)
+  }
+
+  const repondrePartenariat = async (partnershipId: string, status: 'accepted' | 'rejected') => {
+    setSendingPartnership(true)
+    const res = await fetch('/api/partnerships', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        partnership_id: partnershipId,
+        status,
+        actor_entreprise_id: userEntrepriseId,
+      })
+    })
+    const data = await res.json()
+    if (!data.error) {
+      setPartnershipState(prev => prev.map(p => p.id === partnershipId ? { ...p, status } : p))
+    }
+    setSendingPartnership(false)
   }
 
   const ouvrirEdition = (p: Partenaire) => {
@@ -115,6 +169,76 @@ export default function AnnuaireClient({ partenaires, paysList, userRole }: Prop
     window.location.href = `mailto:${p.email_contact}?cc=contact@textile-loop.fr&subject=Contact via plateforme ETHYS - ${p.nom}&body=Bonjour,%0D%0A%0D%0AJe vous contacte via la plateforme ETHYS de TEXTILE LOOP.%0D%0A%0D%0ACordialement`
   }
 
+  // Bouton partenariat selon l'état
+  const renderBoutonPartenariat = (p: Partenaire) => {
+    if (p.id === userEntrepriseId) return null
+    const ps = getPartnership(p.id)
+
+    if (!ps) {
+      return (
+        <button
+          onClick={() => envoyerDemande(p)}
+          disabled={sendingPartnership}
+          style={{ width: '100%', padding: '9px', borderRadius: 4, border: '1.5px solid #1a1a1a', background: '#fff', color: '#1a1a1a', fontSize: 12, fontWeight: 700, cursor: 'pointer', marginTop: 8 }}
+        >
+          + Demander un partenariat
+        </button>
+      )
+    }
+
+    if (ps.status === 'pending') {
+      // L'utilisateur est le receiver → peut accepter/refuser
+      if (ps.receiver_id === userEntrepriseId) {
+        return (
+          <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+            <button
+              onClick={() => repondrePartenariat(ps.id, 'accepted')}
+              disabled={sendingPartnership}
+              style={{ flex: 1, padding: '9px', borderRadius: 4, border: 'none', background: '#2d5016', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
+            >
+              Accepter
+            </button>
+            <button
+              onClick={() => repondrePartenariat(ps.id, 'rejected')}
+              disabled={sendingPartnership}
+              style={{ flex: 1, padding: '9px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#fff', color: '#8b7355', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
+            >
+              Refuser
+            </button>
+          </div>
+        )
+      }
+      // L'utilisateur est le requester → demande en attente
+      return (
+        <button disabled style={{ width: '100%', padding: '9px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#8b7355', fontSize: 12, fontWeight: 700, cursor: 'default', marginTop: 8 }}>
+          ⏳ Demande en attente
+        </button>
+      )
+    }
+
+    if (ps.status === 'accepted') {
+      return (
+        <button disabled style={{ width: '100%', padding: '9px', borderRadius: 4, border: '1.5px solid #c8d8b8', background: '#f0f4ec', color: '#2d5016', fontSize: 12, fontWeight: 700, cursor: 'default', marginTop: 8 }}>
+          ✓ Partenaire
+        </button>
+      )
+    }
+
+    if (ps.status === 'rejected') {
+      return (
+        <button
+          onClick={() => envoyerDemande(p)}
+          disabled={sendingPartnership}
+          style={{ width: '100%', padding: '9px', borderRadius: 4, border: '1.5px solid #1a1a1a', background: '#fff', color: '#1a1a1a', fontSize: 12, fontWeight: 700, cursor: 'pointer', marginTop: 8 }}
+        >
+          + Demander un partenariat
+        </button>
+      )
+    }
+
+    return null
+  }
+
   return (
     <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
 
@@ -144,16 +268,21 @@ export default function AnnuaireClient({ partenaires, paysList, userRole }: Prop
             {filtered.map(p => {
               const [tbg, ttc] = typeColors[p.type] ?? ['#f5f3ef', '#4a5568']
               const note = noteMoyenne(p)
+              const ps = getPartnership(p.id)
               return (
-                <div key={p.id} onClick={() => { setSelected(p); setEditMode(false) }} style={{ background: '#fff', borderRadius: 6, border: `2px solid ${selected?.id === p.id ? '#1a1a1a' : '#e8e3d8'}`, padding: '14px 16px', cursor: 'pointer' }}>
+                <div key={p.id} onClick={() => { setSelected(p); setEditMode(false) }} style={{ background: '#fff', borderRadius: 6, border: `2px solid ${selected?.id === p.id ? '#1a1a1a' : ps?.status === 'accepted' ? '#c8d8b8' : '#e8e3d8'}`, padding: '14px 16px', cursor: 'pointer' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
                     <div>
                       <div style={{ fontSize: 13, fontWeight: 700, color: '#1A202C' }}>{p.nom}</div>
                       <div style={{ fontSize: 11, color: '#8b7355' }}>{p.ville}, {p.pays}</div>
                     </div>
-                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: p.statut === 'Vérifié' ? '#f0f4ec' : '#fdf8ec', color: p.statut === 'Vérifié' ? '#2d5016' : '#b8860b', height: 'fit-content' }}>
-                      {p.statut === 'Vérifié' ? 'Vérifié' : 'En cours'}
-                    </span>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+                      <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: p.statut === 'Vérifié' ? '#f0f4ec' : '#fdf8ec', color: p.statut === 'Vérifié' ? '#2d5016' : '#b8860b' }}>
+                        {p.statut === 'Vérifié' ? 'Vérifié' : 'En cours'}
+                      </span>
+                      {ps?.status === 'accepted' && <span style={{ fontSize: 9, fontWeight: 700, color: '#2d5016' }}>✓ Partenaire</span>}
+                      {ps?.status === 'pending' && <span style={{ fontSize: 9, fontWeight: 700, color: '#b8860b' }}>⏳ En attente</span>}
+                    </div>
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 8 }}>
                     <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: tbg, color: ttc }}>{typeLabels[p.type] ?? p.type}</span>
@@ -163,8 +292,8 @@ export default function AnnuaireClient({ partenaires, paysList, userRole }: Prop
                     })}
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
-                    {note ? <span style={{ color: '#F59E0B', fontWeight: 700 }}> {note}</span> : <span style={{ color: '#CBD5E1' }}>Non noté</span>}
-                    {p.capacite_annuelle_tonnes && <span style={{ color: '#4a5568' }}>{p.capacite_annuelle_tonnes ? (p.capacite_annuelle_tonnes * 1000).toLocaleString('fr-FR') + ' kg/an' : ''}</span>}
+                    {note ? <span style={{ color: '#F59E0B', fontWeight: 700 }}>{note}</span> : <span style={{ color: '#CBD5E1' }}>Non noté</span>}
+                    {p.capacite_annuelle_tonnes && <span style={{ color: '#4a5568' }}>{(p.capacite_annuelle_tonnes * 1000).toLocaleString('fr-FR')} kg/an</span>}
                   </div>
                 </div>
               )
@@ -193,7 +322,7 @@ export default function AnnuaireClient({ partenaires, paysList, userRole }: Prop
                   <div style={{ fontSize: 11, opacity: 0.75 }}>{typeLabels[selected.type] ?? selected.type} · {selected.ville}, {selected.pays}</div>
                   {selected.capacite_annuelle_tonnes && (
                     <div style={{ marginTop: 10, background: 'rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 12px' }}>
-                      <div style={{ fontSize: 16, fontWeight: 800, color: '#c2956e' }}>{selected.capacite_annuelle_tonnes ? (selected.capacite_annuelle_tonnes * 1000).toLocaleString('fr-FR') + ' kg' : ''}</div>
+                      <div style={{ fontSize: 16, fontWeight: 800, color: '#c2956e' }}>{(selected.capacite_annuelle_tonnes * 1000).toLocaleString('fr-FR')} kg</div>
                       <div style={{ fontSize: 10, opacity: 0.65 }}>Capacité annuelle</div>
                     </div>
                   )}
@@ -248,7 +377,7 @@ export default function AnnuaireClient({ partenaires, paysList, userRole }: Prop
                       <span style={{ fontSize: 11, color: '#8b7355' }}>Aucune certification</span>
                     ) : selected.Certifications.filter(c => c.valide).map(c => {
                       const [bg, tc] = certColors[c.label] ?? ['#f5f3ef', '#4a5568']
-                      return <span key={c.label} style={{ padding: '3px 10px', borderRadius: 4, fontSize: 11, fontWeight: 700, background: bg, color: tc }}>v {c.label}</span>
+                      return <span key={c.label} style={{ padding: '3px 10px', borderRadius: 4, fontSize: 11, fontWeight: 700, background: bg, color: tc }}>✓ {c.label}</span>
                     })}
                   </div>
                 </div>
@@ -320,13 +449,14 @@ export default function AnnuaireClient({ partenaires, paysList, userRole }: Prop
           </div>
 
           {!editMode && (
-            <div style={{ padding: '12px 18px', borderTop: '1px solid #f5f3ef' }}>
+            <div style={{ padding: '12px 18px', borderTop: '1px solid #f5f3ef', display: 'flex', flexDirection: 'column', gap: 0 }}>
               <button
                 onClick={() => contacter(selected)}
                 style={{ width: '100%', padding: '9px', borderRadius: 4, border: 'none', background: selected.email_contact ? '#1a1a1a' : '#d4c5b0', color: selected.email_contact ? '#fff' : '#8b7355', fontSize: 12, fontWeight: 700, cursor: selected.email_contact ? 'pointer' : 'default' }}
               >
                 {selected.email_contact ? 'Contacter' : 'Pas de contact disponible'}
               </button>
+              {renderBoutonPartenariat(selected)}
             </div>
           )}
         </div>
@@ -334,6 +464,3 @@ export default function AnnuaireClient({ partenaires, paysList, userRole }: Prop
     </div>
   )
 }
-
-
-
