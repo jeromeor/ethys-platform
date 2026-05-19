@@ -142,8 +142,10 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
       return
     }
 
-    const { data: insertData, error: insertError } = await supabase.rpc('creer_commande', {
-      p_data: {
+    const res = await fetch('/api/commandes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         reference: refData,
         titre: form.titre || null,
         marque_id: form.marque_id,
@@ -158,16 +160,18 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
         notes: form.notes || null,
         statut: 'en_production',
         created_by: user.id,
-      }
+      })
     })
 
-    if (insertError) {
-      setError('Erreur : ' + insertError.message)
+    const result = await res.json()
+
+    if (result.error) {
+      setError('Erreur : ' + result.error)
       setLoading(false)
       return
     }
 
-    setCommandes(prev => [insertData as Commande, ...prev])
+    setCommandes(prev => [result.data as Commande, ...prev])
     setShowForm(false)
     setForm({
       titre: '', marque_id: '', filature_id: '', fournisseur_id: '',
