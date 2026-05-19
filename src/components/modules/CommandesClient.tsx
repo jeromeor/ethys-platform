@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { creerCommandeAction } from '@/app/actions/commandes'
 
 type StatutCommande =
   | 'brouillon' | 'soumise' | 'validation_fournisseur'
@@ -143,28 +142,40 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
       return
     }
 
-    const result = await creerCommandeAction({
-      reference: refData,
-      titre: form.titre || null,
-      marque_id: form.marque_id,
-      filature_id: form.filature_id,
-      fournisseur_id: form.fournisseur_id,
-      volume_recycle_tonnes: volumeRecycle / 1000,
-      volume_vierge_tonnes: volumeVierge / 1000,
-      grammage: grammageNum,
-      date_livraison_souhaitee: form.date_livraison_souhaitee,
-      priorite: form.priorite,
-      notes: form.notes || null,
-      statut: 'en_production',
-      created_by: user.id,
-      type_coton: 'mixte',
+    const { data: insertData, error: insertError } = await supabase.rpc('insert_commande', {
+      commande: {
+        reference: refData,
+        titre: form.titre || null,
+        marque_id: form.marque_id,
+        filature_id: form.filature_id,
+        fournisseur_id: form.fournisseur_id,
+        type_coton: 'mixte',
+        volume_recycle_tonnes: volumeRecycle / 1000,
+        volume_vierge_tonnes: volumeVierge / 1000,
+        grammage: grammageNum,
+        date_livraison_souhaitee: form.date_livraison_souhaitee,
+        priorite: form.priorite,
+        notes: form.notes || null,
+        statut: 'en_production',
+        created_by: user.id,
+      }
     })
 
-    if (result.error) {
-      setError('Erreur : ' + result.error)
+    if (insertError) {
+      setError('Erreur : ' + insertError.message)
       setLoading(false)
       return
     }
+
+    setCommandes(prev => [insertData as Commande, ...prev])
+    setShowForm(false)
+    setForm({
+      titre: '', marque_id: '', filature_id: '', fournisseur_id: '',
+      volume_recycle_kg: '', grammage: '',
+      date_livraison_souhaitee: '', priorite: 'normale', notes: '',
+    })
+    setLoading(false)
+  }
 
     setCommandes(prev => [result.data as Commande, ...prev])
     setShowForm(false)
