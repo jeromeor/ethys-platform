@@ -44,8 +44,8 @@ const STATUT_LABELS: Record<StatutCommande, string> = {
   controle_qualite:       'Controle qualite',
   qr_genere:              'QR genere',
   expediee:               'Expediee',
-  livree:                 'Livrees',
-  annulee:                'Annulee',
+  livree:                 'Livrée',
+  annulee:                'Annulée',
 }
 
 const STATUT_COLORS: Record<string, [string, string, string]> = {
