@@ -67,7 +67,11 @@ const [filterPartenaire, setFilterPartenaire] = useState(false)
     if (search && !p.nom.toLowerCase().includes(search.toLowerCase()) && !p.ville?.toLowerCase().includes(search.toLowerCase())) return false
     if (filterType !== 'Tous' && p.type !== filterType) return false
     if (filterPays !== 'Tous' && p.pays !== filterPays) return false
-    if (filterPartenaire && getPartnership(p.id)?.status !== 'accepted') return false
+    if (filterPartenaire && !partnershipState.some(ps =>
+  (ps.requester_id === userEntrepriseId && ps.receiver_id === p.id) ||
+  (ps.receiver_id === userEntrepriseId && ps.requester_id === p.id) &&
+  ps.status === 'accepted'
+)) return false
     return true
   }), [partenaires, search, filterType, filterPays])
 
