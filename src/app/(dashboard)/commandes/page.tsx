@@ -16,6 +16,24 @@ export default async function CommandesPage() {
   const entrepriseId = profil?.entreprise_id
   const role = profil?.role
 
+  // Récupère les partenaires acceptés une seule fois
+  let partnerIds: string[] = []
+
+  if (role !== 'admin' && entrepriseId) {
+    const { data: partnerships } = await supabase
+      .from('partnerships')
+      .select('requester_id, receiver_id')
+      .eq('status', 'accepted')
+      .or(`requester_id.eq.${entrepriseId},receiver_id.eq.${entrepriseId}`)
+
+    partnerIds = (partnerships ?? []).map(p =>
+      p.requester_id === entrepriseId ? p.receiver_id : p.requester_id
+    )
+  }
+
+  // UUID invalide utilisé comme fallback quand aucun partenaire → retourne 0 résultats
+  const fallback = ['00000000-0000-0000-0000-000000000000']
+
   let commandesQuery = supabase
     .from('commandes')
     .select(`
@@ -27,18 +45,28 @@ export default async function CommandesPage() {
     `)
 
   if (role !== 'admin' && entrepriseId) {
-    if (role === 'marque') commandesQuery = commandesQuery.eq('marque_id', entrepriseId)
-    else if (role === 'filature') commandesQuery = commandesQuery.eq('filature_id', entrepriseId)
-    else if (role === 'fournisseur_coton') commandesQuery = commandesQuery.eq('fournisseur_id', entrepriseId)
+    const ids = partnerIds.length > 0 ? partnerIds : fallback
+    if (role === 'marque') {
+      commandesQuery = commandesQuery
+        .eq('marque_id', entrepriseId)
+        .in('filature_id', ids)
+    } else if (role === 'filature') {
+      commandesQuery = commandesQuery
+        .eq('filature_id', entrepriseId)
+        .in('marque_id', ids)
+    } else if (role === 'fournisseur_coton') {
+      commandesQuery = commandesQuery
+        .eq('fournisseur_id', entrepriseId)
+        .in('marque_id', ids)
+    }
   }
 
   const { data: commandes } = await commandesQuery.order('created_at', { ascending: false })
 
-  // Récupère les partenaires acceptés de l'entreprise connectée
+  // Entreprises visibles = sa propre société + partenaires
   let entreprises: { id: string; nom: string; type: string }[] = []
 
   if (role === 'admin') {
-    // Admin voit tout
     const { data } = await supabase
       .from('entreprises')
       .select('id, nom, type')
@@ -46,21 +74,7 @@ export default async function CommandesPage() {
       .order('nom')
     entreprises = data ?? []
   } else if (entrepriseId) {
-    // Récupère les partenariats acceptés
-    const { data: partnerships } = await supabase
-      .from('partnerships')
-      .select('requester_id, receiver_id')
-      .eq('status', 'accepted')
-      .or(`requester_id.eq.${entrepriseId},receiver_id.eq.${entrepriseId}`)
-
-    // Extrait les IDs partenaires (l'autre côté de la relation)
-    const partnerIds = (partnerships ?? []).map(p =>
-      p.requester_id === entrepriseId ? p.receiver_id : p.requester_id
-    )
-
-    // Ajoute sa propre entreprise
     const allIds = [entrepriseId, ...partnerIds]
-
     const { data } = await supabase
       .from('entreprises')
       .select('id, nom, type')
