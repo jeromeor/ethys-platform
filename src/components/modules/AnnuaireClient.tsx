@@ -68,12 +68,12 @@ const [filterPartenaire, setFilterPartenaire] = useState(false)
     if (filterType !== 'Tous' && p.type !== filterType) return false
     if (filterPays !== 'Tous' && p.pays !== filterPays) return false
     if (filterPartenaire && !partnershipState.some(ps =>
-  (ps.requester_id === userEntrepriseId && ps.receiver_id === p.id) ||
-  (ps.receiver_id === userEntrepriseId && ps.requester_id === p.id) &&
-  ps.status === 'accepted'
-)) return false
+      ((ps.requester_id === userEntrepriseId && ps.receiver_id === p.id) ||
+      (ps.receiver_id === userEntrepriseId && ps.requester_id === p.id)) &&
+      ps.status === 'accepted'
+    )) return false
     return true
-  }), [partenaires, search, filterType, filterPays])
+  }), [partenaires, search, filterType, filterPays, filterPartenaire, partnershipState, userEntrepriseId])
 
   const noteMoyenne = (p: Partenaire) => {
     if (!p.notations?.length) return null
