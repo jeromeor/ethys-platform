@@ -176,16 +176,6 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
     })
     setLoading(false)
   }
-
-    setCommandes(prev => [insertData as Commande, ...prev])
-    setShowForm(false)
-    setForm({
-      titre: '', marque_id: '', filature_id: '', fournisseur_id: '',
-      volume_recycle_kg: '', grammage: '',
-      date_livraison_souhaitee: '', priorite: 'normale', notes: '',
-    })
-    setLoading(false)
-  }
   const labelInput = (label: string) => (
     <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>
       {label}
