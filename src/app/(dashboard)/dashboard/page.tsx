@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 const formatStatut = (s: string) => ({
   en_production: 'En production',
   livree: 'Livree',
-  soumise: 'Soumise',
+  soumise: 'Transmise',
   validation_filature: 'Val. filature',
   validation_finale: 'Val. finale',
   annulee: 'Annulee',
