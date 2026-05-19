@@ -166,7 +166,15 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
 
     console.log('insertError:', insertError, 'data:', data)
 
-    if (insertError) {
+    if (!insertError) {
+      setCommandes(prev => [data as Commande, ...prev])
+      setShowForm(false)
+      setForm({
+        titre: '', marque_id: '', filature_id: '', fournisseur_id: '',
+        volume_recycle_kg: '', grammage: '',
+        date_livraison_souhaitee: '', priorite: 'normale', notes: '',
+      })
+    }
       setCommandes(prev => [data as Commande, ...prev])
       setShowForm(false)
       setForm({
