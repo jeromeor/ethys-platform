@@ -97,7 +97,7 @@ export default function SidebarLayout({ user, profil, children }: Props) {
           {open && <div style={{ fontSize: 10, fontWeight: 600, color: '#1a1a1a', letterSpacing: 2, marginTop: 6, textTransform: 'uppercase' }}>Platform</div>}
         </div>
 
-        <nav style={{ flex: 1, padding: '2px 8px', display: 'flex', flexDirection: 'column', gap: 0, overflowY: 'auto' }}>
+       <nav style={{ flex: 1, padding: '2px 8px', display: 'flex', flexDirection: 'column', gap: 0 }}>
           {navItems.filter(item => item.route !== '/admin' || profil?.role === 'admin').map(item => {
             const active = pathname === item.route || pathname.startsWith(item.route + '/')
             return (
