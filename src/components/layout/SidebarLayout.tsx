@@ -161,6 +161,7 @@ export default function SidebarLayout({ user, profil, children }: Props) {
           </div>
         </header>
        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', position: 'relative' }}>{children}</div>
-    </div>
+          </main>
+      </div>
   )
 }
