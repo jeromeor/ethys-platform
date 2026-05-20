@@ -106,7 +106,7 @@ export default async function DashboardPage() {
 // QR codes à valider (visible uniquement pour Textile Loop)
   let qrAValider: { id: string; reference: string; lot_reference: string | null; entreprise_nom: string | null }[] = []
 
-  if (nomEntreprise === 'Textile Loop') {
+  if (nomEntreprise.toLowerCase() === 'textile loop') {
     const { data: qrData } = await supabase
       .from('qr_codes')
       .select('id, reference, lot:lots(reference, commande:commandes(acheteur:acheteur_id(nom)))')
@@ -225,7 +225,7 @@ export default async function DashboardPage() {
           </table>
         )}
         {/* QR Codes à valider — Textile Loop uniquement */}
-      {nomEntreprise === 'Textile Loop' && (
+      {nomEntreprise.toLowerCase() === 'textile loop' && (
         <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', overflow: 'hidden', marginTop: 16 }}>
           <div style={{ padding: '16px 22px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26' }}>QR Codes à valider</span>
