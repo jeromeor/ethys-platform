@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import QRActivateRow from '@/components/QRActivateRow'
 
 const formatStatut = (s: string) => ({
   en_production: 'En production',
@@ -102,6 +103,23 @@ export default async function DashboardPage() {
 
   const nomEntreprise = (profil?.entreprise as Record<string, string>)?.nom ?? ''
 
+// QR codes à valider (visible uniquement pour Textile Loop)
+  let qrAValider: { id: string; reference: string; lot_reference: string | null; entreprise_nom: string | null }[] = []
+
+  if (nomEntreprise === 'Textile Loop') {
+    const { data: qrData } = await supabase
+      .from('qr_codes')
+      .select('id, reference, lot:lots(reference, commande:commandes(acheteur:acheteur_id(nom)))')
+      .eq('actif', false)
+
+    qrAValider = (qrData ?? []).map((q: any) => ({
+      id: q.id,
+      reference: q.reference,
+      lot_reference: q.lot?.reference ?? null,
+      entreprise_nom: q.lot?.commande?.acheteur?.nom ?? null,
+    }))
+  }
+  
   const typeLabels: Record<string, string> = {
     marque: 'Marque', filature: 'Filature', fournisseur_coton: 'Fournisseur',
   }
@@ -206,6 +224,26 @@ export default async function DashboardPage() {
             </tbody>
           </table>
         )}
+        {/* QR Codes à valider — Textile Loop uniquement */}
+      {nomEntreprise === 'Textile Loop' && (
+        <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', overflow: 'hidden', marginTop: 16 }}>
+          <div style={{ padding: '16px 22px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#0A3D26' }}>QR Codes à valider</span>
+            {qrAValider.length > 0 && (
+              <span style={{ fontSize: 11, fontWeight: 700, background: '#b8860b', color: '#fff', borderRadius: 10, padding: '2px 8px' }}>{qrAValider.length}</span>
+            )}
+          </div>
+          {qrAValider.length === 0 ? (
+            <div style={{ padding: '28px', textAlign: 'center', color: '#94A3B8', fontSize: 12 }}>Aucun QR code en attente</div>
+          ) : (
+            <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {qrAValider.map(q => (
+                <QRActivateRow key={q.id} qr={q} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
       </div>
     </div>
   )
