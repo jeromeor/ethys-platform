@@ -137,7 +137,7 @@ export default async function DashboardPage() {
   { label: 'Partenaires actifs', value: nbPartenariatsActifs },
   { label: 'Annuaire', value: nbPartenaires ?? 0 },
   { label: 'Conformité ESG', value: '94%' },
-  ...(nomEntreprise.toLowerCase() === 'textile loop' ? [{ label: 'QR à valider', value: qrAValider.length }] : []),
+  ...(nomEntreprise.toLowerCase() === 'textile loop' ? [{ label: 'QR code à valider', value: qrAValider.length }] : []),
 ].map((k, i) => (
           <div key={i} style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '20px 22px' }}>
             <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.3 }}>{k.label}</div>
