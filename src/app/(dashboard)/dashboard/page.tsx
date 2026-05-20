@@ -131,13 +131,14 @@ export default async function DashboardPage() {
       </div>
 
       {/* KPIs */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: nomEntreprise.toLowerCase() === 'textile loop' ? 'repeat(5,1fr)' : 'repeat(4,1fr)', gap: 14, marginBottom: 24 }}>
         {[
-          { label: 'Commandes actives', value: nbCommandes },
-          { label: 'Partenaires actifs', value: nbPartenariatsActifs },
-          { label: 'Annuaire', value: nbPartenaires ?? 0 },
-          { label: 'Conformite ESG', value: '94%' },
-        ].map((k, i) => (
+  { label: 'Commandes actives', value: nbCommandes },
+  { label: 'Partenaires actifs', value: nbPartenariatsActifs },
+  { label: 'Annuaire', value: nbPartenaires ?? 0 },
+  { label: 'Conformité ESG', value: '94%' },
+  ...(nomEntreprise.toLowerCase() === 'textile loop' ? [{ label: 'QR à valider', value: qrAValider.length }] : []),
+].map((k, i) => (
           <div key={i} style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', padding: '20px 22px' }}>
             <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.3 }}>{k.label}</div>
             <div style={{ fontSize: 28, fontWeight: 800, color: '#0A3D26' }}>{k.value}</div>
