@@ -201,7 +201,7 @@ export default async function DashboardPage() {
       {/* Commandes récentes */}
       <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF0F3', overflow: 'hidden' }}>
         <div style={{ padding: '16px 22px', borderBottom: '1px solid #F1F5F9', fontSize: 13, fontWeight: 700, color: '#0A3D26' }}>
-          Commandes recentes
+          Commandes récentes
         </div>
         {dernierCommandes.length === 0 ? (
           <div style={{ padding: '40px', textAlign: 'center', color: '#94A3B8', fontSize: 13 }}>Aucune commande pour l'instant</div>
@@ -209,7 +209,7 @@ export default async function DashboardPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: '#F8FAFC' }}>
-                {['Reference', 'Statut', 'Date'].map(h => (
+                {['Référence', 'Statut', 'Date'].map(h => (
                   <th key={h} style={{ padding: '10px 18px', fontSize: 11, fontWeight: 600, color: '#94A3B8', textAlign: 'left', textTransform: 'uppercase' }}>{h}</th>
                 ))}
               </tr>
@@ -217,7 +217,7 @@ export default async function DashboardPage() {
             <tbody>
               {dernierCommandes.map((c, i) => (
                 <tr key={i} style={{ borderTop: '1px solid #F1F5F9' }}>
-                  <td style={{ padding: '12px 18px', fontSize: 12, fontWeight: 700, color: '#0A3D26' }}>{c.reference}</td>
+                  <td style={{ padding: '12px 18px', fontSize: 12, fontWeight: 700, color: '#0A3D26' }}>{c.référence}</td>
                   <td style={{ padding: '12px 18px', fontSize: 12, color: '#475569' }}>{formatStatut(c.statut)}</td>
                   <td style={{ padding: '12px 18px', fontSize: 12, color: '#94A3B8' }}>{new Date(c.created_at).toLocaleDateString('fr-FR')}</td>
                 </tr>
