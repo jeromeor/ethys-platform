@@ -217,7 +217,7 @@ export default async function DashboardPage() {
             <tbody>
               {dernierCommandes.map((c, i) => (
                 <tr key={i} style={{ borderTop: '1px solid #F1F5F9' }}>
-                  <td style={{ padding: '12px 18px', fontSize: 12, fontWeight: 700, color: '#0A3D26' }}>{c.référence}</td>
+                  <td style={{ padding: '12px 18px', fontSize: 12, fontWeight: 700, color: '#0A3D26' }}>{c.reference}</td>
                   <td style={{ padding: '12px 18px', fontSize: 12, color: '#475569' }}>{formatStatut(c.statut)}</td>
                   <td style={{ padding: '12px 18px', fontSize: 12, color: '#94A3B8' }}>{new Date(c.created_at).toLocaleDateString('fr-FR')}</td>
                 </tr>
