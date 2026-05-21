@@ -23,6 +23,11 @@ export async function PATCH(
       return NextResponse.json({ error: 'Demande introuvable' }, { status: 404 })
     }
 
+    // Marque lu toutes les notifs liées à cette demande pour tous les admins
+await sql`
+  UPDATE notifications SET lu = true
+  WHERE reference_id = ${id} AND type = 'demande_annulation'
+`
     if (body.statut === 'acceptee') {
       // Passe la commande en annulee et récupère les infos pour le mail
       const [commande] = await sql`
