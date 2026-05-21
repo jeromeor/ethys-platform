@@ -357,11 +357,26 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
                     return (
                       <tr key={c.id}
                         onClick={() => ouvrirDetail(c)}
-                        style={{ borderTop: '1px solid #f5f3ef', cursor: 'pointer' }}
+                       style={{
+  borderTop: '1px solid #f5f3ef',
+  cursor: 'pointer',
+  background: commandesAvecDemandeIds.includes(c.id) ? '#fffbeb' : 'transparent'
+}}
                         onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = '#f5f3ef'}
                         onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = 'transparent'}
                       >
-                        <td style={{ padding: '12px 14px', fontSize: 12, fontWeight: 800, color: '#1a1a1a', whiteSpace: 'nowrap' }}>{c.reference}</td>
+                        <td style={{ padding: '12px 14px', fontSize: 12, fontWeight: 800, color: '#1a1a1a', whiteSpace: 'nowrap' }}>
+  {c.reference}
+  {commandesAvecDemandeIds.includes(c.id) && (
+    <span style={{
+      marginLeft: 8, padding: '2px 6px', borderRadius: 4,
+      fontSize: 9, fontWeight: 700, background: '#fef3c7',
+      color: '#b8860b', border: '1px solid #fde68a', verticalAlign: 'middle'
+    }}>
+      ANNULATION
+    </span>
+  )}
+</td>
                         <td style={{ padding: '12px 14px', fontSize: 12, color: '#4a5568' }}>{c.marque?.nom ?? '-'}</td>
                         <td style={{ padding: '12px 14px', fontSize: 12, color: '#4a5568' }}>{c.filature?.nom ?? '-'}</td>
                         <td style={{ padding: '12px 14px', fontSize: 12, fontWeight: 600 }}>{Math.round((c.volume_total_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg</td>
