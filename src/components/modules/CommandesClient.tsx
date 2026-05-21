@@ -498,12 +498,14 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
               ) : role === 'admin' ? (
                 demandeAnnulation ? (
                   <div>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: '#b8860b', background: '#fdf8ec', borderRadius: 6, padding: '10px 12px', marginBottom: 10 }}>
-                      Demande d'annulation en attente
-                      {demandeAnnulation.motif && (
-                        <div style={{ fontWeight: 400, marginTop: 4, color: '#4a5568' }}>
-                          Motif : {demandeAnnulation.motif}
-                        </div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#b8860b', background: '#fdf8ec', borderRadius: 6, padding: '10px 12px', marginBottom: 10, textAlign: 'center' }}>
+  Demande d'annulation en attente
+  {demandeAnnulation.motif && (
+    <div style={{ fontWeight: 400, marginTop: 4, color: '#4a5568' }}>
+      Motif : {demandeAnnulation.motif}
+    </div>
+  )}
+</div>
                       )}
                     </div>
                     <div style={{ display: 'flex', gap: 8 }}>
