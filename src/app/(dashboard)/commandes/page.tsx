@@ -94,11 +94,12 @@ const commandesAvecDemande = new Set(
 )
 const commandesAvecDemandeIds = Array.from(commandesAvecDemande)
   return (
-  <CommandesClient
-    user={user}
-    profil={profil}
-    commandes={commandes ?? []}
-    entreprises={entreprises}
-    commandesAvecDemandeIds={commandesAvecDemandeIds}
-  />
-)
+    <CommandesClient
+      user={user}
+      profil={profil}
+      commandes={commandes ?? []}
+      entreprises={entreprises}
+      commandesAvecDemandeIds={commandesAvecDemandeIds}
+    />
+  )
+}
