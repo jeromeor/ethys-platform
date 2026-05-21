@@ -390,16 +390,17 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
                             padding: '3px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700,
                             background: bg, color: tc, display: 'inline-flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap'
                           }}>
-                            <span style={{
-  padding: '3px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700,
-  background: commandesAvecDemandeIds.includes(c.id) ? '#fef3c7' : bg,
-  color: commandesAvecDemandeIds.includes(c.id) ? '#b8860b' : tc,
-  display: 'inline-flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap'
-}}>
-  <span style={{ width: 5, height: 5, borderRadius: '50%', background: commandesAvecDemandeIds.includes(c.id) ? '#b8860b' : dot }} />
-  {commandesAvecDemandeIds.includes(c.id) ? 'Annulation dem.' : STATUT_LABELS[c.statut]}
-</span>
-                        </td>
+                            <td style={{ padding: '12px 14px' }}>
+  <span style={{
+    padding: '3px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700,
+    background: commandesAvecDemandeIds.includes(c.id) ? '#fef3c7' : bg,
+    color: commandesAvecDemandeIds.includes(c.id) ? '#b8860b' : tc,
+    display: 'inline-flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap'
+  }}>
+    <span style={{ width: 5, height: 5, borderRadius: '50%', background: commandesAvecDemandeIds.includes(c.id) ? '#b8860b' : dot }} />
+    {commandesAvecDemandeIds.includes(c.id) ? 'Annulation dem.' : STATUT_LABELS[c.statut]}
+  </span>
+</td>
                         <td style={{ padding: '12px 14px', fontSize: 11, color: '#8b7355', whiteSpace: 'nowrap' }}>
                           {new Date(c.date_livraison_souhaitee).toLocaleDateString('fr-FR')}
                         </td>
