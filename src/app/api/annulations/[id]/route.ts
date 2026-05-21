@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import postgres from 'postgres'
+import { Resend } from 'resend'
 
 const sql = postgres(process.env.DATABASE_URL!, { ssl: 'require' })
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function PATCH(
   req: NextRequest,
@@ -10,8 +12,6 @@ export async function PATCH(
   try {
     const { id } = await params
     const body = await req.json()
-    // body.statut = 'acceptee' | 'refusee'
-    // body.traite_par = user.id
 
     const [demande] = await sql`
       UPDATE demandes_annulation
@@ -23,11 +23,29 @@ export async function PATCH(
       return NextResponse.json({ error: 'Demande introuvable' }, { status: 404 })
     }
 
-    // Si acceptée, passe la commande en annulee
     if (body.statut === 'acceptee') {
-      await sql`
+      // Passe la commande en annulee et récupère les infos pour le mail
+      const [commande] = await sql`
         UPDATE commandes SET statut = 'annulee' WHERE id = ${demande.commande_id}
+        RETURNING reference, titre,
+          (SELECT email FROM auth.users WHERE id = created_by) as email_createur,
+          (SELECT nom FROM entreprises WHERE id = marque_id) as nom_marque
       `
+
+      // Envoi mail à la marque
+      if (commande?.email_createur) {
+        await resend.emails.send({
+          from: 'ETHYS Platform <contact@textile-loop.com>',
+          to: commande.email_createur,
+          subject: `Commande ${commande.reference} annulée`,
+          html: `
+            <p>Bonjour,</p>
+            <p>La commande <strong>${commande.reference}</strong>${commande.titre ? ` — ${commande.titre}` : ''} a été annulée par Textile Loop.</p>
+            <p>Si vous avez des questions, contactez-nous à <a href="mailto:contact@textile-loop.com">contact@textile-loop.com</a>.</p>
+            <p>L'équipe ETHYS</p>
+          `,
+        })
+      }
     }
 
     return NextResponse.json({ success: true })
