@@ -15,6 +15,7 @@ interface DemandeAnnulation {
   motif: string | null
   statut: 'en_attente' | 'acceptee' | 'refusee'
   created_at: string
+  traite_at: string | null
 }
 
 interface Commande {
@@ -144,11 +145,13 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
     setLoadingDemande(true)
     try {
       const { data } = await supabase
-        .from('demandes_annulation')
-        .select('id, motif, statut, created_at')
-        .eq('commande_id', c.id)
-        .eq('statut', 'en_attente')
-        .maybeSingle()
+  .from('demandes_annulation')
+  .select('id, motif, statut, created_at, traite_at')
+  .eq('commande_id', c.id)
+  .in('statut', ['en_attente', 'acceptee'])
+  .order('created_at', { ascending: false })
+  .limit(1)
+  .maybeSingle()
       setDemandeAnnulation(data ?? null)
     } finally {
       setLoadingDemande(false)
@@ -490,9 +493,16 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
     <div style={{ fontSize: 11, color: '#8b7355', textAlign: 'center' }}>Chargement...</div>
 
   ) : estBloque ? (
-    <div style={{ fontSize: 11, color: '#8b7355', background: '#f5f3ef', borderRadius: 6, padding: '10px 12px' }}>
-      Annulation impossible — statut : {STATUT_LABELS[selected.statut]}
-    </div>
+    <div style={{ fontSize: 11, color: '#8b7355', background: '#f5f3ef', borderRadius: 6, padding: '10px 12px', textAlign: 'center' }}>
+  {selected.statut === 'annulee' && demandeAnnulation?.traite_at ? (
+    <>
+      Annulée le {new Date(demandeAnnulation.traite_at).toLocaleDateString('fr-FR')}<br />
+      <span style={{ fontSize: 10, color: '#b8860b' }}>Réf. demande : {demandeAnnulation.id.slice(0, 8).toUpperCase()}</span>
+    </>
+  ) : (
+    <>Annulation impossible — statut : {STATUT_LABELS[selected.statut]}</>
+  )}
+</div>
 
   ) : role === 'admin' ? (
     demandeAnnulation ? (
