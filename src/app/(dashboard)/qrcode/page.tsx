@@ -1,4 +1,4 @@
-﻿import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import QRCodeClient from '@/components/modules/QRCodeClient'
 import { redirect } from 'next/navigation'
 
@@ -6,7 +6,14 @@ export default async function QRCodePage({ searchParams }: { searchParams: Promi
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
+
   const params = await searchParams
+
+  const { data: profil } = await supabase
+    .from('profils_utilisateurs')
+    .select('role, entreprise_id')
+    .eq('id', user.id)
+    .single()
 
   const { data: lots } = await supabase
     .from('lots')
@@ -42,12 +49,24 @@ export default async function QRCodePage({ searchParams }: { searchParams: Promi
     }
   })
 
+  // Demandes QR en attente pour les lots visibles
+  const lotIds = (lots ?? []).map(l => l.id)
+  const { data: demandesQr } = lotIds.length > 0
+    ? await supabase
+        .from('demandes_qr')
+        .select('id, lot_id, statut, created_at')
+        .in('lot_id', lotIds)
+        .eq('statut', 'en_attente')
+    : { data: [] }
+
   return (
     <QRCodeClient
       lots={lots ?? []}
       user={{ id: user.id }}
+      profil={{ role: profil?.role ?? '', entreprise_id: profil?.entreprise_id ?? '' }}
       certifications={certificationsEnrichies}
       certificationIdActif={params.certification_id ?? null}
+      demandesQrEnAttente={demandesQr ?? []}
     />
   )
 }
