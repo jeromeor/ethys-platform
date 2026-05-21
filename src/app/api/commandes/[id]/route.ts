@@ -5,10 +5,10 @@ const sql = postgres(process.env.DATABASE_URL!, { ssl: 'require' })
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params
+    const { id } = await params
 
     // Vérifie le statut avant suppression
     const [commande] = await sql`
