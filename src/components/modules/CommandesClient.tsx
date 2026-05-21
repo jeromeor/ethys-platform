@@ -517,7 +517,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
                           cursor: loading ? 'default' : 'pointer', opacity: loading ? 0.6 : 1
                         }}
                       >
-                        Refuser
+                        Refuser la demande
                       </button>
                       <button
                         onClick={() => traiterDemande('acceptee')}
@@ -529,7 +529,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
                           cursor: loading ? 'default' : 'pointer', opacity: loading ? 0.6 : 1
                         }}
                       >
-                        {loading ? '...' : 'Annuler'}
+                        {loading ? '...' : 'Annuler la commande'}
                       </button>
                     </div>
                   </div>
