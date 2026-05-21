@@ -83,13 +83,22 @@ export default async function CommandesPage() {
       .order('nom')
     entreprises = data ?? []
   }
+// IDs des commandes avec une demande d'annulation en attente
+const { data: demandesEnAttente } = await supabase
+  .from('demandes_annulation')
+  .select('commande_id')
+  .eq('statut', 'en_attente')
 
+const commandesAvecDemande = new Set(
+  (demandesEnAttente ?? []).map(d => d.commande_id)
+)
+const commandesAvecDemandeIds = Array.from(commandesAvecDemande)
   return (
-    <CommandesClient
-      user={user}
-      profil={profil}
-      commandes={commandes ?? []}
-      entreprises={entreprises}
-    />
-  )
-}
+  <CommandesClient
+    user={user}
+    profil={profil}
+    commandes={commandes ?? []}
+    entreprises={entreprises}
+    commandesAvecDemandeIds={commandesAvecDemandeIds}
+  />
+)
