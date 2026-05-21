@@ -485,61 +485,58 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
             )}
 
             {/* Zone annulation */}
-            <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid #f5f3ef' }}>
+<div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid #f5f3ef' }}>
+  {loadingDemande ? (
+    <div style={{ fontSize: 11, color: '#8b7355', textAlign: 'center' }}>Chargement...</div>
 
-              {loadingDemande ? (
-                <div style={{ fontSize: 11, color: '#8b7355', textAlign: 'center' }}>Chargement...</div>
-
-              ) : estBloque ? (
-                <div style={{ fontSize: 11, color: '#8b7355', background: '#f5f3ef', borderRadius: 6, padding: '10px 12px' }}>
-                  Annulation impossible — statut : {STATUT_LABELS[selected.statut]}
-                </div>
-
-              ) : role === 'admin' ? (
-                demandeAnnulation ? (
-                  <div>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: '#b8860b', background: '#fdf8ec', borderRadius: 6, padding: '10px 12px', marginBottom: 10, textAlign: 'center' }}>
-  Demande d'annulation en attente
-  {demandeAnnulation.motif && (
-    <div style={{ fontWeight: 400, marginTop: 4, color: '#4a5568' }}>
-      Motif : {demandeAnnulation.motif}
+  ) : estBloque ? (
+    <div style={{ fontSize: 11, color: '#8b7355', background: '#f5f3ef', borderRadius: 6, padding: '10px 12px' }}>
+      Annulation impossible — statut : {STATUT_LABELS[selected.statut]}
     </div>
-  )}
-</div>
-                      )}
-                    </div>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <button
-                        onClick={() => traiterDemande('refusee')}
-                        disabled={loading}
-                        style={{
-                          flex: 1, padding: '9px', borderRadius: 4,
-                          border: '1.5px solid #e8e3d8', background: '#fff',
-                          color: '#4a5568', fontSize: 12, fontWeight: 700,
-                          cursor: loading ? 'default' : 'pointer', opacity: loading ? 0.6 : 1
-                        }}
-                      >
-                        Refuser la demande
-                      </button>
-                      <button
-                        onClick={() => traiterDemande('acceptee')}
-                        disabled={loading}
-                        style={{
-                          flex: 1, padding: '9px', borderRadius: 4,
-                          border: '1.5px solid #fca5a5', background: '#fff',
-                          color: '#dc2626', fontSize: 12, fontWeight: 700,
-                          cursor: loading ? 'default' : 'pointer', opacity: loading ? 0.6 : 1
-                        }}
-                      >
-                        {loading ? '...' : 'Annuler la commande'}
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div style={{ fontSize: 11, color: '#8b7355', background: '#f5f3ef', borderRadius: 6, padding: '10px 12px', textAlign: 'center' }}>
-  Aucune demande d'annulation en attente
-</div>
-                )
+
+  ) : role === 'admin' ? (
+    demandeAnnulation ? (
+      <div>
+        <div style={{ fontSize: 11, fontWeight: 700, color: '#b8860b', background: '#fdf8ec', borderRadius: 6, padding: '10px 12px', marginBottom: 10, textAlign: 'center' }}>
+          Demande d'annulation en attente
+          {demandeAnnulation.motif && (
+            <div style={{ fontWeight: 400, marginTop: 4, color: '#4a5568' }}>
+              Motif : {demandeAnnulation.motif}
+            </div>
+          )}
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            onClick={() => traiterDemande('refusee')}
+            disabled={loading}
+            style={{
+              flex: 1, padding: '9px', borderRadius: 4,
+              border: '1.5px solid #e8e3d8', background: '#fff',
+              color: '#4a5568', fontSize: 12, fontWeight: 700,
+              cursor: loading ? 'default' : 'pointer', opacity: loading ? 0.6 : 1
+            }}
+          >
+            Refuser la demande
+          </button>
+          <button
+            onClick={() => traiterDemande('acceptee')}
+            disabled={loading}
+            style={{
+              flex: 1, padding: '9px', borderRadius: 4,
+              border: '1.5px solid #fca5a5', background: '#fff',
+              color: '#dc2626', fontSize: 12, fontWeight: 700,
+              cursor: loading ? 'default' : 'pointer', opacity: loading ? 0.6 : 1
+            }}
+          >
+            {loading ? '...' : 'Annuler la commande'}
+          </button>
+        </div>
+      </div>
+    ) : (
+      <div style={{ fontSize: 11, color: '#8b7355', background: '#f5f3ef', borderRadius: 6, padding: '10px 12px', textAlign: 'center' }}>
+        Aucune demande d'annulation en attente
+      </div>
+    )
 
               ) : (
                 demandeAnnulation ? (
