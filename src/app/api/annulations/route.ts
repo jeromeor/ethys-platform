@@ -7,9 +7,8 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
 
-    // Vérifie que la commande est annulable
     const [commande] = await sql`
-      SELECT statut FROM commandes WHERE id = ${body.commande_id}
+      SELECT statut, reference FROM commandes WHERE id = ${body.commande_id}
     `
     if (!commande) {
       return NextResponse.json({ error: 'Commande introuvable' }, { status: 404 })
@@ -21,7 +20,6 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Vérifie qu'une demande n'est pas déjà en attente
     const [existante] = await sql`
       SELECT id FROM demandes_annulation
       WHERE commande_id = ${body.commande_id} AND statut = 'en_attente'
@@ -38,6 +36,28 @@ export async function POST(req: NextRequest) {
       VALUES (${body.commande_id}, ${body.demandeur_id}, ${body.entreprise_id}, ${body.motif})
       RETURNING *
     `
+
+    // Notifie tous les admins
+    const admins = await sql`
+      SELECT id FROM profils_utilisateurs WHERE role = 'admin'
+    `
+    if (admins.length > 0) {
+      for (const admin of admins) {
+        await sql`
+          INSERT INTO notifications (utilisateur_id, type, titre, message, lien, lu, reference_id)
+          VALUES (
+            ${admin.id},
+            'demande_annulation',
+            ${'Demande d\'annulation — ' + commande.reference},
+            ${'Motif : ' + (body.motif || 'Non précisé')},
+            '/commandes',
+            false,
+            ${row.id}
+          )
+        `
+      }
+    }
+
     return NextResponse.json({ data: row })
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Erreur inconnue'
