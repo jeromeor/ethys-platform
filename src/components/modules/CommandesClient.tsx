@@ -40,6 +40,7 @@ interface Props {
   profil: { role?: string; entreprise_id?: string } | null
   commandes: Commande[]
   entreprises: Entreprise[]
+  commandesAvecDemandeIds: string[]
 }
 
 const STATUT_LABELS: Record<StatutCommande, string> = {
@@ -80,7 +81,7 @@ function extractGrammageNumber(g: string): number | null {
   return match ? parseInt(match[1]) : null
 }
 
-export default function CommandesClient({ user, profil, commandes: initial, entreprises }: Props) {
+export default function CommandesClient({ user, profil, commandes: initial, entreprises, commandesAvecDemandeIds }: Props) {
   const supabase = createClient()
   const [commandes, setCommandes] = useState<Commande[]>(initial)
   const [showForm, setShowForm] = useState(false)
