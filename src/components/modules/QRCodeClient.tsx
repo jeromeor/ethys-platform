@@ -51,11 +51,20 @@ interface Certification {
   qr_codes: QRCodeData[]
 }
 
+interface DemandeQr {
+  id: string
+  lot_id: string
+  statut: 'en_attente' | 'acceptee' | 'refusee'
+  created_at: string
+}
+
 interface Props {
   lots: Lot[]
   user: { id: string }
+  profil: { role: string; entreprise_id: string }
   certifications: Certification[]
   certificationIdActif: string | null
+  demandesQrEnAttente: DemandeQr[]
 }
 
 function CertQRImage({ url }: { url: string }) {
@@ -67,7 +76,7 @@ function CertQRImage({ url }: { url: string }) {
   return <img src={dataUrl} alt="QR" style={{ width: 80, height: 80, borderRadius: 4, border: '2px solid #fff' }} />
 }
 
-export default function QRCodeClient({ lots: initial, user, certifications, certificationIdActif }: Props) {
+export default function QRCodeClient({ lots: initial, user, profil, certifications, certificationIdActif, demandesQrEnAttente }: Props) {
   const supabase = createClient()
   const [lots, setLots] = useState<Lot[]>(initial)
   const [selected, setSelected] = useState<Lot | null>(initial[0] ?? null)
@@ -80,7 +89,20 @@ export default function QRCodeClient({ lots: initial, user, certifications, cert
   )
   const [urlCopied, setUrlCopied] = useState(false)
 
+  // Demandes QR : état local initialisé depuis les props
+  const [demandesQr, setDemandesQr] = useState<DemandeQr[]>(demandesQrEnAttente)
+  const [loadingDemande, setLoadingDemande] = useState(false)
+  const [errorDemande, setErrorDemande] = useState('')
+
+  const role = profil.role
+  const isAdmin = role === 'admin'
+
   const qrActif = selected?.qr_codes?.[0]
+
+  // Demande en attente pour le lot sélectionné
+  const demandeEnAttente = selected
+    ? demandesQr.find(d => d.lot_id === selected.id && d.statut === 'en_attente') ?? null
+    : null
 
   useEffect(() => {
     if (!qrActif) { setQrDataUrl(null); return }
@@ -90,9 +112,12 @@ export default function QRCodeClient({ lots: initial, user, certifications, cert
     }).then(setQrDataUrl)
   }, [qrActif?.id])
 
-  const genererQR = async () => {
+  // Admin : génère le QR après validation de la demande
+  const genererQR = async (demandeId?: string) => {
     if (!selected) return
     setGenerating(true)
+    setErrorDemande('')
+
     const reference = 'ETHYS-QR-' + (selected.commande?.reference ?? 'CMD') + '-' + selected.reference.split('-').pop()
     const { data: existing } = await supabase.from('qr_codes').select('*').eq('reference', reference).single()
     if (existing) {
@@ -102,6 +127,7 @@ export default function QRCodeClient({ lots: initial, user, certifications, cert
       setGenerating(false)
       return
     }
+
     const urlPublique = window.location.origin + '/tracabilite/' + reference
     const dataEncodee = {
       lot_id: selected.id,
@@ -116,18 +142,77 @@ export default function QRCodeClient({ lots: initial, user, certifications, cert
       certification: 'ETHYS',
       generated_at: new Date().toISOString(),
     }
+
     const { data, error } = await supabase
       .from('qr_codes')
       .insert({ lot_id: selected.id, reference, url_publique: urlPublique, data_encodee: dataEncodee, actif: true, nb_scans: 0 })
       .select()
       .single()
+
     if (!error && data) {
       const updatedLot = { ...selected, qr_codes: [data as QRCodeData] }
       setLots(prev => prev.map(l => l.id === selected.id ? updatedLot : l))
       setSelected(updatedLot)
       await supabase.from('lots').update({ statut: 'valide' }).eq('id', selected.id)
+
+      // Si génération suite à demande : marque la demande comme acceptée
+      if (demandeId) {
+        await fetch(`/api/demandes-qr/${demandeId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ statut: 'acceptee', traite_par: user.id })
+        })
+        setDemandesQr(prev => prev.filter(d => d.id !== demandeId))
+      }
     }
     setGenerating(false)
+  }
+
+  // Non-admin : soumet une demande de génération QR
+  const demanderQR = async () => {
+    if (!selected) return
+    setLoadingDemande(true)
+    setErrorDemande('')
+
+    const res = await fetch('/api/demandes-qr', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        lot_id: selected.id,
+        lot_reference: selected.reference,
+        commande_reference: selected.commande?.reference ?? '',
+        demandeur_id: user.id,
+        entreprise_id: profil.entreprise_id || null,
+      })
+    })
+    const result = await res.json()
+
+    if (result.error) {
+      setErrorDemande(result.error)
+    } else {
+      setDemandesQr(prev => [...prev, result.data as DemandeQr])
+    }
+    setLoadingDemande(false)
+  }
+
+  // Admin : refuse la demande
+  const refuserDemande = async (demandeId: string) => {
+    setLoadingDemande(true)
+    setErrorDemande('')
+
+    const res = await fetch(`/api/demandes-qr/${demandeId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ statut: 'refusee', traite_par: user.id })
+    })
+    const result = await res.json()
+
+    if (result.error) {
+      setErrorDemande(result.error)
+    } else {
+      setDemandesQr(prev => prev.filter(d => d.id !== demandeId))
+    }
+    setLoadingDemande(false)
   }
 
   const copierURL = () => {
@@ -144,6 +229,69 @@ export default function QRCodeClient({ lots: initial, user, certifications, cert
     a.href = qrDataUrl
     a.download = (qrActif?.reference ?? 'qr-ethys') + '.png'
     a.click()
+  }
+
+  // Rendu du bouton QR selon rôle et état
+  const renderBoutonQR = () => {
+    if (qrActif) return null // QR déjà généré, boutons affichés ailleurs
+
+    if (isAdmin) {
+      // Admin avec demande en attente
+      if (demandeEnAttente) {
+        return (
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#b8860b', background: '#fdf8ec', borderRadius: 6, padding: '10px 12px', textAlign: 'center' }}>
+              Demande de génération en attente
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button
+                onClick={() => refuserDemande(demandeEnAttente.id)}
+                disabled={loadingDemande}
+                style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#fff', color: '#4a5568', fontSize: 12, fontWeight: 700, cursor: loadingDemande ? 'default' : 'pointer', opacity: loadingDemande ? 0.6 : 1 }}
+              >
+                Refuser la demande
+              </button>
+              <button
+                onClick={() => genererQR(demandeEnAttente.id)}
+                disabled={generating || loadingDemande}
+                style={{ flex: 1, padding: '10px', borderRadius: 4, border: 'none', background: generating ? '#d4c5b0' : '#1a1a1a', color: generating ? '#8b7355' : '#fff', fontSize: 12, fontWeight: 700, cursor: generating ? 'default' : 'pointer' }}
+              >
+                {generating ? 'Génération...' : 'Générer le QR Code'}
+              </button>
+            </div>
+          </div>
+        )
+      }
+      // Admin sans demande : peut générer directement
+      return (
+        <button
+          onClick={() => genererQR()}
+          disabled={generating}
+          style={{ width: '100%', padding: '11px', borderRadius: 4, border: 'none', background: generating ? '#d4c5b0' : '#1a1a1a', color: generating ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: generating ? 'default' : 'pointer' }}
+        >
+          {generating ? 'Génération...' : 'Générer le QR Code ETHYS'}
+        </button>
+      )
+    }
+
+    // Non-admin
+    if (demandeEnAttente) {
+      return (
+        <div style={{ fontSize: 11, color: '#b8860b', background: '#fdf8ec', borderRadius: 6, padding: '10px 12px', textAlign: 'center', width: '100%' }}>
+          Demande envoyée<br />en attente de validation Textile Loop
+        </div>
+      )
+    }
+
+    return (
+      <button
+        onClick={demanderQR}
+        disabled={loadingDemande}
+        style={{ width: '100%', padding: '11px', borderRadius: 4, border: 'none', background: loadingDemande ? '#d4c5b0' : '#1a1a1a', color: loadingDemande ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: loadingDemande ? 'default' : 'pointer' }}
+      >
+        {loadingDemande ? 'Envoi...' : 'Demander la génération QR'}
+      </button>
+    )
   }
 
   return (
@@ -197,12 +345,13 @@ export default function QRCodeClient({ lots: initial, user, certifications, cert
           {source === 'lots' && lots.map(lot => {
             const hasQR = lot.qr_codes?.length > 0
             const isActive = selected?.id === lot.id
+            const hasDemande = demandesQr.some(d => d.lot_id === lot.id && d.statut === 'en_attente')
             return (
-              <div key={lot.id} onClick={() => setSelected(lot)} style={{ padding: '12px 16px', cursor: 'pointer', background: isActive ? '#F0FDF4' : 'transparent', borderLeft: '3px solid ' + (isActive ? '#1a1a1a' : 'transparent'), borderBottom: '1px solid #f5f3ef' }}>
+              <div key={lot.id} onClick={() => setSelected(lot)} style={{ padding: '12px 16px', cursor: 'pointer', background: isActive ? '#F0FDF4' : hasDemande ? '#fffbeb' : 'transparent', borderLeft: '3px solid ' + (isActive ? '#1a1a1a' : 'transparent'), borderBottom: '1px solid #f5f3ef' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                   <span style={{ fontSize: 12, fontWeight: 800, color: '#1a1a1a' }}>{lot.reference}</span>
-                  <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 4, background: hasQR ? '#f0f4ec' : '#fdf8ec', color: hasQR ? '#2d5016' : '#b8860b' }}>
-                    {hasQR ? 'QR actif' : 'En attente'}
+                  <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 4, background: hasQR ? '#f0f4ec' : hasDemande ? '#fef3c7' : '#fdf8ec', color: hasQR ? '#2d5016' : hasDemande ? '#b8860b' : '#b8860b' }}>
+                    {hasQR ? 'QR actif' : hasDemande ? 'Demande QR' : 'En attente'}
                   </span>
                 </div>
                 <div style={{ fontSize: 11, color: '#4a5568', marginBottom: 2 }}>{lot.commande?.reference} · {lot.commande?.marque?.nom}</div>
@@ -244,14 +393,14 @@ export default function QRCodeClient({ lots: initial, user, certifications, cert
             {/* QR Code */}
             <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '22px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 16, alignSelf: 'flex-start' }}>
-                {qrActif ? 'QR Code actif' : 'Generer le QR Code ETHYS'}
+                {qrActif ? 'QR Code actif' : 'QR Code ETHYS'}
               </div>
 
               {/* Image QR */}
               <div style={{ padding: 16, borderRadius: 8, marginBottom: 12, border: '2px solid ' + (qrActif ? '#f0f4ec' : '#e8e3d8'), background: qrActif ? '#fff' : '#f5f3ef', position: 'relative' }}>
                 {generating ? (
                   <div style={{ width: 180, height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <div style={{ fontSize: 12, color: '#8b7355' }}>Generation...</div>
+                    <div style={{ fontSize: 12, color: '#8b7355' }}>Génération...</div>
                   </div>
                 ) : qrDataUrl ? (
                   <img src={qrDataUrl} alt="QR Code ETHYS" style={{ width: 180, height: 180, display: 'block' }} />
@@ -292,11 +441,16 @@ export default function QRCodeClient({ lots: initial, user, certifications, cert
                 </div>
               </div>
 
-              {/* Boutons */}
+              {/* Erreur */}
+              {errorDemande && (
+                <div style={{ width: '100%', padding: '10px 12px', borderRadius: 6, background: '#fdf0f0', border: '1px solid #c8a0a0', fontSize: 12, color: '#8b3a3a', marginBottom: 10 }}>
+                  {errorDemande}
+                </div>
+              )}
+
+              {/* Boutons selon rôle */}
               {!qrActif ? (
-                <button onClick={genererQR} disabled={generating} style={{ width: '100%', padding: '11px', borderRadius: 4, border: 'none', background: generating ? '#d4c5b0' : '#1a1a1a', color: generating ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: generating ? 'default' : 'pointer' }}>
-                  {generating ? 'Generation...' : 'Generer le QR Code ETHYS'}
-                </button>
+                renderBoutonQR()
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%' }}>
                   <div style={{ display: 'flex', gap: 8 }}>
