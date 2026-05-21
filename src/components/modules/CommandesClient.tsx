@@ -534,16 +534,16 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
                     </div>
                   </div>
                 ) : (
-                  <div style={{ fontSize: 11, color: '#8b7355', background: '#f5f3ef', borderRadius: 6, padding: '10px 12px' }}>
-                    Aucune demande d'annulation en attente
-                  </div>
+                  <div style={{ fontSize: 11, color: '#8b7355', background: '#f5f3ef', borderRadius: 6, padding: '10px 12px', textAlign: 'center' }}>
+  Aucune demande d'annulation en attente
+</div>
                 )
 
               ) : (
                 demandeAnnulation ? (
-                  <div style={{ fontSize: 11, color: '#b8860b', background: '#fdf8ec', borderRadius: 6, padding: '10px 12px' }}>
-                    Demande d'annulation envoyée — en attente de traitement
-                  </div>
+                 <div style={{ fontSize: 11, color: '#b8860b', background: '#fdf8ec', borderRadius: 6, padding: '10px 12px', textAlign: 'center' }}>
+  Demande d'annulation envoyée<br />En attente de traitement
+</div>
                 ) : (
                   <button
                     onClick={() => setShowModalAnnulation(true)}
