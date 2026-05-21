@@ -183,6 +183,25 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
     setLoading(false)
   }
 
+  // Suppression directe — réservée au rôle admin (TL)
+  // Bloquée si statut livree ou qr_genere
+  const supprimerCommande = async (id: string) => {
+    if (!confirm('Supprimer définitivement cette commande ?')) return
+    setLoading(true)
+    setError('')
+
+    const res = await fetch(`/api/commandes/${id}`, { method: 'DELETE' })
+    const result = await res.json()
+
+    if (result.error) {
+      setError('Erreur : ' + result.error)
+    } else {
+      setCommandes(prev => prev.filter(c => c.id !== id))
+      setSelected(null)
+    }
+    setLoading(false)
+  }
+
   const labelInput = (label: string) => (
     <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>
       {label}
@@ -364,6 +383,32 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
                 <span style={{ fontSize: 12, fontWeight: 600, color: '#1A202C' }}>{v ?? '-'}</span>
               </div>
             ))}
+
+            {/* Suppression — réservée TL (admin), bloquée si livree ou qr_genere */}
+            {role === 'admin' && (
+              <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid #f5f3ef' }}>
+                {selected.statut === 'livree' || selected.statut === 'qr_genere' ? (
+                  <div style={{ fontSize: 11, color: '#8b7355', background: '#f5f3ef', borderRadius: 6, padding: '10px 12px' }}>
+                    Suppression impossible — statut : {STATUT_LABELS[selected.statut]}
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => supprimerCommande(selected.id)}
+                    disabled={loading}
+                    style={{
+                      width: '100%', padding: '9px', borderRadius: 4,
+                      border: '1.5px solid #fca5a5', background: '#fff',
+                      color: '#dc2626', fontSize: 12, fontWeight: 700,
+                      cursor: loading ? 'default' : 'pointer',
+                      opacity: loading ? 0.6 : 1,
+                    }}
+                  >
+                    {loading ? 'Suppression...' : 'Supprimer la commande'}
+                  </button>
+                )}
+              </div>
+            )}
+
           </div>
         </div>
       )}
