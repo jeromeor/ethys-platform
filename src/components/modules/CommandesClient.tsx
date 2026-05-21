@@ -10,6 +10,13 @@ type StatutCommande =
 
 interface Entreprise { id: string; nom: string; type: string }
 
+interface DemandeAnnulation {
+  id: string
+  motif: string | null
+  statut: 'en_attente' | 'acceptee' | 'refusee'
+  created_at: string
+}
+
 interface Commande {
   id: string
   reference: string
@@ -65,6 +72,9 @@ const STATUT_COLORS: Record<string, [string, string, string]> = {
 
 const GRAMMAGES = ['Ne 10/1','Ne 20/1','Ne 30/1','Ne 40/1','Ne 50/1','Ne 20/2','Ne 30/2']
 
+// Statuts qui bloquent toute annulation
+const STATUTS_BLOQUES: StatutCommande[] = ['livree', 'qr_genere', 'expediee', 'annulee']
+
 function extractGrammageNumber(g: string): number | null {
   const match = g.match(/Ne\s*(\d+)/)
   return match ? parseInt(match[1]) : null
@@ -82,6 +92,14 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
   const [filterFilature, setFilterFilature] = useState('')
   const [filterDateDebut, setFilterDateDebut] = useState('')
   const [filterDateFin, setFilterDateFin] = useState('')
+
+  // Demande d'annulation chargée à l'ouverture du panneau
+  const [demandeAnnulation, setDemandeAnnulation] = useState<DemandeAnnulation | null>(null)
+  const [loadingDemande, setLoadingDemande] = useState(false)
+
+  // Modal demande annulation (non-admin)
+  const [showModalAnnulation, setShowModalAnnulation] = useState(false)
+  const [motifAnnulation, setMotifAnnulation] = useState('')
 
   const role = profil?.role
   const monEntrepriseId = profil?.entreprise_id ?? ''
@@ -116,6 +134,25 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
   const volumeRecycle = parseFloat(form.volume_recycle_kg) || 0
   const volumeVierge  = Math.round(volumeRecycle * 49 / 51 * 100) / 100
   const volumeTotal   = Math.round((volumeRecycle + volumeVierge) * 100) / 100
+
+  // Ouvre le panneau détail et charge la demande d'annulation si elle existe
+  const ouvrirDetail = async (c: Commande) => {
+    setSelected(c)
+    setDemandeAnnulation(null)
+    setError('')
+    setLoadingDemande(true)
+    try {
+      const { data } = await supabase
+        .from('demandes_annulation')
+        .select('id, motif, statut, created_at')
+        .eq('commande_id', c.id)
+        .eq('statut', 'en_attente')
+        .maybeSingle()
+      setDemandeAnnulation(data ?? null)
+    } finally {
+      setLoadingDemande(false)
+    }
+  }
 
   const creerCommande = async () => {
     if (!form.marque_id || !form.filature_id || !form.fournisseur_id || !form.date_livraison_souhaitee) {
@@ -183,21 +220,57 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
     setLoading(false)
   }
 
-  // Suppression directe — réservée au rôle admin (TL)
-  // Bloquée si statut livree ou qr_genere
-  const supprimerCommande = async (id: string) => {
-    if (!confirm('Supprimer définitivement cette commande ?')) return
+  // Non-admin : soumet une demande d'annulation
+  const demanderAnnulation = async () => {
+    if (!selected) return
     setLoading(true)
     setError('')
 
-    const res = await fetch(`/api/commandes/${id}`, { method: 'DELETE' })
+    const res = await fetch('/api/annulations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        commande_id: selected.id,
+        demandeur_id: user.id,
+        entreprise_id: monEntrepriseId || null,
+        motif: motifAnnulation || null,
+      })
+    })
     const result = await res.json()
 
     if (result.error) {
       setError('Erreur : ' + result.error)
     } else {
-      setCommandes(prev => prev.filter(c => c.id !== id))
-      setSelected(null)
+      setDemandeAnnulation(result.data)
+      setShowModalAnnulation(false)
+      setMotifAnnulation('')
+    }
+    setLoading(false)
+  }
+
+  // Admin (TL) : accepte ou refuse la demande
+  const traiterDemande = async (statut: 'acceptee' | 'refusee') => {
+    if (!demandeAnnulation || !selected) return
+    setLoading(true)
+    setError('')
+
+    const res = await fetch(`/api/annulations/${demandeAnnulation.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ statut, traite_par: user.id })
+    })
+    const result = await res.json()
+
+    if (result.error) {
+      setError('Erreur : ' + result.error)
+    } else {
+      if (statut === 'acceptee') {
+        setCommandes(prev => prev.map(c =>
+          c.id === selected.id ? { ...c, statut: 'annulee' } : c
+        ))
+        setSelected(prev => prev ? { ...prev, statut: 'annulee' } : null)
+      }
+      setDemandeAnnulation(null)
     }
     setLoading(false)
   }
@@ -213,6 +286,8 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
     boxSizing: 'border-box' as const, outline: 'none', background: '#fff'
   }
   const selectStyle = { ...inputStyle }
+
+  const estBloque = selected ? STATUTS_BLOQUES.includes(selected.statut) : false
 
   return (
     <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
@@ -280,7 +355,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
                     const [bg, tc, dot] = STATUT_COLORS[c.statut] ?? ['#f5f3ef', '#4a5568', '#8b7355']
                     return (
                       <tr key={c.id}
-                        onClick={() => setSelected(c)}
+                        onClick={() => ouvrirDetail(c)}
                         style={{ borderTop: '1px solid #f5f3ef', cursor: 'pointer' }}
                         onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = '#f5f3ef'}
                         onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = 'transparent'}
@@ -339,6 +414,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
         </div>
       </div>
 
+      {/* Panneau détail commande */}
       {selected && (
         <div style={{
           width: 320, minWidth: 320, background: '#fff',
@@ -384,35 +460,141 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
               </div>
             ))}
 
-            {/* Suppression — réservée TL (admin), bloquée si livree ou qr_genere */}
-            {role === 'admin' && (
-              <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid #f5f3ef' }}>
-                {selected.statut === 'livree' || selected.statut === 'qr_genere' ? (
-                  <div style={{ fontSize: 11, color: '#8b7355', background: '#f5f3ef', borderRadius: 6, padding: '10px 12px' }}>
-                    Suppression impossible — statut : {STATUT_LABELS[selected.statut]}
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => supprimerCommande(selected.id)}
-                    disabled={loading}
-                    style={{
-                      width: '100%', padding: '9px', borderRadius: 4,
-                      border: '1.5px solid #fca5a5', background: '#fff',
-                      color: '#dc2626', fontSize: 12, fontWeight: 700,
-                      cursor: loading ? 'default' : 'pointer',
-                      opacity: loading ? 0.6 : 1,
-                    }}
-                  >
-                    {loading ? 'Suppression...' : 'Supprimer la commande'}
-                  </button>
-                )}
+            {error && (
+              <div style={{ padding: '10px 14px', borderRadius: 8, background: '#fdf0f0', border: '1px solid #c8a0a0', fontSize: 12, color: '#8b3a3a', marginTop: 12 }}>
+                {error}
               </div>
             )}
 
+            {/* Zone annulation */}
+            <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid #f5f3ef' }}>
+
+              {loadingDemande ? (
+                <div style={{ fontSize: 11, color: '#8b7355', textAlign: 'center' }}>Chargement...</div>
+
+              ) : estBloque ? (
+                <div style={{ fontSize: 11, color: '#8b7355', background: '#f5f3ef', borderRadius: 6, padding: '10px 12px' }}>
+                  Annulation impossible — statut : {STATUT_LABELS[selected.statut]}
+                </div>
+
+              ) : role === 'admin' ? (
+                demandeAnnulation ? (
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#b8860b', background: '#fdf8ec', borderRadius: 6, padding: '10px 12px', marginBottom: 10 }}>
+                      Demande d'annulation en attente
+                      {demandeAnnulation.motif && (
+                        <div style={{ fontWeight: 400, marginTop: 4, color: '#4a5568' }}>
+                          Motif : {demandeAnnulation.motif}
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button
+                        onClick={() => traiterDemande('refusee')}
+                        disabled={loading}
+                        style={{
+                          flex: 1, padding: '9px', borderRadius: 4,
+                          border: '1.5px solid #e8e3d8', background: '#fff',
+                          color: '#4a5568', fontSize: 12, fontWeight: 700,
+                          cursor: loading ? 'default' : 'pointer', opacity: loading ? 0.6 : 1
+                        }}
+                      >
+                        Refuser
+                      </button>
+                      <button
+                        onClick={() => traiterDemande('acceptee')}
+                        disabled={loading}
+                        style={{
+                          flex: 1, padding: '9px', borderRadius: 4,
+                          border: '1.5px solid #fca5a5', background: '#fff',
+                          color: '#dc2626', fontSize: 12, fontWeight: 700,
+                          cursor: loading ? 'default' : 'pointer', opacity: loading ? 0.6 : 1
+                        }}
+                      >
+                        {loading ? '...' : 'Annuler'}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ fontSize: 11, color: '#8b7355', background: '#f5f3ef', borderRadius: 6, padding: '10px 12px' }}>
+                    Aucune demande d'annulation en attente
+                  </div>
+                )
+
+              ) : (
+                demandeAnnulation ? (
+                  <div style={{ fontSize: 11, color: '#b8860b', background: '#fdf8ec', borderRadius: 6, padding: '10px 12px' }}>
+                    Demande d'annulation envoyée — en attente de traitement
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setShowModalAnnulation(true)}
+                    style={{
+                      width: '100%', padding: '9px', borderRadius: 4,
+                      border: '1.5px solid #fca5a5', background: '#fff',
+                      color: '#dc2626', fontSize: 12, fontWeight: 700, cursor: 'pointer'
+                    }}
+                  >
+                    Demander l'annulation
+                  </button>
+                )
+              )}
+            </div>
           </div>
         </div>
       )}
 
+      {/* Modal demande annulation (non-admin) */}
+      {showModalAnnulation && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 300, padding: 20
+        }}>
+          <div style={{
+            background: '#fff', borderRadius: 18, width: '100%', maxWidth: 420,
+            boxShadow: '0 24px 64px rgba(0,0,0,0.2)', padding: '28px'
+          }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', marginBottom: 6 }}>
+              Demander l'annulation
+            </div>
+            <div style={{ fontSize: 12, color: '#8b7355', marginBottom: 18 }}>
+              {selected?.reference} — votre demande sera traitée par Textile Loop
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              {labelInput('Motif (optionnel)')}
+              <textarea
+                value={motifAnnulation}
+                onChange={e => setMotifAnnulation(e.target.value)}
+                placeholder="Ex : erreur de saisie, changement de planning..."
+                rows={3}
+                style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit' }}
+              />
+            </div>
+            {error && (
+              <div style={{ padding: '10px 14px', borderRadius: 8, background: '#fdf0f0', border: '1px solid #c8a0a0', fontSize: 12, color: '#8b3a3a', marginBottom: 12 }}>
+                {error}
+              </div>
+            )}
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button
+                onClick={() => { setShowModalAnnulation(false); setMotifAnnulation(''); setError('') }}
+                style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#8b7355', fontSize: 13, cursor: 'pointer' }}
+              >
+                Annuler
+              </button>
+              <button
+                onClick={demanderAnnulation}
+                disabled={loading}
+                style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: loading ? '#d4c5b0' : '#1a1a1a', color: loading ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: loading ? 'default' : 'pointer' }}
+              >
+                {loading ? 'Envoi...' : 'Envoyer la demande'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal création commande */}
       {showForm && (
         <div style={{
           position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)',
