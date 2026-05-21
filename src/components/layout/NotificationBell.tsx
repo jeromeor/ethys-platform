@@ -20,6 +20,7 @@ const TYPE_ICONS: Record<string, string> = {
   declaration: '📋',
   compte_attente: '⏳',
   general: '🔔',
+  demande_qr: '▣',
   demande_annulation: '🚫',
 }
 
