@@ -385,12 +385,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
                             {Math.round(c.pct_recycle ?? 0)}%
                           </span>
                         </td>
-                        <td style={{ padding: '12px 14px' }}>
-                          <span style={{
-                            padding: '3px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700,
-                            background: bg, color: tc, display: 'inline-flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap'
-                          }}>
-                            <td style={{ padding: '12px 14px' }}>
+                       <td style={{ padding: '12px 14px' }}>
   <span style={{
     padding: '3px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700,
     background: commandesAvecDemandeIds.includes(c.id) ? '#fef3c7' : bg,
