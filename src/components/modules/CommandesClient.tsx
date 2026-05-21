@@ -494,14 +494,18 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
 
   ) : estBloque ? (
     <div style={{ fontSize: 11, color: '#8b7355', background: '#f5f3ef', borderRadius: 6, padding: '10px 12px', textAlign: 'center' }}>
-  {selected.statut === 'annulee' && demandeAnnulation?.traite_at ? (
+  {selected.statut === 'annulee' ? (
+  demandeAnnulation?.traite_at ? (
     <>
       Annulée le {new Date(demandeAnnulation.traite_at).toLocaleDateString('fr-FR')}<br />
       <span style={{ fontSize: 10, color: '#b8860b' }}>Réf. demande : {demandeAnnulation.id.slice(0, 8).toUpperCase()}</span>
     </>
   ) : (
-    <>Annulation impossible — statut : {STATUT_LABELS[selected.statut]}</>
-  )}
+    <>Commande annulée</>
+  )
+) : (
+  <>Annulation impossible — statut : {STATUT_LABELS[selected.statut]}</>
+)}
 </div>
 
   ) : role === 'admin' ? (
