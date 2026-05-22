@@ -93,7 +93,7 @@ export async function GET(req: NextRequest) {
     }
 
     const csv = [
-      headers.join(','),
+      headers.join(';'),
       ...filtered.map(r => [
         r.id, r.reference, r.titre, r.type_coton,
         r.volume_recycle_tonnes, r.volume_vierge_tonnes,
@@ -102,7 +102,7 @@ export async function GET(req: NextRequest) {
         r.date_livraison_souhaitee, r.created_at,
         r.marque, r.filature, r.filature_pays,
         r.fournisseur, r.zone
-      ].map(escape).join(','))
+      ].map(escape).join(';'))
     ].join('\n')
 
     return new Response('\uFEFF' + csv, {
