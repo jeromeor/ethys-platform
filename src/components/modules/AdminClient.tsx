@@ -58,7 +58,7 @@ const ROLE_COLORS: Record<string, [string, string]> = {
   fournisseur: ['#fdf8ec', '#b8860b'],
 }
 
-const TABS = ['Utilisateurs', 'Comptes à valider', 'Demandes en attente', 'Sécurité']
+const TABS = ['Utilisateurs', 'Comptes à valider', 'Demandes en attente', 'Export commandes', 'Sécurité']
 
 export default function AdminClient({ utilisateurs: initial = [], audit = [], entreprises = [], currentUserId }: Props) {
   const supabase = createClient()
@@ -74,6 +74,11 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
   const [sending, setSending] = useState(false)
   const [confirming, setConfirming] = useState(false)
   const [message, setMessage] = useState('')
+  const [exportDateDebut, setExportDateDebut] = useState('')
+  const [exportDateFin, setExportDateFin]     = useState('')
+  const [exportClient, setExportClient]       = useState('')
+  const [exportZone, setExportZone]           = useState('')
+  const [exporting, setExporting]             = useState(false)
   const [params, setParams] = useState([
     { label: 'Authentification 2FA', actif: true },
     { label: 'Sessions auto-expirees', actif: true },
@@ -161,6 +166,24 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
     }).eq('id', demandeId)
     setDemandes(prev => prev.filter(d => d.id !== demandeId))
   }
+
+  const exportCommandes = async () => {
+  setExporting(true)
+  const params = new URLSearchParams()
+  if (exportDateDebut) params.set('date_debut', exportDateDebut)
+  if (exportDateFin)   params.set('date_fin',   exportDateFin)
+  if (exportClient)    params.set('client',      exportClient)
+  if (exportZone)      params.set('zone',        exportZone)
+  const res = await fetch('/api/commandes?' + params.toString())
+  const blob = await res.blob()
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `commandes_${new Date().toISOString().slice(0,10)}.csv`
+  a.click()
+  URL.revokeObjectURL(url)
+  setExporting(false)
+ }
 
   const secScore = Math.round(params.filter(p => p.actif).length / params.length * 100)
   const nbActifs = (utilisateurs ?? []).filter(u => u.statut === 'actif').length
@@ -418,6 +441,52 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
           </div>
         )}
 
+        {activeTab === 'Export commandes' && (
+  <div style={{ maxWidth: 560 }}>
+    <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '24px 28px' }}>
+      <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 20 }}>Filtres export</div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
+        <div>
+          <label style={{ fontSize: 11, fontWeight: 600, color: '#8b7355', display: 'block', marginBottom: 5 }}>Date début</label>
+          <input type="date" value={exportDateDebut} onChange={e => setExportDateDebut(e.target.value)}
+            style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 12, boxSizing: 'border-box' }} />
+        </div>
+        <div>
+          <label style={{ fontSize: 11, fontWeight: 600, color: '#8b7355', display: 'block', marginBottom: 5 }}>Date fin</label>
+          <input type="date" value={exportDateFin} onChange={e => setExportDateFin(e.target.value)}
+            style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 12, boxSizing: 'border-box' }} />
+        </div>
+      </div>
+
+      <div style={{ marginBottom: 14 }}>
+        <label style={{ fontSize: 11, fontWeight: 600, color: '#8b7355', display: 'block', marginBottom: 5 }}>Client (marque)</label>
+        <input type="text" placeholder="Nom de la marque..." value={exportClient} onChange={e => setExportClient(e.target.value)}
+          style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 12, boxSizing: 'border-box' }} />
+      </div>
+
+      <div style={{ marginBottom: 24 }}>
+        <label style={{ fontSize: 11, fontWeight: 600, color: '#8b7355', display: 'block', marginBottom: 5 }}>Zone</label>
+        <select value={exportZone} onChange={e => setExportZone(e.target.value)}
+          style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 12 }}>
+          <option value=''>Toutes les zones</option>
+          <option value='Europe'>Europe</option>
+          <option value='Asie'>Asie</option>
+          <option value='Amérique du Nord'>Amérique du Nord</option>
+          <option value='Amérique du Sud'>Amérique du Sud</option>
+          <option value='Afrique'>Afrique</option>
+          <option value='Autre'>Autre</option>
+        </select>
+      </div>
+
+      <button onClick={exportCommandes} disabled={exporting}
+        style={{ width: '100%', padding: '12px', borderRadius: 4, border: 'none', background: exporting ? '#d4c5b0' : '#1a1a1a', color: exporting ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: exporting ? 'default' : 'pointer' }}>
+        {exporting ? 'Génération...' : '⬇ Exporter CSV'}
+      </button>
+    </div>
+  </div>
+)}
+        
         {activeTab === 'Sécurité' && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '20px 22px' }}>
