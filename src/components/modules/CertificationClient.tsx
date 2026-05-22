@@ -126,16 +126,6 @@ export default function CertificationClient({ certifications: initial, lotsEligi
     }
 
     if (data) {
-      setCertifications(prev => [data as Certification, ...prev])
-      setShowForm(false)
-      setSelectedLotId('')
-      setDeclarationHonneur(false)
-      setMessage('Demande de certification soumise. Elle sera examinee par TEXTILE LOOP.')
-    }
-    setSaving(false)
-  }
-
-if (data) {
       // Notifie tous les admins
       const { data: admins } = await supabase
         .from('profils_utilisateurs')
@@ -159,7 +149,7 @@ if (data) {
     }
     setSaving(false)
   }
-  
+
   const certifier = async (cert: Certification) => {
     setSaving(true)
     const now = new Date()
