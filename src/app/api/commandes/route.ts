@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
 
     const rows = await sql`
       SELECT
-        c.id, c.reference, c.titre, c.type_coton,
+        c.reference, c.titre, c.type_coton,
         c.volume_recycle_tonnes, c.volume_vierge_tonnes,
         c.volume_total_tonnes, c.pct_recycle, c.grammage,
         c.statut, c.priorite, c.notes,
@@ -73,13 +73,12 @@ export async function GET(req: NextRequest) {
       ORDER BY c.created_at DESC
     `
 
-    // Filtre zone en JS (calculée dynamiquement)
     const filtered = zone
       ? (rows as any[]).filter(r => r.zone === zone)
       : (rows as any[])
 
     const headers = [
-      'ID','Référence','Titre','Type coton','Vol. recyclé (t)','Vol. vierge (t)',
+      'Référence','Titre','Type coton','Vol. recyclé (t)','Vol. vierge (t)',
       'Vol. total (t)','% recyclé','Grammage','Statut','Priorité','Notes',
       'Date livraison souhaitée','Date création','Marque','Filature','Pays filature',
       'Fournisseur','Zone'
@@ -88,14 +87,14 @@ export async function GET(req: NextRequest) {
     const escape = (v: any) => {
       if (v == null) return ''
       const s = String(v)
-      return s.includes(',') || s.includes('"') || s.includes('\n')
+      return s.includes(';') || s.includes('"') || s.includes('\n')
         ? `"${s.replace(/"/g, '""')}"` : s
     }
 
     const csv = [
       headers.join(';'),
       ...filtered.map(r => [
-        r.id, r.reference, r.titre, r.type_coton,
+        r.reference, r.titre, r.type_coton,
         r.volume_recycle_tonnes, r.volume_vierge_tonnes,
         r.volume_total_tonnes, r.pct_recycle, r.grammage,
         r.statut, r.priorite, r.notes,
@@ -106,11 +105,11 @@ export async function GET(req: NextRequest) {
     ].join('\n')
 
     return new Response('\uFEFF' + csv, {
-  headers: {
-    'Content-Type': 'text/csv; charset=utf-8',
-    'Content-Disposition': `attachment; filename="commandes_${new Date().toISOString().slice(0,10)}.csv"`,
-  }
-})
+      headers: {
+        'Content-Type': 'text/csv; charset=utf-8',
+        'Content-Disposition': `attachment; filename="commandes_${new Date().toISOString().slice(0,10)}.csv"`,
+      }
+    })
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Erreur inconnue'
     return NextResponse.json({ error: message }, { status: 500 })
