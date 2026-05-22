@@ -81,7 +81,8 @@ export default function QRCodeClient({ lots: initial, user, profil, certificatio
   const supabase = createClient()
   const [lots, setLots] = useState<Lot[]>(initial)
   const [selected, setSelected] = useState<Lot | null>(
-  (lotIdActif ? initial.find(l => l.id === lotIdActif) : null) ?? initial[0] ?? null)
+    (lotIdActif ? initial.find(l => l.id === lotIdActif) : null) ?? initial[0] ?? null
+  )
   const [generating, setGenerating] = useState(false)
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
   const [previewPublic, setPreviewPublic] = useState(false)
@@ -95,6 +96,9 @@ export default function QRCodeClient({ lots: initial, user, profil, certificatio
   const [demandesQr, setDemandesQr] = useState<DemandeQr[]>(demandesQrEnAttente)
   const [loadingDemande, setLoadingDemande] = useState(false)
   const [errorDemande, setErrorDemande] = useState('')
+
+  // Filtre demandes uniquement (actif si arrivée via notif)
+  const [filtreDemandesOnly, setFiltreDemandesOnly] = useState(!!lotIdActif)
 
   const role = profil.role
   const isAdmin = role === 'admin'
@@ -235,10 +239,9 @@ export default function QRCodeClient({ lots: initial, user, profil, certificatio
 
   // Rendu du bouton QR selon rôle et état
   const renderBoutonQR = () => {
-    if (qrActif) return null // QR déjà généré, boutons affichés ailleurs
+    if (qrActif) return null
 
     if (isAdmin) {
-      // Admin avec demande en attente
       if (demandeEnAttente) {
         return (
           <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -264,7 +267,6 @@ export default function QRCodeClient({ lots: initial, user, profil, certificatio
           </div>
         )
       }
-      // Admin sans demande : peut générer directement
       return (
         <button
           onClick={() => genererQR()}
@@ -276,7 +278,6 @@ export default function QRCodeClient({ lots: initial, user, profil, certificatio
       )
     }
 
-    // Non-admin
     if (demandeEnAttente) {
       return (
         <div style={{ fontSize: 11, color: '#b8860b', background: '#fdf8ec', borderRadius: 6, padding: '10px 12px', textAlign: 'center', width: '100%' }}>
@@ -296,6 +297,11 @@ export default function QRCodeClient({ lots: initial, user, profil, certificatio
     )
   }
 
+  // Liste filtrée des lots
+  const lotsFiltres = lots.filter(lot =>
+    !filtreDemandesOnly || demandesQr.some(d => d.lot_id === lot.id && d.statut === 'en_attente')
+  )
+
   return (
     <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
 
@@ -311,10 +317,23 @@ export default function QRCodeClient({ lots: initial, user, profil, certificatio
             </button>
           </div>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 2 }}>{source === 'lots' ? 'Lots de production' : 'Certifications ETHYS'}</div>
-          <div style={{ fontSize: 11, color: '#8b7355' }}>
+          <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 8 }}>
             <span style={{ fontWeight: 700, color: '#1a1a1a' }}>{source === 'lots' ? lots.filter(l => l.qr_codes?.length > 0).length : certifications.filter(c => c.qr_codes?.length > 0).length}</span>{' QR generés · '}
             <span style={{ fontWeight: 700, color: '#D97706' }}>{source === 'lots' ? lots.filter(l => !l.qr_codes?.length).length : certifications.filter(c => !c.qr_codes?.length).length}</span>{' en attente'}
           </div>
+          {source === 'lots' && isAdmin && (
+            <button
+              onClick={() => setFiltreDemandesOnly(v => !v)}
+              style={{
+                width: '100%', padding: '5px 8px', borderRadius: 6, border: 'none', cursor: 'pointer',
+                background: filtreDemandesOnly ? '#D97706' : '#f5f3ef',
+                color: filtreDemandesOnly ? '#fff' : '#4a5568',
+                fontSize: 11, fontWeight: 700
+              }}
+            >
+              {filtreDemandesOnly ? '▣ Demandes QR uniquement' : '▣ Voir demandes QR'}
+            </button>
+          )}
         </div>
 
         <div style={{ flex: 1, overflowY: 'auto' }}>
@@ -341,10 +360,12 @@ export default function QRCodeClient({ lots: initial, user, profil, certificatio
             </>
           )}
 
-          {source === 'lots' && lots.length === 0 && (
-            <div style={{ padding: '40px 16px', textAlign: 'center', color: '#8b7355', fontSize: 12 }}>Aucun lot disponible.</div>
+          {source === 'lots' && lotsFiltres.length === 0 && (
+            <div style={{ padding: '40px 16px', textAlign: 'center', color: '#8b7355', fontSize: 12 }}>
+              {filtreDemandesOnly ? 'Aucune demande QR en attente.' : 'Aucun lot disponible.'}
+            </div>
           )}
-          {source === 'lots' && lots.map(lot => {
+          {source === 'lots' && lotsFiltres.map(lot => {
             const hasQR = lot.qr_codes?.length > 0
             const isActive = selected?.id === lot.id
             const hasDemande = demandesQr.some(d => d.lot_id === lot.id && d.statut === 'en_attente')
