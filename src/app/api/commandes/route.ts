@@ -128,3 +128,86 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url)
+    const dateDebut = searchParams.get('date_debut')
+    const dateFin   = searchParams.get('date_fin')
+    const client    = searchParams.get('client')
+    const zone      = searchParams.get('zone')
+
+    const rows = await sql`
+      SELECT
+        c.id, c.reference, c.titre, c.type_coton,
+        c.volume_recycle_tonnes, c.volume_vierge_tonnes,
+        c.volume_total_tonnes, c.pct_recycle, c.grammage,
+        c.statut, c.priorite, c.notes,
+        c.date_livraison_souhaitee, c.created_at,
+        marque.nom      AS marque,
+        filature.nom    AS filature,
+        filature.pays   AS filature_pays,
+        fournisseur.nom AS fournisseur,
+        CASE filature.pays
+          WHEN 'France'   THEN 'Europe'
+          WHEN 'Espagne'  THEN 'Europe'
+          WHEN 'Portugal' THEN 'Europe'
+          WHEN 'Danemark' THEN 'Europe'
+          WHEN 'Turquie'  THEN 'Europe'
+          WHEN 'Maroc'    THEN 'Europe'
+          WHEN 'Tunisie'  THEN 'Europe'
+          WHEN 'Algérie'  THEN 'Europe'
+          ELSE 'Autre'
+        END AS zone
+      FROM commandes c
+      LEFT JOIN entreprises marque      ON marque.id      = c.marque_id
+      LEFT JOIN entreprises filature    ON filature.id    = c.filature_id
+      LEFT JOIN entreprises fournisseur ON fournisseur.id = c.fournisseur_id
+      WHERE (${dateDebut}::text IS NULL OR c.created_at >= ${dateDebut}::date)
+        AND (${dateFin}::text   IS NULL OR c.created_at <= (${dateFin}::date + interval '1 day'))
+        AND (${client}::text    IS NULL OR marque.nom ILIKE ${'%' + (client ?? '') + '%'})
+      ORDER BY c.created_at DESC
+    `
+
+    // Filtre zone en JS (calculée dynamiquement)
+    const filtered = zone
+      ? (rows as any[]).filter(r => r.zone === zone)
+      : (rows as any[])
+
+    const headers = [
+      'ID','Référence','Titre','Type coton','Vol. recyclé (t)','Vol. vierge (t)',
+      'Vol. total (t)','% recyclé','Grammage','Statut','Priorité','Notes',
+      'Date livraison souhaitée','Date création','Marque','Filature','Pays filature',
+      'Fournisseur','Zone'
+    ]
+
+    const escape = (v: any) => {
+      if (v == null) return ''
+      const s = String(v)
+      return s.includes(',') || s.includes('"') || s.includes('\n')
+        ? `"${s.replace(/"/g, '""')}"` : s
+    }
+
+    const csv = [
+      headers.join(','),
+      ...filtered.map(r => [
+        r.id, r.reference, r.titre, r.type_coton,
+        r.volume_recycle_tonnes, r.volume_vierge_tonnes,
+        r.volume_total_tonnes, r.pct_recycle, r.grammage,
+        r.statut, r.priorite, r.notes,
+        r.date_livraison_souhaitee, r.created_at,
+        r.marque, r.filature, r.filature_pays,
+        r.fournisseur, r.zone
+      ].map(escape).join(','))
+    ].join('\n')
+
+    return new Response(csv, {
+      headers: {
+        'Content-Type': 'text/csv; charset=utf-8',
+        'Content-Disposition': `attachment; filename="commandes_${new Date().toISOString().slice(0,10)}.csv"`,
+      }
+    })
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Erreur inconnue'
+    return NextResponse.json({ error: message }, { status: 500 })
+  }
+}
