@@ -30,19 +30,19 @@ export async function POST(req: NextRequest) {
       SELECT id FROM profils_utilisateurs WHERE role = 'admin'
     `
     for (const admin of admins) {
-      await sql`
-        INSERT INTO notifications (utilisateur_id, type, titre, message, lien, lu, reference_id)
-        VALUES (
-          ${admin.id},
-          'demande_qr',
-          ${'Demande QR Code — ' + body.lot_reference},
-          ${'Lot ' + body.lot_reference + ' · ' + (body.${'/qrcode?lot_id=' + body.lot_id} _reference ?? '')},
-          '/qrcode',
-          false,
-          ${row.id}
-        )
-      `
-    }
+  await sql`
+    INSERT INTO notifications (utilisateur_id, type, titre, message, lien, lu, reference_id)
+    VALUES (
+      ${admin.id},
+      'demande_qr',
+      ${'Demande QR Code — ' + body.lot_reference},
+      ${'Lot ' + body.lot_reference + ' · ' + (body.commande_reference ?? '')},
+      ${'/qrcode?lot_id=' + body.lot_id},
+      false,
+      ${row.id}
+    )
+  `
+}
 
     return NextResponse.json({ data: row })
   } catch (err: unknown) {
