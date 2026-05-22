@@ -64,8 +64,8 @@ interface Props {
   profil: { role: string; entreprise_id: string }
   certifications: Certification[]
   certificationIdActif: string | null
-  demandesQrEnAttente: DemandeQr[]
   lotIdActif: string | null
+  demandesQrEnAttente: DemandeQr[]
 }
 
 function CertQRImage({ url }: { url: string }) {
@@ -77,7 +77,7 @@ function CertQRImage({ url }: { url: string }) {
   return <img src={dataUrl} alt="QR" style={{ width: 80, height: 80, borderRadius: 4, border: '2px solid #fff' }} />
 }
 
-export default function QRCodeClient({ lots: initial, user, profil, certifications, certificationIdActif, demandesQrEnAttente }: Props) {
+export default function QRCodeClient({ lots: initial, user, profil, certifications, certificationIdActif, lotIdActif, demandesQrEnAttente }: Props) {
   const supabase = createClient()
   const [lots, setLots] = useState<Lot[]>(initial)
   const [selected, setSelected] = useState<Lot | null>(
