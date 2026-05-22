@@ -41,34 +41,67 @@ export default function SidebarLayout({ user, profil, children }: Props) {
   const [comptesEnAttente, setComptesEnAttente] = useState(0)
   const [certifEnAttente, setCertifEnAttente] = useState(0)
   const [demandesQrEnAttente, setDemandesQrEnAttente] = useState(0)
+  const [annulationsEnAttente, setAnnulationsEnAttente] = useState(0)
+  const [messagesNonLus, setMessagesNonLus] = useState(0)
+  const [productionNonLus, setProductionNonLus] = useState(0)
 
   useEffect(() => {
     const chargerBadges = async () => {
-      if (profil?.role !== 'admin') return
+      if (!profil?.id) return
 
-      const { count: countComptes } = await supabase
-        .from('profils_utilisateurs')
-        .select('*', { count: 'exact', head: true })
-        .is('entreprise_id', null)
-        .neq('role', 'admin')
-      setComptesEnAttente(countComptes ?? 0)
+      // Badges admin uniquement
+      if (profil?.role === 'admin') {
+        const { count: countComptes } = await supabase
+          .from('profils_utilisateurs')
+          .select('*', { count: 'exact', head: true })
+          .is('entreprise_id', null)
+          .neq('role', 'admin')
+        setComptesEnAttente(countComptes ?? 0)
 
-      const { count: countCertif } = await supabase
-        .from('certifications_ethys')
-        .select('*', { count: 'exact', head: true })
-        .eq('statut', 'en_validation')
-      setCertifEnAttente(countCertif ?? 0)
+        const { count: countCertif } = await supabase
+          .from('certifications_ethys')
+          .select('*', { count: 'exact', head: true })
+          .eq('statut', 'en_validation')
+        setCertifEnAttente(countCertif ?? 0)
 
-      const { count: countQR } = await supabase
-        .from('demandes_qr')
+        const { count: countQR } = await supabase
+          .from('demandes_qr')
+          .select('*', { count: 'exact', head: true })
+          .eq('statut', 'en_attente')
+        setDemandesQrEnAttente(countQR ?? 0)
+      }
+
+      // Badges notifications pour tous les utilisateurs
+      const { count: countAnnulations } = await supabase
+        .from('notifications')
         .select('*', { count: 'exact', head: true })
-        .eq('statut', 'en_attente')
-      setDemandesQrEnAttente(countQR ?? 0)
+        .eq('utilisateur_id', profil.id)
+        .eq('type', 'demande_annulation')
+        .eq('lu', false)
+      setAnnulationsEnAttente(countAnnulations ?? 0)
+
+      const { count: countMessages } = await supabase
+        .from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('utilisateur_id', profil.id)
+        .eq('type', 'message')
+        .eq('lu', false)
+      setMessagesNonLus(countMessages ?? 0)
+
+      // Production : lots terminés + retours arrière
+      const { count: countProduction } = await supabase
+        .from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('utilisateur_id', profil.id)
+        .in('type', ['lot_termine', 'retour_arriere', 'lot_bloque', 'declaration'])
+        .eq('lu', false)
+      setProductionNonLus(countProduction ?? 0)
     }
+
     chargerBadges()
     const interval = setInterval(chargerBadges, 30000)
     return () => clearInterval(interval)
-  }, [profil?.role])
+  }, [profil?.role, profil?.id])
 
   const [showUserMenu, setShowUserMenu] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
@@ -119,6 +152,15 @@ export default function SidebarLayout({ user, profil, children }: Props) {
                 )}
                 {open && item.route === '/qrcode' && demandesQrEnAttente > 0 && profil?.role === 'admin' && (
                   <span style={{ background: '#D97706', color: '#fff', borderRadius: '50%', minWidth: 18, height: 18, fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>{demandesQrEnAttente}</span>
+                )}
+                {open && item.route === '/commandes' && annulationsEnAttente > 0 && (
+                  <span style={{ background: '#EF4444', color: '#fff', borderRadius: '50%', minWidth: 18, height: 18, fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>{annulationsEnAttente}</span>
+                )}
+                {open && item.route === '/messagerie' && messagesNonLus > 0 && (
+                  <span style={{ background: '#EF4444', color: '#fff', borderRadius: '50%', minWidth: 18, height: 18, fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>{messagesNonLus}</span>
+                )}
+                {open && item.route === '/production' && productionNonLus > 0 && (
+                  <span style={{ background: '#EF4444', color: '#fff', borderRadius: '50%', minWidth: 18, height: 18, fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>{productionNonLus}</span>
                 )}
               </button>
             )
