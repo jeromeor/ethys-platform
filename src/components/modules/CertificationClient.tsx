@@ -135,6 +135,23 @@ export default function CertificationClient({ certifications: initial, lotsEligi
     setSaving(false)
   }
 
+  // Notifie tous les admins
+const { data: admins } = await supabase
+  .from('profils_utilisateurs')
+  .select('id')
+  .eq('role', 'admin')
+
+for (const admin of admins ?? []) {
+  await supabase.from('notifications').insert({
+    utilisateur_id: admin.id,
+    type: 'certification',
+    titre: 'Demande de certification — ' + (lot?.reference ?? ''),
+    contenu: 'Lot soumis pour certification ETHYS',
+    lien: '/certification',
+    lu: false,
+  })
+}
+  
   const certifier = async (cert: Certification) => {
     setSaving(true)
     const now = new Date()
