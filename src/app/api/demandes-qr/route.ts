@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
           ${admin.id},
           'demande_qr',
           ${'Demande QR Code — ' + body.lot_reference},
-          ${'Lot ' + body.lot_reference + ' · ' + (body.commande_reference ?? '')},
+          ${'Lot ' + body.lot_reference + ' · ' + (body.${'/qrcode?lot_id=' + body.lot_id} _reference ?? '')},
           '/qrcode',
           false,
           ${row.id}
