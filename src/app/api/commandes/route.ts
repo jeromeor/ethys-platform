@@ -105,12 +105,12 @@ export async function GET(req: NextRequest) {
       ].map(escape).join(','))
     ].join('\n')
 
-    return new Response(csv, {
-      headers: {
-        'Content-Type': 'text/csv; charset=utf-8',
-        'Content-Disposition': `attachment; filename="commandes_${new Date().toISOString().slice(0,10)}.csv"`,
-      }
-    })
+    return new Response('\uFEFF' + csv, {
+  headers: {
+    'Content-Type': 'text/csv; charset=utf-8',
+    'Content-Disposition': `attachment; filename="commandes_${new Date().toISOString().slice(0,10)}.csv"`,
+  }
+})
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Erreur inconnue'
     return NextResponse.json({ error: message }, { status: 500 })
