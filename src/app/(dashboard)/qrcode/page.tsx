@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import QRCodeClient from '@/components/modules/QRCodeClient'
 import { redirect } from 'next/navigation'
 
-export default async function QRCodePage({ searchParams }: { searchParams: Promise<{ certification_id?: string }> }) {
+export default async function QRCodePage({ searchParams }: { searchParams: Promise<{ certification_id?: string; lot_id?: string }> }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -66,6 +66,7 @@ export default async function QRCodePage({ searchParams }: { searchParams: Promi
       profil={{ role: profil?.role ?? '', entreprise_id: profil?.entreprise_id ?? '' }}
       certifications={certificationsEnrichies}
       certificationIdActif={params.certification_id ?? null}
+      lotIdActif={params.lot_id ?? null}
       demandesQrEnAttente={demandesQr ?? []}
     />
   )
