@@ -52,11 +52,19 @@ export default function SidebarLayout({ user, profil, children }: Props) {
       // Badges admin uniquement
       if (profil?.role === 'admin') {
         const { count: countComptes } = await supabase
-          .from('profils_utilisateurs')
-          .select('*', { count: 'exact', head: true })
-          .is('entreprise_id', null)
-          .neq('role', 'admin')
-        setComptesEnAttente(countComptes ?? 0)
+  .from('profils_utilisateurs')
+  .select('*', { count: 'exact', head: true })
+  .is('entreprise_id', null)
+  .neq('role', 'admin')
+
+const { count: countCompteNotif } = await supabase
+  .from('notifications')
+  .select('*', { count: 'exact', head: true })
+  .eq('utilisateur_id', profil.id)
+  .eq('type', 'compte_attente')
+  .eq('lu', false)
+
+setComptesEnAttente((countComptes ?? 0) + (countCompteNotif ?? 0))
 
         const { count: countCertif } = await supabase
           .from('certifications_ethys')
