@@ -40,6 +40,7 @@ export default function SidebarLayout({ user, profil, children }: Props) {
   const [open, setOpen] = useState(true)
   const [comptesEnAttente, setComptesEnAttente] = useState(0)
   const [certifEnAttente, setCertifEnAttente] = useState(0)
+  const [demandesQrEnAttente, setDemandesQrEnAttente] = useState(0)
 
   useEffect(() => {
     const chargerBadges = async () => {
@@ -57,6 +58,12 @@ export default function SidebarLayout({ user, profil, children }: Props) {
         .select('*', { count: 'exact', head: true })
         .eq('statut', 'en_validation')
       setCertifEnAttente(countCertif ?? 0)
+
+      const { count: countQR } = await supabase
+        .from('demandes_qr')
+        .select('*', { count: 'exact', head: true })
+        .eq('statut', 'en_attente')
+      setDemandesQrEnAttente(countQR ?? 0)
     }
     chargerBadges()
     const interval = setInterval(chargerBadges, 30000)
@@ -97,7 +104,7 @@ export default function SidebarLayout({ user, profil, children }: Props) {
           {open && <div style={{ fontSize: 10, fontWeight: 600, color: '#1a1a1a', letterSpacing: 2, marginTop: 6, textTransform: 'uppercase' }}>Platform</div>}
         </div>
 
-       <nav style={{ flex: 1, padding: '2px 8px', display: 'flex', flexDirection: 'column', gap: 0 }}>
+        <nav style={{ flex: 1, padding: '2px 8px', display: 'flex', flexDirection: 'column', gap: 0 }}>
           {navItems.filter(item => item.route !== '/admin' || profil?.role === 'admin').map(item => {
             const active = pathname === item.route || pathname.startsWith(item.route + '/')
             return (
@@ -109,6 +116,9 @@ export default function SidebarLayout({ user, profil, children }: Props) {
                 )}
                 {open && item.route === '/certification' && certifEnAttente > 0 && profil?.role === 'admin' && (
                   <span style={{ background: '#EF4444', color: '#fff', borderRadius: '50%', minWidth: 18, height: 18, fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>{certifEnAttente}</span>
+                )}
+                {open && item.route === '/qrcode' && demandesQrEnAttente > 0 && profil?.role === 'admin' && (
+                  <span style={{ background: '#D97706', color: '#fff', borderRadius: '50%', minWidth: 18, height: 18, fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>{demandesQrEnAttente}</span>
                 )}
               </button>
             )
@@ -160,8 +170,8 @@ export default function SidebarLayout({ user, profil, children }: Props) {
             </div>
           </div>
         </header>
-       <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', position: 'relative' }}>{children}</div>
-          </main>
-      </div>
+        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', position: 'relative' }}>{children}</div>
+      </main>
+    </div>
   )
 }
