@@ -64,11 +64,11 @@ export default function SidebarLayout({ user, profil, children }: Props) {
           .eq('statut', 'en_validation')
         setCertifEnAttente(countCertif ?? 0)
 
-        const { count: countQR } = await supabase
-          .from('demandes_qr')
-          .select('*', { count: 'exact', head: true })
-          .eq('statut', 'en_attente')
-        setDemandesQrEnAttente(countQR ?? 0)
+        const { count: countQR, error: errQR } = await supabase
+  .from('demandes_qr')
+  .select('*', { count: 'exact', head: true })
+  .eq('statut', 'en_attente')
+setDemandesQrEnAttente(errQR ? 0 : (countQR ?? 0))
       }
 
       // Badges notifications pour tous les utilisateurs
