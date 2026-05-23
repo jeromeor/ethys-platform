@@ -21,26 +21,26 @@ export async function PATCH(
       return NextResponse.json({ error: 'Demande introuvable' }, { status: 404 })
     }
 
-    // Marque lu toutes les notifs liées à cette demande
-    await sql`
-      UPDATE notifications SET lu = true
-      WHERE reference_id = ${id} AND type = 'demande_qr'
-    `
+    // UPDATE lu
+await sql`
+  UPDATE notifications SET lu = true
+  WHERE type = 'demande_qr' AND lu = false
+`
 
-    // Notifie la filature si la demande est acceptée
-    if (body.statut === 'acceptee' && demande.demandeur_id) {
-      await sql`
-        INSERT INTO notifications (utilisateur_id, type, titre, contenu, lien, lu)
-        VALUES (
-          ${demande.demandeur_id},
-          'qr_genere',
-          'QR Code généré !',
-          'Votre demande de QR Code a été acceptée. Le QR Code est disponible dans la section QR Code.',
-          '/qrcode',
-          false
-        )
-      `
-    }
+// INSERT notification filature
+if (body.statut === 'acceptee' && demande.demandeur_id) {
+  await sql`
+    INSERT INTO notifications (user_id, type, titre, contenu, lien, lu)
+    VALUES (
+      ${demande.demandeur_id},
+      'qr_genere',
+      'QR Code généré !',
+      'Votre demande de QR Code a été acceptée. Le QR Code est disponible dans la section QR Code.',
+      '/qrcode',
+      false
+    )
+  `
+}
 
     return NextResponse.json({ success: true, lot_id: demande.lot_id })
   } catch (err: unknown) {
