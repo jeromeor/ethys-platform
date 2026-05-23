@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import CommandesClient from '@/components/modules/CommandesClient'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 export default async function CommandesPage() {
   const supabase = await createClient()
@@ -17,11 +18,12 @@ export default async function CommandesPage() {
   const entrepriseId = profil?.entreprise_id
   const role = profil?.role
 
-  // Récupère les partenaires acceptés une seule fois
+  // Récupère les partenaires via le client admin (bypass schema cache PostgREST)
   let partnerIds: string[] = []
 
   if (role !== 'admin' && entrepriseId) {
-    const { data: partnerships, error: errP } = await supabase
+    const supabaseAdmin = createAdminClient()
+    const { data: partnerships, error: errP } = await supabaseAdmin
       .from('partenariats')
       .select('demandeur_id, receveur_id')
       .eq('statut', 'accepte')
@@ -29,13 +31,11 @@ export default async function CommandesPage() {
 
     console.log('DEBUG partnerships', JSON.stringify(partnerships), 'error', errP?.message)
 
-    partnerIds = (partnerships ?? []).map(p =>
+    partnerIds = (partnerships ?? []).map((p: { demandeur_id: string; receveur_id: string }) =>
       p.demandeur_id === entrepriseId ? p.receveur_id : p.demandeur_id
     )
-
-    console.log('DEBUG partnerIds', JSON.stringify(partnerIds))
-    console.log('DEBUG entrepriseId', entrepriseId)
   }
+
   // UUID invalide utilisé comme fallback quand aucun partenaire → retourne 0 résultats
   const fallback = ['00000000-0000-0000-0000-000000000000']
 
@@ -87,21 +87,23 @@ export default async function CommandesPage() {
       .order('nom')
     entreprises = data ?? []
   }
-// IDs des commandes avec une demande d'annulation en attente
-const { data: demandesEnAttente } = await supabase
-  .from('demandes_annulation')
-  .select('commande_id')
-  .eq('statut', 'en_attente')
 
-const commandesAvecDemande = new Set(
-  (demandesEnAttente ?? []).map(d => d.commande_id)
-)
-const commandesAvecDemandeIds = Array.from(commandesAvecDemande)
+  // IDs des commandes avec une demande d'annulation en attente
+  const { data: demandesEnAttente } = await supabase
+    .from('demandes_annulation')
+    .select('commande_id')
+    .eq('statut', 'en_attente')
+
+  const commandesAvecDemande = new Set(
+    (demandesEnAttente ?? []).map(d => d.commande_id)
+  )
+  const commandesAvecDemandeIds = Array.from(commandesAvecDemande)
+
   console.log('DEBUG entreprises', JSON.stringify(entreprises))
-console.log('DEBUG partnerIds', JSON.stringify(partnerIds))
-console.log('DEBUG role', role, 'entrepriseId', entrepriseId)
+  console.log('DEBUG partnerIds', JSON.stringify(partnerIds))
+  console.log('DEBUG role', role, 'entrepriseId', entrepriseId)
 
-return (
+  return (
     <CommandesClient
       user={user}
       profil={profil}
