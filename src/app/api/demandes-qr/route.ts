@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
-import postgres from 'postgres'
 
 export async function POST(req: NextRequest) {
   try {
@@ -22,7 +21,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // INSERT demande
+    // INSERT demande — le trigger notify_demande_qr insère la notification automatiquement
     const { data: row, error } = await supabase
       .from('demandes_qr')
       .insert({ lot_id: body.lot_id, demandeur_id: body.demandeur_id, entreprise_id: body.entreprise_id })
@@ -30,25 +29,6 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-
-    // INSERT notifications via SQL direct (contourne cache PostgREST)
-    const sql = postgres(process.env.DATABASE_URL!, { ssl: 'require' })
-    const admins = await sql`SELECT id FROM profils_utilisateurs WHERE role = 'admin'`
-
-    for (const admin of admins) {
-      await sql`
-        INSERT INTO notifications (user_id, type, titre, contenu, lien, lu)
-        VALUES (
-          ${admin.id},
-          'demande_qr',
-          ${'Demande QR Code — ' + body.lot_reference},
-          ${'Lot ' + body.lot_reference + ' · ' + (body.commande_reference ?? '')},
-          ${'/qrcode?lot_id=' + body.lot_id},
-          false
-        )
-      `
-    }
-    await sql.end()
 
     return NextResponse.json({ data: row })
   } catch (err: unknown) {
