@@ -94,7 +94,11 @@ const commandesAvecDemande = new Set(
   (demandesEnAttente ?? []).map(d => d.commande_id)
 )
 const commandesAvecDemandeIds = Array.from(commandesAvecDemande)
-  return (
+  console.log('DEBUG entreprises', JSON.stringify(entreprises))
+console.log('DEBUG partnerIds', JSON.stringify(partnerIds))
+console.log('DEBUG role', role, 'entrepriseId', entrepriseId)
+
+return (
     <CommandesClient
       user={user}
       profil={profil}
