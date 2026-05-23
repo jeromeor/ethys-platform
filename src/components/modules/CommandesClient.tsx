@@ -74,7 +74,6 @@ const STATUT_COLORS: Record<string, [string, string, string]> = {
 
 const GRAMMAGES = ['Ne 10/1','Ne 20/1','Ne 30/1','Ne 40/1','Ne 50/1','Ne 20/2','Ne 30/2']
 
-// Statuts qui bloquent toute annulation
 const STATUTS_BLOQUES: StatutCommande[] = ['livree', 'qr_genere', 'expediee', 'annulee']
 
 function extractGrammageNumber(g: string): number | null {
@@ -95,11 +94,9 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
   const [filterDateDebut, setFilterDateDebut] = useState('')
   const [filterDateFin, setFilterDateFin] = useState('')
 
-  // Demande d'annulation chargée à l'ouverture du panneau
   const [demandeAnnulation, setDemandeAnnulation] = useState<DemandeAnnulation | null>(null)
   const [loadingDemande, setLoadingDemande] = useState(false)
 
-  // Modal demande annulation (non-admin)
   const [showModalAnnulation, setShowModalAnnulation] = useState(false)
   const [motifAnnulation, setMotifAnnulation] = useState('')
 
@@ -137,7 +134,6 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
   const volumeVierge  = Math.round(volumeRecycle * 49 / 51 * 100) / 100
   const volumeTotal   = Math.round((volumeRecycle + volumeVierge) * 100) / 100
 
-  // Ouvre le panneau détail et charge la demande d'annulation si elle existe
   const ouvrirDetail = async (c: Commande) => {
     setSelected(c)
     setDemandeAnnulation(null)
@@ -145,13 +141,13 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
     setLoadingDemande(true)
     try {
       const { data } = await supabase
-  .from('demandes_annulation')
-  .select('id, motif, statut, created_at, traite_at')
-  .eq('commande_id', c.id)
-  .in('statut', ['en_attente', 'acceptee'])
-  .order('created_at', { ascending: false })
-  .limit(1)
-  .maybeSingle()
+        .from('demandes_annulation')
+        .select('id, motif, statut, created_at, traite_at')
+        .eq('commande_id', c.id)
+        .in('statut', ['en_attente', 'acceptee'])
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
       setDemandeAnnulation(data ?? null)
     } finally {
       setLoadingDemande(false)
@@ -224,7 +220,6 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
     setLoading(false)
   }
 
-  // Non-admin : soumet une demande d'annulation
   const demanderAnnulation = async () => {
     if (!selected) return
     setLoading(true)
@@ -252,7 +247,6 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
     setLoading(false)
   }
 
-  // Admin (TL) : accepte ou refuse la demande
   const traiterDemande = async (statut: 'acceptee' | 'refusee') => {
     if (!demandeAnnulation || !selected) return
     setLoading(true)
@@ -360,26 +354,26 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
                     return (
                       <tr key={c.id}
                         onClick={() => ouvrirDetail(c)}
-                       style={{
-  borderTop: '1px solid #f5f3ef',
-  cursor: 'pointer',
-  background: commandesAvecDemandeIds.includes(c.id) ? '#fffbeb' : 'transparent'
-}}
+                        style={{
+                          borderTop: '1px solid #f5f3ef',
+                          cursor: 'pointer',
+                          background: commandesAvecDemandeIds.includes(c.id) ? '#fffbeb' : 'transparent'
+                        }}
                         onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = '#f5f3ef'}
                         onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = 'transparent'}
                       >
                         <td style={{ padding: '12px 14px', fontSize: 12, fontWeight: 800, color: '#1a1a1a', whiteSpace: 'nowrap' }}>
-  {c.reference}
-  {commandesAvecDemandeIds.includes(c.id) && (
-    <span style={{
-      marginLeft: 8, padding: '2px 6px', borderRadius: 4,
-      fontSize: 9, fontWeight: 700, background: '#fef3c7',
-      color: '#b8860b', border: '1px solid #fde68a', verticalAlign: 'middle'
-    }}>
-      ANNULATION
-    </span>
-  )}
-</td>
+                          {c.reference}
+                          {commandesAvecDemandeIds.includes(c.id) && (
+                            <span style={{
+                              marginLeft: 8, padding: '2px 6px', borderRadius: 4,
+                              fontSize: 9, fontWeight: 700, background: '#fef3c7',
+                              color: '#b8860b', border: '1px solid #fde68a', verticalAlign: 'middle'
+                            }}>
+                              ANNULATION
+                            </span>
+                          )}
+                        </td>
                         <td style={{ padding: '12px 14px', fontSize: 12, color: '#4a5568' }}>{c.marque?.nom ?? '-'}</td>
                         <td style={{ padding: '12px 14px', fontSize: 12, color: '#4a5568' }}>{c.filature?.nom ?? '-'}</td>
                         <td style={{ padding: '12px 14px', fontSize: 12, fontWeight: 600 }}>{Math.round((c.volume_total_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg</td>
@@ -388,17 +382,17 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
                             {Math.round(c.pct_recycle ?? 0)}%
                           </span>
                         </td>
-                       <td style={{ padding: '12px 14px' }}>
-  <span style={{
-    padding: '3px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700,
-    background: commandesAvecDemandeIds.includes(c.id) ? '#fef3c7' : bg,
-    color: commandesAvecDemandeIds.includes(c.id) ? '#b8860b' : tc,
-    display: 'inline-flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap'
-  }}>
-    <span style={{ width: 5, height: 5, borderRadius: '50%', background: commandesAvecDemandeIds.includes(c.id) ? '#b8860b' : dot }} />
-    {commandesAvecDemandeIds.includes(c.id) ? 'Annulation dem.' : STATUT_LABELS[c.statut]}
-  </span>
-</td>
+                        <td style={{ padding: '12px 14px' }}>
+                          <span style={{
+                            padding: '3px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700,
+                            background: commandesAvecDemandeIds.includes(c.id) ? '#fef3c7' : bg,
+                            color: commandesAvecDemandeIds.includes(c.id) ? '#b8860b' : tc,
+                            display: 'inline-flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap'
+                          }}>
+                            <span style={{ width: 5, height: 5, borderRadius: '50%', background: commandesAvecDemandeIds.includes(c.id) ? '#b8860b' : dot }} />
+                            {commandesAvecDemandeIds.includes(c.id) ? 'Annulation dem.' : STATUT_LABELS[c.statut]}
+                          </span>
+                        </td>
                         <td style={{ padding: '12px 14px', fontSize: 11, color: '#8b7355', whiteSpace: 'nowrap' }}>
                           {new Date(c.date_livraison_souhaitee).toLocaleDateString('fr-FR')}
                         </td>
@@ -487,85 +481,56 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
               </div>
             )}
 
-            {/* Zone annulation */}
-<div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid #f5f3ef' }}>
-  {loadingDemande ? (
-    <div style={{ fontSize: 11, color: '#8b7355', textAlign: 'center' }}>Chargement...</div>
-
-  ) : estBloque ? (
-    <div style={{ fontSize: 11, color: '#8b7355', background: '#f5f3ef', borderRadius: 6, padding: '10px 12px', textAlign: 'center' }}>
-  {selected.statut === 'annulee' ? (
-  demandeAnnulation?.traite_at ? (
-    <>
-      Annulée le {new Date(demandeAnnulation.traite_at).toLocaleDateString('fr-FR')}<br />
-      <span style={{ fontSize: 10, color: '#b8860b' }}>Réf. demande : {demandeAnnulation.id.slice(0, 8).toUpperCase()}</span>
-    </>
-  ) : (
-    <>Commande annulée</>
-  )
-) : (
-  <>Annulation impossible — statut : {STATUT_LABELS[selected.statut]}</>
-)}
-</div>
-
-  ) : role === 'admin' ? (
-    demandeAnnulation ? (
-      <div>
-        <div style={{ fontSize: 11, fontWeight: 700, color: '#b8860b', background: '#fdf8ec', borderRadius: 6, padding: '10px 12px', marginBottom: 10, textAlign: 'center' }}>
-          Demande d'annulation en attente
-          {demandeAnnulation.motif && (
-            <div style={{ fontWeight: 400, marginTop: 4, color: '#4a5568' }}>
-              Motif : {demandeAnnulation.motif}
-            </div>
-          )}
-        </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button
-            onClick={() => traiterDemande('refusee')}
-            disabled={loading}
-            style={{
-              flex: 1, padding: '9px', borderRadius: 4,
-              border: '1.5px solid #e8e3d8', background: '#fff',
-              color: '#4a5568', fontSize: 12, fontWeight: 700,
-              cursor: loading ? 'default' : 'pointer', opacity: loading ? 0.6 : 1
-            }}
-          >
-            Refuser la demande
-          </button>
-          <button
-            onClick={() => traiterDemande('acceptee')}
-            disabled={loading}
-            style={{
-              flex: 1, padding: '9px', borderRadius: 4,
-              border: '1.5px solid #fca5a5', background: '#fff',
-              color: '#dc2626', fontSize: 12, fontWeight: 700,
-              cursor: loading ? 'default' : 'pointer', opacity: loading ? 0.6 : 1
-            }}
-          >
-            {loading ? '...' : 'Annuler la commande'}
-          </button>
-        </div>
-      </div>
-    ) : (
-      <div style={{ fontSize: 11, color: '#8b7355', background: '#f5f3ef', borderRadius: 6, padding: '10px 12px', textAlign: 'center' }}>
-        Aucune demande d'annulation en attente
-      </div>
-    )
-
+            <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid #f5f3ef' }}>
+              {loadingDemande ? (
+                <div style={{ fontSize: 11, color: '#8b7355', textAlign: 'center' }}>Chargement...</div>
+              ) : estBloque ? (
+                <div style={{ fontSize: 11, color: '#8b7355', background: '#f5f3ef', borderRadius: 6, padding: '10px 12px', textAlign: 'center' }}>
+                  {selected.statut === 'annulee' ? (
+                    demandeAnnulation?.traite_at ? (
+                      <>
+                        Annulée le {new Date(demandeAnnulation.traite_at).toLocaleDateString('fr-FR')}<br />
+                        <span style={{ fontSize: 10, color: '#b8860b' }}>Réf. demande : {demandeAnnulation.id.slice(0, 8).toUpperCase()}</span>
+                      </>
+                    ) : (
+                      <>Commande annulée</>
+                    )
+                  ) : (
+                    <>Annulation impossible — statut : {STATUT_LABELS[selected.statut]}</>
+                  )}
+                </div>
+              ) : role === 'admin' ? (
+                demandeAnnulation ? (
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#b8860b', background: '#fdf8ec', borderRadius: 6, padding: '10px 12px', marginBottom: 10, textAlign: 'center' }}>
+                      Demande d'annulation en attente
+                      {demandeAnnulation.motif && (
+                        <div style={{ fontWeight: 400, marginTop: 4, color: '#4a5568' }}>
+                          Motif : {demandeAnnulation.motif}
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button onClick={() => traiterDemande('refusee')} disabled={loading} style={{ flex: 1, padding: '9px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#fff', color: '#4a5568', fontSize: 12, fontWeight: 700, cursor: loading ? 'default' : 'pointer', opacity: loading ? 0.6 : 1 }}>
+                        Refuser la demande
+                      </button>
+                      <button onClick={() => traiterDemande('acceptee')} disabled={loading} style={{ flex: 1, padding: '9px', borderRadius: 4, border: '1.5px solid #fca5a5', background: '#fff', color: '#dc2626', fontSize: 12, fontWeight: 700, cursor: loading ? 'default' : 'pointer', opacity: loading ? 0.6 : 1 }}>
+                        {loading ? '...' : 'Annuler la commande'}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ fontSize: 11, color: '#8b7355', background: '#f5f3ef', borderRadius: 6, padding: '10px 12px', textAlign: 'center' }}>
+                    Aucune demande d'annulation en attente
+                  </div>
+                )
               ) : (
                 demandeAnnulation ? (
-                 <div style={{ fontSize: 11, color: '#b8860b', background: '#fdf8ec', borderRadius: 6, padding: '10px 12px', textAlign: 'center' }}>
-  Demande d'annulation envoyée<br />En attente de traitement
-</div>
+                  <div style={{ fontSize: 11, color: '#b8860b', background: '#fdf8ec', borderRadius: 6, padding: '10px 12px', textAlign: 'center' }}>
+                    Demande d'annulation envoyée<br />En attente de traitement
+                  </div>
                 ) : (
-                  <button
-                    onClick={() => setShowModalAnnulation(true)}
-                    style={{
-                      width: '100%', padding: '9px', borderRadius: 4,
-                      border: '1.5px solid #fca5a5', background: '#fff',
-                      color: '#dc2626', fontSize: 12, fontWeight: 700, cursor: 'pointer'
-                    }}
-                  >
+                  <button onClick={() => setShowModalAnnulation(true)} style={{ width: '100%', padding: '9px', borderRadius: 4, border: '1.5px solid #fca5a5', background: '#fff', color: '#dc2626', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
                     Demander l'annulation
                   </button>
                 )
@@ -575,49 +540,22 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
         </div>
       )}
 
-      {/* Modal demande annulation (non-admin) */}
+      {/* Modal demande annulation */}
       {showModalAnnulation && (
-        <div style={{
-          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 300, padding: 20
-        }}>
-          <div style={{
-            background: '#fff', borderRadius: 18, width: '100%', maxWidth: 420,
-            boxShadow: '0 24px 64px rgba(0,0,0,0.2)', padding: '28px'
-          }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', marginBottom: 6 }}>
-              Demander l'annulation
-            </div>
-            <div style={{ fontSize: 12, color: '#8b7355', marginBottom: 18 }}>
-              {selected?.reference} — votre demande sera traitée par Textile Loop
-            </div>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 300, padding: 20 }}>
+          <div style={{ background: '#fff', borderRadius: 18, width: '100%', maxWidth: 420, boxShadow: '0 24px 64px rgba(0,0,0,0.2)', padding: '28px' }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', marginBottom: 6 }}>Demander l'annulation</div>
+            <div style={{ fontSize: 12, color: '#8b7355', marginBottom: 18 }}>{selected?.reference} — votre demande sera traitée par Textile Loop</div>
             <div style={{ marginBottom: 16 }}>
               {labelInput('Motif (optionnel)')}
-              <textarea
-                value={motifAnnulation}
-                onChange={e => setMotifAnnulation(e.target.value)}
-                placeholder="Ex : erreur de saisie, changement de planning..."
-                rows={3}
-                style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit' }}
-              />
+              <textarea value={motifAnnulation} onChange={e => setMotifAnnulation(e.target.value)} placeholder="Ex : erreur de saisie, changement de planning..." rows={3} style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit' }} />
             </div>
             {error && (
-              <div style={{ padding: '10px 14px', borderRadius: 8, background: '#fdf0f0', border: '1px solid #c8a0a0', fontSize: 12, color: '#8b3a3a', marginBottom: 12 }}>
-                {error}
-              </div>
+              <div style={{ padding: '10px 14px', borderRadius: 8, background: '#fdf0f0', border: '1px solid #c8a0a0', fontSize: 12, color: '#8b3a3a', marginBottom: 12 }}>{error}</div>
             )}
             <div style={{ display: 'flex', gap: 10 }}>
-              <button
-                onClick={() => { setShowModalAnnulation(false); setMotifAnnulation(''); setError('') }}
-                style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#8b7355', fontSize: 13, cursor: 'pointer' }}
-              >
-                Annuler
-              </button>
-              <button
-                onClick={demanderAnnulation}
-                disabled={loading}
-                style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: loading ? '#d4c5b0' : '#1a1a1a', color: loading ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: loading ? 'default' : 'pointer' }}
-              >
+              <button onClick={() => { setShowModalAnnulation(false); setMotifAnnulation(''); setError('') }} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#8b7355', fontSize: 13, cursor: 'pointer' }}>Annuler</button>
+              <button onClick={demanderAnnulation} disabled={loading} style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: loading ? '#d4c5b0' : '#1a1a1a', color: loading ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: loading ? 'default' : 'pointer' }}>
                 {loading ? 'Envoi...' : 'Envoyer la demande'}
               </button>
             </div>
@@ -627,14 +565,8 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
 
       {/* Modal création commande */}
       {showForm && (
-        <div style={{
-          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: 20
-        }}>
-          <div style={{
-            background: '#fff', borderRadius: 18, width: '100%', maxWidth: 560,
-            maxHeight: '90vh', overflow: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.2)'
-          }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: 20 }}>
+          <div style={{ background: '#fff', borderRadius: 18, width: '100%', maxWidth: 560, maxHeight: '90vh', overflow: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.2)' }}>
             <div style={{ padding: '22px 28px', borderBottom: '1px solid #f5f3ef', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>Nouvelle commande ETHYS</span>
               <button onClick={() => setShowForm(false)} style={{ border: 'none', background: 'none', fontSize: 18, color: '#8b7355', cursor: 'pointer' }}>x</button>
@@ -643,38 +575,36 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
 
               <div>
                 {labelInput('Titre / reference interne')}
-                <input value={form.titre} onChange={e => set('titre', e.target.value)}
-                  placeholder="Ex : Collection Printemps 2024" style={inputStyle} />
+                <input value={form.titre} onChange={e => set('titre', e.target.value)} placeholder="Ex : Collection Printemps 2024" style={inputStyle} />
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
                 <div>
                   {labelInput('Marque *')}
-                  <select value={form.marque_id} onChange={e => set('marque_id', e.target.value)}
-                    disabled={role === 'marque'}
-                    style={{ ...selectStyle, background: role === 'marque' ? '#f5f3ef' : '#fff', cursor: role === 'marque' ? 'default' : 'pointer' }}>
+                  <select value={form.marque_id} onChange={e => set('marque_id', e.target.value)} disabled={role === 'marque'} style={{ ...selectStyle, background: role === 'marque' ? '#f5f3ef' : '#fff', cursor: role === 'marque' ? 'default' : 'pointer' }}>
                     <option value="">Selectionner...</option>
                     {marques.map(m => <option key={m.id} value={m.id}>{m.nom}</option>)}
                   </select>
                 </div>
                 <div>
                   {labelInput('Filature *')}
-                  <select value={form.filature_id} onChange={e => set('filature_id', e.target.value)}
-                    disabled={role === 'filature'}
-                    style={{ ...selectStyle, background: role === 'filature' ? '#f5f3ef' : '#fff', cursor: role === 'filature' ? 'default' : 'pointer' }}>
+                  <select value={form.filature_id} onChange={e => set('filature_id', e.target.value)} disabled={role === 'filature'} style={{ ...selectStyle, background: role === 'filature' ? '#f5f3ef' : '#fff', cursor: role === 'filature' ? 'default' : 'pointer' }}>
                     <option value="">Selectionner...</option>
                     {filatures.map(f => <option key={f.id} value={f.id}>{f.nom}</option>)}
                   </select>
                 </div>
                 <div>
                   {labelInput('Fournisseur *')}
-                  <select value={form.fournisseur_id} onChange={e => set('fournisseur_id', e.target.value)}
-                    disabled={role === 'fournisseur_coton'}
-                    style={{ ...selectStyle, background: role === 'fournisseur_coton' ? '#f5f3ef' : '#fff', cursor: role === 'fournisseur_coton' ? 'default' : 'pointer' }}>
+                  <select value={form.fournisseur_id} onChange={e => set('fournisseur_id', e.target.value)} disabled={role === 'fournisseur_coton'} style={{ ...selectStyle, background: role === 'fournisseur_coton' ? '#f5f3ef' : '#fff', cursor: role === 'fournisseur_coton' ? 'default' : 'pointer' }}>
                     <option value="">Selectionner...</option>
                     {fournisseurs.map(f => <option key={f.id} value={f.id}>{f.nom}</option>)}
                   </select>
                 </div>
+              </div>
+
+              {/* Mention beta test partenariats */}
+              <div style={{ padding: '8px 14px', borderRadius: 6, background: '#fdf8ec', border: '1px solid #e8c97a', fontSize: 11, color: '#b8860b' }}>
+                La fonction de sélection des entreprises partenaires est en cours de test.
               </div>
 
               <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, padding: '12px 14px' }}>
@@ -684,9 +614,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
 
               <div>
                 {labelInput('Volume de coton recycle (kg) *')}
-                <input type="number" min="0" value={form.volume_recycle_kg}
-                  onChange={e => set('volume_recycle_kg', e.target.value)}
-                  placeholder="Ex : 510" style={inputStyle} />
+                <input type="number" min="0" value={form.volume_recycle_kg} onChange={e => set('volume_recycle_kg', e.target.value)} placeholder="Ex : 510" style={inputStyle} />
                 {volumeRecycle > 0 && (
                   <div style={{ marginTop: 8, padding: '10px 12px', background: '#f5f3ef', borderRadius: 6, fontSize: 12, color: '#4a5568' }}>
                     Volume vierge calcule : <strong>{volumeVierge.toLocaleString('fr-FR')} kg</strong>
@@ -705,8 +633,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
                 </div>
                 <div>
                   {labelInput('Livraison souhaitee *')}
-                  <input type="date" value={form.date_livraison_souhaitee}
-                    onChange={e => set('date_livraison_souhaitee', e.target.value)} style={inputStyle} />
+                  <input type="date" value={form.date_livraison_souhaitee} onChange={e => set('date_livraison_souhaitee', e.target.value)} style={inputStyle} />
                 </div>
                 <div>
                   {labelInput('Priorite')}
@@ -720,9 +647,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
 
               <div>
                 {labelInput('Notes')}
-                <textarea value={form.notes} onChange={e => set('notes', e.target.value)}
-                  placeholder="Instructions particulieres..." rows={3}
-                  style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit' }} />
+                <textarea value={form.notes} onChange={e => set('notes', e.target.value)} placeholder="Instructions particulieres..." rows={3} style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit' }} />
               </div>
 
               {error && (
@@ -730,17 +655,8 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
               )}
 
               <div style={{ display: 'flex', gap: 10, paddingTop: 4 }}>
-                <button onClick={() => setShowForm(false)} style={{
-                  flex: 1, padding: '10px', borderRadius: 4,
-                  border: '1.5px solid #e8e3d8', background: '#f5f3ef',
-                  color: '#8b7355', fontSize: 13, cursor: 'pointer'
-                }}>Annuler</button>
-                <button onClick={creerCommande} disabled={loading} style={{
-                  flex: 2, padding: '10px', borderRadius: 4, border: 'none',
-                  background: loading ? '#d4c5b0' : '#1a1a1a',
-                  color: loading ? '#8b7355' : '#fff',
-                  fontSize: 13, fontWeight: 700, cursor: loading ? 'default' : 'pointer'
-                }}>
+                <button onClick={() => setShowForm(false)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#8b7355', fontSize: 13, cursor: 'pointer' }}>Annuler</button>
+                <button onClick={creerCommande} disabled={loading} style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: loading ? '#d4c5b0' : '#1a1a1a', color: loading ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: loading ? 'default' : 'pointer' }}>
                   {loading ? 'Creation...' : 'Creer la commande ETHYS'}
                 </button>
               </div>
