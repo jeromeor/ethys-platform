@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
@@ -36,16 +36,17 @@ export async function POST(req: NextRequest) {
       .select('id')
       .eq('role', 'admin')
 
-    for (const admin of admins ?? []) {
-      await supabase.from('notifications').insert({
-        user_id: admin.id,
-        type: 'demande_qr',
-        titre: 'Demande QR Code — ' + body.lot_reference,
-        contenu: 'Lot ' + body.lot_reference + ' · ' + (body.commande_reference ?? ''),
-        lien: '/qrcode?lot_id=' + body.lot_id,
-        lu: false,
-      })
-    }
+    const adminClient = createAdminClient()
+for (const admin of admins ?? []) {
+  await adminClient.from('notifications').insert({
+    user_id: admin.id,
+    type: 'demande_qr',
+    titre: 'Demande QR Code — ' + body.lot_reference,
+    contenu: 'Lot ' + body.lot_reference + ' · ' + (body.commande_reference ?? ''),
+    lien: '/qrcode?lot_id=' + body.lot_id,
+    lu: false,
+  })
+}
 
     return NextResponse.json({ data: row })
   } catch (err: unknown) {
