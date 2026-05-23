@@ -106,9 +106,8 @@ setDemandesQrEnAttente(countQR ?? 0)
         .in('type', ['lot_termine', 'retour_arriere', 'lot_bloque', 'declaration'])
         .eq('lu', false)
       setProductionNonLus(countProduction ?? 0)
-    }
 
-// Badge QR Code pour filature : notif qr_genere non lue
+      // Badge QR Code pour filature : notif qr_genere non lue
       if (profil?.role !== 'admin') {
         const { count: countQrGenere } = await supabase
           .from('notifications')
@@ -118,6 +117,7 @@ setDemandesQrEnAttente(countQR ?? 0)
           .eq('lu', false)
         setDemandesQrEnAttente(countQrGenere ?? 0)
       }
+    }
     
     chargerBadges()
     const interval = setInterval(chargerBadges, 30000)
