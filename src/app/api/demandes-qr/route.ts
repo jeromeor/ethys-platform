@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
     `
     for (const admin of admins) {
   await sql`
-    INSERT INTO notifications (utilisateur_id, type, titre, message, lien, lu, reference_id)
+    INSERT INTO notifications (utilisateur_id, type, titre, contenu, lien, lu, reference_id)
     VALUES (
       ${admin.id},
       'demande_qr',
