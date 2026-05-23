@@ -21,15 +21,16 @@ export default async function CommandesPage() {
   let partnerIds: string[] = []
 
   if (role !== 'admin' && entrepriseId) {
-    const { data: partnerships } = await supabase
-      .from('partnerships')
-      .select('requester_id, receiver_id')
-      .eq('status', 'accepted')
-      .or(`requester_id.eq.${entrepriseId},receiver_id.eq.${entrepriseId}`)
+    // APRÈS
+const { data: partnerships } = await supabase
+  .from('partenariats')
+  .select('demandeur_id, receveur_id')
+  .eq('statut', 'accepte')
+  .or(`demandeur_id.eq.${entrepriseId},receveur_id.eq.${entrepriseId}`)
 
-    partnerIds = (partnerships ?? []).map(p =>
-      p.requester_id === entrepriseId ? p.receiver_id : p.requester_id
-    )
+partnerIds = (partnerships ?? []).map(p =>
+  p.demandeur_id === entrepriseId ? p.receveur_id : p.demandeur_id
+)
   }
 
   // UUID invalide utilisé comme fallback quand aucun partenaire → retourne 0 résultats
