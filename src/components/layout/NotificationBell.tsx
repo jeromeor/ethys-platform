@@ -59,7 +59,7 @@ export default function NotificationBell({ userId }: Props) {
     const { data } = await supabase
       .from('notifications')
       .select('*')
-      .eq('user_id', userId), userId)
+      .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(20)
     setNotifications(data ?? [])
