@@ -13,85 +13,84 @@ export default async function CertificationPage() {
     .eq('id', user.id)
     .single()
 
-  const role = profil?.role ?? 'marque'
+  const role = profil?.role ?? 'filature'
   const entrepriseId = profil?.entreprise_id ?? ''
 
+  // --- Certifications existantes ---
+  // Jointure : certifications_ethys → declarations_ethys → entreprises
   let certsQuery = supabase
     .from('certifications_ethys')
     .select(`
-      *,
-      lot:lots(
-        id, reference, volume_tonnes, avancement_pct, origine,
-        commande:commandes(
-          id, reference, marque_id, filature_id,
-          marque:entreprises!commandes_marque_id_fkey(nom),
-          filature:entreprises!commandes_filature_id_fkey(nom)
-        )
-      ),
-      createur:profils_utilisateurs!certifications_ethys_created_by_fkey(prenom, nom)
+      id, numero, date_emission, date_validite, valide, created_at,
+      declaration:declarations_ethys(
+        id, statut, type_produit, volume_recycle_kg, volume_vierge_kg,
+        pct_recycle, provenance_pays, filature_nom, filature_pays,
+        description, commentaire_admin, entreprise_id, initiateur_id,
+        created_at,
+        entreprise:entreprises!declarations_ethys_entreprise_id_fkey(id, nom)
+      )
     `)
     .order('created_at', { ascending: false })
 
-  if (role !== 'admin') {
-    if (role === 'filature') certsQuery = certsQuery.eq('filature_id', entrepriseId)
-    else if (role === 'marque') certsQuery = certsQuery.eq('marque_id', entrepriseId)
+  // Filature : uniquement ses propres certifications (via declaration.entreprise_id)
+  // On filtre côté JS après fetch car Supabase ne supporte pas le filtre sur relation imbriquée directement
+  const { data: certsRaw } = await certsQuery
+
+  const certifications = (certsRaw ?? []).filter(c => {
+    if (role === 'admin') return true
+    const decl = Array.isArray(c.declaration) ? c.declaration[0] : c.declaration
+    return decl?.entreprise_id === entrepriseId
+  })
+
+  // --- Déclarations en attente de certification (pour admin) ---
+  // Déclarations soumises par des filatures, pas encore certifiées
+  let declarationsEnAttente: any[] = []
+  if (role === 'admin') {
+    const { data: declsRaw } = await supabase
+      .from('declarations_ethys')
+      .select(`
+        id, statut, type_produit, volume_recycle_kg, volume_vierge_kg,
+        pct_recycle, provenance_pays, filature_nom, filature_pays,
+        description, declaration_honneur, created_at, entreprise_id, initiateur_id,
+        entreprise:entreprises!declarations_ethys_entreprise_id_fkey(id, nom)
+      `)
+      .eq('statut', 'en_attente')
+      .order('created_at', { ascending: false })
+    declarationsEnAttente = declsRaw ?? []
   }
 
-  const { data: certifications } = await certsQuery
-
-  const { data: lotsAvecCert } = await supabase
-    .from('certifications_ethys')
-    .select('lot_id')
-
-  const lotIdsDejaCouverts = (lotsAvecCert ?? []).map(c => c.lot_id).filter(Boolean)
-
-  let lotsQuery = supabase
-    .from('lots')
-    .select('id, reference, volume_tonnes, avancement_pct, origine, statut, commande_id')
-    .eq('avancement_pct', 100)
-
-  if (lotIdsDejaCouverts.length > 0) {
-    lotsQuery = lotsQuery.not('id', 'in', '(' + lotIdsDejaCouverts.join(',') + ')')
-  }
-
+  // --- Déclarations éligibles pour la filature connectée (pas encore certifiées) ---
+  // Utilisé pour le formulaire "Demander une certification"
+  let declarationsEligibles: any[] = []
   if (role === 'filature') {
-    const { data: cmdIds } = await supabase
-      .from('commandes')
-      .select('id')
-      .eq('filature_id', entrepriseId)
-    const ids = (cmdIds ?? []).map(c => c.id)
-    if (ids.length > 0) lotsQuery = lotsQuery.in('commande_id', ids)
-    else lotsQuery = lotsQuery.eq('commande_id', '00000000-0000-0000-0000-000000000000')
-  } else if (role === 'marque') {
-    const { data: cmdIds } = await supabase
-      .from('commandes')
-      .select('id')
-      .eq('marque_id', entrepriseId)
-    const ids = (cmdIds ?? []).map(c => c.id)
-    if (ids.length > 0) lotsQuery = lotsQuery.in('commande_id', ids)
-    else lotsQuery = lotsQuery.eq('commande_id', '00000000-0000-0000-0000-000000000000')
+    // Récupère les declaration_id déjà certifiés
+    const { data: declsDejaCouverts } = await supabase
+      .from('certifications_ethys')
+      .select('declaration_id')
+    const declIdsCoverts = (declsDejaCouverts ?? []).map(c => c.declaration_id).filter(Boolean)
+
+    let declQuery = supabase
+      .from('declarations_ethys')
+      .select(`
+        id, statut, type_produit, volume_recycle_kg, volume_vierge_kg,
+        pct_recycle, provenance_pays, filature_nom, description, created_at
+      `)
+      .eq('entreprise_id', entrepriseId)
+      .eq('eligible_ethys', true)
+
+    if (declIdsCoverts.length > 0) {
+      declQuery = declQuery.not('id', 'in', `(${declIdsCoverts.join(',')})`)
+    }
+
+    const { data: declsRaw } = await declQuery
+    declarationsEligibles = declsRaw ?? []
   }
-
-  const { data: lotsRaw } = await lotsQuery
-
-  const commandeIds = [...new Set((lotsRaw ?? []).map(l => l.commande_id).filter(Boolean))]
-
-  const { data: commandesRaw } = commandeIds.length > 0
-    ? await supabase
-        .from('commandes')
-        .select('id, reference, marque_id, filature_id, marque:entreprises!commandes_marque_id_fkey(nom), filature:entreprises!commandes_filature_id_fkey(nom)')
-        .in('id', commandeIds)
-    : { data: [] }
-
-  const lotsEligibles = (lotsRaw ?? []).map(lot => ({
-    ...lot,
-    commande: (commandesRaw ?? []).find(c => c.id === lot.commande_id) ?? null,
-  }))
 
   return (
     <CertificationClient
-      certifications={(certifications ?? []) as any}
-      lotsEligibles={(lotsEligibles ?? []) as any}
+      certifications={certifications as any}
+      declarationsEnAttente={declarationsEnAttente as any}
+      declarationsEligibles={declarationsEligibles as any}
       userRole={role}
       entrepriseId={entrepriseId}
       userId={user.id}
