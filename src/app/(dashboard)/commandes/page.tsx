@@ -2,7 +2,6 @@ export const dynamic = 'force-dynamic'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import CommandesClient from '@/components/modules/CommandesClient'
-import { createAdminClient } from '@/lib/supabase/admin'
 
 export default async function CommandesPage() {
   const supabase = await createClient()
@@ -18,32 +17,7 @@ export default async function CommandesPage() {
   const entrepriseId = profil?.entreprise_id
   const role = profil?.role
 
-  // Récupère les partenaires via le client admin (bypass schema cache PostgREST)
-  let partnerIds: string[] = []
-
-  if (role !== 'admin' && entrepriseId) {
-    const url = new URL(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/partenariats`)
-    url.searchParams.set('select', 'demandeur_id,receveur_id')
-    url.searchParams.set('statut', 'eq.accepte')
-    url.searchParams.set('or', `(demandeur_id.eq.${entrepriseId},receveur_id.eq.${entrepriseId})`)
-
-    const res = await fetch(url.toString(), {
-      headers: {
-        'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY!,
-        'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`,
-      },
-      cache: 'no-store',
-    })
-    const partnerships = res.ok ? await res.json() : []
-    console.log('DEBUG partnerships fetch', JSON.stringify(partnerships), 'status', res.status)
-    partnerIds = (partnerships ?? []).map((p: any) =>
-      p.demandeur_id === entrepriseId ? p.receveur_id : p.demandeur_id
-    )
-  }
-
-  // UUID invalide utilisé comme fallback quand aucun partenaire → retourne 0 résultats
-  const fallback = ['00000000-0000-0000-0000-000000000000']
-
+  // MVP : toutes les entreprises accessibles — logique partenariats activée post-beta
   let commandesQuery = supabase
     .from('commandes')
     .select(`
@@ -55,43 +29,24 @@ export default async function CommandesPage() {
     `)
 
   if (role !== 'admin' && entrepriseId) {
-    const ids = partnerIds.length > 0 ? partnerIds : fallback
     if (role === 'marque') {
-      commandesQuery = commandesQuery
-        .eq('marque_id', entrepriseId)
-        .in('filature_id', ids)
+      commandesQuery = commandesQuery.eq('marque_id', entrepriseId)
     } else if (role === 'filature') {
-      commandesQuery = commandesQuery
-        .eq('filature_id', entrepriseId)
-        .in('marque_id', ids)
+      commandesQuery = commandesQuery.eq('filature_id', entrepriseId)
     } else if (role === 'fournisseur_coton') {
-      commandesQuery = commandesQuery
-        .eq('fournisseur_id', entrepriseId)
-        .in('marque_id', ids)
+      commandesQuery = commandesQuery.eq('fournisseur_id', entrepriseId)
     }
   }
 
   const { data: commandes } = await commandesQuery.order('created_at', { ascending: false })
 
-  // Entreprises visibles = sa propre société + partenaires
-  let entreprises: { id: string; nom: string; type: string }[] = []
-
-  if (role === 'admin') {
-    const { data } = await supabase
-      .from('entreprises')
-      .select('id, nom, type')
-      .neq('type', 'plateforme')
-      .order('nom')
-    entreprises = data ?? []
-  } else if (entrepriseId) {
-    const allIds = [entrepriseId, ...partnerIds]
-    const { data } = await supabase
-      .from('entreprises')
-      .select('id, nom, type')
-      .in('id', allIds)
-      .order('nom')
-    entreprises = data ?? []
-  }
+  // Toutes les entreprises visibles pour le formulaire
+  const { data: entreprisesData } = await supabase
+    .from('entreprises')
+    .select('id, nom, type')
+    .neq('type', 'plateforme')
+    .order('nom')
+  const entreprises = entreprisesData ?? []
 
   // IDs des commandes avec une demande d'annulation en attente
   const { data: demandesEnAttente } = await supabase
@@ -99,14 +54,7 @@ export default async function CommandesPage() {
     .select('commande_id')
     .eq('statut', 'en_attente')
 
-  const commandesAvecDemande = new Set(
-    (demandesEnAttente ?? []).map(d => d.commande_id)
-  )
-  const commandesAvecDemandeIds = Array.from(commandesAvecDemande)
-
-  console.log('DEBUG entreprises', JSON.stringify(entreprises))
-  console.log('DEBUG partnerIds', JSON.stringify(partnerIds))
-  console.log('DEBUG role', role, 'entrepriseId', entrepriseId)
+  const commandesAvecDemandeIds = [...new Set((demandesEnAttente ?? []).map(d => d.commande_id))]
 
   return (
     <CommandesClient
