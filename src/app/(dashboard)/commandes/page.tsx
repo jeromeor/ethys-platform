@@ -22,16 +22,19 @@ export default async function CommandesPage() {
   let partnerIds: string[] = []
 
   if (role !== 'admin' && entrepriseId) {
-    const supabaseAdmin = createAdminClient()
-    const { data: partnerships, error: errP } = await supabaseAdmin
-      .from('partenariats')
-      .select('demandeur_id, receveur_id')
-      .eq('statut', 'accepte')
-      .or(`demandeur_id.eq.${entrepriseId},receveur_id.eq.${entrepriseId}`)
-
-    console.log('DEBUG partnerships', JSON.stringify(partnerships), 'error', errP?.message)
-
-    partnerIds = (partnerships ?? []).map((p: { demandeur_id: string; receveur_id: string }) =>
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/partenariats?statut=eq.accepte&or=(demandeur_id.eq.${entrepriseId},receveur_id.eq.${entrepriseId})&select=demandeur_id,receveur_id`,
+      {
+        headers: {
+          'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY!,
+          'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`,
+        },
+        cache: 'no-store',
+      }
+    )
+    const partnerships = res.ok ? await res.json() : []
+    console.log('DEBUG partnerships fetch', JSON.stringify(partnerships))
+    partnerIds = (partnerships ?? []).map((p: any) =>
       p.demandeur_id === entrepriseId ? p.receveur_id : p.demandeur_id
     )
   }
