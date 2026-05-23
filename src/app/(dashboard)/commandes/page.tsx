@@ -22,14 +22,20 @@ export default async function CommandesPage() {
 
   if (role !== 'admin' && entrepriseId) {
     // APRÈS
-const { data: partnerships } = await supabase
+const { data: partnerships, error: errP } = await supabase
   .from('partenariats')
   .select('demandeur_id, receveur_id')
   .eq('statut', 'accepte')
   .or(`demandeur_id.eq.${entrepriseId},receveur_id.eq.${entrepriseId}`)
 
+console.log('DEBUG partnerships', JSON.stringify(partnerships), 'error', errP?.message)
+
 partnerIds = (partnerships ?? []).map(p =>
   p.demandeur_id === entrepriseId ? p.receveur_id : p.demandeur_id
+)
+
+console.log('DEBUG partnerIds', JSON.stringify(partnerIds))
+console.log('DEBUG entrepriseId', entrepriseId)
 )
   }
 
