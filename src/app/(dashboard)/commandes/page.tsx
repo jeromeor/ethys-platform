@@ -22,18 +22,20 @@ export default async function CommandesPage() {
   let partnerIds: string[] = []
 
   if (role !== 'admin' && entrepriseId) {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/partenariats?statut=eq.accepte&or=(demandeur_id.eq.${entrepriseId},receveur_id.eq.${entrepriseId})&select=demandeur_id,receveur_id`,
-      {
-        headers: {
-          'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY!,
-          'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`,
-        },
-        cache: 'no-store',
-      }
-    )
+    const url = new URL(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/partenariats`)
+    url.searchParams.set('select', 'demandeur_id,receveur_id')
+    url.searchParams.set('statut', 'eq.accepte')
+    url.searchParams.set('or', `(demandeur_id.eq.${entrepriseId},receveur_id.eq.${entrepriseId})`)
+
+    const res = await fetch(url.toString(), {
+      headers: {
+        'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`,
+      },
+      cache: 'no-store',
+    })
     const partnerships = res.ok ? await res.json() : []
-    console.log('DEBUG partnerships fetch', JSON.stringify(partnerships))
+    console.log('DEBUG partnerships fetch', JSON.stringify(partnerships), 'status', res.status)
     partnerIds = (partnerships ?? []).map((p: any) =>
       p.demandeur_id === entrepriseId ? p.receveur_id : p.demandeur_id
     )
