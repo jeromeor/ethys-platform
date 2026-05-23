@@ -22,6 +22,7 @@ const TYPE_ICONS: Record<string, string> = {
   general: '🔔',
   demande_qr: '▣',
   demande_annulation: '🚫',
+  qr_genere: '▣',
 }
 
 interface Props {
