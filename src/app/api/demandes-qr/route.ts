@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
 
     const adminClient = createAdminClient()
 for (const admin of admins ?? []) {
-  await adminClient.from('notifications').insert({
+  const { error: notifError } = await adminClient.from('notifications').insert({
     user_id: admin.id,
     type: 'demande_qr',
     titre: 'Demande QR Code — ' + body.lot_reference,
@@ -46,6 +46,7 @@ for (const admin of admins ?? []) {
     lien: '/qrcode?lot_id=' + body.lot_id,
     lu: false,
   })
+  if (notifError) console.error('NOTIF ERROR:', notifError)
 }
 
     return NextResponse.json({ data: row })
