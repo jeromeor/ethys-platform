@@ -1,5 +1,6 @@
-import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import postgres from 'postgres'
 
 export async function POST(req: NextRequest) {
   try {
@@ -30,24 +31,24 @@ export async function POST(req: NextRequest) {
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-    // Notifie tous les admins
-    const { data: admins } = await supabase
-      .from('profils_utilisateurs')
-      .select('id')
-      .eq('role', 'admin')
+    // INSERT notifications via SQL direct (contourne cache PostgREST)
+    const sql = postgres(process.env.DATABASE_URL!, { ssl: 'require' })
+    const admins = await sql`SELECT id FROM profils_utilisateurs WHERE role = 'admin'`
 
-    const adminClient = createAdminClient()
-for (const admin of admins ?? []) {
-  const { error: notifError } = await adminClient.from('notifications').insert({
-    user_id: admin.id,
-    type: 'demande_qr',
-    titre: 'Demande QR Code — ' + body.lot_reference,
-    contenu: 'Lot ' + body.lot_reference + ' · ' + (body.commande_reference ?? ''),
-    lien: '/qrcode?lot_id=' + body.lot_id,
-    lu: false,
-  })
-  if (notifError) console.error('NOTIF ERROR:', notifError)
-}
+    for (const admin of admins) {
+      await sql`
+        INSERT INTO notifications (user_id, type, titre, contenu, lien, lu)
+        VALUES (
+          ${admin.id},
+          'demande_qr',
+          ${'Demande QR Code — ' + body.lot_reference},
+          ${'Lot ' + body.lot_reference + ' · ' + (body.commande_reference ?? '')},
+          ${'/qrcode?lot_id=' + body.lot_id},
+          false
+        )
+      `
+    }
+    await sql.end()
 
     return NextResponse.json({ data: row })
   } catch (err: unknown) {
