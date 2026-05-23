@@ -30,16 +30,23 @@ export async function POST(req: NextRequest) {
       SELECT id FROM profils_utilisateurs WHERE role = 'admin'
     `
     for (const admin of admins) {
+  // UPDATE lu
+await sql`
+  UPDATE notifications SET lu = true
+  WHERE type = 'demande_qr' AND lu = false
+`
+
+// INSERT notification filature
+if (body.statut === 'acceptee' && demande.demandeur_id) {
   await sql`
-    INSERT INTO notifications (utilisateur_id, type, titre, contenu, lien, lu, reference_id)
+    INSERT INTO notifications (user_id, type, titre, contenu, lien, lu)
     VALUES (
-      ${admin.id},
-      'demande_qr',
-      ${'Demande QR Code — ' + body.lot_reference},
-      ${'Lot ' + body.lot_reference + ' · ' + (body.commande_reference ?? '')},
-      ${'/qrcode?lot_id=' + body.lot_id},
-      false,
-      ${row.id}
+      ${demande.demandeur_id},
+      'qr_genere',
+      'QR Code généré !',
+      'Votre demande de QR Code a été acceptée. Le QR Code est disponible dans la section QR Code.',
+      '/qrcode',
+      false
     )
   `
 }
