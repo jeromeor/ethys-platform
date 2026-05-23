@@ -36,19 +36,17 @@ await sql`
   WHERE type = 'demande_qr' AND lu = false
 `
 
-// INSERT notification filature
-if (body.statut === 'acceptee' && demande.demandeur_id) {
-  await sql`
-    INSERT INTO notifications (user_id, type, titre, contenu, lien, lu)
-    VALUES (
-      ${demande.demandeur_id},
-      'qr_genere',
-      'QR Code généré !',
-      'Votre demande de QR Code a été acceptée. Le QR Code est disponible dans la section QR Code.',
-      '/qrcode',
-      false
-    )
-  `
+await sql`
+  INSERT INTO notifications (user_id, type, titre, contenu, lien, lu)
+  VALUES (
+    ${admin.id},
+    'demande_qr',
+    ${'Demande QR Code — ' + body.lot_reference},
+    ${'Lot ' + body.lot_reference + ' · ' + (body.commande_reference ?? '')},
+    ${'/qrcode?lot_id=' + body.lot_id},
+    false
+  )
+`
 }
 
     return NextResponse.json({ data: row })
