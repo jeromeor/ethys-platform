@@ -108,6 +108,17 @@ setDemandesQrEnAttente(countQR ?? 0)
       setProductionNonLus(countProduction ?? 0)
     }
 
+// Badge QR Code pour filature : notif qr_genere non lue
+      if (profil?.role !== 'admin') {
+        const { count: countQrGenere } = await supabase
+          .from('notifications')
+          .select('*', { count: 'exact', head: true })
+          .eq('utilisateur_id', profil.id)
+          .eq('type', 'qr_genere')
+          .eq('lu', false)
+        setDemandesQrEnAttente(countQrGenere ?? 0)
+      }
+    
     chargerBadges()
     const interval = setInterval(chargerBadges, 30000)
     return () => clearInterval(interval)
