@@ -147,7 +147,7 @@ export default function CertificationClient({
     const decl = declarationsEligibles.find(d => d.id === selectedDeclId)
     for (const admin of admins ?? []) {
       await supabase.from('notifications').insert({
-        utilisateur_id: admin.id,
+        user_id: admin.id,
         type: 'certification',
         titre: 'Demande de certification',
         contenu: 'Déclaration soumise pour certification ETHYS — ' + (decl?.filature_nom ?? ''),
@@ -213,7 +213,7 @@ export default function CertificationClient({
 
     // 3. Notifie l'initiateur
     await supabase.from('notifications').insert({
-      utilisateur_id: decl.initiateur_id,
+      user_id: decl.initiateur_id,
       type: 'certification',
       titre: 'Certification ETHYS obtenue !',
       contenu: `Votre déclaration a été certifiée. Numéro : ${numero}`,
@@ -244,7 +244,7 @@ export default function CertificationClient({
 
     // Notifie l'initiateur
     await supabase.from('notifications').insert({
-      utilisateur_id: decl.initiateur_id,
+      user_id: decl.initiateur_id,
       type: 'certification',
       titre: 'Demande de certification refusée',
       contenu: commentaire,
