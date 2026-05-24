@@ -86,7 +86,7 @@ setDemandesQrEnAttente(countQR ?? 0)
         .from('notifications')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', profil.id)
-        .eq('type', 'demande_annulation')
+        .in('type', ['demande_annulation', 'commande_annulee'])
         .eq('lu', false)
       setAnnulationsEnAttente(countAnnulations ?? 0)
 
