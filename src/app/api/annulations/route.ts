@@ -44,15 +44,14 @@ export async function POST(req: NextRequest) {
     if (admins.length > 0) {
       for (const admin of admins) {
         await sql`
-          INSERT INTO notifications (utilisateur_id, type, titre, message, lien, lu, reference_id)
+          INSERT INTO notifications (user_id, type, titre, contenu, lien, lu)
           VALUES (
             ${admin.id},
             'demande_annulation',
             ${'Demande d\'annulation — ' + commande.reference},
             ${'Motif : ' + (body.motif || 'Non précisé')},
             '/commandes',
-            false,
-            ${row.id}
+            false
           )
         `
       }
