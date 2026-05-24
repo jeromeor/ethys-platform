@@ -26,7 +26,7 @@ export async function PATCH(
     // Marque lu toutes les notifs liées à cette demande pour tous les admins
 await sql`
   UPDATE notifications SET lu = true
-  WHERE reference_id = ${id} AND type = 'demande_annulation'
+  WHERE type = 'demande_annulation' AND user_id = ${body.traite_par} AND lu = false
 `
     if (body.statut === 'acceptee') {
       // Passe la commande en annulee et récupère les infos pour le mail
