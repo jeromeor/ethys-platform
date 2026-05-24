@@ -28,6 +28,9 @@ export async function POST(req: NextRequest) {
       .select()
       .single()
 
+if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+console.log('ROW ID:', row?.id, 'LOT:', row?.lot_id)
+    
     if (error) {
   console.error('DEMANDE QR ERROR:', error)
   return NextResponse.json({ error: error.message }, { status: 500 })
