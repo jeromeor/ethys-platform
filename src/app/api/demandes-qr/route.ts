@@ -29,10 +29,7 @@ export async function POST(req: NextRequest) {
       .select()
       .single()
  
-    console.log('INSERT RESULT:', JSON.stringify({ row, error }))
- 
-    if (error) {
-      console.error('DEMANDE QR ERROR:', error)
+    if (error) 
       return NextResponse.json({ error: (error as any).message }, { status: 500 })
     }
  
