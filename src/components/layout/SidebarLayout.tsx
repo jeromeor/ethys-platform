@@ -171,7 +171,7 @@ setDemandesQrEnAttente(countQR ?? 0)
                 {open && item.route === '/certification' && certifEnAttente > 0 && profil?.role === 'admin' && (
                   <span style={{ background: '#EF4444', color: '#fff', borderRadius: '50%', minWidth: 18, height: 18, fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>{certifEnAttente}</span>
                 )}
-                {open && item.route === '/qrcode' && demandesQrEnAttente > 0 && profil?.role === 'admin' && (
+                {open && item.route === '/qrcode' && demandesQrEnAttente > 0 && (
                   <span style={{ background: '#D97706', color: '#fff', borderRadius: '50%', minWidth: 18, height: 18, fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>{demandesQrEnAttente}</span>
                 )}
                 {open && item.route === '/commandes' && annulationsEnAttente > 0 && (
