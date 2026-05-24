@@ -97,14 +97,14 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
     } : null)
     setShowLogistique(false)
     await supabase.from('notifications').insert({
-      utilisateur_id: '1e48a840-8329-4595-be9b-f04d9ef1562a',
-      user_id: '1e48a840-8329-4595-be9b-f04d9ef1562a',
-      type: 'logistique',
-      titre: 'Dates logistiques saisies - ' + selected.reference,
-      message: 'Expédition prévue le ' + new Date(logistiqueForm.date_expedition_prevue).toLocaleDateString('fr-FR') + (logistiqueForm.date_livraison_prevue ? ', livraison prévue le ' + new Date(logistiqueForm.date_livraison_prevue).toLocaleDateString('fr-FR') : ''),
-      lien: '/production',
-      lu: false,
-    })
+  utilisateur_id: '1e48a840-8329-4595-be9b-f04d9ef1562a',
+  user_id: '1e48a840-8329-4595-be9b-f04d9ef1562a',
+  type: 'logistique',
+  titre: 'Dates logistiques saisies - ' + selected.reference,
+  message: 'Expédition prévue le ' + new Date(logistiqueForm.date_expedition_prevue).toLocaleDateString('fr-FR') + (logistiqueForm.date_livraison_prevue ? ', livraison prévue le ' + new Date(logistiqueForm.date_livraison_prevue).toLocaleDateString('fr-FR') : ''),
+  lien: '/production',
+  lu: false,
+})
   }
   const [certifications, setCertifications] = useState<{ id: string; reference: string; type_produit: string | null; statut: string }[]>([])
   const [selectedCertifId, setSelectedCertifId] = useState('')
