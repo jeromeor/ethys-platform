@@ -126,19 +126,18 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
         .from('notifications')
         .select('*', { count: 'exact', head: true })
         .eq('type', 'lot_bloque')
-        .eq('utilisateur_id', '1e48a840-8329-4595-be9b-f04d9ef1562a')
+        .eq('user_id', '1e48a840-8329-4595-be9b-f04d9ef1562a')
         .ilike('titre', '%' + lot.reference + '%')
         .gte('created_at', aujourdhuiStr)
       if (!count || count === 0) {
         await supabase.from('notifications').insert({
-          utilisateur_id: '1e48a840-8329-4595-be9b-f04d9ef1562a',
-          user_id: '1e48a840-8329-4595-be9b-f04d9ef1562a',
-          type: 'lot_bloque',
-          titre: 'Lot bloque : ' + lot.reference,
-          message: 'Le lot ' + lot.reference + ' n\'a pas progresse depuis plus de 14 jours.',
-          lien: '/production',
-          lu: false,
-        })
+  user_id: '1e48a840-8329-4595-be9b-f04d9ef1562a',
+  type: 'lot_bloque',
+  titre: 'Lot bloque : ' + lot.reference,
+  contenu: 'Le lot ' + lot.reference + ' n\'a pas progresse depuis plus de 14 jours.',
+  lien: '/production',
+  lu: false,
+})
       }
     })).catch(console.error)
   }, [])
@@ -182,15 +181,6 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
       if (!ok1) return
       const ok2 = window.confirm('Deuxième confirmation : le lot sera marqué comme terminé. Cette action est définitive. Continuer ?')
       if (!ok2) return
-      await supabase.from('notifications').insert({
-        utilisateur_id: '1e48a840-8329-4595-be9b-f04d9ef1562a',
-        user_id: '1e48a840-8329-4595-be9b-f04d9ef1562a',
-        type: 'lot_complete',
-        titre: 'Lot ' + (lot?.reference ?? '') + ' termine',
-        message: 'Le lot ' + (lot?.reference ?? '') + ' a atteint 100% d\'avancement.',
-        lien: '/production',
-        lu: false,
-      })
     }
     setUpdatingLot(lotId)
     const { error } = await supabase
