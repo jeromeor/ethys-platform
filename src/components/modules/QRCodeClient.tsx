@@ -286,15 +286,33 @@ export default function QRCodeClient({ lots: initial, user, profil, certificatio
       )
     }
 
-    return (
-      <button
-        onClick={demanderQR}
-        disabled={loadingDemande}
-        style={{ width: '100%', padding: '11px', borderRadius: 4, border: 'none', background: loadingDemande ? '#d4c5b0' : '#1a1a1a', color: loadingDemande ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: loadingDemande ? 'default' : 'pointer' }}
-      >
-        {loadingDemande ? 'Envoi...' : 'Demander la génération QR'}
-      </button>
-    )
+    // src/components/QRCodeClient.tsx — renderBoutonQR(), branche non-admin sans demande en attente
+
+// Lot non terminé : bouton désactivé avec message
+const lotTermine = (selected?.avancement_pct ?? 0) >= 100
+
+return (
+  <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 8 }}>
+    {!lotTermine && (
+      <div style={{ fontSize: 11, color: '#8b7355', background: '#f5f3ef', borderRadius: 6, padding: '10px 12px', textAlign: 'center' }}>
+        Le lot doit être à 100% pour demander un QR Code
+      </div>
+    )}
+    <button
+      onClick={demanderQR}
+      disabled={loadingDemande || !lotTermine}
+      style={{
+        width: '100%', padding: '11px', borderRadius: 4, border: 'none',
+        background: (loadingDemande || !lotTermine) ? '#d4c5b0' : '#1a1a1a',
+        color: (loadingDemande || !lotTermine) ? '#8b7355' : '#fff',
+        fontSize: 13, fontWeight: 700,
+        cursor: (loadingDemande || !lotTermine) ? 'default' : 'pointer'
+      }}
+    >
+      {loadingDemande ? 'Envoi...' : 'Demander la génération QR'}
+    </button>
+  </div>
+)
   }
 
   // Liste filtrée des lots
