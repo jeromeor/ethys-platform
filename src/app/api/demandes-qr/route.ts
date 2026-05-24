@@ -28,6 +28,14 @@ export async function POST(req: NextRequest) {
       .select()
       .single()
 
+const { data: row, error } = await supabase
+  .from('demandes_qr')
+  .insert({ lot_id: body.lot_id, demandeur_id: body.demandeur_id, entreprise_id: body.entreprise_id })
+  .select()
+  .single()
+
+console.log('INSERT RESULT:', JSON.stringify({ row, error }))
+    
 if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 console.log('ROW ID:', row?.id, 'LOT:', row?.lot_id)
     
