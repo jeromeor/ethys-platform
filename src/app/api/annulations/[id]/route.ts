@@ -36,7 +36,26 @@ await sql`
           (SELECT email FROM auth.users WHERE id = created_by) as email_createur,
           (SELECT nom FROM entreprises WHERE id = marque_id) as nom_marque
       `
-
+// Notifie les users de la filature concernée
+const usersFilature = await sql`
+  SELECT pu.id FROM profils_utilisateurs pu
+  JOIN entreprises e ON e.id = pu.entreprise_id
+  JOIN commandes c ON c.filature_id = e.id
+  WHERE c.id = ${demande.commande_id} AND pu.role = 'filature'
+`
+for (const u of usersFilature) {
+  await sql`
+    INSERT INTO notifications (user_id, type, titre, contenu, lien, lu)
+    VALUES (
+      ${u.id},
+      'commande_annulee',
+      ${'Commande annulée — ' + commande.reference},
+      ${'La commande ' + commande.reference + ' a été annulée par Textile Loop.'},
+      '/commandes',
+      false
+    )
+  `
+}
       // Envoi mail à la marque
       if (commande?.email_createur) {
         await resend.emails.send({
