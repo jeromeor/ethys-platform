@@ -647,7 +647,7 @@ export default function CertificationClient({
                       disabled={saving}
                       style={{ width: '100%', padding: '10px', borderRadius: 4, border: '1.5px solid #d4c5b0', background: '#f5f3ef', color: '#4a5568', fontSize: 13, fontWeight: 700, cursor: saving ? 'default' : 'pointer' }}
                     >
-                      {saving ? '...' : '📎 Demander les duplicatas'}
+                      {saving ? '...' : 'Demander les duplicatas'}
                     </button>
                   )}
                   {selectedDecl.statut === 'duplicatas_demandes' && (
