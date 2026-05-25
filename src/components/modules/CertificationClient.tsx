@@ -195,6 +195,53 @@ export default function CertificationClient({
     setSaving(false)
   }
 
+  // --- Admin : demande les duplicatas à la filature ---
+  const demanderDuplicatas = async (decl: Declaration) => {
+    setSaving(true)
+    setMessage('')
+
+    // Met à jour le statut de la déclaration
+    const { error } = await supabase
+      .from('declarations_ethys')
+      .update({ statut: 'duplicatas_demandes' })
+      .eq('id', decl.id)
+
+    if (error) {
+      setMessage('Erreur : ' + error.message)
+      setSaving(false)
+      return
+    }
+
+    // Notifie la filature
+    await supabase.from('notifications').insert({
+      user_id: decl.initiateur_id,
+      type: 'certification',
+      titre: 'Duplicatas demandés',
+      contenu: 'TEXTILE LOOP vous demande les duplicatas de vos commandes de coton recyclé et vierge pour finaliser votre certification.',
+      lien: '/certification',
+      lu: false,
+    })
+
+    // Envoie l'email
+    const ent = getEntreprise(decl)
+    await fetch('/api/certification-duplicatas', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        filature_nom: ent?.nom ?? decl.filature_nom ?? 'Filature',
+        declaration_id: decl.id,
+      }),
+    })
+
+    // Met à jour la liste locale
+    setAttente(prev => prev.map(d =>
+      d.id === decl.id ? { ...d, statut: 'duplicatas_demandes' } : d
+    ))
+    setSelectedDecl({ ...decl, statut: 'duplicatas_demandes' })
+    setMessage('Demande de duplicatas envoyée par email.')
+    setSaving(false)
+  }
+
   // --- Admin : certifie une déclaration ---
   const certifier = async (decl: Declaration) => {
     setSaving(true)
@@ -363,7 +410,12 @@ export default function CertificationClient({
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                   <span style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>{decl.type_produit ?? 'Fil ETHYS'}</span>
-                  <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: '#fdf8ec', color: '#b8860b' }}>En attente</span>
+                  <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700,
+                    background: decl.statut === 'duplicatas_demandes' ? '#fdf0e8' : '#fdf8ec',
+                    color: decl.statut === 'duplicatas_demandes' ? '#c2440e' : '#b8860b'
+                  }}>
+                    {decl.statut === 'duplicatas_demandes' ? 'Duplicatas demandés' : 'En attente'}
+                  </span>
                 </div>
                 <div style={{ fontSize: 11, color: '#4a5568' }}>
                   {decl.volume_recycle_kg && decl.volume_vierge_kg
@@ -512,16 +564,21 @@ export default function CertificationClient({
                 <div style={{ fontSize: 16, fontWeight: 800, color: '#1a1a1a', marginBottom: 4 }}>Demande en cours d'examen</div>
                 <div style={{ fontSize: 12, color: '#8b7355' }}>Soumise le {formatDate(selectedDeclFilature.created_at)}</div>
               </div>
-              <span style={{ padding: '4px 12px', borderRadius: 4, fontSize: 11, fontWeight: 700, background: '#fdf8ec', color: '#b8860b' }}>En attente</span>
+              <span style={{ padding: '4px 12px', borderRadius: 4, fontSize: 11, fontWeight: 700,
+                background: selectedDeclFilature.statut === 'duplicatas_demandes' ? '#fdf0e8' : '#fdf8ec',
+                color: selectedDeclFilature.statut === 'duplicatas_demandes' ? '#c2440e' : '#b8860b'
+              }}>
+                {selectedDeclFilature.statut === 'duplicatas_demandes' ? 'Duplicatas demandés' : 'En attente'}
+              </span>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
               {[
-                  ['Type', selectedDeclFilature.type_produit ?? '—'],
-                  ['Volume total', selectedDeclFilature.volume_recycle_kg && selectedDeclFilature.volume_vierge_kg ? Math.round(selectedDeclFilature.volume_recycle_kg + selectedDeclFilature.volume_vierge_kg).toLocaleString('fr-FR') + ' kg' : '—'],
-                  ['Volume recyclé', selectedDeclFilature.volume_recycle_kg ? Math.round(selectedDeclFilature.volume_recycle_kg).toLocaleString('fr-FR') + ' kg' : '—'],
-                  ['Volume vierge', selectedDeclFilature.volume_vierge_kg ? Math.round(selectedDeclFilature.volume_vierge_kg).toLocaleString('fr-FR') + ' kg' : '—'],
-                  ['% recyclé', selectedDeclFilature.pct_recycle ? selectedDeclFilature.pct_recycle + '%' : '—'],
+                ['Type', selectedDeclFilature.type_produit ?? '—'],
+                ['Volume total', selectedDeclFilature.volume_recycle_kg && selectedDeclFilature.volume_vierge_kg ? Math.round(selectedDeclFilature.volume_recycle_kg + selectedDeclFilature.volume_vierge_kg).toLocaleString('fr-FR') + ' kg' : '—'],
+                ['Volume recyclé', selectedDeclFilature.volume_recycle_kg ? Math.round(selectedDeclFilature.volume_recycle_kg).toLocaleString('fr-FR') + ' kg' : '—'],
+                ['Volume vierge', selectedDeclFilature.volume_vierge_kg ? Math.round(selectedDeclFilature.volume_vierge_kg).toLocaleString('fr-FR') + ' kg' : '—'],
+                ['% recyclé', selectedDeclFilature.pct_recycle ? selectedDeclFilature.pct_recycle + '%' : '—'],
               ].map(([label, val]) => (
                 <div key={label} style={{ padding: '10px 14px', borderRadius: 8, background: '#f5f3ef', border: '1px solid #e8e3d8' }}>
                   <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 4 }}>{label}</div>
@@ -530,8 +587,15 @@ export default function CertificationClient({
               ))}
             </div>
 
-            <div style={{ padding: '12px 16px', borderRadius: 8, background: '#fdf8ec', border: '1px solid #f0d080', fontSize: 12, color: '#b45309' }}>
-              Votre demande est en cours d'examen par TEXTILE LOOP.<br />Vous recevrez une notification dès qu'elle sera traitée.
+            <div style={{ padding: '12px 16px', borderRadius: 8, fontSize: 12,
+              background: selectedDeclFilature.statut === 'duplicatas_demandes' ? '#fdf0e8' : '#fdf8ec',
+              border: '1px solid ' + (selectedDeclFilature.statut === 'duplicatas_demandes' ? '#f0c0a0' : '#f0d080'),
+              color: selectedDeclFilature.statut === 'duplicatas_demandes' ? '#c2440e' : '#b45309'
+            }}>
+              {selectedDeclFilature.statut === 'duplicatas_demandes'
+                ? <>TEXTILE LOOP vous a demandé les duplicatas de vos commandes de coton recyclé et vierge.<br />Merci de les transmettre par email à <strong>contact@textile-loop.com</strong></>
+                : <>Votre demande est en cours d'examen par TEXTILE LOOP.<br />Vous recevrez une notification dès qu'elle sera traitée.</>
+              }
             </div>
           </div>
         </div>
@@ -576,13 +640,29 @@ export default function CertificationClient({
             <div style={{ borderTop: '1px solid #e8e3d8', paddingTop: 16 }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a', marginBottom: 12 }}>Décision TEXTILE LOOP</div>
               {!showRefus ? (
-                <div style={{ display: 'flex', gap: 10 }}>
-                  <button onClick={() => setShowRefus(true)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #c8a0a0', background: '#fdf0f0', color: '#8b3a3a', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
-                    Refuser
-                  </button>
-                  <button onClick={() => certifier(selectedDecl)} disabled={saving} style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: saving ? '#d4c5b0' : '#1a1a1a', color: saving ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: saving ? 'default' : 'pointer' }}>
-                    {saving ? 'Certification...' : 'Certifier ETHYS'}
-                  </button>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {selectedDecl.statut !== 'duplicatas_demandes' && (
+                    <button
+                      onClick={() => demanderDuplicatas(selectedDecl)}
+                      disabled={saving}
+                      style={{ width: '100%', padding: '10px', borderRadius: 4, border: '1.5px solid #d4c5b0', background: '#f5f3ef', color: '#4a5568', fontSize: 13, fontWeight: 700, cursor: saving ? 'default' : 'pointer' }}
+                    >
+                      {saving ? '...' : '📎 Demander les duplicatas'}
+                    </button>
+                  )}
+                  {selectedDecl.statut === 'duplicatas_demandes' && (
+                    <div style={{ padding: '10px 14px', borderRadius: 6, background: '#fdf8ec', border: '1px solid #f0d080', fontSize: 12, color: '#b45309', textAlign: 'center' }}>
+                      Duplicatas demandés — en attente de réception
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    <button onClick={() => setShowRefus(true)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #c8a0a0', background: '#fdf0f0', color: '#8b3a3a', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+                      Refuser
+                    </button>
+                    <button onClick={() => certifier(selectedDecl)} disabled={saving} style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: saving ? '#d4c5b0' : '#1a1a1a', color: saving ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: saving ? 'default' : 'pointer' }}>
+                      {saving ? 'Certification...' : 'Certifier ETHYS'}
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <div>
