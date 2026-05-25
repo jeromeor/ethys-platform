@@ -54,6 +54,18 @@ export default async function DashboardPage() {
     const { count } = await supabase.from('commandes').select('*', { count: 'exact', head: true }).or(filtre)
     nbCommandes = count ?? 0
     const { data } = await supabase.from('commandes').select('reference, statut, created_at').or(filtre).order('created_at', { ascending: false }).limit(5)
+    } else if (entrepriseId) {
+    const { count } = await supabase
+      .from('commandes')
+      .select('*', { count: 'exact', head: true })
+      .or(`marque_id.eq.${entrepriseId},filature_id.eq.${entrepriseId},fournisseur_id.eq.${entrepriseId}`)
+    nbCommandes = count ?? 0
+    const { data } = await supabase
+      .from('commandes')
+      .select('reference, statut, created_at')
+      .or(`marque_id.eq.${entrepriseId},filature_id.eq.${entrepriseId},fournisseur_id.eq.${entrepriseId}`)
+      .order('created_at', { ascending: false })
+      .limit(3)
     dernierCommandes = data ?? []
   }
 
