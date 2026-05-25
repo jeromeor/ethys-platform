@@ -42,11 +42,16 @@ export default async function CertificationPage() {
         id, statut, type_produit, volume_recycle_kg, volume_vierge_kg,
         pct_recycle, provenance_pays, filature_nom, filature_pays,
         description, declaration_honneur, created_at, entreprise_id, initiateur_id,
+        commande_id,
+        commande:commandes!declarations_ethys_commande_id_fkey(reference),
         entreprise:entreprises!declarations_ethys_entreprise_id_fkey(id, nom)
       `)
       .in('statut', ['en_attente', 'duplicatas_demandes'])
       .order('created_at', { ascending: false })
-    declarationsEnAttente = declsRaw ?? []
+    declarationsEnAttente = (declsRaw ?? []).map((d: any) => ({
+      ...d,
+      commande_reference: d.commande?.reference ?? null,
+    }))
   }
 
   // --- Commandes éligibles pour la filature (production 100%, pas de demande en cours) ---
@@ -87,12 +92,17 @@ export default async function CertificationPage() {
       .from('declarations_ethys')
       .select(`
         id, statut, type_produit, volume_recycle_kg, volume_vierge_kg,
-        pct_recycle, created_at, entreprise_id, initiateur_id, filature_nom
+        pct_recycle, created_at, entreprise_id, initiateur_id, filature_nom,
+        commande_id,
+        commande:commandes!declarations_ethys_commande_id_fkey(reference)
       `)
       .eq('entreprise_id', entrepriseId)
       .in('statut', ['en_attente', 'duplicatas_demandes'])
       .order('created_at', { ascending: false })
-    declarationsFilature = declsFilature ?? []
+    declarationsFilature = (declsFilature ?? []).map((d: any) => ({
+      ...d,
+      commande_reference: d.commande?.reference ?? null,
+    }))
   }
 
   return (
