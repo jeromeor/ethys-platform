@@ -376,7 +376,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
                         </td>
                         <td style={{ padding: '12px 14px', fontSize: 12, color: '#4a5568' }}>{c.marque?.nom ?? '-'}</td>
                         <td style={{ padding: '12px 14px', fontSize: 12, color: '#4a5568' }}>{c.filature?.nom ?? '-'}</td>
-                        <td style={{ padding: '12px 14px', fontSize: 12, fontWeight: 600 }}>{Math.round((c.volume_total_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg</td>
+                        <td style={{ padding: '12px 14px', fontSize: 12, fontWeight: 600 }}>// APRÈS {Math.round((c.volume_total_tonnes ?? 0) * 1000 + 0.0001).toLocaleString('fr-FR')} kg</td>
                         <td style={{ padding: '12px 14px' }}>
                           <span style={{ fontSize: 11, fontWeight: 600, color: '#059669' }}>
                             {Math.round(c.pct_recycle ?? 0)}%
