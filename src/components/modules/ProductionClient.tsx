@@ -142,7 +142,7 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
     })).catch(console.error)
   }, [])
   const chargerCertifications = async () => {
-    const { data } = await supabase.from('certifications_ethys').select('id, reference, type_produit, statut').order('created_at', { ascending: false })
+   const { data } = await supabase.from('certifications_ethys').select('id, reference, type_produit, statut').eq('statut', 'certifiee').order('created_at', { ascending: false })
     setCertifications(data ?? [])
   }
 
