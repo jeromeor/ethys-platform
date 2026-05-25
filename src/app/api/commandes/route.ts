@@ -14,8 +14,8 @@ export async function POST(req: NextRequest) {
         grammage, date_livraison_souhaitee, priorite, notes, statut, created_by
       ) VALUES (
         ${body.reference}, ${body.titre}, ${body.marque_id}, ${body.filature_id},
-        ${body.fournisseur_id}, ${body.type_coton}, ${body.volume_recycle_tonnes},
-        ${body.volume_vierge_tonnes}, ${body.grammage}, ${body.date_livraison_souhaitee},
+        ${body.fournisseur_id}, ${body.type_coton}, ${Math.round(body.volume_recycle_tonnes * 1000) / 1000},
+        ${Math.round(body.volume_vierge_tonnes * 1000) / 1000}, ${body.grammage}, ${body.date_livraison_souhaitee},
         ${body.priorite}, ${body.notes}, ${body.statut}, ${body.created_by}
       )
       RETURNING id, reference, titre, statut, type_coton, grammage,
