@@ -465,8 +465,10 @@ if (volumeDejaAlloue + volumeNouveauLot > volumeCommande) {
                                 Associer une certification ETHYS
                               </button>
                             ) : (
-                              <div style={{ textAlign: 'center', padding: '30px', color: '#8b7355', fontSize: 13 }}>Aucune certification disponible</div>
-                            )
+  <div style={{ fontSize: 11, color: '#b8860b', background: '#fdf8ec', borderRadius: 6, padding: '6px 10px' }}>
+    La demande de certification ETHYS n'est possible que si tous les lots de la commande sont validés.
+  </div>
+)
                           })()
                         )}
                       </div>
