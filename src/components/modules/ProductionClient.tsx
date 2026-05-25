@@ -458,20 +458,24 @@ if (volumeDejaAlloue + volumeNouveauLot > volumeCommande) {
                             {'Certification ETHYS : ' + (certifications.find(c => c.id === lot.certif_ethys_id)?.reference ?? lot.certif_ethys_id)}
                           </div>
                         ) : (
-                          <button onClick={() => { setShowAssocCertif(lot.id); chargerCertifications() }} style={{ padding: '6px 14px', borderRadius: 6, border: '1.5px solid #2d5016', background: '#f0f4ec', color: '#2d5016', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
-                           {(() => {
-  const avGlobal = AvancementGlobal(selected)
-  const tousLotsTermines = (selected.lots ?? []).every(l => l.avancement_pct === 100)
-  return tousLotsTermines ? (
-    <button onClick={() => { setShowAssocCertif(lot.id); chargerCertifications() }} style={{ padding: '6px 14px', borderRadius: 6, border: '1.5px solid #2d5016', background: '#f0f4ec', color: '#2d5016', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
-      Associer une certification ETHYS
-    </button>
-  ) : (
-    <div style={{ fontSize: 11, color: '#b8860b', background: '#fdf8ec', borderRadius: 6, padding: '6px 10px' }}>
-      La demande de certification ETHYS n'est possible que si tous les lots de la commande sont validés.
-    </div>
-  )
-})()}
+                          (() => {
+                            const tousLotsTermines = (selected.lots ?? []).every(l => l.avancement_pct === 100)
+                            return tousLotsTermines ? (
+                              <button onClick={() => { setShowAssocCertif(lot.id); chargerCertifications() }} style={{ padding: '6px 14px', borderRadius: 6, border: '1.5px solid #2d5016', background: '#f0f4ec', color: '#2d5016', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
+                                Associer une certification ETHYS
+                              </button>
+                            ) : (
+                              <div style={{ fontSize: 11, color: '#b8860b', background: '#fdf8ec', borderRadius: 6, padding: '6px 10px' }}>
+                                La demande de certification ETHYS n'est possible que si tous les lots de la commande sont validés.
+                              </div>
+                            )
+                          })()
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+
                 {/* Ajouter lot */}
                 {(() => {
                   const volumeDejaAlloue = (selected.lots ?? []).reduce((sum, l) => sum + ((l.volume_tonnes ?? 0) * 1000), 0)
@@ -522,7 +526,6 @@ if (volumeDejaAlloue + volumeNouveauLot > volumeCommande) {
                   )
                 })()}
               </div>
-            </div>
             )}
 
             {/* Tab Lots */}
