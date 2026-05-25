@@ -27,8 +27,8 @@ interface Commande {
   grammage: string | null
   volume_total_tonnes: number
   pct_recycle: number
-  priorite: string
-  date_livraison_souhaitee: string
+  Priorité: string
+  date_livraison_souhaitée: string
   created_at: string
   marque: { nom: string } | null
   filature: { nom: string } | null
@@ -110,8 +110,8 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
     fournisseur_id: role === 'fournisseur_coton' ? monEntrepriseId : '',
     volume_recycle_kg: '',
     grammage: '',
-    date_livraison_souhaitee: '',
-    priorite: 'normale',
+    date_livraison_souhaitée: '',
+    Priorité: 'normale',
     notes: '',
   })
 
@@ -155,12 +155,12 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
   }
 
   const creerCommande = async () => {
-    if (!form.marque_id || !form.filature_id || !form.fournisseur_id || !form.date_livraison_souhaitee) {
+    if (!form.marque_id || !form.filature_id || !form.fournisseur_id || !form.date_livraison_souhaitée) {
       setError('Veuillez remplir tous les champs obligatoires : Marque, Filature, Fournisseur et Date de livraison.')
       return
     }
     if (!form.volume_recycle_kg || volumeRecycle <= 0) {
-      setError('Veuillez indiquer un volume de coton recycle superieur a 0.')
+      setError('Veuillez indiquer un volume de coton recyclé superieur a 0.')
       return
     }
     setError('')
@@ -188,8 +188,8 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
         volume_recycle_tonnes: volumeRecycle / 1000,
         volume_vierge_tonnes: volumeVierge / 1000,
         grammage: grammageNum,
-        date_livraison_souhaitee: form.date_livraison_souhaitee,
-        priorite: form.priorite,
+        date_livraison_souhaitée: form.date_livraison_souhaitée,
+        Priorité: form.Priorité,
         notes: form.notes || null,
         statut: 'en_production',
         created_by: user.id,
@@ -213,8 +213,8 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
       fournisseur_id: role === 'fournisseur_coton' ? monEntrepriseId : '',
       volume_recycle_kg: '',
       grammage: '',
-      date_livraison_souhaitee: '',
-      priorite: 'normale',
+      date_livraison_souhaitée: '',
+      Priorité: 'normale',
       notes: '',
     })
     setLoading(false)
@@ -394,7 +394,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
                           </span>
                         </td>
                         <td style={{ padding: '12px 14px', fontSize: 11, color: '#8b7355', whiteSpace: 'nowrap' }}>
-                          {new Date(c.date_livraison_souhaitee).toLocaleDateString('fr-FR')}
+                          {new Date(c.date_livraison_souhaitée).toLocaleDateString('fr-FR')}
                         </td>
                         {!selected && (
                           <td style={{ padding: '12px 14px', minWidth: 140 }}>
@@ -450,8 +450,8 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
                 {[
                   ['Volume', String(Math.round((selected.volume_total_tonnes ?? 0) * 1000).toLocaleString('fr-FR')) + ' kg'],
                   ['Recycle', String(Math.round(selected.pct_recycle ?? 0)) + '%'],
-                  ['Priorite', selected.priorite],
-                  ['Livraison', new Date(selected.date_livraison_souhaitee).toLocaleDateString('fr-FR')],
+                  ['Priorité', selected.Priorité],
+                  ['Livraison', new Date(selected.date_livraison_souhaitée).toLocaleDateString('fr-FR')],
                 ].map(([l, v]) => (
                   <div key={l} style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 10px' }}>
                     <div style={{ fontSize: 13, fontWeight: 800, color: '#c2956e' }}>{v}</div>
@@ -574,7 +574,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
             <div style={{ padding: '22px 28px', display: 'flex', flexDirection: 'column', gap: 14 }}>
 
               <div>
-                {labelInput('Titre / reference interne')}
+                {labelInput('Titre / référence interne')}
                 <input value={form.titre} onChange={e => set('titre', e.target.value)} placeholder="Ex : Collection Printemps 2024" style={inputStyle} />
               </div>
 
@@ -582,21 +582,21 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
                 <div>
                   {labelInput('Marque *')}
                   <select value={form.marque_id} onChange={e => set('marque_id', e.target.value)} disabled={role === 'marque'} style={{ ...selectStyle, background: role === 'marque' ? '#f5f3ef' : '#fff', cursor: role === 'marque' ? 'default' : 'pointer' }}>
-                    <option value="">Selectionner...</option>
+                    <option value="">Sélectionner...</option>
                     {marques.map(m => <option key={m.id} value={m.id}>{m.nom}</option>)}
                   </select>
                 </div>
                 <div>
                   {labelInput('Filature *')}
                   <select value={form.filature_id} onChange={e => set('filature_id', e.target.value)} disabled={role === 'filature'} style={{ ...selectStyle, background: role === 'filature' ? '#f5f3ef' : '#fff', cursor: role === 'filature' ? 'default' : 'pointer' }}>
-                    <option value="">Selectionner...</option>
+                    <option value="">Sélectionner...</option>
                     {filatures.map(f => <option key={f.id} value={f.id}>{f.nom}</option>)}
                   </select>
                 </div>
                 <div>
                   {labelInput('Fournisseur *')}
                   <select value={form.fournisseur_id} onChange={e => set('fournisseur_id', e.target.value)} disabled={role === 'fournisseur_coton'} style={{ ...selectStyle, background: role === 'fournisseur_coton' ? '#f5f3ef' : '#fff', cursor: role === 'fournisseur_coton' ? 'default' : 'pointer' }}>
-                    <option value="">Selectionner...</option>
+                    <option value="">Sélectionner...</option>
                     {fournisseurs.map(f => <option key={f.id} value={f.id}>{f.nom}</option>)}
                   </select>
                 </div>
@@ -609,15 +609,15 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
 
               <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, padding: '12px 14px' }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: '#15803d', marginBottom: 4 }}>Composition Fil ETHYS</div>
-                <div style={{ fontSize: 11, color: '#4a5568' }}>51% coton recycle + 49% coton vierge</div>
+                <div style={{ fontSize: 11, color: '#4a5568' }}>51% coton recyclé + 49% coton vierge</div>
               </div>
 
               <div>
-                {labelInput('Volume de coton recycle (kg) *')}
+                {labelInput('Volume de coton recyclé (kg) *')}
                 <input type="number" min="0" value={form.volume_recycle_kg} onChange={e => set('volume_recycle_kg', e.target.value)} placeholder="Ex : 510" style={inputStyle} />
                 {volumeRecycle > 0 && (
                   <div style={{ marginTop: 8, padding: '10px 12px', background: '#f5f3ef', borderRadius: 6, fontSize: 12, color: '#4a5568' }}>
-                    Volume vierge calcule : <strong>{volumeVierge.toLocaleString('fr-FR')} kg</strong>
+                    Volume vierge calculé : <strong>{volumeVierge.toLocaleString('fr-FR')} kg</strong>
                     {' — '}Volume total : <strong>{volumeTotal.toLocaleString('fr-FR')} kg</strong>
                   </div>
                 )}
@@ -632,12 +632,12 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
                   </select>
                 </div>
                 <div>
-                  {labelInput('Livraison souhaitee *')}
-                  <input type="date" value={form.date_livraison_souhaitee} onChange={e => set('date_livraison_souhaitee', e.target.value)} style={inputStyle} />
+                  {labelInput('Livraison souhaitée *')}
+                  <input type="date" value={form.date_livraison_souhaitée} onChange={e => set('date_livraison_souhaitée', e.target.value)} style={inputStyle} />
                 </div>
                 <div>
-                  {labelInput('Priorite')}
-                  <select value={form.priorite} onChange={e => set('priorite', e.target.value)} style={selectStyle}>
+                  {labelInput('Priorité')}
+                  <select value={form.Priorité} onChange={e => set('Priorité', e.target.value)} style={selectStyle}>
                     <option value="normale">Normale</option>
                     <option value="haute">Haute</option>
                     <option value="urgente">Urgente</option>
@@ -647,7 +647,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
 
               <div>
                 {labelInput('Notes')}
-                <textarea value={form.notes} onChange={e => set('notes', e.target.value)} placeholder="Instructions particulieres..." rows={3} style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit' }} />
+                <textarea value={form.notes} onChange={e => set('notes', e.target.value)} placeholder="Instructions particulières..." rows={3} style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit' }} />
               </div>
 
               {error && (
@@ -657,7 +657,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
               <div style={{ display: 'flex', gap: 10, paddingTop: 4 }}>
                 <button onClick={() => setShowForm(false)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#8b7355', fontSize: 13, cursor: 'pointer' }}>Annuler</button>
                 <button onClick={creerCommande} disabled={loading} style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: loading ? '#d4c5b0' : '#1a1a1a', color: loading ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: loading ? 'default' : 'pointer' }}>
-                  {loading ? 'Creation...' : 'Creer la commande ETHYS'}
+                  {loading ? 'Création...' : 'Créer la commande ETHYS'}
                 </button>
               </div>
 
