@@ -44,7 +44,7 @@ export default async function CertificationPage() {
         description, declaration_honneur, created_at, entreprise_id, initiateur_id,
         entreprise:entreprises!declarations_ethys_entreprise_id_fkey(id, nom)
       `)
-      .eq('statut', 'en_attente')
+      .in('statut', ['en_attente', 'duplicatas_demandes'])
       .order('created_at', { ascending: false })
     declarationsEnAttente = declsRaw ?? []
   }
@@ -90,7 +90,7 @@ export default async function CertificationPage() {
         pct_recycle, created_at, entreprise_id, initiateur_id, filature_nom
       `)
       .eq('entreprise_id', entrepriseId)
-      .eq('statut', 'en_attente')
+      .in('statut', ['en_attente', 'duplicatas_demandes'])
       .order('created_at', { ascending: false })
     declarationsFilature = declsFilature ?? []
   }
