@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
@@ -14,7 +14,6 @@ interface ControleQualite {
 
 interface Lot {
   id: string
-  numero: string
   type_coton: string
   volume_tonnes: number
   statut: string
@@ -106,7 +105,7 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
   lu: false,
 })
   }
-  const [certifications, setCertifications] = useState<{ id: string; reference: string; type_produit: string | null; statut: string }[]>([])
+  const [certifications, setCertifications] = useState<{ id: string; numero: string; type_produit: string | null; statut: string }[]>([])
   const [selectedCertifId, setSelectedCertifId] = useState('')
 
   useEffect(() => {
