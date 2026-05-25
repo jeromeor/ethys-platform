@@ -44,6 +44,7 @@ export default function SidebarLayout({ user, profil, children }: Props) {
   const [annulationsEnAttente, setAnnulationsEnAttente] = useState(0)
   const [messagesNonLus, setMessagesNonLus] = useState(0)
   const [productionNonLus, setProductionNonLus] = useState(0)
+  const [certifFilatureNonLus, setCertifFilatureNonLus] = useState(0)
 
   useEffect(() => {
     const chargerBadges = async () => {
@@ -107,15 +108,15 @@ setDemandesQrEnAttente(countQR ?? 0)
         .eq('lu', false)
       setProductionNonLus(countProduction ?? 0)
 
-      // Badge QR Code pour filature : notif qr_genere non lue
-      if (profil?.role !== 'admin') {
-        const { count: countQrGenere } = await supabase
+      // Badge certification filature : notif reçue quand certif accordée
+      if (profil?.role === 'filature') {
+        const { count: countCertifFilature } = await supabase
           .from('notifications')
           .select('*', { count: 'exact', head: true })
           .eq('user_id', profil.id)
-          .eq('type', 'qr_genere')
+          .eq('type', 'certification')
           .eq('lu', false)
-        setDemandesQrEnAttente(countQrGenere ?? 0)
+        setCertifFilatureNonLus(countCertifFilature ?? 0)
       }
     }
     
@@ -169,8 +170,11 @@ setDemandesQrEnAttente(countQR ?? 0)
                   <span style={{ background: '#EF4444', color: '#fff', borderRadius: '50%', minWidth: 18, height: 18, fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>{comptesEnAttente}</span>
                 )}
                 {open && item.route === '/certification' && certifEnAttente > 0 && profil?.role === 'admin' && (
-                  <span style={{ background: '#EF4444', color: '#fff', borderRadius: '50%', minWidth: 18, height: 18, fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>{certifEnAttente}</span>
-                )}
+  <span style={{ background: '#EF4444', color: '#fff', borderRadius: '50%', minWidth: 18, height: 18, fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>{certifEnAttente}</span>
+)}
+{open && item.route === '/certification' && certifFilatureNonLus > 0 && profil?.role === 'filature' && (
+  <span style={{ background: '#2d5016', color: '#fff', borderRadius: '50%', minWidth: 18, height: 18, fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>{certifFilatureNonLus}</span>
+)}
                 {open && item.route === '/qrcode' && demandesQrEnAttente > 0 && (
                   <span style={{ background: '#D97706', color: '#fff', borderRadius: '50%', minWidth: 18, height: 18, fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>{demandesQrEnAttente}</span>
                 )}
