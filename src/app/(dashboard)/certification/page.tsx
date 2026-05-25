@@ -16,11 +16,12 @@ export default async function CertificationPage() {
   const role = profil?.role ?? 'filature'
   const entrepriseId = profil?.entreprise_id ?? ''
 
-  // --- Certifications existantes ---
+  // --- Certifications existantes — inclut les colonnes volumes/type ---
   const certsQuery = supabase
     .from('certifications_ethys')
     .select(`
       id, reference, statut, date_emission, date_expiration, created_at,
+      type_produit, volume_recycle_kg, volume_vierge_kg, pct_recycle,
       filature:entreprises!certifications_ethys_filature_id_fkey(id, nom)
     `)
     .order('created_at', { ascending: false })
@@ -51,7 +52,6 @@ export default async function CertificationPage() {
   // --- Commandes éligibles pour la filature (production 100%, pas de demande en cours) ---
   let commandesEligibles: any[] = []
   if (role === 'filature') {
-    // Récupère les commandes de la filature avec tous les lots à 100%
     const { data: commandes } = await supabase
       .from('commandes')
       .select(`
@@ -63,15 +63,6 @@ export default async function CertificationPage() {
       .eq('filature_id', entrepriseId)
       .not('statut', 'eq', 'annulee')
 
-    // Récupère les déclarations déjà en cours pour cette filature
-    const { data: declsEnCours } = await supabase
-      .from('declarations_ethys')
-      .select('id, statut')
-      .eq('entreprise_id', entrepriseId)
-      .in('statut', ['en_attente', 'en_validation', 'certifiee'])
-
-    // Filtre : toutes les commandes avec lots à 100% et sans demande certif en cours
-    // Pour la beta on ne bloque pas sur le nb de déclarations existantes
     commandesEligibles = (commandes ?? [])
       .filter((c: any) => {
         const lots = c.lots ?? []
@@ -81,18 +72,34 @@ export default async function CertificationPage() {
       .map((c: any) => ({
         id: c.id,
         reference: c.reference,
-        volume_recycle_kg: (c.volume_recycle_tonnes ?? 0) * 1000,
-        volume_vierge_kg: (c.volume_vierge_tonnes ?? 0) * 1000,
+        volume_recycle_kg: Math.round((c.volume_recycle_tonnes ?? 0) * 1000),
+        volume_vierge_kg: Math.round((c.volume_vierge_tonnes ?? 0) * 1000),
         pct_recycle: c.pct_recycle ?? 51,
         filature_nom: (c.filature as any)?.nom ?? '',
         marque_nom: (c.marque as any)?.nom ?? '',
       }))
   }
 
+  // --- Demandes en cours pour la filature (soumises, pas encore traitées) ---
+  let declarationsFilature: any[] = []
+  if (role === 'filature') {
+    const { data: declsFilature } = await supabase
+      .from('declarations_ethys')
+      .select(`
+        id, statut, type_produit, volume_recycle_kg, volume_vierge_kg,
+        pct_recycle, created_at, entreprise_id, initiateur_id, filature_nom
+      `)
+      .eq('entreprise_id', entrepriseId)
+      .eq('statut', 'en_attente')
+      .order('created_at', { ascending: false })
+    declarationsFilature = declsFilature ?? []
+  }
+
   return (
     <CertificationClient
       certifications={certifications as any}
       declarationsEnAttente={declarationsEnAttente as any}
+      declarationsFilature={declarationsFilature as any}
       commandesEligibles={commandesEligibles}
       userRole={role}
       entrepriseId={entrepriseId}
