@@ -522,6 +522,7 @@ if (volumeDejaAlloue + volumeNouveauLot > volumeCommande) {
                   )
                 })()}
               </div>
+            </div>
             )}
 
             {/* Tab Lots */}
