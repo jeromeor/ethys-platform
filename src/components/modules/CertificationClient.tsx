@@ -169,11 +169,9 @@ export default function CertificationClient({
     const now = new Date()
 
     // Génère le numéro de certification
-    const year = now.getFullYear()
-    const month = String(now.getMonth() + 1).padStart(2, '0')
-    const pays = decl.provenance_pays?.slice(0, 2).toUpperCase() ?? 'XX'
-    const seq = String(certifications.length + 1).padStart(4, '0')
-    const numero = `ETHYS-${year}-${month}-001-${pays}-${seq}`
+   const year = now.getFullYear()
+const seq = String(certifications.length + 1).padStart(4, '0')
+const numero = `CER-${year}-${seq}`
 
     const dateEmission = now.toISOString()
     const dateValidite = new Date(now.setFullYear(now.getFullYear() + 2)).toISOString()
