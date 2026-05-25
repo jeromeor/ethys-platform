@@ -27,8 +27,8 @@ interface Commande {
   grammage: string | null
   volume_total_tonnes: number
   pct_recycle: number
-  Priorité: string
-  date_livraison_souhaitée: string
+  priorite: string
+  date_livraison_souhaitee: string
   created_at: string
   marque: { nom: string } | null
   filature: { nom: string } | null
@@ -110,8 +110,8 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
     fournisseur_id: role === 'fournisseur_coton' ? monEntrepriseId : '',
     volume_recycle_kg: '',
     grammage: '',
-    date_livraison_souhaitée: '',
-    Priorité: 'normale',
+    date_livraison_souhaitee: '',
+    priorite: 'normale',
     notes: '',
   })
 
@@ -155,7 +155,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
   }
 
   const creerCommande = async () => {
-    if (!form.marque_id || !form.filature_id || !form.fournisseur_id || !form.date_livraison_souhaitée) {
+    if (!form.marque_id || !form.filature_id || !form.fournisseur_id || !form.date_livraison_souhaitee) {
       setError('Veuillez remplir tous les champs obligatoires : Marque, Filature, Fournisseur et Date de livraison.')
       return
     }
@@ -188,8 +188,8 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
         volume_recycle_tonnes: volumeRecycle / 1000,
         volume_vierge_tonnes: volumeVierge / 1000,
         grammage: grammageNum,
-        date_livraison_souhaitée: form.date_livraison_souhaitée,
-        Priorité: form.Priorité,
+        date_livraison_souhaitee: form.date_livraison_souhaitee,
+        priorite: form.priorite,
         notes: form.notes || null,
         statut: 'en_production',
         created_by: user.id,
@@ -213,8 +213,8 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
       fournisseur_id: role === 'fournisseur_coton' ? monEntrepriseId : '',
       volume_recycle_kg: '',
       grammage: '',
-      date_livraison_souhaitée: '',
-      Priorité: 'normale',
+      date_livraison_souhaitee: '',
+      priorite: 'normale',
       notes: '',
     })
     setLoading(false)
@@ -394,7 +394,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
                           </span>
                         </td>
                         <td style={{ padding: '12px 14px', fontSize: 11, color: '#8b7355', whiteSpace: 'nowrap' }}>
-                          {new Date(c.date_livraison_souhaitée).toLocaleDateString('fr-FR')}
+                          {new Date(c.date_livraison_souhaitee).toLocaleDateString('fr-FR')}
                         </td>
                         {!selected && (
                           <td style={{ padding: '12px 14px', minWidth: 140 }}>
@@ -450,8 +450,8 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
                 {[
                   ['Volume', String(Math.round((selected.volume_total_tonnes ?? 0) * 1000).toLocaleString('fr-FR')) + ' kg'],
                   ['Recycle', String(Math.round(selected.pct_recycle ?? 0)) + '%'],
-                  ['Priorité', selected.Priorité],
-                  ['Livraison', new Date(selected.date_livraison_souhaitée).toLocaleDateString('fr-FR')],
+                  ['priorite', selected.priorite],
+                  ['Livraison', new Date(selected.date_livraison_souhaitee).toLocaleDateString('fr-FR')],
                 ].map(([l, v]) => (
                   <div key={l} style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 10px' }}>
                     <div style={{ fontSize: 13, fontWeight: 800, color: '#c2956e' }}>{v}</div>
@@ -633,11 +633,11 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
                 </div>
                 <div>
                   {labelInput('Livraison souhaitée *')}
-                  <input type="date" value={form.date_livraison_souhaitée} onChange={e => set('date_livraison_souhaitée', e.target.value)} style={inputStyle} />
+                  <input type="date" value={form.date_livraison_souhaitee} onChange={e => set('date_livraison_souhaitee', e.target.value)} style={inputStyle} />
                 </div>
                 <div>
-                  {labelInput('Priorité')}
-                  <select value={form.Priorité} onChange={e => set('Priorité', e.target.value)} style={selectStyle}>
+                  {labelInput('priorite')}
+                  <select value={form.priorite} onChange={e => set('priorite', e.target.value)} style={selectStyle}>
                     <option value="normale">Normale</option>
                     <option value="haute">Haute</option>
                     <option value="urgente">Urgente</option>
