@@ -14,6 +14,7 @@ interface ControleQualite {
 
 interface Lot {
   id: string
+  reference: string
   type_coton: string
   volume_tonnes: number
   statut: string
