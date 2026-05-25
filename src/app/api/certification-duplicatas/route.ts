@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'TEXTILE LOOP <contact@textile-loop.com>',
+        from: 'TEXTILE LOOP <contact@ethys-textileloop.com>',
         to: [destinataire],
         subject: 'Demande de duplicatas — Certification ETHYS',
         html: `
