@@ -108,7 +108,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
     marque_id:      role === 'marque'            ? monEntrepriseId : '',
     filature_id:    role === 'filature'          ? monEntrepriseId : '',
     fournisseur_id: role === 'fournisseur_coton' ? monEntrepriseId : '',
-    volume_recycle_kg: '',
+    volume_total_kg: '',
     grammage: '',
     date_livraison_souhaitee: '',
     priorite: 'normale',
@@ -130,9 +130,9 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
     return true
   })
 
-  const volumeRecycle = parseFloat(form.volume_recycle_kg) || 0
-  const volumeVierge  = Math.round(volumeRecycle * 49 / 51 * 100) / 100
-  const volumeTotal   = Math.round((volumeRecycle + volumeVierge) * 100) / 100
+  const volumeTotal   = parseFloat(form.volume_total_kg) || 0
+  const volumeRecycle = Math.round(volumeTotal * 51 / 100 * 100) / 100
+  const volumeVierge  = Math.round(volumeTotal * 49 / 100 * 100) / 100
 
   const ouvrirDetail = async (c: Commande) => {
     setSelected(c)
@@ -159,7 +159,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
       setError('Veuillez remplir tous les champs obligatoires : Marque, Filature, Fournisseur et Date de livraison.')
       return
     }
-    if (!form.volume_recycle_kg || volumeRecycle <= 0) {
+    if (!form.volume_total_kg || volumeTotal <= 0) {
       setError('Veuillez indiquer un volume de coton recyclé superieur a 0.')
       return
     }
@@ -211,7 +211,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
       marque_id:      role === 'marque'            ? monEntrepriseId : '',
       filature_id:    role === 'filature'          ? monEntrepriseId : '',
       fournisseur_id: role === 'fournisseur_coton' ? monEntrepriseId : '',
-      volume_recycle_kg: '',
+      volume_total_kg: '',
       grammage: '',
       date_livraison_souhaitee: '',
       priorite: 'normale',
@@ -613,12 +613,12 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
               </div>
 
               <div>
-                {labelInput('Volume de coton recyclé (kg) *')}
-                <input type="number" min="0" value={form.volume_recycle_kg} onChange={e => set('volume_recycle_kg', e.target.value)} placeholder="Ex : 510" style={inputStyle} />
-                {volumeRecycle > 0 && (
+                {labelInput('Volume total de fil (kg) *')}
+                <input type="number" min="0" value={form.volume_total_kg} onChange={e => set('volume_total_kg', e.target.value)} placeholder="Ex : 1000" style={inputStyle} />
+                {volumeTotal > 0 && (
                   <div style={{ marginTop: 8, padding: '10px 12px', background: '#f5f3ef', borderRadius: 6, fontSize: 12, color: '#4a5568' }}>
-                    Volume vierge calculé : <strong>{volumeVierge.toLocaleString('fr-FR')} kg</strong>
-                    {' — '}Volume total : <strong>{volumeTotal.toLocaleString('fr-FR')} kg</strong>
+                    Coton recyclé (51%) : <strong>{volumeRecycle.toLocaleString('fr-FR')} kg</strong>
+                    {' — '}Coton vierge (49%) : <strong>{volumeVierge.toLocaleString('fr-FR')} kg</strong>
                   </div>
                 )}
               </div>
