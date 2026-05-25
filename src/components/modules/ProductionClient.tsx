@@ -664,7 +664,7 @@ if (volumeDejaAlloue + volumeNouveauLot > volumeCommande) {
               <button onClick={() => setShowAssocCertif(null)} style={{ border: 'none', background: 'none', fontSize: 18, cursor: 'pointer', color: '#8b7355' }}>x</button>
             </div>
             {certifications.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '30px', color: '#8b7355', fontSize: 13 }}>La demande de certification ETHYS n'est possible que si tous les lots de la commande sont validés.</div>
+              <div style={{ textAlign: 'center', padding: '30px', color: '#8b7355', fontSize: 13 }}>Aucune certification disponible</div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
                 {certifications.map(c => (
