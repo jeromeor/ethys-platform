@@ -517,10 +517,11 @@ export default function CertificationClient({
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
               {[
-                ['Type', selectedDeclFilature.type_produit ?? '—'],
-                ['Volume recyclé', selectedDeclFilature.volume_recycle_kg ? Math.round(selectedDeclFilature.volume_recycle_kg).toLocaleString('fr-FR') + ' kg' : '—'],
-                ['Volume vierge', selectedDeclFilature.volume_vierge_kg ? Math.round(selectedDeclFilature.volume_vierge_kg).toLocaleString('fr-FR') + ' kg' : '—'],
-                ['% recyclé', selectedDeclFilature.pct_recycle ? selectedDeclFilature.pct_recycle + '%' : '—'],
+                  ['Type', selectedDeclFilature.type_produit ?? '—'],
+                  ['Volume total', selectedDeclFilature.volume_recycle_kg && selectedDeclFilature.volume_vierge_kg ? Math.round(selectedDeclFilature.volume_recycle_kg + selectedDeclFilature.volume_vierge_kg).toLocaleString('fr-FR') + ' kg' : '—'],
+                  ['Volume recyclé', selectedDeclFilature.volume_recycle_kg ? Math.round(selectedDeclFilature.volume_recycle_kg).toLocaleString('fr-FR') + ' kg' : '—'],
+                  ['Volume vierge', selectedDeclFilature.volume_vierge_kg ? Math.round(selectedDeclFilature.volume_vierge_kg).toLocaleString('fr-FR') + ' kg' : '—'],
+                  ['% recyclé', selectedDeclFilature.pct_recycle ? selectedDeclFilature.pct_recycle + '%' : '—'],
               ].map(([label, val]) => (
                 <div key={label} style={{ padding: '10px 14px', borderRadius: 8, background: '#f5f3ef', border: '1px solid #e8e3d8' }}>
                   <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 4 }}>{label}</div>
@@ -530,7 +531,7 @@ export default function CertificationClient({
             </div>
 
             <div style={{ padding: '12px 16px', borderRadius: 8, background: '#fdf8ec', border: '1px solid #f0d080', fontSize: 12, color: '#b45309' }}>
-              Votre demande est en cours d'examen par TEXTILE LOOP. Vous recevrez une notification dès qu'elle sera traitée.
+              Votre demande est en cours d'examen par TEXTILE LOOP.<br />Vous recevrez une notification dès qu'elle sera traitée.
             </div>
           </div>
         </div>
