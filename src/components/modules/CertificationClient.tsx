@@ -22,6 +22,8 @@ interface Declaration {
   entreprise_id: string
   initiateur_id: string
   created_at: string
+  commande_id: string | null
+  commande_reference: string | null  // jointure depuis page.tsx
   entreprise?: Entreprise | Entreprise[] | null
 }
 
@@ -54,18 +56,11 @@ interface CommandeEligible {
 interface Props {
   certifications: Certification[]
   declarationsEnAttente: Declaration[]
-  declarationsFilature: Declaration[]   // demandes en cours côté filature
+  declarationsFilature: Declaration[]
   commandesEligibles: CommandeEligible[]
   userRole: string
   entrepriseId: string
   userId: string
-}
-
-const STATUT_LABELS: Record<string, string> = {
-  en_attente:    'En attente',
-  en_validation: 'En validation',
-  certifiee:     'Certifiée',
-  refusee:       'Refusée',
 }
 
 function getDeclaration(cert: Certification): Declaration | null {
@@ -156,8 +151,9 @@ export default function CertificationClient({
         entreprise_id: entrepriseId,
         initiateur_id: userId,
         eligible_ethys: true,
+        commande_id: selectedCommandeId,  // lien avec la commande
       })
-      .select('id, statut, type_produit, volume_recycle_kg, volume_vierge_kg, pct_recycle, created_at, entreprise_id, initiateur_id, filature_nom')
+      .select('id, statut, type_produit, volume_recycle_kg, volume_vierge_kg, pct_recycle, created_at, entreprise_id, initiateur_id, filature_nom, commande_id')
       .single()
 
     if (error) {
@@ -183,9 +179,12 @@ export default function CertificationClient({
       })
     }
 
-    // Ajoute la demande dans la liste "en cours" côté filature
+    // Ajoute la demande dans la liste "en cours" avec la référence commande
     if (newDecl) {
-      setDeclsFilature(prev => [newDecl as Declaration, ...prev])
+      setDeclsFilature(prev => [{
+        ...(newDecl as Declaration),
+        commande_reference: commande.reference,
+      }, ...prev])
     }
 
     setShowForm(false)
@@ -200,7 +199,6 @@ export default function CertificationClient({
     setSaving(true)
     setMessage('')
 
-    // Met à jour le statut de la déclaration
     const { error } = await supabase
       .from('declarations_ethys')
       .update({ statut: 'duplicatas_demandes' })
@@ -233,7 +231,6 @@ export default function CertificationClient({
       }),
     })
 
-    // Met à jour la liste locale
     setAttente(prev => prev.map(d =>
       d.id === decl.id ? { ...d, statut: 'duplicatas_demandes' } : d
     ))
@@ -291,7 +288,6 @@ export default function CertificationClient({
       lu: false,
     })
 
-    // Enrichit la certif avec les données de la déclaration pour l'affichage immédiat
     const certAvecDecl: Certification = {
       ...(newCert as any),
       declaration: decl,
@@ -341,16 +337,10 @@ export default function CertificationClient({
           <div style={{ fontSize: 11, color: '#8b7355', marginTop: 2 }}>
             <span style={{ fontWeight: 700, color: '#2d5016' }}>{certifications.length}</span> certifiées
             {isAdmin && attente.length > 0 && (
-              <>
-                {' · '}
-                <span style={{ fontWeight: 700, color: '#b45309' }}>{attente.length}</span> en attente
-              </>
+              <>{' · '}<span style={{ fontWeight: 700, color: '#b45309' }}>{attente.length}</span> en attente</>
             )}
             {!isAdmin && declsFilature.length > 0 && (
-              <>
-                {' · '}
-                <span style={{ fontWeight: 700, color: '#b45309' }}>{declsFilature.length}</span> en cours
-              </>
+              <>{' · '}<span style={{ fontWeight: 700, color: '#b45309' }}>{declsFilature.length}</span> en cours</>
             )}
           </div>
         </div>
@@ -369,9 +359,7 @@ export default function CertificationClient({
         {/* Section admin : demandes à valider */}
         {isAdmin && attente.length > 0 && (
           <>
-            <div style={{ padding: '8px 16px 4px', fontSize: 10, fontWeight: 700, color: '#b45309', textTransform: 'uppercase', letterSpacing: 1 }}>
-              À valider
-            </div>
+            <div style={{ padding: '8px 16px 4px', fontSize: 10, fontWeight: 700, color: '#b45309', textTransform: 'uppercase', letterSpacing: 1 }}>À valider</div>
             {attente.map(decl => {
               const ent = getEntreprise(decl)
               return (
@@ -382,11 +370,19 @@ export default function CertificationClient({
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                     <span style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>{ent?.nom ?? '—'}</span>
-                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: '#fdf8ec', color: '#b8860b' }}>En attente</span>
+                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700,
+                      background: decl.statut === 'duplicatas_demandes' ? '#fdf0e8' : '#fdf8ec',
+                      color: decl.statut === 'duplicatas_demandes' ? '#c2440e' : '#b8860b'
+                    }}>
+                      {decl.statut === 'duplicatas_demandes' ? 'Duplicatas' : 'En attente'}
+                    </span>
                   </div>
+                  {decl.commande_reference && (
+                    <div style={{ fontSize: 10, fontWeight: 700, color: '#2d5016', marginBottom: 2 }}>{decl.commande_reference}</div>
+                  )}
                   <div style={{ fontSize: 11, color: '#4a5568' }}>
                     {decl.type_produit ?? '—'} · {decl.volume_recycle_kg && decl.volume_vierge_kg
-                      ? Math.round(decl.volume_recycle_kg + decl.volume_vierge_kg).toLocaleString('fr-FR') + ' kg total'
+                      ? Math.round(decl.volume_recycle_kg + decl.volume_vierge_kg).toLocaleString('fr-FR') + ' kg'
                       : decl.volume_recycle_kg ? Math.round(decl.volume_recycle_kg).toLocaleString('fr-FR') + ' kg' : '—'}
                   </div>
                   <div style={{ fontSize: 10, color: '#a0aec0', marginTop: 2 }}>{formatDate(decl.created_at)}</div>
@@ -399,9 +395,7 @@ export default function CertificationClient({
         {/* Section filature : demandes en cours */}
         {!isAdmin && declsFilature.length > 0 && (
           <>
-            <div style={{ padding: '8px 16px 4px', fontSize: 10, fontWeight: 700, color: '#b45309', textTransform: 'uppercase', letterSpacing: 1 }}>
-              En cours d'examen
-            </div>
+            <div style={{ padding: '8px 16px 4px', fontSize: 10, fontWeight: 700, color: '#b45309', textTransform: 'uppercase', letterSpacing: 1 }}>En cours d'examen</div>
             {declsFilature.map(decl => (
               <div
                 key={decl.id}
@@ -417,12 +411,13 @@ export default function CertificationClient({
                     {decl.statut === 'duplicatas_demandes' ? 'Duplicatas demandés' : 'En attente'}
                   </span>
                 </div>
+                {decl.commande_reference && (
+                  <div style={{ fontSize: 10, fontWeight: 700, color: '#2d5016', marginBottom: 2 }}>{decl.commande_reference}</div>
+                )}
                 <div style={{ fontSize: 11, color: '#4a5568' }}>
                   {decl.volume_recycle_kg && decl.volume_vierge_kg
                     ? Math.round(decl.volume_recycle_kg + decl.volume_vierge_kg).toLocaleString('fr-FR') + ' kg total'
-                    : decl.volume_recycle_kg
-                      ? Math.round(decl.volume_recycle_kg).toLocaleString('fr-FR') + ' kg'
-                      : '—'}
+                    : decl.volume_recycle_kg ? Math.round(decl.volume_recycle_kg).toLocaleString('fr-FR') + ' kg' : '—'}
                 </div>
                 <div style={{ fontSize: 10, color: '#a0aec0', marginTop: 2 }}>{formatDate(decl.created_at)}</div>
               </div>
@@ -431,21 +426,12 @@ export default function CertificationClient({
         )}
 
         {/* Séparateur certifiées */}
-        {(isAdmin && certifications.length > 0 && attente.length > 0) && (
-          <div style={{ padding: '8px 16px 4px', fontSize: 10, fontWeight: 700, color: '#2d5016', textTransform: 'uppercase', letterSpacing: 1 }}>
-            Certifiées
-          </div>
-        )}
-        {(!isAdmin && certifications.length > 0 && declsFilature.length > 0) && (
-          <div style={{ padding: '8px 16px 4px', fontSize: 10, fontWeight: 700, color: '#2d5016', textTransform: 'uppercase', letterSpacing: 1 }}>
-            Certifiées
-          </div>
+        {((isAdmin && certifications.length > 0 && attente.length > 0) || (!isAdmin && certifications.length > 0 && declsFilature.length > 0)) && (
+          <div style={{ padding: '8px 16px 4px', fontSize: 10, fontWeight: 700, color: '#2d5016', textTransform: 'uppercase', letterSpacing: 1 }}>Certifiées</div>
         )}
 
         {certifications.length === 0 && attente.length === 0 && declsFilature.length === 0 ? (
-          <div style={{ padding: '40px 16px', textAlign: 'center', color: '#8b7355', fontSize: 12 }}>
-            Aucune certification.
-          </div>
+          <div style={{ padding: '40px 16px', textAlign: 'center', color: '#8b7355', fontSize: 12 }}>Aucune certification.</div>
         ) : certifications.map(cert => {
           const decl = getDeclaration(cert)
           return (
@@ -509,7 +495,7 @@ export default function CertificationClient({
 
             {commandeSelectionnee && (
               <div style={{ padding: '14px 16px', borderRadius: 8, background: '#f0f4ec', border: '1px solid #c8d8b8', marginBottom: 16 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#2d5016', marginBottom: 8 }}>Récapitulatif</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#2d5016', marginBottom: 8 }}>Récapitulatif — {commandeSelectionnee.reference}</div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12, color: '#4a5568' }}>
                   <div>Type : <strong>Fil ETHYS</strong></div>
                   <div>% recyclé : <strong>{commandeSelectionnee.pct_recycle}%</strong></div>
@@ -538,9 +524,7 @@ export default function CertificationClient({
             )}
 
             <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => setShowForm(false)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#4a5568', fontSize: 13, cursor: 'pointer' }}>
-                Annuler
-              </button>
+              <button onClick={() => setShowForm(false)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#4a5568', fontSize: 13, cursor: 'pointer' }}>Annuler</button>
               <button
                 onClick={demanderCertification}
                 disabled={saving || !selectedCommandeId || !declarationHonneur}
@@ -562,6 +546,9 @@ export default function CertificationClient({
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
               <div>
                 <div style={{ fontSize: 16, fontWeight: 800, color: '#1a1a1a', marginBottom: 4 }}>Demande en cours d'examen</div>
+                {selectedDeclFilature.commande_reference && (
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#2d5016', marginBottom: 2 }}>Commande {selectedDeclFilature.commande_reference}</div>
+                )}
                 <div style={{ fontSize: 12, color: '#8b7355' }}>Soumise le {formatDate(selectedDeclFilature.created_at)}</div>
               </div>
               <span style={{ padding: '4px 12px', borderRadius: 4, fontSize: 11, fontWeight: 700,
@@ -593,7 +580,7 @@ export default function CertificationClient({
               color: selectedDeclFilature.statut === 'duplicatas_demandes' ? '#c2440e' : '#b45309'
             }}>
               {selectedDeclFilature.statut === 'duplicatas_demandes'
-                ? <>TEXTILE LOOP vous a demandé les duplicatas de vos commandes de coton recyclé et vierge.<br />Merci de les transmettre par email à <strong>contact@textile-loop.com</strong></>
+                ? <>TEXTILE LOOP vous a demandé les duplicatas de vos commandes de coton recyclé et vierge.<br />Merci de les transmettre par email à <strong>contact@ethys-textileloop.com</strong></>
                 : <>Votre demande est en cours d'examen par TEXTILE LOOP.<br />Vous recevrez une notification dès qu'elle sera traitée.</>
               }
             </div>
@@ -616,9 +603,17 @@ export default function CertificationClient({
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
               <div>
                 <div style={{ fontSize: 16, fontWeight: 800, color: '#1a1a1a', marginBottom: 4 }}>{ent?.nom ?? selectedDecl.filature_nom ?? '—'}</div>
+                {selectedDecl.commande_reference && (
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#2d5016', marginBottom: 2 }}>Commande {selectedDecl.commande_reference}</div>
+                )}
                 <div style={{ fontSize: 12, color: '#8b7355' }}>Soumise le {formatDate(selectedDecl.created_at)}</div>
               </div>
-              <span style={{ padding: '4px 12px', borderRadius: 4, fontSize: 11, fontWeight: 700, background: '#fdf8ec', color: '#b8860b' }}>En attente</span>
+              <span style={{ padding: '4px 12px', borderRadius: 4, fontSize: 11, fontWeight: 700,
+                background: selectedDecl.statut === 'duplicatas_demandes' ? '#fdf0e8' : '#fdf8ec',
+                color: selectedDecl.statut === 'duplicatas_demandes' ? '#c2440e' : '#b8860b'
+              }}>
+                {selectedDecl.statut === 'duplicatas_demandes' ? 'Duplicatas demandés' : 'En attente'}
+              </span>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
@@ -690,7 +685,6 @@ export default function CertificationClient({
     // Panneau certification existante
     if (selected) {
       const decl = getDeclaration(selected)
-      // Priorité : données directes de la certif (colonnes DB) > données via déclaration liée
       const filatureNom = (selected as any).filature?.nom ?? decl?.filature_nom ?? selected.filature_nom ?? '—'
       const typeP = selected.type_produit ?? decl?.type_produit ?? '—'
       const volR = selected.volume_recycle_kg ?? decl?.volume_recycle_kg
