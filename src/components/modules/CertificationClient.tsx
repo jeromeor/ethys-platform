@@ -624,6 +624,7 @@ export default function CertificationClient({
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
               {[
                 ['Type', selectedDecl.type_produit ?? '—'],
+                ['Volume total', selectedDecl.volume_recycle_kg && selectedDecl.volume_vierge_kg ? Math.round(selectedDecl.volume_recycle_kg + selectedDecl.volume_vierge_kg).toLocaleString('fr-FR') + ' kg' : '—'],
                 ['Volume recyclé', selectedDecl.volume_recycle_kg ? Math.round(selectedDecl.volume_recycle_kg).toLocaleString('fr-FR') + ' kg' : '—'],
                 ['Volume vierge', selectedDecl.volume_vierge_kg ? Math.round(selectedDecl.volume_vierge_kg).toLocaleString('fr-FR') + ' kg' : '—'],
                 ['% recyclé', selectedDecl.pct_recycle ? selectedDecl.pct_recycle + '%' : '—'],
