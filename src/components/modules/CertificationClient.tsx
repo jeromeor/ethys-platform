@@ -198,9 +198,9 @@ export default function CertificationClient({
         reference,
         filature_id: decl.entreprise_id,
         type_produit: decl.type_produit ?? 'Fil ETHYS',
-        volume_recycle_kg: decl.volume_recycle_kg,
-        volume_vierge_kg: decl.volume_vierge_kg,
-        pct_recycle: decl.pct_recycle ?? 51,
+        volume_recycle_kg: decl.volume_recycle_kg ? Math.round(decl.volume_recycle_kg) : null,
+        volume_vierge_kg: decl.volume_vierge_kg ? Math.round(decl.volume_vierge_kg) : null,
+        pct_recycle: 51, // toujours fixe : 51% recyclé / 49% vierge
         date_emission: dateEmission,
         date_expiration: dateExpiration,
         statut: 'certifiee',
@@ -313,7 +313,7 @@ console.log('CERTIF OK:', newCert)
                     <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: '#fdf8ec', color: '#b8860b' }}>En attente</span>
                   </div>
                   <div style={{ fontSize: 11, color: '#4a5568' }}>
-                    {decl.type_produit ?? '—'} · {decl.volume_recycle_kg ? decl.volume_recycle_kg.toLocaleString('fr-FR') + ' kg recyclé' : '—'}
+                    {decl.type_produit ?? '—'} · {decl.volume_recycle_kg ? Math.round(decl.volume_recycle_kg).toLocaleString('fr-FR') + ' kg recyclé' : '—'}
                   </div>
                   <div style={{ fontSize: 10, color: '#a0aec0', marginTop: 2 }}>{formatDate(decl.created_at)}</div>
                 </div>
@@ -463,7 +463,7 @@ console.log('CERTIF OK:', newCert)
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
               {[
                 ['Type', selectedDecl.type_produit ?? '—'],
-                ['Volume recyclé', selectedDecl.volume_recycle_kg ? selectedDecl.volume_recycle_kg.toLocaleString('fr-FR') + ' kg' : '—'],
+                ['Volume recyclé', selectedDecl.volume_recycle_kg ? Math.round(selectedDecl.volume_recycle_kg).toLocaleString('fr-FR') + ' kg' : '—'],
                 ['Volume vierge', selectedDecl.volume_vierge_kg ? selectedDecl.volume_vierge_kg.toLocaleString('fr-FR') + ' kg' : '—'],
                 ['% recyclé', selectedDecl.pct_recycle ? selectedDecl.pct_recycle + '%' : '—'],
                 ['Filature', selectedDecl.filature_nom ?? '—'],
@@ -539,8 +539,8 @@ console.log('CERTIF OK:', newCert)
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               {[
                 ['Type', typeP],
-                ['Volume recyclé', volR ? volR.toLocaleString('fr-FR') + ' kg' : '—'],
-                ['Volume vierge', volV ? volV.toLocaleString('fr-FR') + ' kg' : '—'],
+                ['Volume recyclé', volR ? Math.round(volR).toLocaleString('fr-FR') + ' kg' : '—'],
+                ['Volume vierge', volV ? Math.round(volV).toLocaleString('fr-FR') + ' kg' : '—'],
                 ['% recyclé', pct ? pct + '%' : '—'],
                 ['Filature', filatureNom],
               ].map(([label, val]) => (
