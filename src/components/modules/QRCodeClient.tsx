@@ -22,6 +22,7 @@ interface Lot {
   certification: string | null
   statut: string
   avancement_pct: number
+  avancement_commande_pct?: number
   commande: {
     reference: string
     titre: string | null
@@ -289,7 +290,7 @@ export default function QRCodeClient({ lots: initial, user, profil, certificatio
     // src/components/QRCodeClient.tsx — renderBoutonQR(), branche non-admin sans demande en attente
 
 // Lot non terminé : bouton désactivé avec message
-const lotTermine = (selected?.avancement_pct ?? 0) >= 100
+const lotTermine = (selected?.avancement_commande_pct ?? selected?.avancement_pct ?? 0) >= 100
 
 return (
   <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 8 }}>
