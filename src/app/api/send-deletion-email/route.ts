@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
     : 'dans 7 jours après confirmation'
 
   const delaiMessage = delai === '7jours'
-    ? '<p style="color:#b8860b;background:#fdf8ec;padding:10px 14px;border-radius:4px;font-size:13px;">Vous disposez de 7 jours pour annuler cette demande en contactant <a href=\"mailto:contact@ethys-textileloop.com\">contact@ethys-textileloop.com</a></p>'
+    ? '<p style="color:#b8860b;background:#fdf8ec;padding:10px 14px;border-radius:4px;font-size:13px;">Vous disposez de 7 jours pour annuler cette demande en contactant <a href=\"mailto:contact@textile-loop.com\">contact@textile-loop.com</a></p>'
     : '<p style="color:#8b3a3a;background:#fdf0f0;padding:10px 14px;border-radius:4px;font-size:13px;">Cette suppression sera effective immédiatement après confirmation.</p>'
 
   try {
