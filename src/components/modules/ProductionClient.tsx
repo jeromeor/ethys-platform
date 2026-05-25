@@ -218,6 +218,13 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
 
   const ajouterLot = async () => {
     if (!selected || !newLot.volume_tonnes) return
+    const volumeDejaAlloue = (selected.lots ?? []).reduce((sum, l) => sum + ((l.volume_tonnes ?? 0) * 1000), 0)
+const volumeCommande = (selected.volume_total_tonnes ?? 0) * 1000
+const volumeNouveauLot = parseFloat(newLot.volume_tonnes)
+if (volumeDejaAlloue + volumeNouveauLot > volumeCommande) {
+  alert(`Volume lots (${volumeDejaAlloue + volumeNouveauLot} kg) dépasse la commande (${volumeCommande} kg)`)
+  return
+}
     const reference = `${selected.reference.replace('CMD', 'LOT')}-${String.fromCharCode(65 + (selected.lots?.length ?? 0))}`
 
     const { data, error } = await supabase
