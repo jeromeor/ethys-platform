@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
                 </a>
               </div>
               <p style="color:#8b7355;font-size:11px;text-align:center;margin:0;">
-                Pour toute question : <a href="mailto:contact@textile-loop.com" style="color:#2d5016;">contact@textile-loop.com</a>
+                Pour toute question : <a href="mailto:contact@ethys-textileloop.com" style="color:#2d5016;">contact@ethys-textileloop.com</a>
               </p>
             </div>
             <div style="text-align:center;margin-top:20px;font-size:11px;color:#d4c5b0;">
