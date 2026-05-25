@@ -55,10 +55,26 @@ export default async function DashboardPage() {
     nbCommandes = count ?? 0
     const { data } = await supabase.from('commandes').select('reference, statut, created_at').or(filtre).order('created_at', { ascending: false }).limit(5)
     } else if (entrepriseId) {
-    const { count } = await supabase
-      .from('commandes')
-      .select('*', { count: 'exact', head: true })
-      .or(`marque_id.eq.${entrepriseId},filature_id.eq.${entrepriseId},fournisseur_id.eq.${entrepriseId}`)
+  const role = profil?.role
+  let q1 = supabase.from('commandes').select('*', { count: 'exact', head: true })
+  let q2 = supabase.from('commandes').select('reference, statut, created_at')
+
+  if (role === 'filature') {
+    q1 = q1.eq('filature_id', entrepriseId)
+    q2 = q2.eq('filature_id', entrepriseId)
+  } else if (role === 'marque') {
+    q1 = q1.eq('marque_id', entrepriseId)
+    q2 = q2.eq('marque_id', entrepriseId)
+  } else if (role === 'fournisseur_coton') {
+    q1 = q1.eq('fournisseur_id', entrepriseId)
+    q2 = q2.eq('fournisseur_id', entrepriseId)
+  }
+
+  const { count } = await q1
+  nbCommandes = count ?? 0
+  const { data } = await q2.order('created_at', { ascending: false }).limit(3)
+  dernierCommandes = data ?? []
+}
     nbCommandes = count ?? 0
     const { data } = await supabase
       .from('commandes')
