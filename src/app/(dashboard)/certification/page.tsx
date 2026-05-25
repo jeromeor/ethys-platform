@@ -21,13 +21,7 @@ export default async function CertificationPage() {
     .from('certifications_ethys')
     .select(`
       id, reference, statut, date_emission, date_expiration, created_at,
-      declaration:declarations_ethys(
-        id, statut, type_produit, volume_recycle_kg, volume_vierge_kg,
-        pct_recycle, provenance_pays, filature_nom, filature_pays,
-        description, commentaire_admin, entreprise_id, initiateur_id,
-        created_at,
-        entreprise:entreprises!declarations_ethys_entreprise_id_fkey(id, nom)
-      )
+      filature:entreprises!certifications_ethys_filature_id_fkey(id, nom)
     `)
     .order('created_at', { ascending: false })
 
@@ -35,8 +29,7 @@ export default async function CertificationPage() {
 
   const certifications = (certsRaw ?? []).filter((c: any) => {
     if (role === 'admin') return true
-    const decl = Array.isArray(c.declaration) ? c.declaration[0] : c.declaration
-    return decl?.entreprise_id === entrepriseId
+    return c.filature?.id === entrepriseId
   })
 
   // --- Déclarations en attente de certification (pour admin) ---
