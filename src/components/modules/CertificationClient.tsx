@@ -1,9 +1,6 @@
 'use client'
-
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-
-// --- Types alignés sur la vraie structure Supabase ---
 
 interface Entreprise {
   id: string
@@ -31,6 +28,7 @@ interface Declaration {
 interface Certification {
   id: string
   numero: string | null
+  reference: string | null
   date_emission: string | null
   date_validite: string | null
   valide: boolean
@@ -38,34 +36,24 @@ interface Certification {
   declaration?: Declaration | Declaration[] | null
 }
 
-// Déclaration soumise par la filature, pas encore certifiée
-interface DeclarationEligible {
+// Commande éligible à la certification (production 100%, pas de certif en cours)
+interface CommandeEligible {
   id: string
-  statut: string | null
-  type_produit: string | null
-  volume_recycle_kg: number | null
-  volume_vierge_kg: number | null
-  pct_recycle: number | null
-  provenance_pays: string | null
-  filature_nom: string | null
-  description: string | null
-  created_at: string
+  reference: string
+  volume_recycle_kg: number
+  volume_vierge_kg: number
+  pct_recycle: number
+  filature_nom: string
+  marque_nom: string
 }
 
 interface Props {
   certifications: Certification[]
-  declarationsEnAttente: Declaration[]   // admin : déclarations à valider
-  declarationsEligibles: DeclarationEligible[]  // filature : déclarations pouvant être soumises
+  declarationsEnAttente: Declaration[]
+  commandesEligibles: CommandeEligible[]
   userRole: string
   entrepriseId: string
   userId: string
-}
-
-const STATUT_COLORS: Record<string, [string, string]> = {
-  en_attente:    ['#fdf8ec', '#b8860b'],
-  en_validation: ['#DBEAFE', '#1E40AF'],
-  certifiee:     ['#f0f4ec', '#2d5016'],
-  refusee:       ['#FEE2E2', '#991B1B'],
 }
 
 const STATUT_LABELS: Record<string, string> = {
@@ -87,10 +75,15 @@ function getEntreprise(decl: Declaration | null): Entreprise | null {
   return decl.entreprise
 }
 
+function formatDate(s: string | null | undefined): string {
+  if (!s) return '—'
+  return new Date(s).toLocaleDateString('fr-FR')
+}
+
 export default function CertificationClient({
   certifications: initial,
   declarationsEnAttente,
-  declarationsEligibles,
+  commandesEligibles,
   userRole,
   entrepriseId,
   userId,
@@ -99,24 +92,21 @@ export default function CertificationClient({
   const [certifications, setCertifications] = useState<Certification[]>(initial)
   const [attente, setAttente] = useState<Declaration[]>(declarationsEnAttente)
   const [selected, setSelected] = useState<Certification | null>(null)
-  const [selectedDecl, setSelectedDecl] = useState<Declaration | null>(null) // admin : déclaration en attente sélectionnée
+  const [selectedDecl, setSelectedDecl] = useState<Declaration | null>(null)
   const [showForm, setShowForm] = useState(false)
-  const [selectedDeclId, setSelectedDeclId] = useState('')
-  const [declarationHonneur, setDeclarationHonneur] = useState(false)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
   const [commentaire, setCommentaire] = useState('')
   const [showRefus, setShowRefus] = useState(false)
+  const [declarationHonneur, setDeclarationHonneur] = useState(false)
+  const [selectedCommandeId, setSelectedCommandeId] = useState('')
 
   const isAdmin = userRole === 'admin'
 
-  const formatDate = (d: string | null) =>
-    d ? new Date(d).toLocaleDateString('fr-FR') : '-'
-
-  // --- Filature : soumet une déclaration existante pour certification ---
+  // --- Filature : demande de certification liée à une commande ---
   const demanderCertification = async () => {
-    if (!selectedDeclId) {
-      setMessage('Veuillez sélectionner une déclaration.')
+    if (!selectedCommandeId) {
+      setMessage('Veuillez sélectionner une commande.')
       return
     }
     if (!declarationHonneur) {
@@ -126,11 +116,28 @@ export default function CertificationClient({
     setSaving(true)
     setMessage('')
 
-    // Passe la déclaration en statut en_attente (demande de certification)
+    const commande = commandesEligibles.find(c => c.id === selectedCommandeId)
+    if (!commande) {
+      setMessage('Commande introuvable.')
+      setSaving(false)
+      return
+    }
+
+    // Crée une déclaration liée à la commande
     const { error } = await supabase
       .from('declarations_ethys')
-      .update({ statut: 'en_attente', declaration_honneur: true })
-      .eq('id', selectedDeclId)
+      .insert({
+        statut: 'en_attente',
+        declaration_honneur: true,
+        type_produit: 'Fil ETHYS',
+        volume_recycle_kg: commande.volume_recycle_kg,
+        volume_vierge_kg: commande.volume_vierge_kg,
+        pct_recycle: commande.pct_recycle,
+        filature_nom: commande.filature_nom,
+        entreprise_id: entrepriseId,
+        initiateur_id: userId,
+        eligible_ethys: true,
+      })
 
     if (error) {
       setMessage('Erreur : ' + error.message)
@@ -144,20 +151,19 @@ export default function CertificationClient({
       .select('id')
       .eq('role', 'admin')
 
-    const decl = declarationsEligibles.find(d => d.id === selectedDeclId)
     for (const admin of admins ?? []) {
       await supabase.from('notifications').insert({
         user_id: admin.id,
         type: 'certification',
         titre: 'Demande de certification',
-        contenu: 'Déclaration soumise pour certification ETHYS — ' + (decl?.filature_nom ?? ''),
+        contenu: 'Demande de certification ETHYS — ' + commande.reference + ' (' + commande.filature_nom + ')',
         lien: '/certification',
         lu: false,
       })
     }
 
     setShowForm(false)
-    setSelectedDeclId('')
+    setSelectedCommandeId('')
     setDeclarationHonneur(false)
     setMessage('Demande de certification soumise. Elle sera examinée par TEXTILE LOOP.')
     setSaving(false)
@@ -168,32 +174,29 @@ export default function CertificationClient({
     setSaving(true)
     const now = new Date()
 
-    // Génère le numéro de certification
-   const year = now.getFullYear()
-const seq = String(certifications.length + 1).padStart(4, '0')
-const numero = `CER-${year}-${seq}`
+    const year = now.getFullYear()
+    const seq = String(certifications.length + 1).padStart(4, '0')
+    const reference = `CER-${year}-${seq}`
 
     const dateEmission = now.toISOString()
     const dateValidite = new Date(now.setFullYear(now.getFullYear() + 2)).toISOString()
 
-    // 1. Met à jour le statut de la déclaration
     await supabase
       .from('declarations_ethys')
       .update({ statut: 'certifiee' })
       .eq('id', decl.id)
 
-    // 2. Insère dans certifications_ethys
     const { data: newCert, error } = await supabase
       .from('certifications_ethys')
       .insert({
         declaration_id: decl.id,
-        numero,
+        reference,
         date_emission: dateEmission,
-        date_validite: dateValidite,
-        valide: true,
+        date_expiration: dateValidite,
+        statut: 'certifiee',
       })
       .select(`
-        id, numero, date_emission, date_validite, valide, created_at,
+        id, reference, date_emission, date_expiration, statut, created_at,
         declaration:declarations_ethys(
           id, statut, type_produit, volume_recycle_kg, volume_vierge_kg,
           pct_recycle, provenance_pays, filature_nom, filature_pays,
@@ -209,21 +212,19 @@ const numero = `CER-${year}-${seq}`
       return
     }
 
-    // 3. Notifie l'initiateur
     await supabase.from('notifications').insert({
       user_id: decl.initiateur_id,
       type: 'certification',
       titre: 'Certification ETHYS obtenue !',
-      contenu: `Votre déclaration a été certifiée. Numéro : ${numero}`,
+      contenu: `Votre demande a été certifiée. Numéro : ${reference}`,
       lien: '/certification',
       lu: false,
     })
 
-    // 4. Met à jour le state
-    setCertifications(prev => [newCert as Certification, ...prev])
+    setCertifications(prev => [newCert as unknown as Certification, ...prev])
     setAttente(prev => prev.filter(d => d.id !== decl.id))
     setSelectedDecl(null)
-    setMessage('Certification accordée. Numéro : ' + numero)
+    setMessage('Certification accordée. Numéro : ' + reference)
     setSaving(false)
   }
 
@@ -240,7 +241,6 @@ const numero = `CER-${year}-${seq}`
       .update({ statut: 'refusee', commentaire_admin: commentaire })
       .eq('id', decl.id)
 
-    // Notifie l'initiateur
     await supabase.from('notifications').insert({
       user_id: decl.initiateur_id,
       type: 'certification',
@@ -273,8 +273,7 @@ const numero = `CER-${year}-${seq}`
             )}
           </div>
         </div>
-        {/* Bouton Demander : filature uniquement si elle a des déclarations éligibles */}
-        {!isAdmin && declarationsEligibles.length > 0 && (
+        {!isAdmin && commandesEligibles.length > 0 && (
           <button
             onClick={() => { setShowForm(true); setSelected(null); setSelectedDecl(null) }}
             style={{ padding: '7px 12px', borderRadius: 8, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
@@ -285,7 +284,6 @@ const numero = `CER-${year}-${seq}`
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto' }}>
-        {/* Admin : déclarations en attente de validation en haut */}
         {isAdmin && attente.length > 0 && (
           <>
             <div style={{ padding: '8px 16px 4px', fontSize: 10, fontWeight: 700, color: '#b45309', textTransform: 'uppercase', letterSpacing: 1 }}>
@@ -318,7 +316,6 @@ const numero = `CER-${year}-${seq}`
           </>
         )}
 
-        {/* Certifications existantes */}
         {certifications.length === 0 && attente.length === 0 ? (
           <div style={{ padding: '40px 16px', textAlign: 'center', color: '#8b7355', fontSize: 12 }}>
             Aucune certification.
@@ -339,8 +336,8 @@ const numero = `CER-${year}-${seq}`
               <div style={{ fontSize: 11, color: '#4a5568' }}>
                 {decl?.type_produit ?? '—'} · {decl?.volume_recycle_kg ? decl.volume_recycle_kg.toLocaleString('fr-FR') + ' kg recyclé' : '—'}
               </div>
-              {cert.numero && (
-                <div style={{ fontSize: 10, fontWeight: 700, color: '#2d5016', marginTop: 2 }}>{cert.numero}</div>
+              {(cert.reference ?? cert.numero) && (
+                <div style={{ fontSize: 10, fontWeight: 700, color: '#2d5016', marginTop: 2 }}>{cert.reference ?? cert.numero}</div>
               )}
               <div style={{ fontSize: 10, color: '#a0aec0', marginTop: 2 }}>{formatDate(cert.date_emission)}</div>
             </div>
@@ -354,7 +351,7 @@ const numero = `CER-${year}-${seq}`
   const renderPanneauDroit = () => {
     // Formulaire demande (filature)
     if (showForm) {
-      const declSelectionnee = declarationsEligibles.find(d => d.id === selectedDeclId)
+      const commandeSelectionnee = commandesEligibles.find(c => c.id === selectedCommandeId)
       return (
         <div style={{ flex: 1, overflow: 'auto', padding: '24px 28px' }}>
           <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '24px', maxWidth: 600 }}>
@@ -364,31 +361,31 @@ const numero = `CER-${year}-${seq}`
             </div>
 
             <div style={{ marginBottom: 16 }}>
-              <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Déclaration à certifier *</label>
+              <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Commande à certifier *</label>
               <select
-                value={selectedDeclId}
-                onChange={e => setSelectedDeclId(e.target.value)}
+                value={selectedCommandeId}
+                onChange={e => setSelectedCommandeId(e.target.value)}
                 style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
               >
-                <option value="">Sélectionner une déclaration...</option>
-                {declarationsEligibles.map(d => (
-                  <option key={d.id} value={d.id}>
-                    {d.filature_nom ?? d.type_produit ?? d.id.slice(0, 8)} — {d.volume_recycle_kg ? d.volume_recycle_kg.toLocaleString('fr-FR') + ' kg recyclé' : '—'} — {formatDate(d.created_at)}
+                <option value="">Sélectionner une commande...</option>
+                {commandesEligibles.map(c => (
+                  <option key={c.id} value={c.id}>
+                    {c.reference} — {Math.round(c.volume_recycle_kg + c.volume_vierge_kg).toLocaleString('fr-FR')} kg — {c.marque_nom}
                   </option>
                 ))}
               </select>
             </div>
 
-            {declSelectionnee && (
+            {commandeSelectionnee && (
               <div style={{ padding: '14px 16px', borderRadius: 8, background: '#f0f4ec', border: '1px solid #c8d8b8', marginBottom: 16 }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: '#2d5016', marginBottom: 8 }}>Récapitulatif</div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12, color: '#4a5568' }}>
-                  <div>Type : <strong>{declSelectionnee.type_produit ?? '—'}</strong></div>
-                  <div>Volume recyclé : <strong>{declSelectionnee.volume_recycle_kg?.toLocaleString('fr-FR') ?? '—'} kg</strong></div>
-                  <div>Volume vierge : <strong>{declSelectionnee.volume_vierge_kg?.toLocaleString('fr-FR') ?? '—'} kg</strong></div>
-                  <div>% recyclé : <strong>{declSelectionnee.pct_recycle ?? '—'}%</strong></div>
-                  <div>Filature : <strong>{declSelectionnee.filature_nom ?? '—'}</strong></div>
-                  {declSelectionnee.provenance_pays && <div>Pays : <strong>{declSelectionnee.provenance_pays}</strong></div>}
+                  <div>Type : <strong>Fil ETHYS</strong></div>
+                  <div>% recyclé : <strong>{commandeSelectionnee.pct_recycle}%</strong></div>
+                  <div>Volume recyclé : <strong>{Math.round(commandeSelectionnee.volume_recycle_kg).toLocaleString('fr-FR')} kg</strong></div>
+                  <div>Volume vierge : <strong>{Math.round(commandeSelectionnee.volume_vierge_kg).toLocaleString('fr-FR')} kg</strong></div>
+                  <div>Filature : <strong>{commandeSelectionnee.filature_nom}</strong></div>
+                  <div>Marque : <strong>{commandeSelectionnee.marque_nom}</strong></div>
                 </div>
               </div>
             )}
@@ -415,8 +412,8 @@ const numero = `CER-${year}-${seq}`
               </button>
               <button
                 onClick={demanderCertification}
-                disabled={saving || !selectedDeclId || !declarationHonneur}
-                style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: saving || !selectedDeclId || !declarationHonneur ? '#d4c5b0' : '#1a1a1a', color: saving || !selectedDeclId || !declarationHonneur ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: saving || !selectedDeclId || !declarationHonneur ? 'default' : 'pointer' }}
+                disabled={saving || !selectedCommandeId || !declarationHonneur}
+                style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: saving || !selectedCommandeId || !declarationHonneur ? '#d4c5b0' : '#1a1a1a', color: saving || !selectedCommandeId || !declarationHonneur ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: saving || !selectedCommandeId || !declarationHonneur ? 'default' : 'pointer' }}
               >
                 {saving ? 'Envoi...' : 'Soumettre la demande'}
               </button>
@@ -461,13 +458,6 @@ const numero = `CER-${year}-${seq}`
               ))}
             </div>
 
-            {selectedDecl.description && (
-              <div style={{ padding: '12px 14px', borderRadius: 8, background: '#f5f3ef', border: '1px solid #e8e3d8', marginBottom: 16 }}>
-                <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 4 }}>Description</div>
-                <div style={{ fontSize: 12, color: '#1A202C', lineHeight: 1.5 }}>{selectedDecl.description}</div>
-              </div>
-            )}
-
             <div style={{ borderTop: '1px solid #e8e3d8', paddingTop: 16 }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a', marginBottom: 12 }}>Décision TEXTILE LOOP</div>
               {!showRefus ? (
@@ -505,6 +495,7 @@ const numero = `CER-${year}-${seq}`
     if (selected) {
       const decl = getDeclaration(selected)
       const ent = getEntreprise(decl)
+      const ref = selected.reference ?? selected.numero
       return (
         <div style={{ flex: 1, overflow: 'auto', padding: '24px 28px' }}>
           <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '24px', maxWidth: 600 }}>
@@ -518,7 +509,7 @@ const numero = `CER-${year}-${seq}`
 
             <div style={{ padding: '16px', borderRadius: 8, background: '#f0f4ec', border: '1px solid #c8d8b8', marginBottom: 16, textAlign: 'center' }}>
               <div style={{ fontSize: 14, fontWeight: 900, color: '#2d5016', marginBottom: 8 }}>Certification ETHYS obtenue</div>
-              <div style={{ fontSize: 16, fontWeight: 800, color: '#1a1a1a', marginBottom: 4 }}>{selected.numero}</div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: '#1a1a1a', marginBottom: 4 }}>{ref}</div>
               <div style={{ fontSize: 12, color: '#4a5568' }}>
                 Émise le {formatDate(selected.date_emission)} · Valide jusqu'au {formatDate(selected.date_validite)}
               </div>
@@ -556,9 +547,9 @@ const numero = `CER-${year}-${seq}`
               ? attente.length > 0
                 ? 'Sélectionnez une demande pour la valider ou la refuser.'
                 : 'Aucune demande en attente.'
-              : declarationsEligibles.length > 0
-                ? 'Vous avez des déclarations éligibles. Cliquez sur + Demander pour soumettre.'
-                : 'Aucune déclaration éligible à certifier pour le moment.'}
+              : commandesEligibles.length > 0
+                ? 'Vous avez des commandes éligibles. Cliquez sur + Demander pour soumettre.'
+                : 'Aucune commande éligible à certifier pour le moment.'}
           </div>
         </div>
       </div>
