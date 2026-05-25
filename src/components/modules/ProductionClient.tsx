@@ -468,49 +468,54 @@ if (volumeDejaAlloue + volumeNouveauLot > volumeCommande) {
                 ))}
 
                 {/* Ajouter lot */}
-                {!showAddLot ? (
-                  <button onClick={() => setShowAddLot(true)} style={{
-                    width: '100%', padding: '10px', borderRadius: 4,
-                    border: '2px dashed #f0f4ec', background: '#F0FDF4',
-                    color: '#1a1a1a', fontSize: 12, fontWeight: 600, cursor: 'pointer'
-          }}>+ Ajouter un lot</button>
-                ) : (
-                  <div style={{ background: '#fff', borderRadius: 6, border: '1px solid #e8e3d8', padding: '16px 20px' }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 12 }}>Nouveau lot</div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
-                      <div>
-                        <label style={{ fontSize: 11, color: '#4a5568', display: 'block', marginBottom: 4 }}>Type coton</label>
-                        <select value={newLot.type_coton} onChange={e => setNewLot(p => ({ ...p, type_coton: e.target.value }))}
-                          style={{ width: '100%', padding: '7px 10px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none' }}>
-                <option value='recycle'>Fil ETHYS (recyclé)</option>
-                        </select>
+                {(() => {
+                  const volumeDejaAlloue = (selected.lots ?? []).reduce((sum, l) => sum + ((l.volume_tonnes ?? 0) * 1000), 0)
+                  const volumeCommande = (selected.volume_total_tonnes ?? 0) * 1000
+                  if (volumeDejaAlloue >= volumeCommande) return null
+                  return !showAddLot ? (
+                    <button onClick={() => setShowAddLot(true)} style={{
+                      width: '100%', padding: '10px', borderRadius: 4,
+                      border: '2px dashed #f0f4ec', background: '#F0FDF4',
+                      color: '#1a1a1a', fontSize: 12, fontWeight: 600, cursor: 'pointer'
+                    }}>+ Ajouter un lot</button>
+                  ) : (
+                    <div style={{ background: '#fff', borderRadius: 6, border: '1px solid #e8e3d8', padding: '16px 20px' }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 12 }}>Nouveau lot</div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+                        <div>
+                          <label style={{ fontSize: 11, color: '#4a5568', display: 'block', marginBottom: 4 }}>Type coton</label>
+                          <select value={newLot.type_coton} onChange={e => setNewLot(p => ({ ...p, type_coton: e.target.value }))}
+                            style={{ width: '100%', padding: '7px 10px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none' }}>
+                            <option value='recycle'>Fil ETHYS (recyclé)</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label style={{ fontSize: 11, color: '#4a5568', display: 'block', marginBottom: 4 }}>Volume (kg)</label>
+                          <input type="number" value={newLot.volume_tonnes} onChange={e => setNewLot(p => ({ ...p, volume_tonnes: e.target.value }))}
+                            placeholder="Ex : 80" style={{ width: '100%', padding: '7px 10px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 12, boxSizing: 'border-box', outline: 'none' }} />
+                        </div>
+                        <div>
+                          <label style={{ fontSize: 11, color: '#4a5568', display: 'block', marginBottom: 4 }}>Certification</label>
+                          <select value={newLot.certification} onChange={e => setNewLot(p => ({ ...p, certification: e.target.value }))}
+                            style={{ width: '100%', padding: '7px 10px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none' }}>
+                            <option value="">-</option>
+                            {['GRS', 'GOTS', 'OCS 100', 'BCI'].map(c => <option key={c}>{c}</option>)}
+                          </select>
+                        </div>
                       </div>
-                      <div>
-                <label style={{ fontSize: 11, color: '#4a5568', display: 'block', marginBottom: 4 }}>Volume (kg)</label>
-                        <input type="number" value={newLot.volume_tonnes} onChange={e => setNewLot(p => ({ ...p, volume_tonnes: e.target.value }))}
-                          placeholder="Ex : 80" style={{ width: '100%', padding: '7px 10px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 12, boxSizing: 'border-box', outline: 'none' }} />
-                      </div>
-                      <div>
-                        <label style={{ fontSize: 11, color: '#4a5568', display: 'block', marginBottom: 4 }}>Certification</label>
-                        <select value={newLot.certification} onChange={e => setNewLot(p => ({ ...p, certification: e.target.value }))}
-                          style={{ width: '100%', padding: '7px 10px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none' }}>
-                          <option value="">-</option>
-                          {['GRS', 'GOTS', 'OCS 100', 'BCI'].map(c => <option key={c}>{c}</option>)}
-                        </select>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button onClick={ajouterLot} style={{
+                          flex: 2, padding: '8px', borderRadius: 8, border: 'none',
+                          background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer'
+                        }}>Ajouter</button>
+                        <button onClick={() => setShowAddLot(false)} style={{
+                          flex: 1, padding: '8px', borderRadius: 8,
+                          border: '1.5px solid #e8e3d8', background: '#fff', fontSize: 12, cursor: 'pointer'
+                        }}>Annuler</button>
                       </div>
                     </div>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <button onClick={ajouterLot} style={{
-                        flex: 2, padding: '8px', borderRadius: 8, border: 'none',
-                        background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer'
-                      }}> Ajouter</button>
-                      <button onClick={() => setShowAddLot(false)} style={{
-                        flex: 1, padding: '8px', borderRadius: 8,
-                        border: '1.5px solid #e8e3d8', background: '#fff', fontSize: 12, cursor: 'pointer'
-                      }}>Annuler</button>
-                    </div>
-                  </div>
-                )}
+                  )
+                })()}
               </div>
             )}
 
