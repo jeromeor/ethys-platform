@@ -655,7 +655,7 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
                 {certifications.map(c => (
                   <div key={c.id} onClick={() => setSelectedCertifId(c.id)} style={{ padding: '12px 14px', borderRadius: 8, border: '1.5px solid ' + (selectedCertifId === c.id ? '#2d5016' : '#e8e3d8'), background: selectedCertifId === c.id ? '#f0f4ec' : '#fff', cursor: 'pointer' }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>{c.numero}</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>{c.reference}</div>
                     <div style={{ fontSize: 11, color: '#8b7355', marginTop: 2 }}>{(c.type_produit ?? '-') + ' - ' + c.statut}</div>
                   </div>
                 ))}
