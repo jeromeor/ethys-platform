@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 interface Entreprise {
@@ -110,6 +110,18 @@ export default function CertificationClient({
   const [selectedCommandeId, setSelectedCommandeId] = useState('')
 
   const isAdmin = userRole === 'admin'
+
+  // Marque les notifs certification comme lues à l'ouverture de la page
+  useEffect(() => {
+    if (!userId) return
+    supabase
+      .from('notifications')
+      .update({ lu: true })
+      .eq('user_id', userId)
+      .eq('type', 'certification')
+      .eq('lu', false)
+      .then(() => {})
+  }, [userId])
 
   // --- Filature : demande de certification liée à une commande ---
   const demanderCertification = async () => {
@@ -326,7 +338,9 @@ export default function CertificationClient({
                     <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: '#fdf8ec', color: '#b8860b' }}>En attente</span>
                   </div>
                   <div style={{ fontSize: 11, color: '#4a5568' }}>
-                    {decl.type_produit ?? '—'} · {decl.volume_recycle_kg ? Math.round(decl.volume_recycle_kg).toLocaleString('fr-FR') + ' kg recyclé' : '—'}
+                    {decl.type_produit ?? '—'} · {decl.volume_recycle_kg && decl.volume_vierge_kg
+                      ? Math.round(decl.volume_recycle_kg + decl.volume_vierge_kg).toLocaleString('fr-FR') + ' kg total'
+                      : decl.volume_recycle_kg ? Math.round(decl.volume_recycle_kg).toLocaleString('fr-FR') + ' kg' : '—'}
                   </div>
                   <div style={{ fontSize: 10, color: '#a0aec0', marginTop: 2 }}>{formatDate(decl.created_at)}</div>
                 </div>
