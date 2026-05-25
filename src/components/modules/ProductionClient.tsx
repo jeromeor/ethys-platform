@@ -106,7 +106,7 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
   lu: false,
 })
   }
-  const [certifications, setCertifications] = useState<{ id: string; numero: string; type_produit: string | null; statut: string }[]>([])
+  const [certifications, setCertifications] = useState<{ id: string; reference: string; type_produit: string | null; statut: string }[]>([])
   const [selectedCertifId, setSelectedCertifId] = useState('')
 
   useEffect(() => {
@@ -142,7 +142,7 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
     })).catch(console.error)
   }, [])
   const chargerCertifications = async () => {
-    const { data } = await supabase.from('certifications_ethys').select('id, numero, type_produit, statut').order('created_at', { ascending: false })
+    const { data } = await supabase.from('certifications_ethys').select('id, reference, type_produit, statut').order('created_at', { ascending: false })
     setCertifications(data ?? [])
   }
 
@@ -448,7 +448,7 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
                       <div style={{ marginTop: 10 }}>
                         {lot.certif_ethys_id ? (
                           <div style={{ fontSize: 11, color: '#2d5016', fontWeight: 600, padding: '6px 10px', borderRadius: 6, background: '#f0f4ec', display: 'inline-block' }}>
-                            {'Certification ETHYS : ' + (certifications.find(c => c.id === lot.certif_ethys_id)?.numero ?? lot.certif_ethys_id)}
+                            {'Certification ETHYS : ' + (certifications.find(c => c.id === lot.certif_ethys_id)?.reference ?? lot.certif_ethys_id)}
                           </div>
                         ) : (
                           <button onClick={() => { setShowAssocCertif(lot.id); chargerCertifications() }} style={{ padding: '6px 14px', borderRadius: 6, border: '1.5px solid #2d5016', background: '#f0f4ec', color: '#2d5016', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
