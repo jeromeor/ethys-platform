@@ -478,7 +478,7 @@ if (volumeDejaAlloue + volumeNouveauLot > volumeCommande) {
                 {(() => {
                   const volumeDejaAlloue = (selected.lots ?? []).reduce((sum, l) => sum + ((l.volume_tonnes ?? 0) * 1000), 0)
                   const volumeCommande = (selected.volume_total_tonnes ?? 0) * 1000
-                  if (volumeDejaAlloue >= volumeCommande) return null
+                  if (Math.round(volumeDejaAlloue) >= Math.round(volumeCommande)) return null
                   return !showAddLot ? (
                     <button onClick={() => setShowAddLot(true)} style={{
                       width: '100%', padding: '10px', borderRadius: 4,
