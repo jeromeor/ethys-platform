@@ -484,11 +484,6 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
                           placeholder="Ex : 80" style={{ width: '100%', padding: '7px 10px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 12, boxSizing: 'border-box', outline: 'none' }} />
                       </div>
                       <div>
-                        <label style={{ fontSize: 11, color: '#4a5568', display: 'block', marginBottom: 4 }}>Origine</label>
-                        <input value={newLot.origine} onChange={e => setNewLot(p => ({ ...p, origine: e.target.value }))}
-                          placeholder="Ex : Beni Mellal, Maroc" style={{ width: '100%', padding: '7px 10px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 12, boxSizing: 'border-box', outline: 'none' }} />
-                      </div>
-                      <div>
                         <label style={{ fontSize: 11, color: '#4a5568', display: 'block', marginBottom: 4 }}>Certification</label>
                         <select value={newLot.certification} onChange={e => setNewLot(p => ({ ...p, certification: e.target.value }))}
                           style={{ width: '100%', padding: '7px 10px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none' }}>
@@ -672,10 +667,4 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
     </div>
   )
 }
-
-
-
-
-
-
 
