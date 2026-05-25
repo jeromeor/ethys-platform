@@ -210,10 +210,13 @@ export default function CertificationClient({
       .single()
 
     if (error) {
-      setMessage('Erreur lors de la certification : ' + error.message)
-      setSaving(false)
-      return
-    }
+  console.log('CERTIF ERROR:', error)
+  setMessage('Erreur lors de la certification : ' + error.message)
+  setSaving(false)
+  return
+}
+    
+console.log('CERTIF OK:', newCert)
 
     await supabase.from('notifications').insert({
       user_id: decl.initiateur_id,
