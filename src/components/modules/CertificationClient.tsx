@@ -27,13 +27,19 @@ interface Declaration {
 
 interface Certification {
   id: string
-  numero: string | null
   reference: string | null
+  statut: string | null
   date_emission: string | null
-  date_validite: string | null
-  valide: boolean
+  date_expiration: string | null
   created_at: string
+  // Données de la déclaration associée (stockées côté client après certification)
   declaration?: Declaration | Declaration[] | null
+  // Données directes de la certification
+  filature_nom?: string | null
+  type_produit?: string | null
+  volume_recycle_kg?: number | null
+  volume_vierge_kg?: number | null
+  pct_recycle?: number | null
 }
 
 // Commande éligible à la certification (production 100%, pas de certif en cours)
@@ -179,7 +185,7 @@ export default function CertificationClient({
     const reference = `CER-${year}-${seq}`
 
     const dateEmission = now.toISOString()
-    const dateValidite = new Date(now.setFullYear(now.getFullYear() + 2)).toISOString()
+    const dateExpiration = new Date(new Date().setFullYear(now.getFullYear() + 2)).toISOString()
 
     await supabase
       .from('declarations_ethys')
@@ -189,21 +195,18 @@ export default function CertificationClient({
     const { data: newCert, error } = await supabase
       .from('certifications_ethys')
       .insert({
-        declaration_id: decl.id,
         reference,
+        filature_id: decl.entreprise_id,
+        type_produit: decl.type_produit ?? 'Fil ETHYS',
+        volume_recycle_kg: decl.volume_recycle_kg,
+        volume_vierge_kg: decl.volume_vierge_kg,
+        pct_recycle: decl.pct_recycle ?? 51,
         date_emission: dateEmission,
-        date_expiration: dateValidite,
+        date_expiration: dateExpiration,
         statut: 'certifiee',
+        created_by: userId,
       })
-      .select(`
-        id, reference, date_emission, date_expiration, statut, created_at,
-        declaration:declarations_ethys(
-          id, statut, type_produit, volume_recycle_kg, volume_vierge_kg,
-          pct_recycle, provenance_pays, filature_nom, filature_pays,
-          description, commentaire_admin, entreprise_id, initiateur_id, created_at,
-          entreprise:entreprises!declarations_ethys_entreprise_id_fkey(id, nom)
-        )
-      `)
+      .select('id, reference, statut, date_emission, date_expiration, created_at')
       .single()
 
     if (error) {
@@ -221,7 +224,12 @@ export default function CertificationClient({
       lu: false,
     })
 
-    setCertifications(prev => [newCert as unknown as Certification, ...prev])
+    // Ajoute la nouvelle certification avec les données de la déclaration pour l'affichage
+    const certAvecDecl: Certification = {
+      ...(newCert as any),
+      declaration: decl,
+    }
+    setCertifications(prev => [certAvecDecl, ...prev])
     setAttente(prev => prev.filter(d => d.id !== decl.id))
     setSelectedDecl(null)
     setMessage('Certification accordée. Numéro : ' + reference)
@@ -321,8 +329,6 @@ export default function CertificationClient({
             Aucune certification.
           </div>
         ) : certifications.map(cert => {
-          const decl = getDeclaration(cert)
-          const ent = getEntreprise(decl)
           return (
             <div
               key={cert.id}
@@ -330,14 +336,23 @@ export default function CertificationClient({
               style={{ padding: '12px 16px', cursor: 'pointer', background: selected?.id === cert.id ? '#f0f4ec' : 'transparent', borderLeft: '3px solid ' + (selected?.id === cert.id ? '#2d5016' : 'transparent'), borderBottom: '1px solid #f5f3ef' }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>{ent?.nom ?? decl?.filature_nom ?? '—'}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>
+                  {(() => {
+                    const decl = getDeclaration(cert)
+                    const ent = getEntreprise(decl)
+                    return ent?.nom ?? (cert as any).filature?.nom ?? decl?.filature_nom ?? '—'
+                  })()}
+                </span>
                 <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: '#f0f4ec', color: '#2d5016' }}>Certifiée</span>
               </div>
               <div style={{ fontSize: 11, color: '#4a5568' }}>
-                {decl?.type_produit ?? '—'} · {decl?.volume_recycle_kg ? decl.volume_recycle_kg.toLocaleString('fr-FR') + ' kg recyclé' : '—'}
+                {(() => {
+                  const decl = getDeclaration(cert)
+                  return (decl?.type_produit ?? cert.type_produit ?? '—') + ' · ' + (decl?.volume_recycle_kg ?? cert.volume_recycle_kg ? ((decl?.volume_recycle_kg ?? cert.volume_recycle_kg)!).toLocaleString('fr-FR') + ' kg recyclé' : '—')
+                })()}
               </div>
-              {(cert.reference ?? cert.numero) && (
-                <div style={{ fontSize: 10, fontWeight: 700, color: '#2d5016', marginTop: 2 }}>{cert.reference ?? cert.numero}</div>
+              {cert.reference && (
+                <div style={{ fontSize: 10, fontWeight: 700, color: '#2d5016', marginTop: 2 }}>{cert.reference}</div>
               )}
               <div style={{ fontSize: 10, color: '#a0aec0', marginTop: 2 }}>{formatDate(cert.date_emission)}</div>
             </div>
@@ -494,14 +509,17 @@ export default function CertificationClient({
     // Panneau certification existante
     if (selected) {
       const decl = getDeclaration(selected)
-      const ent = getEntreprise(decl)
-      const ref = selected.reference ?? selected.numero
+      const filatureNom = (selected as any).filature?.nom ?? decl?.filature_nom ?? selected.filature_nom ?? '—'
+      const typeP = decl?.type_produit ?? selected.type_produit ?? '—'
+      const volR = decl?.volume_recycle_kg ?? selected.volume_recycle_kg
+      const volV = decl?.volume_vierge_kg ?? selected.volume_vierge_kg
+      const pct = decl?.pct_recycle ?? selected.pct_recycle
       return (
         <div style={{ flex: 1, overflow: 'auto', padding: '24px 28px' }}>
           <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '24px', maxWidth: 600 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
               <div>
-                <div style={{ fontSize: 16, fontWeight: 800, color: '#1a1a1a', marginBottom: 4 }}>{ent?.nom ?? decl?.filature_nom ?? '—'}</div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: '#1a1a1a', marginBottom: 4 }}>{filatureNom}</div>
                 <div style={{ fontSize: 12, color: '#8b7355' }}>Émise le {formatDate(selected.date_emission)}</div>
               </div>
               <span style={{ padding: '4px 12px', borderRadius: 4, fontSize: 11, fontWeight: 700, background: '#f0f4ec', color: '#2d5016' }}>Certifiée</span>
@@ -509,29 +527,26 @@ export default function CertificationClient({
 
             <div style={{ padding: '16px', borderRadius: 8, background: '#f0f4ec', border: '1px solid #c8d8b8', marginBottom: 16, textAlign: 'center' }}>
               <div style={{ fontSize: 14, fontWeight: 900, color: '#2d5016', marginBottom: 8 }}>Certification ETHYS obtenue</div>
-              <div style={{ fontSize: 16, fontWeight: 800, color: '#1a1a1a', marginBottom: 4 }}>{ref}</div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: '#1a1a1a', marginBottom: 4 }}>{selected.reference}</div>
               <div style={{ fontSize: 12, color: '#4a5568' }}>
-                Émise le {formatDate(selected.date_emission)} · Valide jusqu'au {formatDate(selected.date_validite)}
+                Émise le {formatDate(selected.date_emission)} · Valide jusqu'au {formatDate(selected.date_expiration)}
               </div>
             </div>
 
-            {decl && (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                {[
-                  ['Type', decl.type_produit ?? '—'],
-                  ['Volume recyclé', decl.volume_recycle_kg ? decl.volume_recycle_kg.toLocaleString('fr-FR') + ' kg' : '—'],
-                  ['Volume vierge', decl.volume_vierge_kg ? decl.volume_vierge_kg.toLocaleString('fr-FR') + ' kg' : '—'],
-                  ['% recyclé', decl.pct_recycle ? decl.pct_recycle + '%' : '—'],
-                  ['Filature', decl.filature_nom ?? '—'],
-                  ['Pays', decl.provenance_pays ?? '—'],
-                ].map(([label, val]) => (
-                  <div key={label} style={{ padding: '10px 14px', borderRadius: 8, background: '#f5f3ef', border: '1px solid #e8e3d8' }}>
-                    <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 4 }}>{label}</div>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: '#1A202C' }}>{val}</div>
-                  </div>
-                ))}
-              </div>
-            )}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              {[
+                ['Type', typeP],
+                ['Volume recyclé', volR ? volR.toLocaleString('fr-FR') + ' kg' : '—'],
+                ['Volume vierge', volV ? volV.toLocaleString('fr-FR') + ' kg' : '—'],
+                ['% recyclé', pct ? pct + '%' : '—'],
+                ['Filature', filatureNom],
+              ].map(([label, val]) => (
+                <div key={label} style={{ padding: '10px 14px', borderRadius: 8, background: '#f5f3ef', border: '1px solid #e8e3d8' }}>
+                  <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 4 }}>{label}</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: '#1A202C' }}>{val}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )
