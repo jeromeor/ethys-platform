@@ -64,19 +64,21 @@ function OnboardingContent() {
     setSaving(true)
     const { data: { user } } = await supabase.auth.getUser()
     const { error } = await supabase
-      .from('profils_utilisateurs')
-      .upsert({
-        prenom: form.prenom,
-        nom: form.nom,
-        telephone: `${form.telephone_indicatif} ${form.telephone}`,
-        adresse_rue: form.adresse_rue,
-        adresse_code_postal: form.adresse_code_postal,
-        adresse_ville: form.adresse_ville,
-        adresse_pays: form.adresse_pays,
-        profil_complete_at: new Date().toISOString(),
-        statut: 'actif',
-      })
-      .eq('id', user!.id)
+  .from('profils_utilisateurs')
+  .update({
+    nom_societe: form.nom_societe,
+    prenom: form.prenom,
+    nom: form.nom,
+    telephone: `${form.telephone_indicatif} ${form.telephone}`,
+    adresse_rue: form.adresse_rue,
+    adresse_code_postal: form.adresse_code_postal,
+    adresse_ville: form.adresse_ville,
+    adresse_pays: form.adresse_pays,
+    profil_complete_at: new Date().toISOString(),
+    statut: 'actif',
+  })
+  .eq('id', user!.id)
+Deux changements : ajout de nom_societe et remplacement de upsert par update — l'utilisateur existe déjà en DB à ce stade.
     if (!error) {
       router.push('/en-attente')
     } else {
