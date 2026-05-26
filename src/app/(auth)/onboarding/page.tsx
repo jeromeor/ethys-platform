@@ -78,7 +78,6 @@ function OnboardingContent() {
     statut: 'actif',
   })
   .eq('id', user!.id)
-Deux changements : ajout de nom_societe et remplacement de upsert par update — l'utilisateur existe déjà en DB à ce stade.
     if (!error) {
       router.push('/en-attente')
     } else {
