@@ -81,7 +81,8 @@ function OnboardingContent() {
     if (!error) {
       router.push('/en-attente')
     } else {
-      setMessage('Erreur lors de la sauvegarde.')
+      console.log('SAVE ERROR:', error)
+setMessage('Erreur : ' + error.message)
     }
     setSaving(false)
   }
