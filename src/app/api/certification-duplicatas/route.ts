@@ -4,7 +4,7 @@ export async function POST(request: NextRequest) {
   const { filature_nom, declaration_id } = await request.json()
 
   // MVP : email fixe pour tests — à remplacer par l'email réel de la filature
-  const destinataire = 'orioljerome+certif@sfr.fr'
+  const destinataire = 'orioljerome@sfr.fr'
 
   try {
     const res = await fetch('https://api.resend.com/emails', {
