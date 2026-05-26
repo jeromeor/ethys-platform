@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
@@ -79,6 +79,12 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
   const [exportClient, setExportClient]       = useState('')
   const [exportZone, setExportZone]           = useState('')
   const [exporting, setExporting]             = useState(false)
+
+  // États pour la création de nouvelle entreprise dans "Comptes à valider"
+  const [nouvelleEntrepriseNom, setNouvelleEntrepriseNom] = useState<Record<string, string>>({})
+  const [nouvelleEntrepriseType, setNouvelleEntrepriseType] = useState<Record<string, string>>({})
+  const [createMode, setCreateMode] = useState<Record<string, boolean>>({})
+
   const [params, setParams] = useState([
     { label: 'Authentification 2FA', actif: true },
     { label: 'Sessions auto-expirees', actif: true },
@@ -168,22 +174,22 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
   }
 
   const exportCommandes = async () => {
-  setExporting(true)
-  const params = new URLSearchParams()
-  if (exportDateDebut) params.set('date_debut', exportDateDebut)
-  if (exportDateFin)   params.set('date_fin',   exportDateFin)
-  if (exportClient)    params.set('client',      exportClient)
-  if (exportZone)      params.set('zone',        exportZone)
-  const res = await fetch('/api/commandes?' + params.toString())
-  const blob = await res.blob()
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `commandes_${new Date().toISOString().slice(0,10)}.csv`
-  a.click()
-  URL.revokeObjectURL(url)
-  setExporting(false)
- }
+    setExporting(true)
+    const p = new URLSearchParams()
+    if (exportDateDebut) p.set('date_debut', exportDateDebut)
+    if (exportDateFin)   p.set('date_fin',   exportDateFin)
+    if (exportClient)    p.set('client',      exportClient)
+    if (exportZone)      p.set('zone',        exportZone)
+    const res = await fetch('/api/commandes?' + p.toString())
+    const blob = await res.blob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `commandes_${new Date().toISOString().slice(0,10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+    setExporting(false)
+  }
 
   const secScore = Math.round(params.filter(p => p.actif).length / params.length * 100)
   const nbActifs = (utilisateurs ?? []).filter(u => u.statut === 'actif').length
@@ -204,30 +210,31 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
             <div style={{ fontSize: 16, fontWeight: 800, color: '#1a1a1a' }}>{k.value}</div>
           </div>
         ))}
-{showInvite && (
-  <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }} onClick={() => setShowInvite(false)}>
-    <div style={{ background: '#fff', borderRadius: 8, padding: '26px 30px', width: 420, boxShadow: '0 24px 64px rgba(0,0,0,0.15)' }} onClick={e => e.stopPropagation()}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
-        <span style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>Inviter un utilisateur</span>
-        <button onClick={() => setShowInvite(false)} style={{ border: 'none', background: 'none', fontSize: 18, cursor: 'pointer' }}>x</button>
-      </div>
-      <div style={{ marginBottom: 14 }}>
-        <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Email</label>
-        <input type="email" placeholder="julie@entreprise.fr" style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 13, boxSizing: 'border-box', outline: 'none', color: '#1A202C' }} />
-      </div>
-      <div style={{ marginBottom: 20 }}>
-        <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Role</label>
-        <select style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 13, outline: 'none' }}>
-          {['marque', 'filature', 'fournisseur', 'admin'].map(r => <option key={r}>{r}</option>)}
-        </select>
-      </div>
-      <div style={{ display: 'flex', gap: 10 }}>
-        <button onClick={() => setShowInvite(false)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#8b7355', fontSize: 13, cursor: 'pointer' }}>Annuler</button>
-        <button onClick={() => setShowInvite(false)} style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Envoyer invitation</button>
-      </div>
-    </div>
-  </div>
-)}
+
+        {showInvite && (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }} onClick={() => setShowInvite(false)}>
+            <div style={{ background: '#fff', borderRadius: 8, padding: '26px 30px', width: 420, boxShadow: '0 24px 64px rgba(0,0,0,0.15)' }} onClick={e => e.stopPropagation()}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+                <span style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>Inviter un utilisateur</span>
+                <button onClick={() => setShowInvite(false)} style={{ border: 'none', background: 'none', fontSize: 18, cursor: 'pointer' }}>x</button>
+              </div>
+              <div style={{ marginBottom: 14 }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Email</label>
+                <input type="email" placeholder="julie@entreprise.fr" style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 13, boxSizing: 'border-box', outline: 'none', color: '#1A202C' }} />
+              </div>
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Role</label>
+                <select style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 13, outline: 'none' }}>
+                  {['marque', 'filature', 'fournisseur', 'admin'].map(r => <option key={r}>{r}</option>)}
+                </select>
+              </div>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button onClick={() => setShowInvite(false)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#8b7355', fontSize: 13, cursor: 'pointer' }}>Annuler</button>
+                <button onClick={() => setShowInvite(false)} style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Envoyer invitation</button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div style={{ display: 'flex', borderBottom: '2px solid #e8e3d8', padding: '0 22px', background: '#fff', flexShrink: 0 }}>
@@ -238,7 +245,14 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
             color: activeTab === t ? '#1a1a1a' : '#8b7355',
             borderBottom: activeTab === t ? '2px solid #1a1a1a' : '2px solid transparent',
             marginBottom: -2
-          }}>{t}{t === 'Comptes \u00e0 valider' && utilisateurs.filter(u => !u.entreprise_id && u.role !== 'admin').length > 0 && (<span style={{ marginLeft: 6, background: '#EF4444', color: '#fff', borderRadius: '50%', minWidth: 18, height: 18, fontSize: 10, fontWeight: 700, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>{utilisateurs.filter(u => !u.entreprise_id && u.role !== 'admin').length}</span>)}</button>
+          }}>
+            {t}
+            {t === 'Comptes à valider' && utilisateurs.filter(u => !u.entreprise_id && u.role !== 'admin').length > 0 && (
+              <span style={{ marginLeft: 6, background: '#EF4444', color: '#fff', borderRadius: '50%', minWidth: 18, height: 18, fontSize: 10, fontWeight: 700, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>
+                {utilisateurs.filter(u => !u.entreprise_id && u.role !== 'admin').length}
+              </span>
+            )}
+          </button>
         ))}
         <div style={{ flex: 1 }} />
         <button onClick={() => setShowInvite(true)} style={{ margin: '4px 0', padding: '5px 12px', borderRadius: 8, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer', alignSelf: 'center' }}>+ Inviter</button>
@@ -249,76 +263,76 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
           {message}
         </div>
       )}
+
       <div style={{ flex: 1, overflow: 'auto', padding: '16px 22px' }}>
+
         {activeTab === 'Utilisateurs' && (
-
-
           <>
-          <div style={{ padding: '12px 22px', borderBottom: '1px solid #e8e3d8', display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-            <select value={filtreEntreprise} onChange={e => setFiltreEntreprise(e.target.value)} style={{ padding: '6px 12px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 12, color: '#1a1a1a', background: '#fff' }}>
-              <option value=''>Toutes les entreprises</option>
-              {entreprises.map(e => <option key={e.id} value={e.id}>{e.nom}</option>)}
-            </select>
-            <input type="date" value={filtreDateDebut} onChange={e => setFiltreDateDebut(e.target.value)} style={{ padding: '6px 10px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none' }} />
-            <span style={{ fontSize: 12, color: '#8b7355' }}>au</span>
-            <input type="date" value={filtreDateFin} onChange={e => setFiltreDateFin(e.target.value)} style={{ padding: '6px 10px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none' }} />
-            {(filtreDateDebut || filtreDateFin) && (
-              <button onClick={() => { setFiltreDateDebut(''); setFiltreDateFin('') }} style={{ padding: '6px 10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', fontSize: 11, color: '#8b7355', cursor: 'pointer' }}>
-                Reinitialiser
-              </button>
-            )}
-          </div>
-          <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', overflow: 'hidden' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ background: '#f5f3ef' }}>
-                  {['Nom', 'Prénom', 'Email', 'Role', 'Entreprise', 'Statut', 'Dernière connexion', 'Actions'].map(h => (
-                    <th key={h} style={{ padding: '10px 16px', fontSize: 11, fontWeight: 600, color: '#8b7355', textAlign: 'left', textTransform: 'uppercase' }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {utilisateurs.filter(u => {
-                  if (filtreEntreprise && u.entreprise_id !== filtreEntreprise) return false
-                  if (filtreDateDebut && new Date(u.created_at) < new Date(filtreDateDebut)) return false
-                  if (filtreDateFin && new Date(u.created_at) > new Date(filtreDateFin)) return false
-                  return true
-                }).map((u, i) => {
-                  const [rbg, rtc] = ROLE_COLORS[u.role] ?? ['#f5f3ef', '#4a5568']
-                  return (
-                    <tr key={i} style={{ borderTop: '1px solid #f5f3ef' }}>
-                      <td style={{ padding: '12px 16px', fontSize: 12, fontWeight: 600 }}>{u.nom?.toUpperCase() ?? '-'}</td>
-                      <td style={{ padding: '12px 16px', fontSize: 12 }}>{u.prenom ?? '-'}</td>
-                      <td style={{ padding: '12px 16px', fontSize: 12, fontWeight: 600 }}><a href={"mailto:" + u.email} style={{ color: '#1a1a1a', textDecoration: 'none' }}>{u.email}</a></td>
-                      <td style={{ padding: '12px 16px' }}>
-                        <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: rbg, color: rtc }}>{u.role}</span>
-                      </td>
-                      <td style={{ padding: '12px 16px', fontSize: 12, color: '#4a5568' }}>{u.entreprise?.nom ?? '-'}</td>
-                      <td style={{ padding: '12px 16px' }}>
-                        <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: u.statut === 'actif' ? '#f0f4ec' : '#f5f3ef', color: u.statut === 'actif' ? '#2d5016' : '#8b7355' }}>{u.statut}</span>
-                      </td>
-                      <td style={{ padding: '12px 16px', fontSize: 11, color: '#8b7355' }}>
-                        {u.derniere_connexion ? new Date(u.derniere_connexion).toLocaleDateString('fr-FR') + ' ' + new Date(u.derniere_connexion).toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'}) : '-'}
-                      </td>
-                      <td style={{ padding: '12px 16px' }}>
-                        <div style={{ display: 'flex', gap: 6 }}>
-                          <button onClick={() => { setSelectedUser(u); setDemandeForm({ role: u.role, entreprise_id: u.entreprise_id ?? '' }); setMessage('') }} style={{ padding: '4px 10px', borderRadius: 7, border: '1.5px solid #e8e3d8', background: '#f5f3ef', fontSize: 11, cursor: 'pointer' }}>
-                            Modifier droits
-                          </button>
-                          {u.id !== currentUserId && (
-                            <button onClick={() => toggleStatut(u.id)} style={{ padding: '4px 10px', borderRadius: 7, border: 'none', background: u.statut === 'actif' ? '#FEE2E2' : '#f0f4ec', color: u.statut === 'actif' ? '#8b3a3a' : '#2d5016', fontSize: 11, cursor: 'pointer' }}>
-                              {u.statut === 'actif' ? 'Désactiver' : 'Activer'}
+            <div style={{ padding: '12px 22px', borderBottom: '1px solid #e8e3d8', display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+              <select value={filtreEntreprise} onChange={e => setFiltreEntreprise(e.target.value)} style={{ padding: '6px 12px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 12, color: '#1a1a1a', background: '#fff' }}>
+                <option value=''>Toutes les entreprises</option>
+                {entreprises.map(e => <option key={e.id} value={e.id}>{e.nom}</option>)}
+              </select>
+              <input type="date" value={filtreDateDebut} onChange={e => setFiltreDateDebut(e.target.value)} style={{ padding: '6px 10px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none' }} />
+              <span style={{ fontSize: 12, color: '#8b7355' }}>au</span>
+              <input type="date" value={filtreDateFin} onChange={e => setFiltreDateFin(e.target.value)} style={{ padding: '6px 10px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none' }} />
+              {(filtreDateDebut || filtreDateFin) && (
+                <button onClick={() => { setFiltreDateDebut(''); setFiltreDateFin('') }} style={{ padding: '6px 10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', fontSize: 11, color: '#8b7355', cursor: 'pointer' }}>
+                  Reinitialiser
+                </button>
+              )}
+            </div>
+            <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', overflow: 'hidden' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ background: '#f5f3ef' }}>
+                    {['Nom', 'Prénom', 'Email', 'Role', 'Entreprise', 'Statut', 'Dernière connexion', 'Actions'].map(h => (
+                      <th key={h} style={{ padding: '10px 16px', fontSize: 11, fontWeight: 600, color: '#8b7355', textAlign: 'left', textTransform: 'uppercase' }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {utilisateurs.filter(u => {
+                    if (filtreEntreprise && u.entreprise_id !== filtreEntreprise) return false
+                    if (filtreDateDebut && new Date(u.created_at) < new Date(filtreDateDebut)) return false
+                    if (filtreDateFin && new Date(u.created_at) > new Date(filtreDateFin)) return false
+                    return true
+                  }).map((u, i) => {
+                    const [rbg, rtc] = ROLE_COLORS[u.role] ?? ['#f5f3ef', '#4a5568']
+                    return (
+                      <tr key={i} style={{ borderTop: '1px solid #f5f3ef' }}>
+                        <td style={{ padding: '12px 16px', fontSize: 12, fontWeight: 600 }}>{u.nom?.toUpperCase() ?? '-'}</td>
+                        <td style={{ padding: '12px 16px', fontSize: 12 }}>{u.prenom ?? '-'}</td>
+                        <td style={{ padding: '12px 16px', fontSize: 12, fontWeight: 600 }}><a href={"mailto:" + u.email} style={{ color: '#1a1a1a', textDecoration: 'none' }}>{u.email}</a></td>
+                        <td style={{ padding: '12px 16px' }}>
+                          <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: rbg, color: rtc }}>{u.role}</span>
+                        </td>
+                        <td style={{ padding: '12px 16px', fontSize: 12, color: '#4a5568' }}>{u.entreprise?.nom ?? '-'}</td>
+                        <td style={{ padding: '12px 16px' }}>
+                          <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: u.statut === 'actif' ? '#f0f4ec' : '#f5f3ef', color: u.statut === 'actif' ? '#2d5016' : '#8b7355' }}>{u.statut}</span>
+                        </td>
+                        <td style={{ padding: '12px 16px', fontSize: 11, color: '#8b7355' }}>
+                          {u.derniere_connexion ? new Date(u.derniere_connexion).toLocaleDateString('fr-FR') + ' ' + new Date(u.derniere_connexion).toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'}) : '-'}
+                        </td>
+                        <td style={{ padding: '12px 16px' }}>
+                          <div style={{ display: 'flex', gap: 6 }}>
+                            <button onClick={() => { setSelectedUser(u); setDemandeForm({ role: u.role, entreprise_id: u.entreprise_id ?? '' }); setMessage('') }} style={{ padding: '4px 10px', borderRadius: 7, border: '1.5px solid #e8e3d8', background: '#f5f3ef', fontSize: 11, cursor: 'pointer' }}>
+                              Modifier droits
                             </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        </>
+                            {u.id !== currentUserId && (
+                              <button onClick={() => toggleStatut(u.id)} style={{ padding: '4px 10px', borderRadius: 7, border: 'none', background: u.statut === 'actif' ? '#FEE2E2' : '#f0f4ec', color: u.statut === 'actif' ? '#8b3a3a' : '#2d5016', fontSize: 11, cursor: 'pointer' }}>
+                                {u.statut === 'actif' ? 'Désactiver' : 'Activer'}
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
 
         {activeTab === 'Comptes à valider' && (
@@ -338,29 +352,72 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
                         <div style={{ fontSize: 13, fontWeight: 700, color: '#1A202C', marginBottom: 4 }}>{u.email}</div>
                         <div style={{ fontSize: 11, color: '#8b7355' }}>Rôle : {u.role} · Inscrit le {new Date(u.created_at).toLocaleDateString('fr-FR')}</div>
                       </div>
-                      <span style={{ padding: '3px 10px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: '#fdf8ec', color: '#b8860b' }}> En attente</span>
+                      <span style={{ padding: '3px 10px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: '#fdf8ec', color: '#b8860b' }}>En attente</span>
                     </div>
                     <div style={{ marginBottom: 12 }}>
                       <div style={{ fontSize: 11, fontWeight: 600, color: '#4a5568', marginBottom: 6 }}>Associer à une entreprise :</div>
-                      <div style={{ display: 'flex', gap: 8 }}>
-                      <select id={`select-${u.id}`} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none' }}>
-                        <option value="">Sélectionner une entreprise...</option>
-                        {entreprises.map(e => <option key={e.id} value={e.id}>{e.nom} ({e.type})</option>)}
-                      </select>
-                      <button onClick={async () => {
-                        const sel = document.getElementById(`select-${u.id}`) as HTMLSelectElement
-                        if (!sel?.value) return
-                        const entreprise = entreprises.find(e => e.id === sel.value)
-                        if (!window.confirm('Premiere confirmation : associer ' + u.email + ' avec ' + entreprise?.nom + ' ?')) return
-                        if (!window.confirm('Deuxieme confirmation : cette action est immediate et donnera acces complet a ' + u.email + '. Continuer ?')) return
-                        const { createClient } = await import('@/lib/supabase/client')
-                        const sb = createClient()
-                        await sb.from('profils_utilisateurs').update({ entreprise_id: sel.value }).eq('id', u.id)
-                        window.location.reload()
-                      }} style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}>
-                        Valider
-                      </button>
-                    </div>
+                      <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                          <select
+                            id={`select-${u.id}`}
+                            onChange={e => setCreateMode(prev => ({ ...prev, [u.id]: e.target.value === '__new__' }))}
+                            style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none' }}
+                          >
+                            <option value="">Sélectionner une entreprise...</option>
+                            {entreprises.map(e => <option key={e.id} value={e.id}>{e.nom} ({e.type})</option>)}
+                            <option value="__new__">+ Créer une nouvelle entreprise</option>
+                          </select>
+                          {createMode[u.id] && (
+                            <div style={{ display: 'flex', gap: 8 }}>
+                              <input
+                                type="text"
+                                placeholder="Nom de l'entreprise"
+                                value={nouvelleEntrepriseNom[u.id] ?? ''}
+                                onChange={e => setNouvelleEntrepriseNom(prev => ({ ...prev, [u.id]: e.target.value }))}
+                                style={{ flex: 2, padding: '8px 10px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none' }}
+                              />
+                              <select
+                                value={nouvelleEntrepriseType[u.id] ?? 'filature'}
+                                onChange={e => setNouvelleEntrepriseType(prev => ({ ...prev, [u.id]: e.target.value }))}
+                                style={{ flex: 1, padding: '8px 10px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none' }}
+                              >
+                                {['marque', 'filature', 'fournisseur_coton', 'fournisseur'].map(t => <option key={t} value={t}>{t}</option>)}
+                              </select>
+                            </div>
+                          )}
+                        </div>
+                        <button
+                          onClick={async () => {
+                            const sel = document.getElementById(`select-${u.id}`) as HTMLSelectElement
+                            let entrepriseId = sel?.value
+                            if (!entrepriseId) return
+
+                            // Créer une nouvelle entreprise si demandé
+                            if (entrepriseId === '__new__') {
+                              const nom = nouvelleEntrepriseNom[u.id]?.trim()
+                              if (!nom) { alert("Veuillez saisir un nom d'entreprise."); return }
+                              const type = nouvelleEntrepriseType[u.id] ?? 'filature'
+                              const { data: newEnt, error } = await supabase
+                                .from('entreprises')
+                                .insert({ nom, type, statut: 'actif' })
+                                .select('id')
+                                .single()
+                              if (error || !newEnt) { alert('Erreur création entreprise : ' + error?.message); return }
+                              entrepriseId = newEnt.id
+                            }
+
+                            const entreprise = entreprises.find(e => e.id === entrepriseId)
+                            const nomAffiche = entreprise?.nom ?? nouvelleEntrepriseNom[u.id] ?? entrepriseId
+                            if (!window.confirm('Première confirmation : associer ' + u.email + ' avec ' + nomAffiche + ' ?')) return
+                            if (!window.confirm('Deuxième confirmation : cette action est immédiate et donnera accès complet à ' + u.email + '. Continuer ?')) return
+                            await supabase.from('profils_utilisateurs').update({ entreprise_id: entrepriseId }).eq('id', u.id)
+                            window.location.reload()
+                          }}
+                          style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', flexShrink: 0, alignSelf: 'flex-start' }}
+                        >
+                          Valider
+                        </button>
+                      </div>
                     </div>
                     <div style={{ fontSize: 11, color: '#8b7355' }}>
                       L'association sera immédiate. Le compte aura accès complet après validation.
@@ -442,51 +499,47 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
         )}
 
         {activeTab === 'Export commandes' && (
-  <div style={{ maxWidth: 560 }}>
-    <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '24px 28px' }}>
-      <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 20 }}>Filtres export</div>
+          <div style={{ maxWidth: 560 }}>
+            <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '24px 28px' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 20 }}>Filtres export</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
+                <div>
+                  <label style={{ fontSize: 11, fontWeight: 600, color: '#8b7355', display: 'block', marginBottom: 5 }}>Date début</label>
+                  <input type="date" value={exportDateDebut} onChange={e => setExportDateDebut(e.target.value)}
+                    style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 12, boxSizing: 'border-box' }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: 11, fontWeight: 600, color: '#8b7355', display: 'block', marginBottom: 5 }}>Date fin</label>
+                  <input type="date" value={exportDateFin} onChange={e => setExportDateFin(e.target.value)}
+                    style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 12, boxSizing: 'border-box' }} />
+                </div>
+              </div>
+              <div style={{ marginBottom: 14 }}>
+                <label style={{ fontSize: 11, fontWeight: 600, color: '#8b7355', display: 'block', marginBottom: 5 }}>Client (marque)</label>
+                <input type="text" placeholder="Nom de la marque..." value={exportClient} onChange={e => setExportClient(e.target.value)}
+                  style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 12, boxSizing: 'border-box' }} />
+              </div>
+              <div style={{ marginBottom: 24 }}>
+                <label style={{ fontSize: 11, fontWeight: 600, color: '#8b7355', display: 'block', marginBottom: 5 }}>Zone</label>
+                <select value={exportZone} onChange={e => setExportZone(e.target.value)}
+                  style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 12 }}>
+                  <option value=''>Toutes les zones</option>
+                  <option value='Europe'>Europe</option>
+                  <option value='Asie'>Asie</option>
+                  <option value='Amérique du Nord'>Amérique du Nord</option>
+                  <option value='Amérique du Sud'>Amérique du Sud</option>
+                  <option value='Afrique'>Afrique</option>
+                  <option value='Autre'>Autre</option>
+                </select>
+              </div>
+              <button onClick={exportCommandes} disabled={exporting}
+                style={{ width: '100%', padding: '12px', borderRadius: 4, border: 'none', background: exporting ? '#d4c5b0' : '#1a1a1a', color: exporting ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: exporting ? 'default' : 'pointer' }}>
+                {exporting ? 'Génération...' : '⬇ Exporter CSV'}
+              </button>
+            </div>
+          </div>
+        )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
-        <div>
-          <label style={{ fontSize: 11, fontWeight: 600, color: '#8b7355', display: 'block', marginBottom: 5 }}>Date début</label>
-          <input type="date" value={exportDateDebut} onChange={e => setExportDateDebut(e.target.value)}
-            style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 12, boxSizing: 'border-box' }} />
-        </div>
-        <div>
-          <label style={{ fontSize: 11, fontWeight: 600, color: '#8b7355', display: 'block', marginBottom: 5 }}>Date fin</label>
-          <input type="date" value={exportDateFin} onChange={e => setExportDateFin(e.target.value)}
-            style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 12, boxSizing: 'border-box' }} />
-        </div>
-      </div>
-
-      <div style={{ marginBottom: 14 }}>
-        <label style={{ fontSize: 11, fontWeight: 600, color: '#8b7355', display: 'block', marginBottom: 5 }}>Client (marque)</label>
-        <input type="text" placeholder="Nom de la marque..." value={exportClient} onChange={e => setExportClient(e.target.value)}
-          style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 12, boxSizing: 'border-box' }} />
-      </div>
-
-      <div style={{ marginBottom: 24 }}>
-        <label style={{ fontSize: 11, fontWeight: 600, color: '#8b7355', display: 'block', marginBottom: 5 }}>Zone</label>
-        <select value={exportZone} onChange={e => setExportZone(e.target.value)}
-          style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 12 }}>
-          <option value=''>Toutes les zones</option>
-          <option value='Europe'>Europe</option>
-          <option value='Asie'>Asie</option>
-          <option value='Amérique du Nord'>Amérique du Nord</option>
-          <option value='Amérique du Sud'>Amérique du Sud</option>
-          <option value='Afrique'>Afrique</option>
-          <option value='Autre'>Autre</option>
-        </select>
-      </div>
-
-      <button onClick={exportCommandes} disabled={exporting}
-        style={{ width: '100%', padding: '12px', borderRadius: 4, border: 'none', background: exporting ? '#d4c5b0' : '#1a1a1a', color: exporting ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: exporting ? 'default' : 'pointer' }}>
-        {exporting ? 'Génération...' : '⬇ Exporter CSV'}
-      </button>
-    </div>
-  </div>
-)}
-        
         {activeTab === 'Sécurité' && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '20px 22px' }}>
@@ -555,14 +608,3 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
     </div>
   )
 }
-
-
-
-
-
-
-
-
-
-
-
