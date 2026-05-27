@@ -84,7 +84,6 @@ export default async function QRCodePage({ searchParams }: { searchParams: Promi
         .in('lot_id', lotIds)
         .eq('statut', 'en_attente')
     : { data: [] }
-console.log('certifs:', certificationsEnrichies.length)
   
   return (
     <QRCodeClient
