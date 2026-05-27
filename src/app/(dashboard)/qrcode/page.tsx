@@ -14,10 +14,7 @@ export default async function QRCodePage({ searchParams }: { searchParams: Promi
     .select('role, entreprise_id')
     .eq('id', user.id)
     .single()
-if (process.env.NODE_ENV === 'production') {
-  console.error('DEBUG profil:', JSON.stringify({ role: profil?.role, entreprise_id: profil?.entreprise_id }))
-}
-  
+
   const { data: lots } = await supabase
     .from('lots')
     .select(`*, commande:commandes(reference, titre, marque:entreprises!commandes_marque_id_fkey(nom), filature:entreprises!commandes_filature_id_fkey(nom), fournisseur:entreprises!commandes_fournisseur_id_fkey(nom)), qr_codes(*)`)
@@ -26,25 +23,19 @@ if (process.env.NODE_ENV === 'production') {
   // Filtre par filature_id si role filature, sinon toutes les certifications
   let certifications: any[] = []
   if (profil?.role === 'filature' && profil?.entreprise_id) {
-    const { data: certsData, error: certsError } = await supabase
-  .from('certifications_ethys')
-  .select('id, reference, date_emission, date_expiration, filature_id')
-  .eq('filature_id', profil.entreprise_id)
-  .order('created_at', { ascending: false })
-console.error('DEBUG certs error:', certsError, 'data:', certsData?.length)
-certifications = certsData ?? []
+    const { data } = await supabase
+      .from('certifications_ethys')
+      .select('id, reference, date_emission, date_expiration, filature_id, volume_recycle_kg, volume_vierge_kg, pct_recycle, type_produit')
+      .eq('filature_id', profil.entreprise_id)
+      .order('created_at', { ascending: false })
+    certifications = data ?? []
   } else {
     const { data } = await supabase
       .from('certifications_ethys')
-      .select('id, reference, date_emission, date_expiration, filature_id')
+      .select('id, reference, date_emission, date_expiration, filature_id, volume_recycle_kg, volume_vierge_kg, pct_recycle, type_produit')
       .order('created_at', { ascending: false })
     certifications = data ?? []
   }
-console.error('DEBUG certs:', certifications.length, certifications.map((c: any) => c.reference))
-  
-  const { data: declarations } = await supabase
-    .from('declarations_ethys')
-    .select('id, type_produit, volume_recycle_kg, volume_vierge_kg, pct_recycle, provenance_pays, filature_nom, filature_pays, description, entreprise_id')
 
   const { data: entreprises } = await supabase
     .from('entreprises')
@@ -55,16 +46,24 @@ console.error('DEBUG certs:', certifications.length, certifications.map((c: any)
     .select('*')
     .not('certification_id', 'is', null)
 
-  const certificationsEnrichies = certifications.map(cert => {
-  const qrCodes = (qrCodesCerts ?? []).filter(q => q.certification_id === cert.id)
-  return {
-    ...cert,
-    numero: cert.reference,
-    date_validite: cert.date_expiration,
-    declaration: null,
-    qr_codes: qrCodes,
-  }
-})
+  const certificationsEnrichies = certifications.map((cert: any) => {
+    const filature = (entreprises ?? []).find(e => e.id === cert.filature_id)
+    const qrCodes = (qrCodesCerts ?? []).filter(q => q.certification_id === cert.id)
+    return {
+      ...cert,
+      numero: cert.reference,
+      date_validite: cert.date_expiration,
+      declaration: {
+        type_produit: cert.type_produit,
+        volume_recycle_kg: cert.volume_recycle_kg,
+        volume_vierge_kg: cert.volume_vierge_kg,
+        pct_recycle: cert.pct_recycle,
+        filature_nom: filature?.nom ?? null,
+        entreprise: filature ? { nom: filature.nom, pays: filature.pays } : null,
+      },
+      qr_codes: qrCodes,
+    }
+  })
 
   // Calcul avancement global par commande
   const commandeIds = [...new Set((lots ?? []).map(l => (l.commande as any)?.id).filter(Boolean))]
