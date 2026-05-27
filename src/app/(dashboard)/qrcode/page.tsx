@@ -14,7 +14,10 @@ export default async function QRCodePage({ searchParams }: { searchParams: Promi
     .select('role, entreprise_id')
     .eq('id', user.id)
     .single()
-
+if (process.env.NODE_ENV === 'production') {
+  console.error('DEBUG profil:', JSON.stringify({ role: profil?.role, entreprise_id: profil?.entreprise_id }))
+}
+  
   const { data: lots } = await supabase
     .from('lots')
     .select(`*, commande:commandes(reference, titre, marque:entreprises!commandes_marque_id_fkey(nom), filature:entreprises!commandes_filature_id_fkey(nom), fournisseur:entreprises!commandes_fournisseur_id_fkey(nom)), qr_codes(*)`)
