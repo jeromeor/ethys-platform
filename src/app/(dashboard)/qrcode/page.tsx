@@ -28,7 +28,7 @@ if (process.env.NODE_ENV === 'production') {
   if (profil?.role === 'filature' && profil?.entreprise_id) {
     const { data: certsData, error: certsError } = await supabase
   .from('certifications_ethys')
-  .select('id, reference, date_emission, date_expiration, declaration_id, filature_id')
+  .select('id, reference, date_emission, date_expiration, filature_id')
   .eq('filature_id', profil.entreprise_id)
   .order('created_at', { ascending: false })
 console.error('DEBUG certs error:', certsError, 'data:', certsData?.length)
@@ -36,7 +36,7 @@ certifications = certsData ?? []
   } else {
     const { data } = await supabase
       .from('certifications_ethys')
-      .select('id, reference, date_emission, date_expiration, declaration_id, filature_id')
+      .select('id, reference, date_emission, date_expiration, filature_id')
       .order('created_at', { ascending: false })
     certifications = data ?? []
   }
@@ -56,17 +56,15 @@ console.error('DEBUG certs:', certifications.length, certifications.map((c: any)
     .not('certification_id', 'is', null)
 
   const certificationsEnrichies = certifications.map(cert => {
-    const decl = (declarations ?? []).find(d => d.id === cert.declaration_id)
-    const entreprise = decl ? (entreprises ?? []).find(e => e.id === decl.entreprise_id) : null
-    const qrCodes = (qrCodesCerts ?? []).filter(q => q.certification_id === cert.id)
-    return {
-      ...cert,
-      numero: cert.reference,
-      date_validite: cert.date_expiration,
-      declaration: decl ? { ...decl, entreprise: entreprise ?? null } : null,
-      qr_codes: qrCodes,
-    }
-  })
+  const qrCodes = (qrCodesCerts ?? []).filter(q => q.certification_id === cert.id)
+  return {
+    ...cert,
+    numero: cert.reference,
+    date_validite: cert.date_expiration,
+    declaration: null,
+    qr_codes: qrCodes,
+  }
+})
 
   // Calcul avancement global par commande
   const commandeIds = [...new Set((lots ?? []).map(l => (l.commande as any)?.id).filter(Boolean))]
