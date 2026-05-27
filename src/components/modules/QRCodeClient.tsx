@@ -605,7 +605,7 @@ return (
       )}
 
       {/* Panneau certification */}
-      {selectedCert && !selected && (
+      {selectedCert && source === 'certs' && (
         <div style={{ flex: 1, overflow: 'auto', padding: '24px 28px' }}>
           <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
