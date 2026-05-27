@@ -55,35 +55,45 @@ export default async function CertificationPage() {
   }
 
   // --- Commandes éligibles pour la filature (production 100%, pas de demande en cours) ---
-  let commandesEligibles: any[] = []
-  if (role === 'filature') {
-    const { data: commandes } = await supabase
-      .from('commandes')
-      .select(`
-        id, reference, volume_recycle_tonnes, volume_vierge_tonnes, pct_recycle,
-        marque:entreprises!commandes_marque_id_fkey(nom),
-        filature:entreprises!commandes_filature_id_fkey(nom),
-        lots(id, avancement_pct)
-      `)
-      .eq('filature_id', entrepriseId)
-      .not('statut', 'eq', 'annulee')
+let commandesEligibles: any[] = []
+if (role === 'filature') {
+  // Récupère les commande_id qui ont déjà une déclaration en cours
+  const { data: declsEnCours } = await supabase
+    .from('declarations_ethys')
+    .select('commande_id')
+    .eq('entreprise_id', entrepriseId)
+    .in('statut', ['en_attente', 'duplicatas_demandes'])
 
-    commandesEligibles = (commandes ?? [])
-      .filter((c: any) => {
-        const lots = c.lots ?? []
-        if (lots.length === 0) return false
-        return lots.every((l: any) => l.avancement_pct === 100)
-      })
-      .map((c: any) => ({
-        id: c.id,
-        reference: c.reference,
-        volume_recycle_kg: Math.round((c.volume_recycle_tonnes ?? 0) * 1000),
-        volume_vierge_kg: Math.round((c.volume_vierge_tonnes ?? 0) * 1000),
-        pct_recycle: c.pct_recycle ?? 51,
-        filature_nom: (c.filature as any)?.nom ?? '',
-        marque_nom: (c.marque as any)?.nom ?? '',
-      }))
-  }
+  const commandesDejaEnCours = new Set((declsEnCours ?? []).map((d: any) => d.commande_id))
+
+  const { data: commandes } = await supabase
+    .from('commandes')
+    .select(`
+      id, reference, volume_recycle_tonnes, volume_vierge_tonnes, pct_recycle,
+      marque:entreprises!commandes_marque_id_fkey(nom),
+      filature:entreprises!commandes_filature_id_fkey(nom),
+      lots(id, avancement_pct)
+    `)
+    .eq('filature_id', entrepriseId)
+    .not('statut', 'eq', 'annulee')
+
+  commandesEligibles = (commandes ?? [])
+    .filter((c: any) => {
+      const lots = c.lots ?? []
+      if (lots.length === 0) return false
+      if (commandesDejaEnCours.has(c.id)) return false  
+      return lots.every((l: any) => l.avancement_pct === 100)
+    })
+    .map((c: any) => ({
+      id: c.id,
+      reference: c.reference,
+      volume_recycle_kg: Math.round((c.volume_recycle_tonnes ?? 0) * 1000),
+      volume_vierge_kg: Math.round((c.volume_vierge_tonnes ?? 0) * 1000),
+      pct_recycle: c.pct_recycle ?? 51,
+      filature_nom: (c.filature as any)?.nom ?? '',
+      marque_nom: (c.marque as any)?.nom ?? '',
+    }))
+}
 
   // --- Demandes en cours pour la filature (soumises, pas encore traitées) ---
   let declarationsFilature: any[] = []
