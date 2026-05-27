@@ -20,14 +20,16 @@ export default async function QRCodePage({ searchParams }: { searchParams: Promi
     .select(`*, commande:commandes(reference, titre, marque:entreprises!commandes_marque_id_fkey(nom), filature:entreprises!commandes_filature_id_fkey(nom), fournisseur:entreprises!commandes_fournisseur_id_fkey(nom)), qr_codes(*)`)
     .order('created_at', { ascending: false })
 
-  const certQuery = supabase
-  .from('certifications_ethys')
-  .select('id, reference, date_emission, date_expiration, declaration_id, filature_id')
-  .order('created_at', { ascending: false })
-
-if (profil?.role === 'filature') {
-  certQuery.eq('filature_id', profil.entreprise_id)
-}
+  const { data: certifications } = profil?.role === 'filature'
+  ? await supabase
+      .from('certifications_ethys')
+      .select('id, reference, date_emission, date_expiration, declaration_id, filature_id')
+      .eq('filature_id', profil.entreprise_id)
+      .order('created_at', { ascending: false })
+  : await supabase
+      .from('certifications_ethys')
+      .select('id, reference, date_emission, date_expiration, declaration_id, filature_id')
+      .order('created_at', { ascending: false })
 
 const { data: certifications } = await certQuery
 
