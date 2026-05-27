@@ -14,24 +14,28 @@ export default async function QRCodePage({ searchParams }: { searchParams: Promi
     .select('role, entreprise_id')
     .eq('id', user.id)
     .single()
-  console.log('profil:', profil?.role, profil?.entreprise_id)
-console.log('profil role:', profil?.role, 'entreprise_id:', profil?.entreprise_id)
-  
+
   const { data: lots } = await supabase
     .from('lots')
     .select(`*, commande:commandes(reference, titre, marque:entreprises!commandes_marque_id_fkey(nom), filature:entreprises!commandes_filature_id_fkey(nom), fournisseur:entreprises!commandes_fournisseur_id_fkey(nom)), qr_codes(*)`)
     .order('created_at', { ascending: false })
 
-  const { data: certifications } = profil?.role === 'filature'
-  ? await supabase
+  // Filtre par filature_id si role filature, sinon toutes les certifications
+  let certifications: any[] = []
+  if (profil?.role === 'filature' && profil?.entreprise_id) {
+    const { data } = await supabase
       .from('certifications_ethys')
       .select('id, reference, date_emission, date_expiration, declaration_id, filature_id')
       .eq('filature_id', profil.entreprise_id)
       .order('created_at', { ascending: false })
-  : await supabase
+    certifications = data ?? []
+  } else {
+    const { data } = await supabase
       .from('certifications_ethys')
       .select('id, reference, date_emission, date_expiration, declaration_id, filature_id')
       .order('created_at', { ascending: false })
+    certifications = data ?? []
+  }
 
   const { data: declarations } = await supabase
     .from('declarations_ethys')
@@ -46,18 +50,18 @@ console.log('profil role:', profil?.role, 'entreprise_id:', profil?.entreprise_i
     .select('*')
     .not('certification_id', 'is', null)
 
-  const certificationsEnrichies = (certifications ?? []).map(cert => {
-  const decl = (declarations ?? []).find(d => d.id === cert.declaration_id)
-  const entreprise = decl ? (entreprises ?? []).find(e => e.id === decl.entreprise_id) : null
-  const qrCodes = (qrCodesCerts ?? []).filter(q => q.certification_id === cert.id)
-  return {
-    ...cert,
-    numero: cert.reference,        // ← alias pour compatibilité QRCodeClient
-    date_validite: cert.date_expiration,  // ← alias pour compatibilité QRCodeClient
-    declaration: decl ? { ...decl, entreprise: entreprise ?? null } : null,
-    qr_codes: qrCodes,
-  }
-})
+  const certificationsEnrichies = certifications.map(cert => {
+    const decl = (declarations ?? []).find(d => d.id === cert.declaration_id)
+    const entreprise = decl ? (entreprises ?? []).find(e => e.id === decl.entreprise_id) : null
+    const qrCodes = (qrCodesCerts ?? []).filter(q => q.certification_id === cert.id)
+    return {
+      ...cert,
+      numero: cert.reference,
+      date_validite: cert.date_expiration,
+      declaration: decl ? { ...decl, entreprise: entreprise ?? null } : null,
+      qr_codes: qrCodes,
+    }
+  })
 
   // Calcul avancement global par commande
   const commandeIds = [...new Set((lots ?? []).map(l => (l.commande as any)?.id).filter(Boolean))]
@@ -86,7 +90,7 @@ console.log('profil role:', profil?.role, 'entreprise_id:', profil?.entreprise_i
         .in('lot_id', lotIds)
         .eq('statut', 'en_attente')
     : { data: [] }
-  
+
   return (
     <QRCodeClient
       lots={lotsEnrichis}
