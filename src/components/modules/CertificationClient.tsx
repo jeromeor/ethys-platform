@@ -105,6 +105,8 @@ export default function CertificationClient({
   const [showRefus, setShowRefus] = useState(false)
   const [declarationHonneur, setDeclarationHonneur] = useState(false)
   const [selectedCommandeId, setSelectedCommandeId] = useState('')
+  // State local pour filtrer les commandes après soumission sans recharger la page
+  const [commandesDispos, setCommandesDispos] = useState<CommandeEligible[]>(commandesEligibles)
 
   const isAdmin = userRole === 'admin'
 
@@ -121,13 +123,13 @@ export default function CertificationClient({
   }, [userId])
 
   // Pré-remplit et ouvre le formulaire si commande_id en query param
-useEffect(() => {
-  const commandeId = searchParams.get('commande_id')
-  if (commandeId && commandesEligibles.find(c => c.id === commandeId)) {
-    setSelectedCommandeId(commandeId)
-    setShowForm(true)
-  }
-}, [])
+  useEffect(() => {
+    const commandeId = searchParams.get('commande_id')
+    if (commandeId && commandesDispos.find(c => c.id === commandeId)) {
+      setSelectedCommandeId(commandeId)
+      setShowForm(true)
+    }
+  }, [])
 
   // --- Filature : demande de certification liée à une commande ---
   const demanderCertification = async () => {
@@ -142,7 +144,7 @@ useEffect(() => {
     setSaving(true)
     setMessage('')
 
-    const commande = commandesEligibles.find(c => c.id === selectedCommandeId)
+    const commande = commandesDispos.find(c => c.id === selectedCommandeId)
     if (!commande) {
       setMessage('Commande introuvable.')
       setSaving(false)
@@ -162,7 +164,7 @@ useEffect(() => {
         entreprise_id: entrepriseId,
         initiateur_id: userId,
         eligible_ethys: true,
-        commande_id: selectedCommandeId,  // lien avec la commande
+        commande_id: selectedCommandeId,
       })
       .select('id, statut, type_produit, volume_recycle_kg, volume_vierge_kg, pct_recycle, created_at, entreprise_id, initiateur_id, filature_nom, commande_id')
       .single()
@@ -197,6 +199,9 @@ useEffect(() => {
         commande_reference: commande.reference,
       }, ...prev])
     }
+
+    // Retire la commande soumise du select pour empêcher les doublons
+    setCommandesDispos(prev => prev.filter(c => c.id !== selectedCommandeId))
 
     setShowForm(false)
     setSelectedCommandeId('')
@@ -299,25 +304,25 @@ useEffect(() => {
       lu: false,
     })
 
-// Génère automatiquement le QR code après certification
-if (newCert) {
-  await fetch('/api/qr-certification', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      certification_id: newCert.id,
-      numero: reference,
-      data_encodee: JSON.stringify({
-        reference,
-        filature_id: decl.entreprise_id,
-        type_produit: decl.type_produit ?? 'Fil ETHYS',
-        volume_recycle_kg: decl.volume_recycle_kg,
-        volume_vierge_kg: decl.volume_vierge_kg,
-      }),
-    }),
-  })
-}
-    
+    // Génère automatiquement le QR code après certification
+    if (newCert) {
+      await fetch('/api/qr-certification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          certification_id: newCert.id,
+          numero: reference,
+          data_encodee: JSON.stringify({
+            reference,
+            filature_id: decl.entreprise_id,
+            type_produit: decl.type_produit ?? 'Fil ETHYS',
+            volume_recycle_kg: decl.volume_recycle_kg,
+            volume_vierge_kg: decl.volume_vierge_kg,
+          }),
+        }),
+      })
+    }
+
     const certAvecDecl: Certification = {
       ...(newCert as any),
       declaration: decl,
@@ -374,7 +379,7 @@ if (newCert) {
             )}
           </div>
         </div>
-        {!isAdmin && commandesEligibles.length > 0 && (
+        {!isAdmin && commandesDispos.length > 0 && (
           <button
             onClick={() => { setShowForm(true); setSelected(null); setSelectedDecl(null); setSelectedDeclFilature(null) }}
             style={{ padding: '7px 12px', borderRadius: 8, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
@@ -498,7 +503,7 @@ if (newCert) {
 
     // Formulaire demande (filature)
     if (showForm) {
-      const commandeSelectionnee = commandesEligibles.find(c => c.id === selectedCommandeId)
+      const commandeSelectionnee = commandesDispos.find(c => c.id === selectedCommandeId)
       return (
         <div style={{ flex: 1, overflow: 'auto', padding: '24px 28px' }}>
           <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '24px', maxWidth: 600 }}>
@@ -515,7 +520,7 @@ if (newCert) {
                 style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
               >
                 <option value="">Sélectionner une commande...</option>
-                {commandesEligibles.map(c => (
+                {commandesDispos.map(c => (
                   <option key={c.id} value={c.id}>
                     {c.reference} — {Math.round(c.volume_recycle_kg + c.volume_vierge_kg).toLocaleString('fr-FR')} kg — {c.marque_nom}
                   </option>
@@ -526,6 +531,9 @@ if (newCert) {
             {commandeSelectionnee && (
               <div style={{ padding: '14px 16px', borderRadius: 8, background: '#f0f4ec', border: '1px solid #c8d8b8', marginBottom: 16 }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: '#2d5016', marginBottom: 8 }}>Récapitulatif — {commandeSelectionnee.reference}</div>
+                <div style={{ fontSize: 13, fontWeight: 800, color: '#1a1a1a', marginBottom: 10 }}>
+                  Volume total : {Math.round(commandeSelectionnee.volume_recycle_kg + commandeSelectionnee.volume_vierge_kg).toLocaleString('fr-FR')} kg
+                </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12, color: '#4a5568' }}>
                   <div>Type : <strong>Fil ETHYS</strong></div>
                   <div>% recyclé : <strong>{commandeSelectionnee.pct_recycle}%</strong></div>
@@ -768,7 +776,7 @@ if (newCert) {
               ? attente.length > 0
                 ? 'Sélectionnez une demande pour la valider ou la refuser.'
                 : 'Aucune demande en attente.'
-              : commandesEligibles.length > 0
+              : commandesDispos.length > 0
                 ? 'Vous avez des commandes éligibles. Cliquez sur + Demander pour soumettre.'
                 : declsFilature.length > 0
                   ? 'Sélectionnez une demande pour voir son statut.'
