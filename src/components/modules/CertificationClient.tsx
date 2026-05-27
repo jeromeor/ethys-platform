@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 interface Entreprise {
@@ -90,6 +91,7 @@ export default function CertificationClient({
   userId,
 }: Props) {
   const supabase = createClient()
+  const searchParams = useSearchParams()
   const [certifications, setCertifications] = useState<Certification[]>(initial)
   const [attente, setAttente] = useState<Declaration[]>(declarationsEnAttente)
   const [declsFilature, setDeclsFilature] = useState<Declaration[]>(initialDeclsFilature)
@@ -117,6 +119,15 @@ export default function CertificationClient({
       .eq('lu', false)
       .then(() => {})
   }, [userId])
+
+  // Pré-remplit et ouvre le formulaire si commande_id en query param
+useEffect(() => {
+  const commandeId = searchParams.get('commande_id')
+  if (commandeId && commandesEligibles.find(c => c.id === commandeId)) {
+    setSelectedCommandeId(commandeId)
+    setShowForm(true)
+  }
+}, [])
 
   // --- Filature : demande de certification liée à une commande ---
   const demanderCertification = async () => {
