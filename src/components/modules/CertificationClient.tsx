@@ -288,6 +288,25 @@ export default function CertificationClient({
       lu: false,
     })
 
+// Génère automatiquement le QR code après certification
+if (newCert) {
+  await fetch('/api/qr-certification', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      certification_id: newCert.id,
+      numero: reference,
+      data_encodee: JSON.stringify({
+        reference,
+        filature_id: decl.entreprise_id,
+        type_produit: decl.type_produit ?? 'Fil ETHYS',
+        volume_recycle_kg: decl.volume_recycle_kg,
+        volume_vierge_kg: decl.volume_vierge_kg,
+      }),
+    }),
+  })
+}
+    
     const certAvecDecl: Certification = {
       ...(newCert as any),
       declaration: decl,
