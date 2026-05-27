@@ -358,6 +358,7 @@ return (
         <div style={{ flex: 1, overflowY: 'auto' }}>
           {source === 'certs' && (
             <>
+            console.log('certifs:', certificationsEnrichies.length)
               {certifications.length === 0 ? (
                 <div style={{ padding: '40px 16px', textAlign: 'center', color: '#8b7355', fontSize: 12 }}>Aucune certification disponible.</div>
               ) : certifications.map(cert => {
