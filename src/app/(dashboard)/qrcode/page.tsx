@@ -20,10 +20,16 @@ export default async function QRCodePage({ searchParams }: { searchParams: Promi
     .select(`*, commande:commandes(reference, titre, marque:entreprises!commandes_marque_id_fkey(nom), filature:entreprises!commandes_filature_id_fkey(nom), fournisseur:entreprises!commandes_fournisseur_id_fkey(nom)), qr_codes(*)`)
     .order('created_at', { ascending: false })
 
-  const { data: certifications } = await supabase
-    .from('certifications_ethys')
-    .select('id, numero, date_emission, date_validite, declaration_id')
-    .order('created_at', { ascending: false })
+  const certQuery = supabase
+  .from('certifications_ethys')
+  .select('id, reference, date_emission, date_expiration, declaration_id, filature_id')
+  .order('created_at', { ascending: false })
+
+if (profil?.role === 'filature') {
+  certQuery.eq('filature_id', profil.entreprise_id)
+}
+
+const { data: certifications } = await certQuery
 
   const { data: declarations } = await supabase
     .from('declarations_ethys')
@@ -39,15 +45,17 @@ export default async function QRCodePage({ searchParams }: { searchParams: Promi
     .not('certification_id', 'is', null)
 
   const certificationsEnrichies = (certifications ?? []).map(cert => {
-    const decl = (declarations ?? []).find(d => d.id === cert.declaration_id)
-    const entreprise = decl ? (entreprises ?? []).find(e => e.id === decl.entreprise_id) : null
-    const qrCodes = (qrCodesCerts ?? []).filter(q => q.certification_id === cert.id)
-    return {
-      ...cert,
-      declaration: decl ? { ...decl, entreprise: entreprise ?? null } : null,
-      qr_codes: qrCodes,
-    }
-  })
+  const decl = (declarations ?? []).find(d => d.id === cert.declaration_id)
+  const entreprise = decl ? (entreprises ?? []).find(e => e.id === decl.entreprise_id) : null
+  const qrCodes = (qrCodesCerts ?? []).filter(q => q.certification_id === cert.id)
+  return {
+    ...cert,
+    numero: cert.reference,        // ← alias pour compatibilité QRCodeClient
+    date_validite: cert.date_expiration,  // ← alias pour compatibilité QRCodeClient
+    declaration: decl ? { ...decl, entreprise: entreprise ?? null } : null,
+    qr_codes: qrCodes,
+  }
+})
 
   // Calcul avancement global par commande
   const commandeIds = [...new Set((lots ?? []).map(l => (l.commande as any)?.id).filter(Boolean))]
