@@ -31,8 +31,6 @@ export default async function QRCodePage({ searchParams }: { searchParams: Promi
       .select('id, reference, date_emission, date_expiration, declaration_id, filature_id')
       .order('created_at', { ascending: false })
 
-const { data: certifications } = await certQuery
-
   const { data: declarations } = await supabase
     .from('declarations_ethys')
     .select('id, type_produit, volume_recycle_kg, volume_vierge_kg, pct_recycle, provenance_pays, filature_nom, filature_pays, description, entreprise_id')
