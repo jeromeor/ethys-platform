@@ -81,9 +81,9 @@ function CertQRImage({ url }: { url: string }) {
 export default function QRCodeClient({ lots: initial, user, profil, certifications, certificationIdActif, lotIdActif, demandesQrEnAttente }: Props) {
   const supabase = createClient()
   const [lots, setLots] = useState<Lot[]>(initial)
-  const [selected, setSelected] = useState<Lot | null>(
-    (lotIdActif ? initial.find(l => l.id === lotIdActif) : null) ?? initial[0] ?? null
-  )
+ const [selected, setSelected] = useState<Lot | null>(
+  certificationIdActif ? null : (lotIdActif ? initial.find(l => l.id === lotIdActif) : null) ?? initial[0] ?? null
+)
   const [generating, setGenerating] = useState(false)
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
   const [previewPublic, setPreviewPublic] = useState(false)
