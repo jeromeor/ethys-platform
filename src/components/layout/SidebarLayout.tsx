@@ -70,7 +70,7 @@ setComptesEnAttente((countComptes ?? 0) + (countCompteNotif ?? 0))
         const { count: countCertif } = await supabase
   .from('declarations_ethys')
   .select('*', { count: 'exact', head: true })
-  .eq('statut', 'en_attente')
+  .in('statut', ['en_attente', 'duplicatas_demandes'])
 setCertifEnAttente(countCertif ?? 0)
 
         const { count: countQR } = await supabase
