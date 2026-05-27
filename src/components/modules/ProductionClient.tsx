@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 interface ControleQualite {
@@ -67,6 +68,7 @@ const STATUT_LOT_COLORS: Record<string, [string, string]> = {
 
 export default function ProductionClient({ commandes: initial, user, role }: Props) {
   const supabase = createClient()
+  const router = useRouter()
   const [commandes, setCommandes] = useState<Commande[]>(initial)
   const [selected, setSelected] = useState<Commande | null>(initial[0] ?? null)
   const [activeTab, setActiveTab] = useState<'Avancement' | 'lots' | 'qualite'>('Avancement')
@@ -461,9 +463,9 @@ if (volumeDejaAlloue + volumeNouveauLot > volumeCommande) {
                           (() => {
                             const tousLotsTermines = (selected.lots ?? []).every(l => l.avancement_pct === 100)
                             return tousLotsTermines ? (
-                              <button onClick={() => { setShowAssocCertif(lot.id); chargerCertifications() }} style={{ padding: '6px 14px', borderRadius: 6, border: '1.5px solid #2d5016', background: '#f0f4ec', color: '#2d5016', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
-                                Associer une certification ETHYS
-                              </button>
+                              <button onClick={() => router.push(`/certification?commande_id=${selected.id}`)} style={{ padding: '6px 14px', borderRadius: 6, border: '1.5px solid #2d5016', background: '#f0f4ec', color: '#2d5016', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
+  Demander une certification ETHYS
+</button>
                             ) : (
   <div style={{ fontSize: 11, color: '#b8860b', background: '#fdf8ec', borderRadius: 6, padding: '6px 10px' }}>
     La demande de certification ETHYS n'est possible que si tous les lots de la commande sont validés.
