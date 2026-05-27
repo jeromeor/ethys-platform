@@ -39,7 +39,8 @@ if (process.env.NODE_ENV === 'production') {
       .order('created_at', { ascending: false })
     certifications = data ?? []
   }
-
+console.error('DEBUG certs:', certifications.length, certifications.map((c: any) => c.reference))
+  
   const { data: declarations } = await supabase
     .from('declarations_ethys')
     .select('id, type_produit, volume_recycle_kg, volume_vierge_kg, pct_recycle, provenance_pays, filature_nom, filature_pays, description, entreprise_id')
