@@ -26,12 +26,13 @@ if (process.env.NODE_ENV === 'production') {
   // Filtre par filature_id si role filature, sinon toutes les certifications
   let certifications: any[] = []
   if (profil?.role === 'filature' && profil?.entreprise_id) {
-    const { data } = await supabase
-      .from('certifications_ethys')
-      .select('id, reference, date_emission, date_expiration, declaration_id, filature_id')
-      .eq('filature_id', profil.entreprise_id)
-      .order('created_at', { ascending: false })
-    certifications = data ?? []
+    const { data: certsData, error: certsError } = await supabase
+  .from('certifications_ethys')
+  .select('id, reference, date_emission, date_expiration, declaration_id, filature_id')
+  .eq('filature_id', profil.entreprise_id)
+  .order('created_at', { ascending: false })
+console.error('DEBUG certs error:', certsError, 'data:', certsData?.length)
+certifications = certsData ?? []
   } else {
     const { data } = await supabase
       .from('certifications_ethys')
