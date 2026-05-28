@@ -67,7 +67,7 @@ interface Props {
   certificationIdActif: string | null
   lotIdActif: string | null
   demandesQrEnAttente: DemandeQr[]
-  marques: { id: string; nom: string }[
+  marques: { id: string; nom: string }[]
 }
 
 function CertQRImage({ url }: { url: string }) {
