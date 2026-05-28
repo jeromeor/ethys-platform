@@ -42,7 +42,7 @@ export default async function QRAccessPage({ params }: { params: Promise<{ code:
     const { data: lastFacture } = await supabase
       .from('factures')
       .select('reference')
-      .ilike('reference', `FACT-${annee}-%`)
+      .ilike('reference', `FAC-${annee}-%`)
       .order('created_at', { ascending: false })
       .limit(1)
       .single()
@@ -52,15 +52,18 @@ export default async function QRAccessPage({ params }: { params: Promise<{ code:
       : '0001'
 
     await supabase.from('factures').insert({
-      reference: `FACT-${annee}-${seq}`,
-      statut: 'en_attente',
-      date_echeance: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-      montant_ht: montantHT,
-      montant_ttc: montantTTC,
-      taux_tva: tauxTVA * 100,
-      client_nom: marque?.nom ?? '',
-      description: `QR code ETHYS — ${cert?.reference ?? ''} — ${transfert.volume_kg} kg`,
-    })
+  reference: `FAC-${annee}-${seq}`,
+  statut: 'emise',
+  date_emission: new Date().toISOString().split('T')[0],
+  date_echeance: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+  montant_ht: montantHT,
+  montant_ttc: montantTTC,
+  montant_tva: montantHT * tauxTVA,
+  tva_pct: tauxTVA * 100,
+  destinataire_id: transfert.marque_id,
+  emetteur_id: 'a0000000-0000-0000-0000-000000000001',
+  notes: `QR code ETHYS — ${cert?.reference ?? ''} — ${transfert.volume_kg} kg`,
+})
 
     // Notifie Textile Loop
     const { data: admins } = await supabase
