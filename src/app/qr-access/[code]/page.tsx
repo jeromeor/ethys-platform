@@ -60,7 +60,7 @@ export default async function QRAccessPage({ params }: { params: Promise<{ code:
   montant_ttc: montantTTC,
   montant_tva: montantHT * tauxTVA,
   tva_pct: tauxTVA * 100,
-  destinataire_id: transfert.marque_id,
+  destinataire_id: (transfert.marque as any)?.[0]?.id ?? null,
   emetteur_id: 'a0000000-0000-0000-0000-000000000001',
   notes: `QR code ETHYS — ${cert?.reference ?? ''} — ${transfert.volume_kg} kg`,
 })
