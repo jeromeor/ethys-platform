@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
 
   if (transfertsExistants && transfertsExistants.length > 0) {
     return NextResponse.json(
-      { error: 'Ce QR code a déjà été transféré à une marque. Le transfert est unique et définitif.' },
+      { error: 'Ce QR code a déjà été transféré.\nCette opération est unique et définitive.' },
       { status: 409 }
     )
   }
