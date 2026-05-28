@@ -768,46 +768,46 @@ return (
                 <div style={{ display: 'flex', gap: 10 }}>
                   <button onClick={() => setShowTransfert(false)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#4a5568', fontSize: 13, cursor: 'pointer' }}>Annuler</button>
                   <button
-                    disabled={transfertSaving || (!transfertNouvelleMarque && !transfertMarqueId) || (transfertNouvelleMarque && !transfertMarqueEmail)}
-                    onClick={async () => {
-                      setTransfertSaving(true)
-                      setTransfertMessage('')
-                      const marqueSelectionnee = marques.find((m: any) => m.id === transfertMarqueId)
-                      const res = await fetch('/api/qr-transfert', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                          certification_id: selectedCert.id,
-                          qr_code_id: selectedCert.qr_codes[0].id,
-                          filature_id: profil.entreprise_id,
-                          filature_nom: selectedCert.declaration?.filature_nom ?? '',
-                          marque_id: transfertNouvelleMarque ? null : transfertMarqueId,
-                          marque_email: transfertNouvelleMarque ? transfertMarqueEmail : null,
-                          marque_nom: transfertNouvelleMarque ? transfertMarqueEmail : (marqueSelectionnee?.nom ?? ''),
-                          volume_kg: (selectedCert.declaration?.volume_recycle_kg ?? 0) + (selectedCert.declaration?.volume_vierge_kg ?? 0),
-                          certification_reference: selectedCert.numero,
-                        })
-                      })
-                      const result = await res.json()
-                      if (result.success) {
-                        setTransfertMessage(result.nouvelle_marque ? 'Email d\'invitation envoyé à la marque.' : 'QR code transféré. La marque a reçu un email.')
-                        setTransfertSaving(false)
-                        setTimeout(() => setShowTransfert(false), 2000)
-                      } else {
-                        setTransfertMessage('Erreur : ' + (result.error ?? 'inconnue'))
-                        setTransfertSaving(false)
-                      }
-                    }}
-                    style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: transfertSaving ? '#d4c5b0' : '#1a1a1a', color: '#fff', fontSize: 13, fontWeight: 700, cursor: transfertSaving ? 'default' : 'pointer' }}
-                  >
-                    {transfertSaving ? 'Envoi...' : 'Envoyer'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  )
-}
+  disabled={transfertSaving || (!transfertNouvelleMarque && !transfertMarqueId) || (transfertNouvelleMarque && !transfertMarqueEmail)}
+  onClick={async () => {
+    // Double confirmation avant envoi
+    const marqueLabel = transfertNouvelleMarque
+      ? transfertMarqueEmail
+      : (marques.find((m: any) => m.id === transfertMarqueId)?.nom ?? '')
+    const confirme = window.confirm(
+      `Confirmer le transfert définitif à "${marqueLabel}" ?\n\nCe QR code ne pourra plus être transféré à une autre marque.`
+    )
+    if (!confirme) return
+
+    setTransfertSaving(true)
+    setTransfertMessage('')
+    const marqueSelectionnee = marques.find((m: any) => m.id === transfertMarqueId)
+    const res = await fetch('/api/qr-transfert', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        certification_id: selectedCert.id,
+        qr_code_id: selectedCert.qr_codes[0].id,
+        filature_id: profil.entreprise_id,
+        filature_nom: selectedCert.declaration?.filature_nom ?? '',
+        marque_id: transfertNouvelleMarque ? null : transfertMarqueId,
+        marque_email: transfertNouvelleMarque ? transfertMarqueEmail : null,
+        marque_nom: transfertNouvelleMarque ? transfertMarqueEmail : (marqueSelectionnee?.nom ?? ''),
+        volume_kg: (selectedCert.declaration?.volume_recycle_kg ?? 0) + (selectedCert.declaration?.volume_vierge_kg ?? 0),
+        certification_reference: selectedCert.numero,
+      })
+    })
+    const result = await res.json()
+    if (result.success) {
+      setTransfertMessage(result.nouvelle_marque ? 'Email d\'invitation envoyé à la marque.' : 'QR code transféré. La marque a reçu un email.')
+      setTransfertSaving(false)
+      setTimeout(() => setShowTransfert(false), 2000)
+    } else {
+      setTransfertMessage('Erreur : ' + (result.error ?? 'inconnue'))
+      setTransfertSaving(false)
+    }
+  }}
+  style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: transfertSaving ? '#d4c5b0' : '#1a1a1a', color: '#fff', fontSize: 13, fontWeight: 700, cursor: transfertSaving ? 'default' : 'pointer' }}
+>
+  {transfertSaving ? 'Envoi...' : 'Envoyer'}
+</button>
