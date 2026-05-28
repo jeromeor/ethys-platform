@@ -760,10 +760,10 @@ return (
                 )}
 
                 {transfertMessage && (
-                  <div style={{ padding: '10px 14px', borderRadius: 6, background: transfertMessage.includes('Erreur') ? '#fdf0f0' : '#f0f4ec', border: '1px solid ' + (transfertMessage.includes('Erreur') ? '#c8a0a0' : '#c8d8b8'), fontSize: 12, color: transfertMessage.includes('Erreur') ? '#8b3a3a' : '#2d5016', marginBottom: 12 }}>
-                    {transfertMessage}
-                  </div>
-                )}
+  <div style={{ padding: '10px 14px', borderRadius: 6, background: transfertMessage.includes('Erreur') ? '#fdf0f0' : '#f0f4ec', border: '1px solid ' + (transfertMessage.includes('Erreur') ? '#c8a0a0' : '#c8d8b8'), fontSize: 12, color: transfertMessage.includes('Erreur') ? '#8b3a3a' : '#2d5016', marginBottom: 12, whiteSpace: 'pre-line' }}>
+    {transfertMessage}
+  </div>
+)}
 
                 <div style={{ display: 'flex', gap: 10 }}>
                   <button onClick={() => setShowTransfert(false)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#4a5568', fontSize: 13, cursor: 'pointer' }}>Annuler</button>
