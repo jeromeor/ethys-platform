@@ -65,6 +65,13 @@ export default async function QRCodePage({ searchParams }: { searchParams: Promi
     }
   })
 
+  // Marques enregistrées sur la plateforme
+  const { data: marques } = await supabase
+    .from('entreprises')
+    .select('id, nom')
+    .eq('type', 'marque')
+    .order('nom')
+
   // Calcul avancement global par commande
   const commandeIds = [...new Set((lots ?? []).map(l => (l.commande as any)?.id).filter(Boolean))]
   const { data: tousLots } = commandeIds.length > 0
@@ -102,6 +109,7 @@ export default async function QRCodePage({ searchParams }: { searchParams: Promi
       certificationIdActif={params.certification_id ?? null}
       lotIdActif={params.lot_id ?? null}
       demandesQrEnAttente={demandesQr ?? []}
+      marques={marques ?? []}
     />
   )
 }
