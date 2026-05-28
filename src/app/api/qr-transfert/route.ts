@@ -20,18 +20,18 @@ export async function POST(request: NextRequest) {
   } = body
 
   // Guard usage unique : vérifie si ce QR a déjà été transféré
-const { data: transfertExistant } = await supabase
-  .from('transferts_qr')
-  .select('id, marque_id')
-  .eq('qr_code_id', qr_code_id)
-  .single()
+  const { data: transfertsExistants } = await supabase
+    .from('transferts_qr')
+    .select('id')
+    .eq('qr_code_id', qr_code_id)
+    .limit(1)
 
-if (transfertExistant) {
-  return NextResponse.json(
-    { error: 'Ce QR code a déjà été transféré à une marque. Le transfert est unique et définitif.' },
-    { status: 409 }
-  )
-}
+  if (transfertsExistants && transfertsExistants.length > 0) {
+    return NextResponse.json(
+      { error: 'Ce QR code a déjà été transféré à une marque. Le transfert est unique et définitif.' },
+      { status: 409 }
+    )
+  }
 
   // --- Cas nouvelle marque non enregistrée ---
   if (!marque_id && marque_email) {
