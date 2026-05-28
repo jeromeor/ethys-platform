@@ -97,6 +97,12 @@ export default function QRCodeClient({ lots: initial, user, profil, certificatio
   const [demandesQr, setDemandesQr] = useState<DemandeQr[]>(demandesQrEnAttente)
   const [loadingDemande, setLoadingDemande] = useState(false)
   const [errorDemande, setErrorDemande] = useState('')
+  const [showTransfert, setShowTransfert] = useState(false)
+  const [transfertMarqueId, setTransfertMarqueId] = useState('')
+  const [transfertMarqueEmail, setTransfertMarqueEmail] = useState('')
+  const [transfertNouvelleMarque, setTransfertNouvelleMarque] = useState(false)
+  const [transfertSaving, setTransfertSaving] = useState(false)
+  const [transfertMessage, setTransfertMessage] = useState('')
 
   // Filtre demandes uniquement (actif si arrivée via notif)
   const [filtreDemandesOnly, setFiltreDemandesOnly] = useState(!!lotIdActif)
@@ -660,7 +666,7 @@ return (
                       <div style={{ fontSize: 11, color: '#8b7355' }}>{selectedCert.qr_codes[0].nb_scans + ' scan(s)'}</div>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: 8 }}>
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
                     <button onClick={() => window.open(selectedCert.qr_codes[0].url_publique, '_blank')} style={{ flex: 1, padding: '8px', borderRadius: 8, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
                       {"Voir page publique"}
                     </button>
@@ -668,6 +674,13 @@ return (
                       {urlCopied ? 'Copiee !' : 'Copier URL'}
                     </button>
                   </div>
+                  {/* Bouton transfert marque */}
+                  <button
+                    onClick={() => { setShowTransfert(true); setTransfertMessage(''); setTransfertMarqueId(''); setTransfertMarqueEmail(''); setTransfertNouvelleMarque(false) }}
+                    style={{ width: '100%', padding: '8px', borderRadius: 8, border: '1.5px solid #2d5016', background: '#f0f4ec', color: '#2d5016', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
+                  >
+                    Transférer à une marque
+                  </button>
                 </div>
               ) : (
                 <button
@@ -702,6 +715,96 @@ return (
               )}
             </div>
           </div>
+
+          {/* Modale transfert marque */}
+          {showTransfert && (
+            <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ background: '#fff', borderRadius: 8, padding: '28px 24px', width: 440, maxWidth: '90vw' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>Transférer le QR à une marque</div>
+                  <button onClick={() => setShowTransfert(false)} style={{ border: 'none', background: 'none', fontSize: 18, cursor: 'pointer', color: '#8b7355' }}>×</button>
+                </div>
+
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, cursor: 'pointer', fontSize: 13 }}>
+                  <input type="checkbox" checked={transfertNouvelleMarque} onChange={e => setTransfertNouvelleMarque(e.target.checked)} />
+                  Marque non enregistrée sur ETHYS
+                </label>
+
+                {transfertNouvelleMarque ? (
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Email de la marque *</label>
+                    <input
+                      type="email"
+                      value={transfertMarqueEmail}
+                      onChange={e => setTransfertMarqueEmail(e.target.value)}
+                      placeholder="contact@marque.com"
+                      style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
+                    />
+                    <div style={{ fontSize: 11, color: '#8b7355', marginTop: 6 }}>Un email d'invitation sera envoyé à cette adresse.</div>
+                  </div>
+                ) : (
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Sélectionner la marque *</label>
+                    <select
+                      value={transfertMarqueId}
+                      onChange={e => setTransfertMarqueId(e.target.value)}
+                      style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
+                    >
+                      <option value="">Sélectionner une marque...</option>
+                      {marques.map((m: any) => (
+                        <option key={m.id} value={m.id}>{m.nom}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {transfertMessage && (
+                  <div style={{ padding: '10px 14px', borderRadius: 6, background: transfertMessage.includes('Erreur') ? '#fdf0f0' : '#f0f4ec', border: '1px solid ' + (transfertMessage.includes('Erreur') ? '#c8a0a0' : '#c8d8b8'), fontSize: 12, color: transfertMessage.includes('Erreur') ? '#8b3a3a' : '#2d5016', marginBottom: 12 }}>
+                    {transfertMessage}
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <button onClick={() => setShowTransfert(false)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#4a5568', fontSize: 13, cursor: 'pointer' }}>Annuler</button>
+                  <button
+                    disabled={transfertSaving || (!transfertNouvelleMarque && !transfertMarqueId) || (transfertNouvelleMarque && !transfertMarqueEmail)}
+                    onClick={async () => {
+                      setTransfertSaving(true)
+                      setTransfertMessage('')
+                      const marqueSelectionnee = marques.find((m: any) => m.id === transfertMarqueId)
+                      const res = await fetch('/api/qr-transfert', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          certification_id: selectedCert.id,
+                          qr_code_id: selectedCert.qr_codes[0].id,
+                          filature_id: profil.entreprise_id,
+                          filature_nom: selectedCert.declaration?.filature_nom ?? '',
+                          marque_id: transfertNouvelleMarque ? null : transfertMarqueId,
+                          marque_email: transfertNouvelleMarque ? transfertMarqueEmail : null,
+                          marque_nom: transfertNouvelleMarque ? transfertMarqueEmail : (marqueSelectionnee?.nom ?? ''),
+                          volume_kg: (selectedCert.declaration?.volume_recycle_kg ?? 0) + (selectedCert.declaration?.volume_vierge_kg ?? 0),
+                          certification_reference: selectedCert.numero,
+                        })
+                      })
+                      const result = await res.json()
+                      if (result.success) {
+                        setTransfertMessage(result.nouvelle_marque ? 'Email d\'invitation envoyé à la marque.' : 'QR code transféré. La marque a reçu un email.')
+                        setTransfertSaving(false)
+                        setTimeout(() => setShowTransfert(false), 2000)
+                      } else {
+                        setTransfertMessage('Erreur : ' + (result.error ?? 'inconnue'))
+                        setTransfertSaving(false)
+                      }
+                    }}
+                    style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: transfertSaving ? '#d4c5b0' : '#1a1a1a', color: '#fff', fontSize: 13, fontWeight: 700, cursor: transfertSaving ? 'default' : 'pointer' }}
+                  >
+                    {transfertSaving ? 'Envoi...' : 'Envoyer'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
