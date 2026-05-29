@@ -33,6 +33,27 @@ interface Entreprise {
   statut: string
 }
 
+interface Royalty {
+  id: string
+  facture_id: string
+  filature_id: string
+  marque_id: string
+  montant_ht_facture: number
+  taux_royalty: number
+  montant_royalty: number
+  interets_retard: number
+  montant_total_du: number
+  statut: string
+  date_facture: string
+  date_encaissement: string | null
+  date_echeance: string | null
+  date_limite_contestation: string | null
+  created_at: string
+  filature: { nom: string } | null
+  marque: { nom: string } | null
+  facture: { reference: string } | null
+}
+
 interface DemandeModification {
   id: string
   cible_user_id: string
@@ -48,6 +69,7 @@ interface Props {
   utilisateurs: Utilisateur[]
   audit: AuditEntry[]
   entreprises: Entreprise[]
+  royalties: Royalty[]
   currentUserId: string
 }
 
@@ -58,9 +80,9 @@ const ROLE_COLORS: Record<string, [string, string]> = {
   fournisseur: ['#fdf8ec', '#b8860b'],
 }
 
-const TABS = ['Utilisateurs', 'Comptes à valider', 'Demandes en attente', 'Export commandes', 'Sécurité']
+const TABS = ['Utilisateurs', 'Comptes à valider', 'Demandes en attente', 'Export commandes', 'Royalties filatures', 'Sécurité']
 
-export default function AdminClient({ utilisateurs: initial = [], audit = [], entreprises = [], currentUserId }: Props) {
+export default function AdminClient({ utilisateurs: initial = [], audit = [], entreprises = [], royalties = [], currentUserId }: Props) {
   const supabase = createClient()
   const [filtreEntreprise, setFiltreEntreprise] = useState('')
   const [filtreDateDebut, setFiltreDateDebut] = useState('')
@@ -79,6 +101,66 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
   const [exportClient, setExportClient]       = useState('')
   const [exportZone, setExportZone]           = useState('')
   const [exporting, setExporting]             = useState(false)
+  const [royaltyFiltre, setRoyaltyFiltre] = useState('')
+  const [exportingRoyalties, setExportingRoyalties] = useState(false)
+
+  const exportRoyaltiesExcel = async () => {
+    setExportingRoyalties(true)
+    try {
+      // Chargement dynamique de SheetJS
+      const XLSX = await import('https://cdn.sheetjs.com/xlsx-0.20.1/package/xlsx.mjs' as any)
+      
+      const royaltiesFiltrees = royalties.filter(r =>
+        !royaltyFiltre || r.filature?.nom?.toLowerCase().includes(royaltyFiltre.toLowerCase())
+      )
+
+      // Lignes détail
+      const lignes = royaltiesFiltrees.map(r => ({
+        'Référence facture':     r.facture?.reference ?? '-',
+        'Filature':              r.filature?.nom ?? '-',
+        'Marque':                r.marque?.nom ?? '-',
+        'Date facture':          r.date_facture ?? '-',
+        'Date encaissement':     r.date_encaissement ?? '-',
+        'Date échéance royalty': r.date_echeance ?? '-',
+        'Montant HT facture':    Number(r.montant_ht_facture),
+        'Taux royalty':          '1%',
+        'Montant royalty (€)':   Number(r.montant_royalty),
+        'Intérêts retard (€)':   Number(r.interets_retard),
+        'Total dû (€)':          Number(r.montant_total_du),
+        'Statut':                r.statut,
+      }))
+
+      // Ligne cumul par filature
+      const cumuls = Object.values(
+        royaltiesFiltrees.reduce((acc, r) => {
+          const nom = r.filature?.nom ?? 'Inconnu'
+          if (!acc[nom]) acc[nom] = { filature: nom, total_royalty: 0, total_du: 0, nb: 0 }
+          acc[nom].total_royalty += Number(r.montant_royalty)
+          acc[nom].total_du     += Number(r.montant_total_du)
+          acc[nom].nb           += 1
+          return acc
+        }, {} as Record<string, { filature: string; total_royalty: number; total_du: number; nb: number }>)
+      ).map(c => ({
+        'Filature':              c.filature,
+        'Nb relevés':            c.nb,
+        'Total royalties (€)':   c.total_royalty,
+        'Total dû avec intérêts (€)': c.total_du,
+      }))
+
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(lignes),  'Détail')
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(cumuls), 'Cumul par filature')
+      XLSX.writeFile(wb, `royalties_filatures_${new Date().toISOString().slice(0,10)}.xlsx`)
+    } catch (e) {
+      alert('Erreur export Excel')
+    }
+    setExportingRoyalties(false)
+  }
+
+  const marquerRoyaltyPayee = async (id: string) => {
+    await supabase.from('royalties_filatures').update({ statut: 'payé' }).eq('id', id)
+    window.location.reload()
+  }
 
   // États pour la création de nouvelle entreprise dans "Comptes à valider"
   const [nouvelleEntrepriseNom, setNouvelleEntrepriseNom] = useState<Record<string, string>>({})
@@ -540,6 +622,97 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
           </div>
         )}
 
+{activeTab === 'Royalties filatures' && (
+          <div>
+            {/* Barre filtre + export */}
+            <div style={{ display: 'flex', gap: 10, marginBottom: 16, alignItems: 'center' }}>
+              <input
+                type="text"
+                placeholder="Filtrer par filature..."
+                value={royaltyFiltre}
+                onChange={e => setRoyaltyFiltre(e.target.value)}
+                style={{ padding: '8px 12px', borderRadius: 6, border: '1.5px solid #d4c5b0', fontSize: 12, width: 220, outline: 'none' }}
+              />
+              <button
+                onClick={exportRoyaltiesExcel}
+                disabled={exportingRoyalties}
+                style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: exportingRoyalties ? '#d4c5b0' : '#2d5016', color: '#fff', fontSize: 12, fontWeight: 700, cursor: exportingRoyalties ? 'default' : 'pointer' }}
+              >
+                {exportingRoyalties ? 'Export...' : '⬇ Export Excel'}
+              </button>
+              {/* Compteur total */}
+              <span style={{ fontSize: 12, color: '#8b7355', marginLeft: 'auto' }}>
+                {royalties.filter(r => !royaltyFiltre || r.filature?.nom?.toLowerCase().includes(royaltyFiltre.toLowerCase())).length} relevé(s)
+              </span>
+            </div>
+
+            {/* Tableau */}
+            {royalties.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: 60, color: '#8b7355' }}>
+                <div style={{ fontSize: 14, fontWeight: 600 }}>Aucune royalty enregistrée</div>
+                <div style={{ fontSize: 12, marginTop: 4 }}>Les royalties apparaissent automatiquement à l'encaissement des factures.</div>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {royalties
+                  .filter(r => !royaltyFiltre || r.filature?.nom?.toLowerCase().includes(royaltyFiltre.toLowerCase()))
+                  .map((r, i) => {
+                    const statutColors: Record<string, [string, string]> = {
+                      'en_attente': ['#fdf8ec', '#b8860b'],
+                      'validé':     ['#DBEAFE', '#1E40AF'],
+                      'contesté':   ['#FEE2E2', '#991B1B'],
+                      'payé':       ['#f0f4ec', '#2d5016'],
+                    }
+                    const [sbg, stc] = statutColors[r.statut] ?? ['#f5f3ef', '#4a5568']
+                    const enRetard = r.date_echeance && new Date(r.date_echeance) < new Date() && r.statut !== 'payé'
+                    return (
+                      <div key={i} style={{ background: '#fff', borderRadius: 8, border: `1.5px solid ${enRetard ? '#EF4444' : '#e8e3d8'}`, padding: '14px 18px', display: 'grid', gridTemplateColumns: '2fr 2fr 1fr 1fr 1fr 1fr auto', gap: 12, alignItems: 'center' }}>
+                        <div>
+                          <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 2 }}>Filature</div>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>{r.filature?.nom ?? '-'}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 2 }}>Marque · Facture</div>
+                          <div style={{ fontSize: 12, color: '#4a5568' }}>{r.marque?.nom ?? '-'} · {r.facture?.reference ?? '-'}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 2 }}>HT facture</div>
+                          <div style={{ fontSize: 12, fontWeight: 600 }}>{Number(r.montant_ht_facture).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 2 }}>Royalty 1%</div>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: '#2d5016' }}>{Number(r.montant_royalty).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 2 }}>Total dû</div>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: enRetard ? '#991B1B' : '#1a1a1a' }}>{Number(r.montant_total_du).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 2 }}>Échéance</div>
+                          <div style={{ fontSize: 11, color: enRetard ? '#991B1B' : '#4a5568', fontWeight: enRetard ? 700 : 400 }}>
+                            {r.date_echeance ? new Date(r.date_echeance).toLocaleDateString('fr-FR') : '-'}
+                            {enRetard && ' ⚠'}
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-end' }}>
+                          <span style={{ padding: '3px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: sbg, color: stc }}>{r.statut}</span>
+                          {r.statut !== 'payé' && (
+                            <button
+                              onClick={() => marquerRoyaltyPayee(r.id)}
+                              style={{ padding: '4px 8px', borderRadius: 4, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 10, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                            >
+                              Marquer payé
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
+              </div>
+            )}
+          </div>
+        )}
+        
         {activeTab === 'Sécurité' && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '20px 22px' }}>
