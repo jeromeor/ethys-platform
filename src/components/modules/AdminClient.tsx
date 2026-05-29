@@ -662,7 +662,7 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
               {/* Compteur total */}
               <span style={{ fontSize: 12, color: '#8b7355', marginLeft: 'auto' }}>
                 {royalties.filter(r =>
-                  (!royaltyFiltre || r.filature?.nom?.toLowerCase().includes(royaltyFiltre.toLowerCase())) &&
+                  (!royaltyFiltre || r.filature?.nom === royaltyFiltre) &&
                   (!royaltyDateDebut || (r.date_facture ?? '') >= royaltyDateDebut) &&
                   (!royaltyDateFin   || (r.date_facture ?? '') <= royaltyDateFin)
                 ).length} relevé(s)
@@ -679,7 +679,7 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {royalties
                   .filter(r =>
-                    (!royaltyFiltre || r.filature?.nom?.toLowerCase().includes(royaltyFiltre.toLowerCase())) &&
+                    (!royaltyFiltre || r.filature?.nom === royaltyFiltre) &&
                     (!royaltyDateDebut || (r.date_facture ?? '') >= royaltyDateDebut) &&
                     (!royaltyDateFin   || (r.date_facture ?? '') <= royaltyDateFin)
                   )
