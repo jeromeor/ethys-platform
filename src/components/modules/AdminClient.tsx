@@ -635,33 +635,14 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
   onChange={e => setRoyaltyFiltre(e.target.value)}
   style={{ padding: '8px 12px', borderRadius: 6, border: '1.5px solid #d4c5b0', fontSize: 12, width: 200, outline: 'none' }}
 />
-<input
-  type="date"
-  value={royaltyDateDebut}
-  onChange={e => setRoyaltyDateDebut(e.target.value)}
-  style={{ padding: '8px 10px', borderRadius: 6, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none' }}
-/>
-<span style={{ fontSize: 12, color: '#8b7355', marginLeft: 'auto' }}>
-  {royalties.filter(r =>
-    (!royaltyFiltre || r.filature?.nom?.toLowerCase().includes(royaltyFiltre.toLowerCase()))
-    && (!royaltyDateDebut || (r.date_facture ?? '') &gt;= royaltyDateDebut)
-    && (!royaltyDateFin || (r.date_facture ?? '') &lt;= royaltyDateFin)
-  ).length} relevé(s)
-</span>
-              <button
-                onClick={exportRoyaltiesExcel}
-                disabled={exportingRoyalties}
-                style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: exportingRoyalties ? '#d4c5b0' : '#2d5016', color: '#fff', fontSize: 12, fontWeight: 700, cursor: exportingRoyalties ? 'default' : 'pointer' }}
-              >
-                {exportingRoyalties ? 'Export...' : '⬇ Export Excel'}
-              </button>
-              {/* Compteur total */}
+
+{/* Compteur total */}
               <span style={{ fontSize: 12, color: '#8b7355', marginLeft: 'auto' }}>
-               .filter(r =>
-  (!royaltyFiltre || r.filature?.nom?.toLowerCase().includes(royaltyFiltre.toLowerCase())) &&
-  (!royaltyDateDebut || (r.date_facture ?? '') >= royaltyDateDebut) &&
-  (!royaltyDateFin   || (r.date_facture ?? '') <= royaltyDateFin)
-)
+                {royalties.filter(r =>
+                  (!royaltyFiltre || r.filature?.nom?.toLowerCase().includes(royaltyFiltre.toLowerCase())) &&
+                  (!royaltyDateDebut || (r.date_facture ?? '') >= royaltyDateDebut) &&
+                  (!royaltyDateFin   || (r.date_facture ?? '') <= royaltyDateFin)
+                ).length} relevé(s)
               </span>
             </div>
 
@@ -674,11 +655,11 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {royalties
-                 .filter(r =>
-  (!royaltyFiltre || r.filature?.nom?.toLowerCase().includes(royaltyFiltre.toLowerCase())) &&
-  (!royaltyDateDebut || (r.date_facture ?? '') >= royaltyDateDebut) &&
-  (!royaltyDateFin   || (r.date_facture ?? '') <= royaltyDateFin)
-)
+                  .filter(r =>
+                    (!royaltyFiltre || r.filature?.nom?.toLowerCase().includes(royaltyFiltre.toLowerCase())) &&
+                    (!royaltyDateDebut || (r.date_facture ?? '') >= royaltyDateDebut) &&
+                    (!royaltyDateFin   || (r.date_facture ?? '') <= royaltyDateFin)
+                  )
                   .map((r, i) => {
                     const statutColors: Record<string, [string, string]> = {
                       'en_attente': ['#fdf8ec', '#b8860b'],
