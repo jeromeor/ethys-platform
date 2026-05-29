@@ -825,27 +825,39 @@ export default function FacturationClient({ factures: initial, commandes, entrep
                       </div>
                       <span style={{ padding: '3px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: sbg, color: stc }}>{r.statut}</span>
                     </div>
-                    {peutContester && (
-                      <div style={{ marginTop: 10, padding: '8px 12px', borderRadius: 6, background: '#fdf8ec', border: '1px solid #b8860b', fontSize: 11, color: '#b8860b', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span>Vous pouvez contester ce relevé jusqu'au {new Date(r.date_limite_contestation).toLocaleDateString('fr-FR')}</span>
-                        <button
-                          onClick={async () => {
-                            const motif = window.prompt('Motif de la contestation :')
-                            if (!motif) return
-                            await supabase.from('contestations_royalties').insert({
-                              royalty_id: r.id,
-                              filature_id: profil.entreprise_id,
-                              motif,
-                            })
-                            await supabase.from('royalties_filatures').update({ statut: 'contesté' }).eq('id', r.id)
-                            setRoyalties(prev => prev.map(x => x.id === r.id ? { ...x, statut: 'contesté' } : x))
-                          }}
-                          style={{ padding: '4px 10px', borderRadius: 4, border: 'none', background: '#b8860b', color: '#fff', fontSize: 10, fontWeight: 700, cursor: 'pointer' }}
-                        >
-                          Contester
-                        </button>
-                      </div>
-                    )}
+                   {peutContester && (
+  <div style={{ marginTop: 10, padding: '10px 14px', borderRadius: 6, background: '#fdf8ec', border: '1px solid #b8860b', fontSize: 11, color: '#b8860b', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <span>Ce relevé sera validé automatiquement le <strong>{new Date(r.date_limite_contestation).toLocaleDateString('fr-FR')}</strong></span>
+    <div style={{ display: 'flex', gap: 8 }}>
+      <button
+        onClick={async () => {
+          if (!window.confirm('Confirmer la validation de ce relevé ?')) return
+          await supabase.from('royalties_filatures').update({ statut: 'validé' }).eq('id', r.id)
+          setRoyalties(prev => prev.map(x => x.id === r.id ? { ...x, statut: 'validé' } : x))
+        }}
+        style={{ padding: '5px 12px', borderRadius: 4, border: '1.5px solid #2d5016', background: '#f0f4ec', color: '#2d5016', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
+      >
+        Valider
+      </button>
+      <button
+        onClick={async () => {
+          const motif = window.prompt('Motif de la contestation :')
+          if (!motif) return
+          await supabase.from('contestations_royalties').insert({
+            royalty_id: r.id,
+            filature_id: profil.entreprise_id,
+            motif,
+          })
+          await supabase.from('royalties_filatures').update({ statut: 'contesté' }).eq('id', r.id)
+          setRoyalties(prev => prev.map(x => x.id === r.id ? { ...x, statut: 'contesté' } : x))
+        }}
+        style={{ padding: '5px 12px', borderRadius: 4, border: 'none', background: '#b8860b', color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
+      >
+        Contester
+      </button>
+    </div>
+  </div>
+)}
                   </div>
                 )
               })}
