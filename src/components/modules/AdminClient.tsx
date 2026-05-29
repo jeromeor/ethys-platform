@@ -641,13 +641,13 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
   onChange={e => setRoyaltyDateDebut(e.target.value)}
   style={{ padding: '8px 10px', borderRadius: 6, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none' }}
 />
-<span style={{ fontSize: 12, color: '#8b7355' }}>→</span>
-<input
-  type="date"
-  value={royaltyDateFin}
-  onChange={e => setRoyaltyDateFin(e.target.value)}
-  style={{ padding: '8px 10px', borderRadius: 6, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none' }}
-/>
+<span style={{ fontSize: 12, color: '#8b7355', marginLeft: 'auto' }}>
+  {royalties.filter(r =>
+    (!royaltyFiltre || r.filature?.nom?.toLowerCase().includes(royaltyFiltre.toLowerCase()))
+    && (!royaltyDateDebut || (r.date_facture ?? '') &gt;= royaltyDateDebut)
+    && (!royaltyDateFin || (r.date_facture ?? '') &lt;= royaltyDateFin)
+  ).length} relevé(s)
+</span>
               <button
                 onClick={exportRoyaltiesExcel}
                 disabled={exportingRoyalties}
