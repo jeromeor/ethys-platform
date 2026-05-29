@@ -31,11 +31,23 @@ export default async function AdminPage() {
     .select('id, nom, type, statut')
     .order('nom')
 
+  // Royalties avec noms filature et marque
+  const { data: royaltiesData } = await supabase
+    .from('royalties_filatures')
+    .select(`
+      *,
+      filature:entreprises!royalties_filatures_filature_id_fkey(nom),
+      marque:entreprises!royalties_filatures_marque_id_fkey(nom),
+      facture:factures(reference)
+    `)
+    .order('created_at', { ascending: false })
+
   return (
     <AdminClient
       utilisateurs={utilisateursData ?? []}
       audit={auditData ?? []}
       entreprises={entreprisesData ?? []}
+      royalties={royaltiesData ?? []}
       currentUserId={user.id}
     />
   )
