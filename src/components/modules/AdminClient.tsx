@@ -628,13 +628,17 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
           <div>
             {/* Barre filtre + export */}
             <div style={{ display: 'flex', gap: 10, marginBottom: 16, alignItems: 'center' }}>
-              <input
-                type="text"
-                placeholder="Filtrer par filature..."
-                value={royaltyFiltre}
-                onChange={e => setRoyaltyFiltre(e.target.value)}
-                style={{ padding: '8px 12px', borderRadius: 6, border: '1.5px solid #d4c5b0', fontSize: 12, width: 200, outline: 'none' }}
-              />
+              <select
+  value={royaltyFiltre}
+  onChange={e => setRoyaltyFiltre(e.target.value)}
+  style={{ padding: '8px 12px', borderRadius: 6, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none', minWidth: 200 }}
+>
+  <option value="">Toutes</option>
+  {Array.from(new Set(royalties.map(r => r.filature?.nom).filter(Boolean)))
+    .sort()
+    .map(nom => <option key={nom} value={nom}>{nom}</option>)
+  }
+</select>
               <input
                 type="date"
                 value={royaltyDateDebut}
