@@ -386,7 +386,25 @@ export default function FacturationClient({ factures: initial, commandes, entrep
   const [filterSociete, setFilterSociete] = useState('')
   const societesUniques = Array.from(new Set(factures.map(f => f.destinataire?.nom).filter(Boolean))) as string[]
   const [loading, setLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState<'factures' | 'accords'>('factures')
+  const [activeTab, setActiveTab] = useState<'factures' | 'accords' | 'royalties'>('factures')
+  const [royalties, setRoyalties] = useState<any[]>([])
+  const [royaltiesLoaded, setRoyaltiesLoaded] = useState(false)
+  const isFilature = profil.role === 'filature'
+
+  const chargerRoyalties = async () => {
+    if (royaltiesLoaded) return
+    const { data } = await supabase
+      .from('royalties_filatures')
+      .select(`
+        *,
+        marque:entreprises!royalties_filatures_marque_id_fkey(nom),
+        facture:factures(reference)
+      `)
+      .eq('filature_id', profil.entreprise_id)
+      .order('created_at', { ascending: false })
+    setRoyalties(data ?? [])
+    setRoyaltiesLoaded(true)
+  }
   const [accords, setAccords] = useState<AccordCommercial[]>(accordsInitial)
   const [showAccordForm, setShowAccordForm] = useState(false)
   const [pdfLoading, setPdfLoading] = useState(false)   
@@ -621,6 +639,13 @@ export default function FacturationClient({ factures: initial, commandes, entrep
               color: activeTab === 'accords' ? '#fff' : '#1a1a1a', fontSize: 12, fontWeight: 700, cursor: 'pointer'
             }}>Accords commerciaux</button>
           )}
+          {isFilature && (
+            <button onClick={() => { setActiveTab(activeTab === 'royalties' ? 'factures' : 'royalties'); chargerRoyalties() }} style={{
+              padding: '7px 14px', borderRadius: 8, border: '1.5px solid #2d5016',
+              background: activeTab === 'royalties' ? '#2d5016' : '#fff',
+              color: activeTab === 'royalties' ? '#fff' : '#2d5016', fontSize: 12, fontWeight: 700, cursor: 'pointer'
+            }}>Mes royalties</button>
+          )}
           <button onClick={() => setShowForm(true)} style={{
             padding: '7px 14px', borderRadius: 8, border: 'none',
             background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer'
@@ -731,6 +756,99 @@ export default function FacturationClient({ factures: initial, commandes, entrep
                   Enregistrer l'accord
                 </button>
               </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Onglet Mes royalties - filature uniquement */}
+      {activeTab === 'royalties' && isFilature && (
+        <div style={{ flex: 1, overflow: 'auto', padding: '16px 22px' }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a', marginBottom: 16 }}>Mes royalties ETHYS</div>
+          {royalties.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '60px 0', color: '#8b7355' }}>
+              <div style={{ fontSize: 14, fontWeight: 600 }}>Aucune royalty enregistrée</div>
+              <div style={{ fontSize: 12, marginTop: 4 }}>Les royalties apparaissent automatiquement à l'encaissement des factures marque.</div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {/* Cumul total */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 8 }}>
+                {[
+                  { label: 'Total royalties dues', value: royalties.reduce((s, r) => s + Number(r.montant_royalty), 0), color: '#2d5016', bg: '#f0f4ec' },
+                  { label: 'Déjà versées', value: royalties.filter(r => r.statut === 'payé').reduce((s, r) => s + Number(r.montant_total_du), 0), color: '#1E40AF', bg: '#DBEAFE' },
+                  { label: 'En attente de versement', value: royalties.filter(r => r.statut !== 'payé').reduce((s, r) => s + Number(r.montant_total_du), 0), color: '#b8860b', bg: '#fdf8ec' },
+                ].map((k, i) => (
+                  <div key={i} style={{ background: k.bg, borderRadius: 6, border: '1px solid #e8e3d8', padding: '14px 18px' }}>
+                    <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 4 }}>{k.label}</div>
+                    <div style={{ fontSize: 18, fontWeight: 800, color: k.color }}>{Number(k.value).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</div>
+                  </div>
+                ))}
+              </div>
+              {/* Liste des relevés */}
+              {royalties.map((r, i) => {
+                const statutColors: Record<string, [string, string]> = {
+                  'en_attente': ['#fdf8ec', '#b8860b'],
+                  'validé':     ['#DBEAFE', '#1E40AF'],
+                  'contesté':   ['#FEE2E2', '#991B1B'],
+                  'payé':       ['#f0f4ec', '#2d5016'],
+                }
+                const [sbg, stc] = statutColors[r.statut] ?? ['#f5f3ef', '#4a5568']
+                const enRetard = r.date_echeance && new Date(r.date_echeance) < new Date() && r.statut !== 'payé'
+                const peutContester = r.date_limite_contestation && new Date(r.date_limite_contestation) >= new Date() && r.statut === 'en_attente'
+                return (
+                  <div key={i} style={{ background: '#fff', borderRadius: 8, border: `1.5px solid ${enRetard ? '#EF4444' : '#e8e3d8'}`, padding: '14px 18px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr auto', gap: 12, alignItems: 'center' }}>
+                      <div>
+                        <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 2 }}>Marque · Facture</div>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>{r.marque?.nom ?? '-'}</div>
+                        <div style={{ fontSize: 11, color: '#8b7355' }}>{r.facture?.reference ?? '-'} · {r.date_facture ? new Date(r.date_facture).toLocaleDateString('fr-FR') : '-'}</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 2 }}>HT facture</div>
+                        <div style={{ fontSize: 12, fontWeight: 600 }}>{Number(r.montant_ht_facture).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 2 }}>Royalty 1%</div>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: '#2d5016' }}>{Number(r.montant_royalty).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 2 }}>Total dû</div>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: enRetard ? '#991B1B' : '#1a1a1a' }}>{Number(r.montant_total_du).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 2 }}>Échéance</div>
+                        <div style={{ fontSize: 11, color: enRetard ? '#991B1B' : '#4a5568', fontWeight: enRetard ? 700 : 400 }}>
+                          {r.date_echeance ? new Date(r.date_echeance).toLocaleDateString('fr-FR') : '-'}
+                          {enRetard && ' ⚠'}
+                        </div>
+                      </div>
+                      <span style={{ padding: '3px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: sbg, color: stc }}>{r.statut}</span>
+                    </div>
+                    {peutContester && (
+                      <div style={{ marginTop: 10, padding: '8px 12px', borderRadius: 6, background: '#fdf8ec', border: '1px solid #b8860b', fontSize: 11, color: '#b8860b', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span>Vous pouvez contester ce relevé jusqu'au {new Date(r.date_limite_contestation).toLocaleDateString('fr-FR')}</span>
+                        <button
+                          onClick={async () => {
+                            const motif = window.prompt('Motif de la contestation :')
+                            if (!motif) return
+                            await supabase.from('contestations_royalties').insert({
+                              royalty_id: r.id,
+                              filature_id: profil.entreprise_id,
+                              motif,
+                            })
+                            await supabase.from('royalties_filatures').update({ statut: 'contesté' }).eq('id', r.id)
+                            setRoyalties(prev => prev.map(x => x.id === r.id ? { ...x, statut: 'contesté' } : x))
+                          }}
+                          style={{ padding: '4px 10px', borderRadius: 4, border: 'none', background: '#b8860b', color: '#fff', fontSize: 10, fontWeight: 700, cursor: 'pointer' }}
+                        >
+                          Contester
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
             </div>
           )}
         </div>
