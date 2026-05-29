@@ -634,9 +634,10 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
   style={{ padding: '8px 12px', borderRadius: 6, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none', minWidth: 200 }}
 >
   <option value="">Toutes</option>
-  {Array.from(new Set(royalties.map(r => r.filature?.nom).filter(Boolean)))
-    .sort()
-    .map(nom => <option key={nom} value={nom}>{nom}</option>)
+  {entreprises
+    .filter(e => e.type === 'filature')
+    .sort((a, b) => a.nom.localeCompare(b.nom))
+    .map(e => <option key={e.id} value={e.nom}>{e.nom}</option>)
   }
 </select>
               <input
