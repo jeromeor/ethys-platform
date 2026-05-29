@@ -624,7 +624,11 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
           </div>
         )}
 
-<input
+        {activeTab === 'Royalties filatures' && (
+          <div>
+            {/* Barre filtre + export */}
+            <div style={{ display: 'flex', gap: 10, marginBottom: 16, alignItems: 'center' }}>
+              <input
                 type="text"
                 placeholder="Filtrer par filature..."
                 value={royaltyFiltre}
