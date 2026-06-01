@@ -23,6 +23,11 @@ export default function LoginPage() {
       setLoading(false)
       return
     }
+    // Mise à jour de la dernière connexion
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      await supabase.from('profils_utilisateurs').update({ derniere_connexion: new Date().toISOString() }).eq('id', user.id)
+    }
     router.push('/dashboard')
     router.refresh()
   }
