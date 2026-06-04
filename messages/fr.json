@@ -17,5 +17,23 @@
     "noAccount": "Pas encore de compte ?",
     "createAccount": "Créer un compte",
     "legal": "Mentions légales & RGPD"
+  },
+  "Nav": {
+    "Dashboard": "Dashboard",
+    "Profil": "Profil",
+    "Annuaire": "Annuaire",
+    "Support": "Support",
+    "Commandes": "Commandes",
+    "Production": "Production",
+    "QR Code": "QR Code",
+    "Facturation": "Facturation",
+    "Reporting": "Reporting",
+    "ESG": "ESG",
+    "Certification": "Certification",
+    "Admin": "Admin",
+    "Entreprises": "Entreprises",
+    "legal": "Mentions légales",
+    "myProfile": "Mon profil",
+    "logout": "Déconnexion"
   }
 }
