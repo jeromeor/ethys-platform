@@ -35,5 +35,31 @@
     "legal": "Mentions légales",
     "myProfile": "Mon profil",
     "logout": "Déconnexion"
+  },
+  "Register": {
+    "title": "Créer un compte",
+    "subtitle": "Rejoignez la plateforme ETHYS",
+    "emailLabel": "Email professionnel",
+    "emailPlaceholder": "vous@entreprise.fr",
+    "passwordLabel": "Mot de passe",
+    "passwordPlaceholder": "8 caractères minimum",
+    "confirmLabel": "Confirmer le mot de passe",
+    "confirmPlaceholder": "Répétez le mot de passe",
+    "mismatch": "Les mots de passe ne correspondent pas.",
+    "match": "Les mots de passe correspondent.",
+    "roleLabel": "Votre rôle",
+    "role_marque": "Marque",
+    "role_marque_desc": "Donneur d'ordre, commande du fil",
+    "role_filature": "Filature",
+    "role_filature_desc": "Transforme le coton en fil",
+    "role_fournisseur_coton": "Fournisseur coton",
+    "role_fournisseur_coton_desc": "Fournit le coton recyclé",
+    "consent": "J'ai lu et j'accepte la <link>politique de confidentialité</link> et le traitement de mes données personnelles par TEXTILE LOOP conformément au RGPD.",
+    "errorConsent": "Vous devez accepter la politique de confidentialité pour créer un compte.",
+    "creating": "Création...",
+    "submit": "Créer mon compte",
+    "hasAccount": "Déjà un compte ?",
+    "signIn": "Se connecter",
+    "legal": "Mentions légales & RGPD"
   }
 }
