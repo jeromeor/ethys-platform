@@ -7,7 +7,7 @@
     "platform": "Platform",
     "title": "Sign in",
     "subtitle": "Access your ETHYS workspace",
-    "emailLabel": "Work email",
+    "emailLabel": "Email address",
     "emailPlaceholder": "you@company.com",
     "passwordLabel": "Password",
     "forgotPassword": "Forgot password?",
