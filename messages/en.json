@@ -35,5 +35,31 @@
     "legal": "Legal notice",
     "myProfile": "My profile",
     "logout": "Log out"
+  },
+  "Register": {
+    "title": "Create an account",
+    "subtitle": "Join the ETHYS platform",
+    "emailLabel": "Email address",
+    "emailPlaceholder": "you@company.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "8 characters minimum",
+    "confirmLabel": "Confirm password",
+    "confirmPlaceholder": "Repeat password",
+    "mismatch": "Passwords do not match.",
+    "match": "Passwords match.",
+    "roleLabel": "Your role",
+    "role_marque": "Brand",
+    "role_marque_desc": "Client, orders yarn",
+    "role_filature": "Spinning mill",
+    "role_filature_desc": "Turns cotton into yarn",
+    "role_fournisseur_coton": "Cotton supplier",
+    "role_fournisseur_coton_desc": "Supplies recycled cotton",
+    "consent": "I have read and accept the <link>privacy policy</link> and the processing of my personal data by TEXTILE LOOP in accordance with the GDPR.",
+    "errorConsent": "You must accept the privacy policy to create an account.",
+    "creating": "Creating...",
+    "submit": "Create my account",
+    "hasAccount": "Already have an account?",
+    "signIn": "Sign in",
+    "legal": "Legal notice & GDPR"
   }
 }
