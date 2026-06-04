@@ -17,5 +17,23 @@
     "noAccount": "No account yet?",
     "createAccount": "Create an account",
     "legal": "Legal notice & GDPR"
+  },
+  "Nav": {
+    "Dashboard": "Dashboard",
+    "Profil": "Profile",
+    "Annuaire": "Directory",
+    "Support": "Support",
+    "Commandes": "Orders",
+    "Production": "Production",
+    "QR Code": "QR Code",
+    "Facturation": "Invoicing",
+    "Reporting": "Reporting",
+    "ESG": "ESG",
+    "Certification": "Certification",
+    "Admin": "Admin",
+    "Entreprises": "Companies",
+    "legal": "Legal notice",
+    "myProfile": "My profile",
+    "logout": "Log out"
   }
 }
