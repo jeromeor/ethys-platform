@@ -1,5 +1,21 @@
 {
   "Login": {
-    "title": "Connexion"
+    "heroTitle1": "La traçabilité textile",
+    "heroTitle2": "au service de l'éthique",
+    "heroSubtitle": "Plateforme de certification ETHYS par TEXTILE LOOP",
+    "beta": "Version Beta — Mai 2026",
+    "platform": "Platform",
+    "title": "Connexion",
+    "subtitle": "Accédez à votre espace ETHYS",
+    "emailLabel": "Email professionnel",
+    "emailPlaceholder": "vous@entreprise.fr",
+    "passwordLabel": "Mot de passe",
+    "forgotPassword": "Mot de passe oublié ?",
+    "errorInvalid": "Email ou mot de passe incorrect. Vérifiez votre saisie.",
+    "submit": "Se connecter",
+    "submitting": "Connexion...",
+    "noAccount": "Pas encore de compte ?",
+    "createAccount": "Créer un compte",
+    "legal": "Mentions légales & RGPD"
   }
 }
