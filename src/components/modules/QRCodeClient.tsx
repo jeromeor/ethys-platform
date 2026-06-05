@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import QRCode from 'qrcode'
+import { useTranslations, useLocale } from 'next-intl'
 
 interface QRCodeData {
   id: string
@@ -81,6 +82,11 @@ function CertQRImage({ url }: { url: string }) {
 
 export default function QRCodeClient({ lots: initial, user, profil, certifications, certificationIdActif, lotIdActif, demandesQrEnAttente, marques }: Props) {
   const supabase = createClient()
+  const t = useTranslations('qrcode')
+  const locale = useLocale()
+  const certTypeLabel = (tp: string | null | undefined) =>
+    tp === 'fil' ? t('certType.fil') : tp === 'tissu' ? t('certType.tissu') : t('certType.produitFini')
+  const cotonLabel = (tc: string) => tc === 'recycle' ? t('coton.recycle') : t('coton.vierge')
   const [lots, setLots] = useState<Lot[]>(initial)
  const [selected, setSelected] = useState<Lot | null>(
   certificationIdActif ? null : (lotIdActif ? initial.find(l => l.id === lotIdActif) : null) ?? initial[0] ?? null
@@ -104,6 +110,7 @@ export default function QRCodeClient({ lots: initial, user, profil, certificatio
   const [transfertNouvelleMarque, setTransfertNouvelleMarque] = useState(false)
   const [transfertSaving, setTransfertSaving] = useState(false)
   const [transfertMessage, setTransfertMessage] = useState('')
+  const [transfertMessageType, setTransfertMessageType] = useState<'error' | 'ok' | ''>('')
 
   // Filtre demandes uniquement (actif si arrivée via notif)
   const [filtreDemandesOnly, setFiltreDemandesOnly] = useState(!!lotIdActif)
@@ -254,7 +261,7 @@ export default function QRCodeClient({ lots: initial, user, profil, certificatio
         return (
           <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 8 }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: '#b8860b', background: '#fdf8ec', borderRadius: 6, padding: '10px 12px', textAlign: 'center' }}>
-              Demande de génération en attente
+              {t('btn.demandeEnAttente')}
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
               <button
@@ -262,14 +269,14 @@ export default function QRCodeClient({ lots: initial, user, profil, certificatio
                 disabled={loadingDemande}
                 style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#fff', color: '#4a5568', fontSize: 12, fontWeight: 700, cursor: loadingDemande ? 'default' : 'pointer', opacity: loadingDemande ? 0.6 : 1 }}
               >
-                Refuser la demande
+                {t('btn.refuserDemande')}
               </button>
               <button
                 onClick={() => genererQR(demandeEnAttente.id)}
                 disabled={generating || loadingDemande}
                 style={{ flex: 1, padding: '10px', borderRadius: 4, border: 'none', background: generating ? '#d4c5b0' : '#1a1a1a', color: generating ? '#8b7355' : '#fff', fontSize: 12, fontWeight: 700, cursor: generating ? 'default' : 'pointer' }}
               >
-                {generating ? 'Génération...' : 'Générer le QR Code'}
+                {generating ? t('btn.generation') : t('btn.genererQR')}
               </button>
             </div>
           </div>
@@ -281,7 +288,7 @@ export default function QRCodeClient({ lots: initial, user, profil, certificatio
           disabled={generating}
           style={{ width: '100%', padding: '11px', borderRadius: 4, border: 'none', background: generating ? '#d4c5b0' : '#1a1a1a', color: generating ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: generating ? 'default' : 'pointer' }}
         >
-          {generating ? 'Génération...' : 'Générer le QR Code ETHYS'}
+          {generating ? t('btn.generation') : t('btn.genererQREthys')}
         </button>
       )
     }
@@ -289,7 +296,7 @@ export default function QRCodeClient({ lots: initial, user, profil, certificatio
     if (demandeEnAttente) {
       return (
         <div style={{ fontSize: 11, color: '#b8860b', background: '#fdf8ec', borderRadius: 6, padding: '10px 12px', textAlign: 'center', width: '100%' }}>
-          Demande envoyée<br />en attente de validation Textile Loop
+          {t('btn.demandeEnvoyee1')}<br />{t('btn.demandeEnvoyee2')}
         </div>
       )
     }
@@ -303,7 +310,7 @@ return (
   <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 8 }}>
     {!lotTermine && (
       <div style={{ fontSize: 11, color: '#8b7355', background: '#f5f3ef', borderRadius: 6, padding: '10px 12px', textAlign: 'center' }}>
-        Le lot doit être à 100% pour demander un QR Code
+        {t('btn.lot100')}
       </div>
     )}
     <button
@@ -317,7 +324,7 @@ return (
         cursor: (loadingDemande || !lotTermine) ? 'default' : 'pointer'
       }}
     >
-      {loadingDemande ? 'Envoi...' : 'Demander la génération QR'}
+      {loadingDemande ? t('btn.envoi') : t('btn.demanderGeneration')}
     </button>
   </div>
 )
@@ -336,16 +343,16 @@ return (
         <div style={{ padding: '10px 16px', borderBottom: '1px solid #f5f3ef' }}>
           <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
             <button onClick={() => setSource('lots')} style={{ flex: 1, padding: '6px', borderRadius: 8, border: 'none', cursor: 'pointer', background: source === 'lots' ? '#1a1a1a' : '#f5f3ef', color: source === 'lots' ? '#fff' : '#4a5568', fontSize: 11, fontWeight: 700 }}>
-              Lots
+              {t('tabs.lots')}
             </button>
             <button onClick={() => setSource('certs')} style={{ flex: 1, padding: '6px', borderRadius: 8, border: 'none', cursor: 'pointer', background: source === 'certs' ? '#1a1a1a' : '#f5f3ef', color: source === 'certs' ? '#fff' : '#4a5568', fontSize: 11, fontWeight: 700 }}>
-              Certifications
+              {t('tabs.certifications')}
             </button>
           </div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 2 }}>{source === 'lots' ? 'Lots de production' : 'Certifications ETHYS'}</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 2 }}>{source === 'lots' ? t('lotsProduction') : t('certificationsEthys')}</div>
           <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 8 }}>
-            <span style={{ fontWeight: 700, color: '#1a1a1a' }}>{source === 'lots' ? lots.filter(l => l.qr_codes?.length > 0).length : certifications.filter(c => c.qr_codes?.length > 0).length}</span>{' QR generés · '}
-            <span style={{ fontWeight: 700, color: '#D97706' }}>{source === 'lots' ? lots.filter(l => !l.qr_codes?.length).length : certifications.filter(c => !c.qr_codes?.length).length}</span>{' en attente'}
+            <span style={{ fontWeight: 700, color: '#1a1a1a' }}>{source === 'lots' ? lots.filter(l => l.qr_codes?.length > 0).length : certifications.filter(c => c.qr_codes?.length > 0).length}</span>{' ' + t('suffix.qrGeneres') + ' · '}
+            <span style={{ fontWeight: 700, color: '#D97706' }}>{source === 'lots' ? lots.filter(l => !l.qr_codes?.length).length : certifications.filter(c => !c.qr_codes?.length).length}</span>{' ' + t('suffix.enAttente')}
           </div>
           {source === 'lots' && isAdmin && (
             <button
@@ -357,7 +364,7 @@ return (
                 fontSize: 11, fontWeight: 700
               }}
             >
-              {filtreDemandesOnly ? '▣ Demandes QR uniquement' : '▣ Voir demandes QR'}
+              {filtreDemandesOnly ? t('filtreDemandesOn') : t('filtreDemandesOff')}
             </button>
           )}
         </div>
@@ -366,7 +373,7 @@ return (
           {source === 'certs' && (
             <>
               {certifications.length === 0 ? (
-                <div style={{ padding: '40px 16px', textAlign: 'center', color: '#8b7355', fontSize: 12 }}>Aucune certification disponible.</div>
+                <div style={{ padding: '40px 16px', textAlign: 'center', color: '#8b7355', fontSize: 12 }}>{t('aucuneCertif')}</div>
               ) : certifications.map(cert => {
                 const hasQR = cert.qr_codes?.length > 0
                 const isActive = selectedCert?.id === cert.id
@@ -375,10 +382,10 @@ return (
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                       <span style={{ fontSize: 12, fontWeight: 800, color: '#1a1a1a' }}>{cert.numero}</span>
                       <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 4, background: hasQR ? '#f0f4ec' : '#fdf8ec', color: hasQR ? '#2d5016' : '#b8860b' }}>
-                        {hasQR ? 'QR actif' : 'Sans QR'}
+                        {hasQR ? t('badge.qrActif') : t('badge.sansQR')}
                       </span>
                     </div>
-                    <div style={{ fontSize: 11, color: '#4a5568' }}>{cert.declaration?.type_produit === 'fil' ? 'Fil ETHYS' : cert.declaration?.type_produit === 'tissu' ? 'Tissu ETHYS' : 'Produit fini ETHYS'}</div>
+                    <div style={{ fontSize: 11, color: '#4a5568' }}>{certTypeLabel(cert.declaration?.type_produit)}</div>
                     <div style={{ fontSize: 11, color: '#8b7355', marginTop: 2 }}>{cert.declaration?.entreprise?.nom}</div>
                   </div>
                 )
@@ -388,7 +395,7 @@ return (
 
           {source === 'lots' && lotsFiltres.length === 0 && (
             <div style={{ padding: '40px 16px', textAlign: 'center', color: '#8b7355', fontSize: 12 }}>
-              {filtreDemandesOnly ? 'Aucune demande QR en attente.' : 'Aucun lot disponible.'}
+              {filtreDemandesOnly ? t('aucuneDemande') : t('aucunLot')}
             </div>
           )}
           {source === 'lots' && lotsFiltres.map(lot => {
@@ -400,12 +407,12 @@ return (
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                   <span style={{ fontSize: 12, fontWeight: 800, color: '#1a1a1a' }}>{lot.reference}</span>
                   <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 4, background: hasQR ? '#f0f4ec' : hasDemande ? '#fef3c7' : '#fdf8ec', color: hasQR ? '#2d5016' : hasDemande ? '#b8860b' : '#b8860b' }}>
-                    {hasQR ? 'QR actif' : hasDemande ? 'Demande QR' : 'En attente'}
+                    {hasQR ? t('badge.qrActif') : hasDemande ? t('badge.demandeQR') : t('badge.enAttente')}
                   </span>
                 </div>
                 <div style={{ fontSize: 11, color: '#4a5568', marginBottom: 2 }}>{lot.commande?.reference} · {lot.commande?.marque?.nom}</div>
-                <div style={{ fontSize: 11, color: '#8b7355' }}>{Math.round((lot.volume_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg · {lot.type_coton === 'recycle' ? 'Recycle' : 'Vierge'}</div>
-                {hasQR && <div style={{ fontSize: 10, color: '#8b7355', marginTop: 4 }}>{lot.qr_codes[0].nb_scans} scan(s)</div>}
+                <div style={{ fontSize: 11, color: '#8b7355' }}>{Math.round((lot.volume_tonnes ?? 0) * 1000).toLocaleString(locale)} kg · {cotonLabel(lot.type_coton)}</div>
+                {hasQR && <div style={{ fontSize: 10, color: '#8b7355', marginTop: 4 }}>{lot.qr_codes[0].nb_scans} {t('scans')}</div>}
               </div>
             )
           })}
@@ -419,18 +426,18 @@ return (
 
             {/* Infos lot */}
             <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '22px 24px' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 16 }}>Informations du lot</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 16 }}>{t('infosLot')}</div>
               {[
-                ['Reference lot', selected.reference],
-                ['Commande', selected.commande?.reference ?? '-'],
-                ['Marque', selected.commande?.marque?.nom ?? '-'],
-                ['Filature', selected.commande?.filature?.nom ?? '-'],
-                ['Fournisseur', selected.commande?.fournisseur?.nom ?? '-'],
-                ['Type coton', selected.type_coton === 'recycle' ? 'Recycle' : 'Vierge'],
-                ['Volume', Math.round((selected.volume_tonnes ?? 0) * 1000).toLocaleString('fr-FR') + ' kg'],
-                ['Origine', selected.origine ?? '-'],
-                ['Certification fil', 'ETHYS'],
-                ['Avancement', selected.avancement_pct + '%'],
+                [t('lotInfo.refLot'), selected.reference],
+                [t('lotInfo.commande'), selected.commande?.reference ?? '-'],
+                [t('labels.marque'), selected.commande?.marque?.nom ?? '-'],
+                [t('labels.filature'), selected.commande?.filature?.nom ?? '-'],
+                [t('lotInfo.fournisseur'), selected.commande?.fournisseur?.nom ?? '-'],
+                [t('lotInfo.typeCoton'), cotonLabel(selected.type_coton)],
+                [t('labels.volume'), Math.round((selected.volume_tonnes ?? 0) * 1000).toLocaleString(locale) + ' kg'],
+                [t('lotInfo.origine'), selected.origine ?? '-'],
+                [t('lotInfo.certifFil'), 'ETHYS'],
+                [t('lotInfo.avancement'), selected.avancement_pct + '%'],
               ].map(([l, v]) => (
                 <div key={l} style={{ display: 'flex', gap: 12, marginBottom: 10 }}>
                   <span style={{ fontSize: 12, color: '#8b7355', width: 120, flexShrink: 0 }}>{l}</span>
@@ -442,14 +449,14 @@ return (
             {/* QR Code */}
             <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '22px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 16, alignSelf: 'flex-start' }}>
-                {qrActif ? 'QR Code actif' : 'QR Code ETHYS'}
+                {qrActif ? t('qrActifTitre') : t('qrEthysTitre')}
               </div>
 
               {/* Image QR */}
               <div style={{ padding: 16, borderRadius: 8, marginBottom: 12, border: '2px solid ' + (qrActif ? '#f0f4ec' : '#e8e3d8'), background: qrActif ? '#fff' : '#f5f3ef', position: 'relative' }}>
                 {generating ? (
                   <div style={{ width: 180, height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <div style={{ fontSize: 12, color: '#8b7355' }}>Génération...</div>
+                    <div style={{ fontSize: 12, color: '#8b7355' }}>{t('btn.generation')}</div>
                   </div>
                 ) : qrDataUrl ? (
                   <img src={qrDataUrl} alt="QR Code ETHYS" style={{ width: 180, height: 180, display: 'block' }} />
@@ -474,13 +481,13 @@ return (
 
               {/* Donnees encodees 2x2 */}
               <div style={{ width: '100%', marginBottom: 14 }}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: '#8b7355', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>{"Données encodées"}</div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: '#8b7355', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('donneesEncodees')}</div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
                   {[
-                    ['Origine', selected.origine ?? '-'],
-                    ['Filature', selected.commande?.filature?.nom ?? '-'],
-                    ['Type coton', selected.type_coton === 'recycle' ? 'Recycle' : 'Vierge'],
-                    ['Certification', 'ETHYS'],
+                    [t('lotInfo.origine'), selected.origine ?? '-'],
+                    [t('labels.filature'), selected.commande?.filature?.nom ?? '-'],
+                    [t('lotInfo.typeCoton'), cotonLabel(selected.type_coton)],
+                    [t('encoded.certification'), 'ETHYS'],
                   ].map(([label, val]) => (
                     <div key={label} style={{ padding: '8px 10px', borderRadius: 8, background: '#f5f3ef' }}>
                       <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 2 }}>{label}</div>
@@ -504,18 +511,18 @@ return (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%' }}>
                   <div style={{ display: 'flex', gap: 8 }}>
                     <button onClick={() => window.open(qrActif.url_publique, '_blank')} style={{ flex: 1, padding: '10px', borderRadius: 4, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
-                      {"Voir page publique"}
+                      {t('voirPagePublique')}
                     </button>
                     <button onClick={() => setPreviewPublic(true)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #1a1a1a', background: '#fff', color: '#1a1a1a', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
-                      {"Aperçu"}
+                      {t('apercu')}
                     </button>
                   </div>
                   <div style={{ display: 'flex', gap: 8 }}>
                     <button onClick={telechargerQR} style={{ flex: 1, padding: '8px', borderRadius: 8, border: '1.5px solid #e8e3d8', background: '#f5f3ef', fontSize: 12, cursor: 'pointer', color: '#4a5568' }}>
-                      {"Télécharger"}
+                      {t('telecharger')}
                     </button>
                     <button onClick={copierURL} style={{ flex: 1, padding: '8px', borderRadius: 8, border: '1.5px solid #e8e3d8', background: urlCopied ? '#f0f4ec' : '#f5f3ef', fontSize: 12, cursor: 'pointer', color: urlCopied ? '#2d5016' : '#4a5568', fontWeight: urlCopied ? 700 : 400 }}>
-                      {urlCopied ? 'URL copiee !' : 'Copier URL'}
+                      {urlCopied ? t('urlCopiee') : t('copierURL')}
                     </button>
                   </div>
                 </div>
@@ -530,7 +537,7 @@ return (
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8b7355' }}>
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: 40, marginBottom: 12 }}>▣</div>
-            <div style={{ fontSize: 14, fontWeight: 600 }}>Selectionnez un lot</div>
+            <div style={{ fontSize: 14, fontWeight: 600 }}>{t('selectionnezLot')}</div>
           </div>
         </div>
       )}
@@ -542,9 +549,9 @@ return (
             <div style={{ background: 'linear-gradient(135deg,#1a1a1a,#2a2a2a)', borderRadius: '12px 12px 0 0', padding: '16px', color: '#fff' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
                 <div>
-                  <div style={{ fontSize: 10, color: '#c2956e', fontWeight: 600, letterSpacing: 1, marginBottom: 4 }}>ETHYS · Tracabilite TOTALE</div>
-                  <div style={{ fontSize: 20, fontWeight: 900 }}>Votre fil ETHYS</div>
-                  <div style={{ fontSize: 11, opacity: 0.7 }}>{'Lot #' + selected.reference}</div>
+                  <div style={{ fontSize: 10, color: '#c2956e', fontWeight: 600, letterSpacing: 1, marginBottom: 4 }}>{t('public.tracabilite')}</div>
+                  <div style={{ fontSize: 20, fontWeight: 900 }}>{t('public.votreFil')}</div>
+                  <div style={{ fontSize: 11, opacity: 0.7 }}>{t('public.lot') + ' #' + selected.reference}</div>
                 </div>
                 <button onClick={() => setPreviewPublic(false)} style={{ border: 'none', background: 'rgba(255,255,255,0.15)', color: '#fff', borderRadius: 8, width: 28, height: 28, cursor: 'pointer', fontSize: 14 }}>x</button>
               </div>
@@ -558,15 +565,15 @@ return (
               )}
 
               <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 6, padding: '14px', marginBottom: 12 }}>
-                <div style={{ fontSize: 10, color: '#c2956e', fontWeight: 600, marginBottom: 10, letterSpacing: 1 }}>MATIERES PREMIERES</div>
+                <div style={{ fontSize: 10, color: '#c2956e', fontWeight: 600, marginBottom: 10, letterSpacing: 1 }}>{t('public.matieres')}</div>
                 <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
                   <div style={{ flex: 51, background: '#8b7355', borderRadius: 6, padding: '10px 8px', textAlign: 'center' }}>
                     <div style={{ fontSize: 20, fontWeight: 900, color: '#fff' }}>51%</div>
-                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>Coton recycle</div>
+                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>{t('public.cotonRecycle')}</div>
                   </div>
                   <div style={{ flex: 49, background: 'rgba(255,255,255,0.15)', borderRadius: 6, padding: '10px 8px', textAlign: 'center' }}>
                     <div style={{ fontSize: 20, fontWeight: 900, color: '#fff' }}>49%</div>
-                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>Coton vierge</div>
+                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>{t('public.cotonVierge')}</div>
                   </div>
                 </div>
                 <div style={{ height: 6, background: 'rgba(255,255,255,0.15)', borderRadius: 3, overflow: 'hidden' }}>
@@ -575,36 +582,36 @@ return (
               </div>
 
               <div style={{ background: 'rgba(110,231,183,0.2)', borderRadius: 4, padding: '12px 14px', border: '1px solid rgba(110,231,183,0.4)', textAlign: 'center' }}>
-                <div style={{ fontSize: 14, fontWeight: 900, color: '#c2956e', marginBottom: 4 }}>Fil certifie ETHYS</div>
+                <div style={{ fontSize: 14, fontWeight: 900, color: '#c2956e', marginBottom: 4 }}>{t('public.filCertifie')}</div>
                 <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
-                  {'Ce fil certifie ETHYS est le resultat de la transformation de coton recycle (51%) et de coton vierge (49%). Il a ete realise par ' + (selected.commande?.filature?.nom ?? 'la filature') + '.'}
+                  {t('public.description', { filature: selected.commande?.filature?.nom ?? t('public.laFilature') })}
                 </div>
               </div>
             </div>
 
             <div style={{ padding: '20px' }}>
               {[
-                ['Origine matiere', selected.origine ?? 'Non renseigne'],
-                ['Filature', selected.commande?.filature?.nom ?? '-'],
-                ['Certification fil', 'ETHYS'],
-                ['Fournisseur coton', selected.commande?.fournisseur?.nom ?? '-'],
-              ].map(([label, val]) => (
-                <div key={label} style={{ display: 'flex', gap: 12, alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #f5f3ef' }}>
-                  <div style={{ width: 32, height: 32, borderRadius: 8, background: label === 'Certification fil' ? '#f0f4ec' : '#F0FDF4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>
-                    {label === 'Certification fil' ? 'E' : label === 'Filature' ? 'F' : label === 'Origine matiere' ? 'O' : 'C'}
+                ['origine', t('public.origineMatiere'), selected.origine ?? t('public.nonRenseigne')],
+                ['filature', t('labels.filature'), selected.commande?.filature?.nom ?? '-'],
+                ['certif', t('public.certifFil'), 'ETHYS'],
+                ['fournisseur', t('public.fournisseurCoton'), selected.commande?.fournisseur?.nom ?? '-'],
+              ].map(([key, label, val]) => (
+                <div key={key} style={{ display: 'flex', gap: 12, alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #f5f3ef' }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 8, background: key === 'certif' ? '#f0f4ec' : '#F0FDF4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>
+                    {key === 'certif' ? 'E' : key === 'filature' ? 'F' : key === 'origine' ? 'O' : 'C'}
                   </div>
                   <div>
                     <div style={{ fontSize: 12, fontWeight: 700 }}>{label}</div>
-                    <div style={{ fontSize: 11, color: label === 'Certification fil' ? '#2d5016' : '#4a5568', fontWeight: label === 'Certification fil' ? 700 : 400 }}>{val}</div>
+                    <div style={{ fontSize: 11, color: key === 'certif' ? '#2d5016' : '#4a5568', fontWeight: key === 'certif' ? 700 : 400 }}>{val}</div>
                   </div>
                 </div>
               ))}
               <div style={{ marginTop: 14, padding: '10px 14px', borderRadius: 4, background: '#f5f3ef', fontSize: 10, color: '#8b7355', textAlign: 'center' }}>
-                {'Donnees verifiees et certifiees par TEXTILE LOOP'}
-                <br />{'Plateforme ETHYS · ' + qrActif.reference}
+                {t('public.donneesVerifiees')}
+                <br />{t('public.plateforme') + ' · ' + qrActif.reference}
               </div>
               <button onClick={() => window.open(qrActif.url_publique, '_blank')} style={{ width: '100%', marginTop: 12, padding: '10px', borderRadius: 4, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
-                {"Ouvrir la page publique"}
+                {t('public.ouvrirPage')}
               </button>
             </div>
           </div>
@@ -618,37 +625,37 @@ return (
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
               <div>
                 <div style={{ fontSize: 16, fontWeight: 800, color: '#1a1a1a', marginBottom: 4 }}>
-                  {selectedCert.declaration?.type_produit === 'fil' ? 'Fil ETHYS' : selectedCert.declaration?.type_produit === 'tissu' ? 'Tissu ETHYS' : 'Produit fini ETHYS'}
+                  {certTypeLabel(selectedCert.declaration?.type_produit)}
                 </div>
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#2d5016' }}>{selectedCert.numero}</div>
                 <div style={{ fontSize: 11, color: '#8b7355', marginTop: 2 }}>
-                  {'Valide jusqu\'au ' + new Date(selectedCert.date_validite).toLocaleDateString('fr-FR')}
+                  {t('valideJusqu') + ' ' + new Date(selectedCert.date_validite).toLocaleDateString(locale)}
                 </div>
               </div>
-              <span style={{ padding: '4px 12px', borderRadius: 4, fontSize: 11, fontWeight: 700, background: '#f0f4ec', color: '#2d5016' }}>Certifie</span>
+              <span style={{ padding: '4px 12px', borderRadius: 4, fontSize: 11, fontWeight: 700, background: '#f0f4ec', color: '#2d5016' }}>{t('certifie')}</span>
             </div>
 
             <div style={{ background: '#F0FDF4', borderRadius: 6, padding: '16px', marginBottom: 16 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#1a1a1a', marginBottom: 10, textTransform: 'uppercase' }}>Composition</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#1a1a1a', marginBottom: 10, textTransform: 'uppercase' }}>{t('composition')}</div>
               <div style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
                 <div style={{ flex: selectedCert.declaration?.pct_recycle ?? 51, background: '#8b7355', borderRadius: 8, padding: '10px', textAlign: 'center' }}>
                   <div style={{ fontSize: 20, fontWeight: 900, color: '#fff' }}>{selectedCert.declaration?.pct_recycle ?? 0}{'%'}</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>Recycle</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>{(selectedCert.declaration?.volume_recycle_kg ?? 0).toLocaleString('fr-FR') + ' kg'}</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>{t('coton.recycle')}</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>{(selectedCert.declaration?.volume_recycle_kg ?? 0).toLocaleString(locale) + ' kg'}</div>
                 </div>
                 <div style={{ flex: 100 - (selectedCert.declaration?.pct_recycle ?? 51), background: '#d4c5b0', borderRadius: 8, padding: '10px', textAlign: 'center' }}>
                   <div style={{ fontSize: 20, fontWeight: 900, color: '#4a5568' }}>{100 - (selectedCert.declaration?.pct_recycle ?? 0)}{'%'}</div>
-                  <div style={{ fontSize: 10, color: '#4a5568' }}>Vierge</div>
-                  <div style={{ fontSize: 11, color: '#8b7355', marginTop: 2 }}>{(selectedCert.declaration?.volume_vierge_kg ?? 0).toLocaleString('fr-FR') + ' kg'}</div>
+                  <div style={{ fontSize: 10, color: '#4a5568' }}>{t('coton.vierge')}</div>
+                  <div style={{ fontSize: 11, color: '#8b7355', marginTop: 2 }}>{(selectedCert.declaration?.volume_vierge_kg ?? 0).toLocaleString(locale) + ' kg'}</div>
                 </div>
               </div>
             </div>
 
             {[
-              ['Entreprise', selectedCert.declaration?.entreprise?.nom ?? '-'],
-              ['Filature', selectedCert.declaration?.filature_nom ?? '-'],
-              ['Pays filature', selectedCert.declaration?.filature_pays ?? '-'],
-              ['Provenance coton', selectedCert.declaration?.provenance_pays ?? '-'],
+              [t('certInfo.entreprise'), selectedCert.declaration?.entreprise?.nom ?? '-'],
+              [t('labels.filature'), selectedCert.declaration?.filature_nom ?? '-'],
+              [t('certInfo.paysFilature'), selectedCert.declaration?.filature_pays ?? '-'],
+              [t('certInfo.provenanceCoton'), selectedCert.declaration?.provenance_pays ?? '-'],
             ].map(([label, val]) => (
               <div key={label} style={{ display: 'flex', gap: 12, padding: '10px 0', borderBottom: '1px solid #f5f3ef' }}>
                 <span style={{ fontSize: 12, color: '#8b7355', width: 130, flexShrink: 0 }}>{label}</span>
@@ -662,17 +669,17 @@ return (
                   <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 14 }}>
                     <CertQRImage url={selectedCert.qr_codes[0].url_publique} />
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#2d5016', marginBottom: 4 }}>QR Code actif</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#2d5016', marginBottom: 4 }}>{t('qrCodeActif')}</div>
                       <div style={{ fontSize: 11, color: '#2d5016', marginBottom: 2 }}>{selectedCert.qr_codes[0].reference}</div>
-                      <div style={{ fontSize: 11, color: '#8b7355' }}>{selectedCert.qr_codes[0].nb_scans + ' scan(s)'}</div>
+                      <div style={{ fontSize: 11, color: '#8b7355' }}>{selectedCert.qr_codes[0].nb_scans + ' ' + t('scans')}</div>
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
                     <button onClick={() => window.open(selectedCert.qr_codes[0].url_publique, '_blank')} style={{ flex: 1, padding: '8px', borderRadius: 8, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
-                      {"Voir page publique"}
+                      {t('voirPagePublique')}
                     </button>
                     <button onClick={() => { navigator.clipboard.writeText(selectedCert.qr_codes[0].url_publique); setUrlCopied(true); setTimeout(() => setUrlCopied(false), 2000) }} style={{ flex: 1, padding: '8px', borderRadius: 8, border: '1.5px solid #1a1a1a', background: '#fff', color: '#1a1a1a', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
-                      {urlCopied ? 'Copiee !' : 'Copier URL'}
+                      {urlCopied ? t('copiee') : t('copierURL')}
                     </button>
                   </div>
                   {/* Bouton transfert marque */}
@@ -680,7 +687,7 @@ return (
                     onClick={() => { setShowTransfert(true); setTransfertMessage(''); setTransfertMarqueId(''); setTransfertMarqueEmail(''); setTransfertNouvelleMarque(false) }}
                     style={{ width: '100%', padding: '8px', borderRadius: 8, border: '1.5px solid #2d5016', background: '#f0f4ec', color: '#2d5016', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
                   >
-                    Transférer à une marque
+                    {t('transfererMarque')}
                   </button>
                 </div>
               ) : (
@@ -711,7 +718,7 @@ return (
                   }}
                   style={{ width: '100%', padding: '11px', borderRadius: 4, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
                 >
-                  Generer le QR Code consommateur
+                  {t('genererQRConso')}
                 </button>
               )}
             </div>
@@ -722,18 +729,18 @@ return (
             <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <div style={{ background: '#fff', borderRadius: 8, padding: '28px 24px', width: 440, maxWidth: '90vw' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>Transférer le QR à une marque</div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>{t('transfert.titre')}</div>
                   <button onClick={() => setShowTransfert(false)} style={{ border: 'none', background: 'none', fontSize: 18, cursor: 'pointer', color: '#8b7355' }}>×</button>
                 </div>
 
                 <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, cursor: 'pointer', fontSize: 13 }}>
                   <input type="checkbox" checked={transfertNouvelleMarque} onChange={e => setTransfertNouvelleMarque(e.target.checked)} />
-                  Marque non enregistrée sur ETHYS
+                  {t('transfert.marqueNonEnreg')}
                 </label>
 
                 {transfertNouvelleMarque ? (
                   <div style={{ marginBottom: 16 }}>
-                    <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Email de la marque *</label>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>{t('transfert.emailLabel')}</label>
                     <input
                       type="email"
                       value={transfertMarqueEmail}
@@ -741,17 +748,17 @@ return (
                       placeholder="contact@marque.com"
                       style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
                     />
-                    <div style={{ fontSize: 11, color: '#8b7355', marginTop: 6 }}>Un email d'invitation sera envoyé à cette adresse.</div>
+                    <div style={{ fontSize: 11, color: '#8b7355', marginTop: 6 }}>{t('transfert.emailInfo')}</div>
                   </div>
                 ) : (
                   <div style={{ marginBottom: 16 }}>
-                    <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Sélectionner la marque *</label>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>{t('transfert.selectLabel')}</label>
                     <select
                       value={transfertMarqueId}
                       onChange={e => setTransfertMarqueId(e.target.value)}
                       style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
                     >
-                      <option value="">Sélectionner une marque...</option>
+                      <option value="">{t('transfert.selectPlaceholder')}</option>
                       {marques.map((m: any) => (
                         <option key={m.id} value={m.id}>{m.nom}</option>
                       ))}
@@ -760,13 +767,13 @@ return (
                 )}
 
                 {transfertMessage && (
-  <div style={{ padding: '10px 14px', borderRadius: 6, background: transfertMessage.includes('Erreur') ? '#fdf0f0' : '#f0f4ec', border: '1px solid ' + (transfertMessage.includes('Erreur') ? '#c8a0a0' : '#c8d8b8'), fontSize: 12, color: transfertMessage.includes('Erreur') ? '#8b3a3a' : '#2d5016', marginBottom: 12, whiteSpace: 'pre-line' }}>
+  <div style={{ padding: '10px 14px', borderRadius: 6, background: transfertMessageType === 'error' ? '#fdf0f0' : '#f0f4ec', border: '1px solid ' + (transfertMessageType === 'error' ? '#c8a0a0' : '#c8d8b8'), fontSize: 12, color: transfertMessageType === 'error' ? '#8b3a3a' : '#2d5016', marginBottom: 12, whiteSpace: 'pre-line' }}>
     {transfertMessage}
   </div>
 )}
 
                 <div style={{ display: 'flex', gap: 10 }}>
-                  <button onClick={() => setShowTransfert(false)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#4a5568', fontSize: 13, cursor: 'pointer' }}>Annuler</button>
+                  <button onClick={() => setShowTransfert(false)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#4a5568', fontSize: 13, cursor: 'pointer' }}>{t('annuler')}</button>
                   <button
   disabled={transfertSaving || (!transfertNouvelleMarque && !transfertMarqueId) || (transfertNouvelleMarque && !transfertMarqueEmail)}
   onClick={async () => {
@@ -774,9 +781,7 @@ return (
     const marqueLabel = transfertNouvelleMarque
       ? transfertMarqueEmail
       : (marques.find((m: any) => m.id === transfertMarqueId)?.nom ?? '')
-    const confirme = window.confirm(
-      `Confirmer le transfert définitif à "${marqueLabel}" ?\n\nCe QR code ne pourra plus être transféré à une autre marque.`
-    )
+    const confirme = window.confirm(t('transfert.confirm', { marque: marqueLabel }))
     if (!confirme) return
 
     setTransfertSaving(true)
@@ -799,17 +804,17 @@ return (
     })
     const result = await res.json()
     if (result.success) {
-      setTransfertMessage(result.nouvelle_marque ? 'Email d\'invitation envoyé à la marque.' : 'QR code transféré. La marque a reçu un email.')
+      setTransfertMessageType('ok'); setTransfertMessage(result.nouvelle_marque ? t('transfert.msgInvitation') : t('transfert.msgTransfere'))
       setTransfertSaving(false)
       setTimeout(() => setShowTransfert(false), 2000)
     } else {
-      setTransfertMessage('Erreur : ' + (result.error ?? 'inconnue'))
+      setTransfertMessageType('error'); setTransfertMessage(t('transfert.erreurPrefix') + (result.error ?? t('transfert.inconnue')))
       setTransfertSaving(false)
     }
   }}
   style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: transfertSaving ? '#d4c5b0' : '#1a1a1a', color: '#fff', fontSize: 13, fontWeight: 700, cursor: transfertSaving ? 'default' : 'pointer' }}
 >
-  {transfertSaving ? 'Envoi...' : 'Envoyer'}
+  {transfertSaving ? t('btn.envoi') : t('transfert.envoyer')}
 </button>
 </div>
               </div>
