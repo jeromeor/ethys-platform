@@ -131,5 +131,57 @@
     "autoCheck": "Automatic check every 10 seconds...",
     "logout": "Log out",
     "legal": "Legal notice & GDPR"
+  },
+  "dashboard": {
+  "bienvenue": "Welcome",
+  "vueAdmin": "(global Admin view)",
+  "configuration": {
+    "titre": "Your account is being set up",
+    "texte": "Your company is not linked yet. The ETHYS team will finalize your setup very soon.",
+    "cta": "Complete my profile"
+  },
+  "kpi": {
+    "commandes": "Active orders",
+    "partenaires": "Active partners",
+    "annuaire": "Directory",
+    "esg": "ESG compliance",
+    "qr": "QR codes to validate"
+  },
+  "type": {
+    "marque": "Brand",
+    "filature": "Spinning mill",
+    "fournisseur": "Supplier"
+  },
+  "statut": {
+    "en_production": "In production",
+    "livree": "Delivered",
+    "soumise": "Submitted",
+    "validation_filature": "Mill approval",
+    "validation_finale": "Final approval",
+    "annulee": "Cancelled"
+  },
+  "demandesRecues": {
+    "titre": "Requests received",
+    "vide": "No pending requests",
+    "repondre": "Reply"
+  },
+  "demandesEnvoyees": {
+    "titre": "Requests sent",
+    "vide": "No requests in progress",
+    "attente": "Pending"
+  },
+  "commandes": {
+    "titre": "Latest orders",
+    "vide": "No orders yet"
+  },
+  "table": {
+    "reference": "Reference",
+    "statut": "Status",
+    "date": "Date"
+  },
+  "qr": {
+    "titre": "QR codes to validate",
+    "vide": "No QR code pending"
   }
+}
 }
