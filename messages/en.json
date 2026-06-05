@@ -920,4 +920,85 @@
       "paysCouverts": "Countries covered"
     }
   }
-}
+},
+,"profil": {
+    "msg": {
+      "entrepriseMaj": "Company updated",
+      "profilMaj": "Profile updated",
+      "documentAjoute": "Document added"
+    },
+    "hero": {
+      "verifie": "Verified profile",
+      "enVerification": "Verification in progress",
+      "rolePlateforme": "Platform role"
+    },
+    "btn": {
+      "modifier": "Edit",
+      "annuler": "Cancel",
+      "enregistrer": "Save",
+      "ajouter": "+ Add",
+      "voir": "View",
+      "supprimer": "Del."
+    },
+    "entreprise": {
+      "titre": "Legal information and address",
+      "raisonSociale": "Company name",
+      "siret": "SIRET",
+      "tva": "VAT",
+      "tvaIntra": "Intra-EU VAT",
+      "adresse": "Address",
+      "codePostal": "Postal code",
+      "ville": "City",
+      "pays": "Country",
+      "description": "Description"
+    },
+    "contact": {
+      "titre": "Company contact",
+      "email": "Email",
+      "emailContact": "Contact email",
+      "telephone": "Phone",
+      "siteWeb": "Website",
+      "nomContact": "Contact last name",
+      "prenomContact": "Contact first name",
+      "fonction": "Role"
+    },
+    "perso": {
+      "titre": "My personal profile",
+      "prenom": "First name",
+      "nom": "Last name",
+      "telephone": "Phone",
+      "email": "Email",
+      "emailNonModifiable": "Email (cannot be changed)"
+    },
+    "certifs": {
+      "titre": "Certifications ({count})",
+      "aucune": "No certification recorded"
+    },
+    "documents": {
+      "titre": "Documents ({count})",
+      "aucun": "No document",
+      "exp": "Exp.",
+      "ko": "KB",
+      "type": {
+        "kbis": "Registration",
+        "certificat": "Certificate",
+        "assurance": "Insurance",
+        "autre": "Other"
+      }
+    },
+    "suppression": {
+      "titre": "Delete my account",
+      "texte": "This action is irreversible. All your data will be deleted in accordance with GDPR.",
+      "bouton": "Delete my account"
+    },
+    "modal": {
+      "titre": "Add a document",
+      "nomLabel": "Document name *",
+      "nomPlaceholder": "e.g. Registration 2026, GOTS certificate...",
+      "typeLabel": "Type *",
+      "dateExp": "Expiry date (optional)",
+      "fichier": "File *",
+      "upload": "Uploading...",
+      "typeAssuranceRcPro": "Professional liability insurance"
+    }
+  }
