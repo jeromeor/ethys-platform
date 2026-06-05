@@ -131,5 +131,57 @@
     "autoCheck": "Vérification automatique toutes les 10 secondes...",
     "logout": "Se déconnecter",
     "legal": "Mentions légales & RGPD"
+  },
+  "dashboard": {
+  "bienvenue": "Bienvenue",
+  "vueAdmin": "(vue Admin globale)",
+  "configuration": {
+    "titre": "Votre compte est en cours de configuration",
+    "texte": "Votre entreprise n'est pas encore associée. L'équipe ETHYS va finaliser votre configuration très prochainement.",
+    "cta": "Compléter mon profil"
+  },
+  "kpi": {
+    "commandes": "Commandes actives",
+    "partenaires": "Partenaires actifs",
+    "annuaire": "Annuaire",
+    "esg": "Conformité ESG",
+    "qr": "QR code à valider"
+  },
+  "type": {
+    "marque": "Marque",
+    "filature": "Filature",
+    "fournisseur": "Fournisseur"
+  },
+  "statut": {
+    "en_production": "En production",
+    "livree": "Livrée",
+    "soumise": "Transmise",
+    "validation_filature": "Val. filature",
+    "validation_finale": "Val. finale",
+    "annulee": "Annulée"
+  },
+  "demandesRecues": {
+    "titre": "Demandes reçues",
+    "vide": "Aucune demande en attente",
+    "repondre": "Répondre"
+  },
+  "demandesEnvoyees": {
+    "titre": "Demandes envoyées",
+    "vide": "Aucune demande en cours",
+    "attente": "En attente"
+  },
+  "commandes": {
+    "titre": "Dernières commandes",
+    "vide": "Aucune commande pour l'instant"
+  },
+  "table": {
+    "reference": "Référence",
+    "statut": "Statut",
+    "date": "Date"
+  },
+  "qr": {
+    "titre": "QR Codes à valider",
+    "vide": "Aucun QR code en attente"
   }
+}
 }
