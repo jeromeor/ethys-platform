@@ -1,4 +1,5 @@
 import { getTranslations } from 'next-intl/server'
+import LienRetour from './LienRetour'
 
 export default async function MentionsLegalesPage() {
   const t = await getTranslations('mentionsLegales')
@@ -9,9 +10,7 @@ export default async function MentionsLegalesPage() {
 
         {/* Header */}
         <div style={{ marginBottom: 32 }}>
-          <a href='/' style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#8b7355', fontSize: 13, marginBottom: 24, textDecoration: 'none' }}>
-            ← {t('retour')}
-          </a>
+          <LienRetour />
           <a href="/login"><img src="/logo_ethys.png" alt="ETHYS" style={{ width: 60, marginBottom: 16 }} /></a>
           <h1 style={{ fontSize: 24, fontWeight: 800, color: '#1a1a1a', marginBottom: 4 }}>{t('titre')}</h1>
           <p style={{ fontSize: 13, color: '#8b7355' }}>{t('maj')}</p>
