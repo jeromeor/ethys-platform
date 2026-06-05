@@ -1,4 +1,8 @@
-export default function MentionsLegalesPage() {
+import { getTranslations } from 'next-intl/server'
+
+export default async function MentionsLegalesPage() {
+  const t = await getTranslations('mentionsLegales')
+
   return (
     <div style={{ minHeight: '100vh', background: '#f5f3ef', fontFamily: "'Inter', system-ui, sans-serif" }}>
       <div style={{ maxWidth: 800, margin: '0 auto', padding: '40px 24px' }}>
@@ -6,16 +10,16 @@ export default function MentionsLegalesPage() {
         {/* Header */}
         <div style={{ marginBottom: 32 }}>
           <a href='/' style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#8b7355', fontSize: 13, marginBottom: 24, textDecoration: 'none' }}>
-            ← Retour
+            ← {t('retour')}
           </a>
           <a href="/login"><img src="/logo_ethys.png" alt="ETHYS" style={{ width: 60, marginBottom: 16 }} /></a>
-          <h1 style={{ fontSize: 24, fontWeight: 800, color: '#1a1a1a', marginBottom: 4 }}>Mentions légales & Politique de confidentialité</h1>
-          <p style={{ fontSize: 13, color: '#8b7355' }}>Dernière mise à jour : mai 2026</p>
+          <h1 style={{ fontSize: 24, fontWeight: 800, color: '#1a1a1a', marginBottom: 4 }}>{t('titre')}</h1>
+          <p style={{ fontSize: 13, color: '#8b7355' }}>{t('maj')}</p>
         </div>
 
         {/* Editeur */}
         <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '28px 32px', marginBottom: 20 }}>
-          <h2 style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a', marginBottom: 16 }}>1. Éditeur du site</h2>
+          <h2 style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a', marginBottom: 16 }}>{t('s1')}</h2>
           <p style={{ fontSize: 14, color: '#4a5568', lineHeight: 1.8, margin: 0 }}>
             <strong>TEXTILE LOOP</strong><br />
             15 rue d'Upsal — 67000 Strasbourg — France<br />
@@ -27,7 +31,7 @@ export default function MentionsLegalesPage() {
 
         {/* Hebergement */}
         <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '28px 32px', marginBottom: 20 }}>
-          <h2 style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a', marginBottom: 16 }}>2. Hébergement</h2>
+          <h2 style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a', marginBottom: 16 }}>{t('s2')}</h2>
           <p style={{ fontSize: 14, color: '#4a5568', lineHeight: 1.8, margin: 0 }}>
             La plateforme ETHYS est hébergée par :<br />
             <strong>Vercel Inc.</strong> — 340 Pine Street, Suite 701, San Francisco, CA 94104, USA<br />
@@ -38,7 +42,7 @@ export default function MentionsLegalesPage() {
 
         {/* Donnees personnelles */}
         <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '28px 32px', marginBottom: 20 }}>
-          <h2 style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a', marginBottom: 16 }}>3. Données personnelles — Responsable de traitement</h2>
+          <h2 style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a', marginBottom: 16 }}>{t('s3')}</h2>
           <p style={{ fontSize: 14, color: '#4a5568', lineHeight: 1.8, margin: '0 0 12px' }}>
             Conformément au Règlement Général sur la Protection des Données (RGPD — UE 2016/679), le responsable du traitement est :
           </p>
@@ -51,7 +55,7 @@ export default function MentionsLegalesPage() {
 
         {/* Donnees collectees */}
         <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '28px 32px', marginBottom: 20 }}>
-          <h2 style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a', marginBottom: 16 }}>4. Données collectées et finalités</h2>
+          <h2 style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a', marginBottom: 16 }}>{t('s4')}</h2>
           <div style={{ fontSize: 14, color: '#4a5568', lineHeight: 1.8 }}>
             <p style={{ margin: '0 0 12px' }}>Dans le cadre de l'utilisation de la plateforme ETHYS, les données suivantes sont collectées :</p>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
@@ -84,7 +88,7 @@ export default function MentionsLegalesPage() {
 
         {/* Droits */}
         <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '28px 32px', marginBottom: 20 }}>
-          <h2 style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a', marginBottom: 16 }}>5. Vos droits</h2>
+          <h2 style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a', marginBottom: 16 }}>{t('s5')}</h2>
           <p style={{ fontSize: 14, color: '#4a5568', lineHeight: 1.8, margin: '0 0 12px' }}>
             Conformément au RGPD, vous disposez des droits suivants concernant vos données personnelles :
           </p>
@@ -104,7 +108,7 @@ export default function MentionsLegalesPage() {
 
         {/* Cookies */}
         <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '28px 32px', marginBottom: 20 }}>
-          <h2 style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a', marginBottom: 16 }}>6. Cookies</h2>
+          <h2 style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a', marginBottom: 16 }}>{t('s6')}</h2>
           <p style={{ fontSize: 14, color: '#4a5568', lineHeight: 1.8, margin: 0 }}>
             La plateforme ETHYS utilise uniquement des cookies strictement nécessaires au fonctionnement du service (session d'authentification). Aucun cookie publicitaire ou de tracking tiers n'est utilisé.
           </p>
