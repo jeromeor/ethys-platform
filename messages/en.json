@@ -687,6 +687,64 @@
     "totalTtc": "Total incl. VAT",
     "creation": "Creating…",
     "creer": "Create invoice"
+  },
+    "reporting": {
+  "tabs": {
+    "vueGlobale": "Overview",
+    "volumes": "Volumes",
+    "finances": "Finances",
+    "partenaires": "Partners"
+  },
+  "kpi": {
+    "volumeTotal": "Total volume",
+    "commandes": "{count} orders",
+    "caTotal": "Total revenue",
+    "factures": "{count} invoices",
+    "pctCotonRecycle": "% Recycled cotton",
+    "partenaires": "Partners",
+    "verifies": "{count} verified"
+  },
+  "aucuneDonnee": "No data",
+  "aucuneCommande": "No order",
+  "types": {
+    "marques": "Brands",
+    "filatures": "Spinning mills",
+    "fournisseurs": "Suppliers"
+  },
+  "vueGlobale": {
+    "volumesMensuels": "Monthly volumes (thousands of kg)",
+    "volumeSerie": "Volume (thousands of kg)",
+    "statutsCommandes": "Order statuses",
+    "resumeCommandes": "Order summary",
+    "colStatut": "Status",
+    "colNbCommandes": "Orders",
+    "colVolumeTotal": "Total volume",
+    "colPctRecycle": "Avg. % recycled"
+  },
+  "volumes": {
+    "evolution": "Volume trend",
+    "volumeSerie": "Volume (T)",
+    "volumeTotal": "Total volume",
+    "lotsActifs": "Active batches",
+    "lotsTotal": "{count} batches total"
+  },
+  "finances": {
+    "caMensuel": "Monthly revenue",
+    "caSerie": "Revenue in euros",
+    "caTotal": "Total revenue",
+    "facturesPayees": "Paid invoices",
+    "facturesAttente": "Pending invoices",
+    "tauxEncaissement": "Collection rate"
+  },
+  "partenaires": {
+    "parPays": "Breakdown by country",
+    "partenairesSerie": "Partners",
+    "parType": "Breakdown by type",
+    "totalPartenaires": "Total partners",
+    "verifies": "Verified",
+    "enCours": "In progress",
+    "paysCouverts": "Countries covered"
   }
+}
 }
 }
