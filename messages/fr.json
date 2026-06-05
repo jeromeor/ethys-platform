@@ -184,6 +184,65 @@
       "vide": "Aucun QR code en attente"
     }
   },
+  "esg": {
+    "tabs": {
+      "score": "Score ESG",
+      "indicators": "Indicateurs",
+      "report": "Rapport RSE"
+    },
+    "header": {
+      "scoreLabel": "SCORE ESG",
+      "title": "Performance ESG — {nom}",
+      "subtitle": "Calculé en temps réel depuis vos données",
+      "noCert": "Aucune certification active",
+      "kpiCertifications": "Certifications",
+      "kpiConformite": "Conformité"
+    },
+    "axes": {
+      "tracabilite": "Traçabilité",
+      "certifications": "Certifications",
+      "conformite": "Conformité",
+      "partenaires": "Partenaires",
+      "reporting": "Reporting"
+    },
+    "months": {
+      "jan": "Jan",
+      "feb": "Fév",
+      "mar": "Mar",
+      "apr": "Avr",
+      "may": "Mai"
+    },
+    "score": {
+      "radar": "Radar ESG",
+      "evolution": "Évolution score",
+      "detail": "Détail par axe"
+    },
+    "indicators": {
+      "environnement": "Environnement",
+      "social": "Social",
+      "gouvernance": "Gouvernance",
+      "lotsAvecCert": "Lots avec certification",
+      "volumeRecycle": "Volume recyclé",
+      "certsActives": "Certifications actives",
+      "partenairesVerifies": "Partenaires vérifiés",
+      "paysRisque": "Pays à risque",
+      "commandesWorkflow": "Commandes avec workflow",
+      "conformiteRgpd": "Conformité RGPD",
+      "auditLog": "Audit log actif",
+      "oui": "Oui"
+    },
+    "report": {
+      "documents": "Documents disponibles",
+      "lastScore": "Dernier score sauvegardé",
+      "downloadHint": "Générez votre rapport pour le télécharger",
+      "generateTitle": "Générer rapport RSE",
+      "company": "Entreprise",
+      "generating": "Génération...",
+      "ready": "Rapport prêt",
+      "generate": "Générer rapport RSE",
+      "fileReady": "prêt"
+    }
+  },
   "commandes": {
     "nouvelle": "+ Nouvelle commande",
     "statut": {
