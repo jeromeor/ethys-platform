@@ -1,4 +1,32 @@
 {
+  "messagerie": {
+    "title": "Support",
+    "subtitleAdmin": "All requests",
+    "subtitleUser": "Track your requests",
+    "newRequest": "+ New request",
+    "cancel": "Cancel",
+    "formTitle": "New request",
+    "objet": "Subject",
+    "objetPlaceholder": "E.g. login issue, question about an order...",
+    "message": "Message",
+    "messagePlaceholder": "Describe your request in detail...",
+    "attachment": "I have an attachment — I'll send it by email in reply to the confirmation",
+    "submit": "Send request",
+    "submitting": "Sending...",
+    "errorFields": "Please fill in the subject and message.",
+    "errorSend": "Sending error. Please try again.",
+    "success": "Your request has been sent. You'll receive a confirmation by email.",
+    "loading": "Loading...",
+    "emptyAdmin": "No requests received.",
+    "emptyUser": "You haven't submitted any request yet.",
+    "attachmentBadge": "Att.",
+    "replyEmail": "Reply by email",
+    "statut": {
+      "envoyee": "Sent",
+      "en_cours": "In progress",
+      "cloturee": "Closed"
+    }
+  },
   "Login": {
     "heroTitle1": "Textile traceability",
     "heroTitle2": "serving ethics",
