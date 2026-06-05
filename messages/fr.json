@@ -580,5 +580,113 @@
       "envoyer": "Envoyer"
     },
     "annuler": "Annuler"
+  },
+  "facturation": {
+  "statuts": {
+    "brouillon": "Brouillon",
+    "emise": "Émises",
+    "en_attente": "En attente",
+    "payee": "Payée",
+    "en_retard": "En retard",
+    "annulee": "Annulée"
+  },
+  "kpi": {
+    "totalFacture": "Total facturé",
+    "encaisse": "Encaissé",
+    "enAttente": "En attente",
+    "enRetard": "En retard"
+  },
+  "filtres": {
+    "toutes": "Toutes"
+  },
+  "boutons": {
+    "accordsCommerciaux": "Accords commerciaux",
+    "nouvelleFacture": "Nouvelle facture",
+    "nouvelAccord": "Nouvel accord",
+    "voir": "Voir",
+    "marquerPayee": "Marquer comme payée",
+    "fermer": "Fermer",
+    "annuler": "Annuler",
+    "ajouterLigne": "Ajouter une ligne"
+  },
+  "accords": {
+    "titre": "Accords commerciaux",
+    "aucun": "Aucun accord commercial. Cliquez sur « + Nouvel accord » pour en créer un.",
+    "du": "Du {debut}",
+    "auDate": "au {fin}",
+    "illimite": "(illimité)",
+    "actif": "Actif",
+    "prixNegocieKg": "Prix négocié/kg",
+    "base": "Base : {prix}€",
+    "remiseVolumeAnnuel": "Remise volume annuel",
+    "desSeuil": "Dès {seuil}T/an",
+    "remisePalierCommande": "Remise palier commande",
+    "remisePalierDetail": "1% ≥ 5T · 2% ≥ 10T",
+    "standardEthys": "Standard ETHYS"
+  },
+  "formAccord": {
+    "titre": "Nouvel accord commercial",
+    "marque": "Marque *",
+    "selectMarque": "Sélectionner une marque…",
+    "prixNegocie": "Prix négocié (€/kg) *",
+    "remiseAnnuelle": "Remise annuelle (%)",
+    "seuilVolume": "Seuil volume annuel (T)",
+    "dateFin": "Date fin (optionnel)",
+    "notes": "Notes (optionnel)",
+    "enregistrer": "Enregistrer l'accord"
+  },
+  "table": {
+    "aucuneFacture": "Aucune facture",
+    "reference": "Référence",
+    "emetteur": "Émetteur",
+    "destinataire": "Destinataire",
+    "montantTtc": "Montant TTC",
+    "emission": "Émission",
+    "echeance": "Échéance",
+    "statut": "Statut"
+  },
+  "detail": {
+    "factureEthys": "FACTURE ETHYS",
+    "refCommande": "Réf. commande : {ref}",
+    "prixAccord": "Prix accord commercial",
+    "decompositionPrix": "Décomposition du prix",
+    "prixBase": "Prix de base",
+    "remiseVolumeCommande": "Remise volume commande",
+    "remiseVolumeAnnuel": "Remise volume annuel",
+    "prixApplicable": "Prix applicable",
+    "ttc": "TTC",
+    "emetteur": "Émetteur",
+    "destinataire": "Destinataire",
+    "dateEmission": "Date d'émission",
+    "dateEcheance": "Date d'échéance",
+    "datePaiement": "Date de paiement",
+    "detailPrestations": "Détail des prestations",
+    "colDescription": "Description",
+    "colQte": "Qté",
+    "colUnite": "Unité",
+    "colPu": "PU (€)",
+    "colTotalHt": "Total HT",
+    "sousTotalHt": "Sous-total HT",
+    "tva": "TVA {pct}%",
+    "totalTtc": "Total TTC"
+  },
+  "formFacture": {
+    "titre": "Nouvelle facture",
+    "commande": "Commande *",
+    "selectionner": "Sélectionner…",
+    "emetteur": "Émetteur *",
+    "destinataire": "Destinataire *",
+    "dateEcheance": "Date d'échéance *",
+    "tva": "TVA (%)",
+    "lignes": "Lignes de facturation",
+    "phDescription": "Description",
+    "phQte": "Qté",
+    "phPu": "PU €",
+    "totalHt": "Total HT",
+    "tvaLigne": "TVA {pct}%",
+    "totalTtc": "Total TTC",
+    "creation": "Création…",
+    "creer": "Créer la facture"
   }
+}
 }
