@@ -182,8 +182,9 @@
   "qr": {
     "titre": "QR codes to validate",
     "vide": "No QR code pending"
+  }
   },
-    "commandes": {
+  "commandes": {
   "nouvelle": "+ New order",
   "statut": {
     "brouillon": "Draft",
