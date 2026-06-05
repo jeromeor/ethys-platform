@@ -374,5 +374,94 @@
     "associerTitre": "Associer une certification",
     "aucuneCertif": "Aucune certification disponible",
     "associer": "Associer"
+  },
+  "certification": {
+    "listeTitre": "Certifications ETHYS",
+    "suffix": {
+      "certifiees": "certifiées",
+      "enAttenteCount": "en attente",
+      "enCours": "en cours",
+      "kgRecycle": "kg recyclé"
+    },
+    "demander": "+ Demander",
+    "section": {
+      "aValider": "À valider",
+      "enCoursExamen": "En cours d'examen",
+      "certifiees": "Certifiées"
+    },
+    "statut": {
+      "duplicatasCourt": "Duplicatas",
+      "duplicatasDemandes": "Duplicatas demandés",
+      "enAttente": "En attente",
+      "certifiee": "Certifiée"
+    },
+    "aucuneCertif": "Aucune certification.",
+    "filEthys": "Fil ETHYS",
+    "annuler": "Annuler",
+    "commandePrefix": "Commande",
+    "soumiseLe": "Soumise le",
+    "emiseLe": "Émise le",
+    "valideJusqu": "Valide jusqu'au",
+    "certifObtenue": "Certification ETHYS obtenue",
+    "decisionTitre": "Décision TEXTILE LOOP",
+    "demanderDuplicatas": "Demander les duplicatas",
+    "duplicatasAttente": "Duplicatas demandés — en attente de réception",
+    "refuser": "Refuser",
+    "certifEnCours": "Certification...",
+    "certifierEthys": "Certifier ETHYS",
+    "motifPlaceholder": "Motif du refus...",
+    "confirmerRefus": "Confirmer le refus",
+    "emptyTitre": "Certification ETHYS",
+    "erreurPrefix": "Erreur : ",
+    "labels": {
+      "type": "Type",
+      "volumeTotal": "Volume total",
+      "volumeRecycle": "Volume recyclé",
+      "volumeVierge": "Volume vierge",
+      "pctRecycle": "% recyclé",
+      "filature": "Filature",
+      "pays": "Pays"
+    },
+    "form": {
+      "titre": "Demande de certification ETHYS",
+      "commandeLabel": "Commande à certifier *",
+      "selectCommande": "Sélectionner une commande...",
+      "recap": "Récapitulatif",
+      "volumeTotal": "Volume total",
+      "type": "Type",
+      "pctRecycle": "% recyclé",
+      "volumeRecycle": "Volume recyclé",
+      "volumeVierge": "Volume vierge",
+      "filature": "Filature",
+      "marque": "Marque",
+      "honneurTitre": "Déclaration sur honneur",
+      "honneurTexte": "Je certifie sur l'honneur que les informations sont exactes et que cette déclaration respecte les critères ETHYS (minimum 51% de coton recyclé, traçabilité vérifiable).",
+      "envoi": "Envoi...",
+      "soumettre": "Soumettre la demande"
+    },
+    "declFilature": {
+      "titre": "Demande en cours d'examen",
+      "dupMsg1": "TEXTILE LOOP vous a demandé les duplicatas de vos commandes de coton recyclé et vierge.",
+      "dupMsg2": "Merci de les transmettre par email à",
+      "attMsg1": "Votre demande est en cours d'examen par TEXTILE LOOP.",
+      "attMsg2": "Vous recevrez une notification dès qu'elle sera traitée."
+    },
+    "empty": {
+      "adminAValider": "Sélectionnez une demande pour la valider ou la refuser.",
+      "adminVide": "Aucune demande en attente.",
+      "filatureEligibles": "Vous avez des commandes éligibles. Cliquez sur + Demander pour soumettre.",
+      "filatureVoir": "Sélectionnez une demande pour voir son statut.",
+      "filatureVide": "Aucune commande éligible à certifier pour le moment."
+    },
+    "msg": {
+      "selectCommande": "Veuillez sélectionner une commande.",
+      "cocherHonneur": "Veuillez cocher la déclaration sur honneur.",
+      "commandeIntrouvable": "Commande introuvable.",
+      "demandeSoumise": "Demande de certification soumise. Elle sera examinée par TEXTILE LOOP.",
+      "duplicatasEnvoyes": "Demande de duplicatas envoyée par email.",
+      "erreurCertif": "Erreur lors de la certification : ",
+      "certifAccordee": "Certification accordée. Numéro : ",
+      "motifRefus": "Veuillez indiquer un motif de refus."
+    }
   }
 }
