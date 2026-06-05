@@ -182,6 +182,112 @@
   "qr": {
     "titre": "QR Codes à valider",
     "vide": "Aucun QR code en attente"
+  },
+    "commandes": {
+  "nouvelle": "+ Nouvelle commande",
+  "statut": {
+    "brouillon": "Brouillon",
+    "soumise": "Transmise",
+    "validation_fournisseur": "Val. fournisseur",
+    "validation_filature": "Val. filature",
+    "validation_finale": "Val. finale",
+    "en_production": "En production",
+    "controle_qualite": "Contrôle qualité",
+    "qr_genere": "QR généré",
+    "expediee": "Expédiée",
+    "livree": "Livrée",
+    "annulee": "Annulée"
+  },
+  "priorite": {
+    "normale": "Normale",
+    "haute": "Haute",
+    "urgente": "Urgente"
+  },
+  "errors": {
+    "champsObligatoires": "Veuillez remplir tous les champs obligatoires : Marque, Filature, Fournisseur et Date de livraison.",
+    "volume": "Veuillez indiquer un volume de coton recyclé supérieur à 0.",
+    "refGeneration": "Erreur lors de la génération de la référence.",
+    "prefix": "Erreur : "
+  },
+  "filtres": {
+    "toutes": "Toutes",
+    "transmises": "Transmises",
+    "toutesMarques": "Toutes marques",
+    "toutesFilatures": "Toutes filatures",
+    "reinitialiser": "Réinitialiser"
+  },
+  "liste": {
+    "vide": "Aucune commande",
+    "videHint": "Cliquez sur \"+ Nouvelle commande\" pour commencer",
+    "annulationBadge": "ANNULATION",
+    "annulationDem": "Annulation dem."
+  },
+  "table": {
+    "reference": "Référence",
+    "marque": "Marque",
+    "filature": "Filature",
+    "volume": "Volume",
+    "composition": "Composition",
+    "statut": "Statut",
+    "livraison": "Livraison",
+    "avancement": "Avancement"
+  },
+  "detail": {
+    "volume": "Volume",
+    "recycle": "Recyclé",
+    "priorite": "Priorité",
+    "livraison": "Livraison",
+    "marque": "Marque",
+    "filature": "Filature",
+    "fournisseur": "Fournisseur",
+    "typeCoton": "Type coton",
+    "typeCotonValue": "Fil ETHYS (51% recyclé / 49% vierge)",
+    "grammage": "Grammage",
+    "statut": "Statut",
+    "chargement": "Chargement...",
+    "annuleeLe": "Annulée le",
+    "refDemande": "Réf. demande :",
+    "commandeAnnulee": "Commande annulée",
+    "annulationImpossible": "Annulation impossible — statut :",
+    "demandeEnAttente": "Demande d'annulation en attente",
+    "motif": "Motif :",
+    "refuser": "Refuser la demande",
+    "annulerCommande": "Annuler la commande",
+    "aucuneDemande": "Aucune demande d'annulation en attente",
+    "demandeEnvoyee": "Demande d'annulation envoyée",
+    "enAttenteTraitement": "En attente de traitement",
+    "demanderAnnulation": "Demander l'annulation"
+  },
+  "modal": {
+    "sousTitre": "{ref} — votre demande sera traitée par Textile Loop",
+    "motifOptionnel": "Motif (optionnel)",
+    "motifPlaceholder": "Ex : erreur de saisie, changement de planning...",
+    "annuler": "Annuler",
+    "envoi": "Envoi...",
+    "envoyer": "Envoyer la demande"
+  },
+  "form": {
+    "titre": "Nouvelle commande ETHYS",
+    "titreInterne": "Titre / référence interne",
+    "titrePlaceholder": "Ex : Collection Printemps 2024",
+    "marque": "Marque *",
+    "filature": "Filature *",
+    "fournisseur": "Fournisseur *",
+    "selectionner": "Sélectionner...",
+    "partenairesBeta": "La fonction de sélection des entreprises partenaires est en cours de test.",
+    "compositionTitre": "Composition Fil ETHYS",
+    "compositionTexte": "51% coton recyclé + 49% coton vierge",
+    "volumeLabel": "Volume total de fil (kg) *",
+    "volumePlaceholder": "Ex : 1000",
+    "cotonRecycle": "Coton recyclé (51%) :",
+    "cotonVierge": "Coton vierge (49%) :",
+    "grammage": "Grammage",
+    "livraison": "Livraison souhaitée *",
+    "priorite": "Priorité",
+    "notes": "Notes",
+    "notesPlaceholder": "Instructions particulières...",
+    "annuler": "Annuler",
+    "creation": "Création...",
+    "creer": "Créer la commande ETHYS"
   }
-}
 }
