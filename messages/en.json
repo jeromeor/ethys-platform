@@ -182,6 +182,113 @@
   "qr": {
     "titre": "QR codes to validate",
     "vide": "No QR code pending"
+  },
+    "commandes": {
+  "nouvelle": "+ New order",
+  "statut": {
+    "brouillon": "Draft",
+    "soumise": "Submitted",
+    "validation_fournisseur": "Supplier approval",
+    "validation_filature": "Mill approval",
+    "validation_finale": "Final approval",
+    "en_production": "In production",
+    "controle_qualite": "Quality control",
+    "qr_genere": "QR generated",
+    "expediee": "Shipped",
+    "livree": "Delivered",
+    "annulee": "Cancelled"
+  },
+  "priorite": {
+    "normale": "Normal",
+    "haute": "High",
+    "urgente": "Urgent"
+  },
+  "errors": {
+    "champsObligatoires": "Please fill in all required fields: Brand, Spinning mill, Supplier and Delivery date.",
+    "volume": "Please enter a recycled cotton volume greater than 0.",
+    "refGeneration": "Error generating the reference.",
+    "prefix": "Error: "
+  },
+  "filtres": {
+    "toutes": "All",
+    "transmises": "Submitted",
+    "toutesMarques": "All brands",
+    "toutesFilatures": "All mills",
+    "reinitialiser": "Reset"
+  },
+  "liste": {
+    "vide": "No orders",
+    "videHint": "Click \"+ New order\" to get started",
+    "annulationBadge": "CANCELLATION",
+    "annulationDem": "Cancel. requested"
+  },
+  "table": {
+    "reference": "Reference",
+    "marque": "Brand",
+    "filature": "Spinning mill",
+    "volume": "Volume",
+    "composition": "Composition",
+    "statut": "Status",
+    "livraison": "Delivery",
+    "avancement": "Progress"
+  },
+  "detail": {
+    "volume": "Volume",
+    "recycle": "Recycled",
+    "priorite": "Priority",
+    "livraison": "Delivery",
+    "marque": "Brand",
+    "filature": "Spinning mill",
+    "fournisseur": "Supplier",
+    "typeCoton": "Cotton type",
+    "typeCotonValue": "ETHYS Yarn (51% recycled / 49% virgin)",
+    "grammage": "Yarn count",
+    "statut": "Status",
+    "chargement": "Loading...",
+    "annuleeLe": "Cancelled on",
+    "refDemande": "Request ref.:",
+    "commandeAnnulee": "Order cancelled",
+    "annulationImpossible": "Cancellation not possible — status:",
+    "demandeEnAttente": "Cancellation request pending",
+    "motif": "Reason:",
+    "refuser": "Reject request",
+    "annulerCommande": "Cancel the order",
+    "aucuneDemande": "No pending cancellation request",
+    "demandeEnvoyee": "Cancellation request sent",
+    "enAttenteTraitement": "Awaiting processing",
+    "demanderAnnulation": "Request cancellation"
+  },
+  "modal": {
+    "sousTitre": "{ref} — your request will be processed by Textile Loop",
+    "motifOptionnel": "Reason (optional)",
+    "motifPlaceholder": "E.g. data entry error, schedule change...",
+    "annuler": "Cancel",
+    "envoi": "Sending...",
+    "envoyer": "Send request"
+  },
+  "form": {
+    "titre": "New ETHYS order",
+    "titreInterne": "Internal title / reference",
+    "titrePlaceholder": "E.g. Spring Collection 2024",
+    "marque": "Brand *",
+    "filature": "Spinning mill *",
+    "fournisseur": "Supplier *",
+    "selectionner": "Select...",
+    "partenairesBeta": "The partner company selection feature is currently being tested.",
+    "compositionTitre": "ETHYS Yarn composition",
+    "compositionTexte": "51% recycled cotton + 49% virgin cotton",
+    "volumeLabel": "Total yarn volume (kg) *",
+    "volumePlaceholder": "E.g. 1000",
+    "cotonRecycle": "Recycled cotton (51%):",
+    "cotonVierge": "Virgin cotton (49%):",
+    "grammage": "Yarn count",
+    "livraison": "Requested delivery *",
+    "priorite": "Priority",
+    "notes": "Notes",
+    "notesPlaceholder": "Special instructions...",
+    "annuler": "Cancel",
+    "creation": "Creating...",
+    "creer": "Create ETHYS order"
   }
 }
 }
