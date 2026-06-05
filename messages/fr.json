@@ -463,5 +463,122 @@
       "certifAccordee": "Certification accordée. Numéro : ",
       "motifRefus": "Veuillez indiquer un motif de refus."
     }
+  },
+  "qrcode": {
+    "certType": {
+      "fil": "Fil ETHYS",
+      "tissu": "Tissu ETHYS",
+      "produitFini": "Produit fini ETHYS"
+    },
+    "coton": {
+      "recycle": "Recyclé",
+      "vierge": "Vierge"
+    },
+    "btn": {
+      "demandeEnAttente": "Demande de génération en attente",
+      "refuserDemande": "Refuser la demande",
+      "generation": "Génération...",
+      "genererQR": "Générer le QR Code",
+      "genererQREthys": "Générer le QR Code ETHYS",
+      "demandeEnvoyee1": "Demande envoyée",
+      "demandeEnvoyee2": "en attente de validation Textile Loop",
+      "lot100": "Le lot doit être à 100% pour demander un QR Code",
+      "envoi": "Envoi...",
+      "demanderGeneration": "Demander la génération QR"
+    },
+    "tabs": {
+      "lots": "Lots",
+      "certifications": "Certifications"
+    },
+    "lotsProduction": "Lots de production",
+    "certificationsEthys": "Certifications ETHYS",
+    "suffix": {
+      "qrGeneres": "QR générés",
+      "enAttente": "en attente"
+    },
+    "filtreDemandesOn": "▣ Demandes QR uniquement",
+    "filtreDemandesOff": "▣ Voir demandes QR",
+    "aucuneCertif": "Aucune certification disponible.",
+    "badge": {
+      "qrActif": "QR actif",
+      "sansQR": "Sans QR",
+      "demandeQR": "Demande QR",
+      "enAttente": "En attente"
+    },
+    "aucuneDemande": "Aucune demande QR en attente.",
+    "aucunLot": "Aucun lot disponible.",
+    "scans": "scan(s)",
+    "infosLot": "Informations du lot",
+    "labels": {
+      "marque": "Marque",
+      "filature": "Filature",
+      "volume": "Volume"
+    },
+    "lotInfo": {
+      "refLot": "Référence lot",
+      "commande": "Commande",
+      "fournisseur": "Fournisseur",
+      "typeCoton": "Type coton",
+      "origine": "Origine",
+      "certifFil": "Certification fil",
+      "avancement": "Avancement"
+    },
+    "qrActifTitre": "QR Code actif",
+    "qrEthysTitre": "QR Code ETHYS",
+    "donneesEncodees": "Données encodées",
+    "encoded": {
+      "certification": "Certification"
+    },
+    "voirPagePublique": "Voir page publique",
+    "apercu": "Aperçu",
+    "telecharger": "Télécharger",
+    "urlCopiee": "URL copiée !",
+    "copierURL": "Copier URL",
+    "selectionnezLot": "Sélectionnez un lot",
+    "public": {
+      "tracabilite": "ETHYS · Traçabilité TOTALE",
+      "votreFil": "Votre fil ETHYS",
+      "lot": "Lot",
+      "matieres": "MATIÈRES PREMIÈRES",
+      "cotonRecycle": "Coton recyclé",
+      "cotonVierge": "Coton vierge",
+      "filCertifie": "Fil certifié ETHYS",
+      "description": "Ce fil certifié ETHYS est le résultat de la transformation de coton recyclé (51%) et de coton vierge (49%). Il a été réalisé par {filature}.",
+      "laFilature": "la filature",
+      "origineMatiere": "Origine matière",
+      "nonRenseigne": "Non renseigné",
+      "certifFil": "Certification fil",
+      "fournisseurCoton": "Fournisseur coton",
+      "donneesVerifiees": "Données vérifiées et certifiées par TEXTILE LOOP",
+      "plateforme": "Plateforme ETHYS",
+      "ouvrirPage": "Ouvrir la page publique"
+    },
+    "valideJusqu": "Valide jusqu'au",
+    "certifie": "Certifié",
+    "composition": "Composition",
+    "certInfo": {
+      "entreprise": "Entreprise",
+      "paysFilature": "Pays filature",
+      "provenanceCoton": "Provenance coton"
+    },
+    "qrCodeActif": "QR Code actif",
+    "copiee": "Copiée !",
+    "transfererMarque": "Transférer à une marque",
+    "genererQRConso": "Générer le QR Code consommateur",
+    "transfert": {
+      "titre": "Transférer le QR à une marque",
+      "marqueNonEnreg": "Marque non enregistrée sur ETHYS",
+      "emailLabel": "Email de la marque *",
+      "emailInfo": "Un email d'invitation sera envoyé à cette adresse.",
+      "selectLabel": "Sélectionner la marque *",
+      "selectPlaceholder": "Sélectionner une marque...",
+      "confirm": "Confirmer le transfert définitif à \"{marque}\" ?\n\nCe QR code ne pourra plus être transféré à une autre marque.",
+      "msgInvitation": "Email d'invitation envoyé à la marque.",
+      "msgTransfere": "QR code transféré. La marque a reçu un email.",
+      "erreurPrefix": "Erreur : ",
+      "inconnue": "inconnue",
+      "envoyer": "Envoyer"
+    },
+    "annuler": "Annuler"
   }
 }
