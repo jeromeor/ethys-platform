@@ -182,8 +182,9 @@
   "qr": {
     "titre": "QR Codes à valider",
     "vide": "Aucun QR code en attente"
+  }
   },
-    "commandes": {
+  "commandes": {
   "nouvelle": "+ Nouvelle commande",
   "statut": {
     "brouillon": "Brouillon",
@@ -290,4 +291,5 @@
     "creation": "Création...",
     "creer": "Créer la commande ETHYS"
   }
+}
 }
