@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { useTranslations, useLocale } from 'next-intl'
 
 interface ControleQualite {
   id: string
@@ -53,11 +54,6 @@ interface Props {
   role: string
 }
 
-const ETAPES_PROD = [
-  'Réception matière', 'Préparation fibres', 'Filage',
-  'Bobinage', 'Contrôle qualité', 'Conditionnement', 'Expédition'
-]
-
 const STATUT_LOT_COLORS: Record<string, [string, string]> = {
   en_attente:       ['#f5f3ef', '#4a5568'],
   en_production:    ['#D1ECF1', '#0C5460'],
@@ -69,6 +65,30 @@ const STATUT_LOT_COLORS: Record<string, [string, string]> = {
 export default function ProductionClient({ commandes: initial, user, role }: Props) {
   const supabase = createClient()
   const router = useRouter()
+  const t = useTranslations('production')
+  const locale = useLocale()
+
+  // {t('etapesTitre')} traduites
+  const ETAPES_PROD = [
+    t('etapes.reception'), t('etapes.preparation'), t('etapes.filage'),
+    t('etapes.bobinage'), t('etapes.controle'), t('etapes.conditionnement'), t('etapes.expedition')
+  ]
+
+  // Libellé de priorité traduit
+  const prioriteLabel = (pr: string): string => ({
+    normale: t('priorite.normale'),
+    haute: t('priorite.haute'),
+    urgente: t('priorite.urgente'),
+  }[pr] ?? pr)
+
+  // Libellé de statut de lot traduit
+  const statutLotLabel = (st: string): string => ({
+    'en_attente': t('lotStatut.en_attente'),
+    'En production': t('lotStatut.en_production'),
+    'controle_qualite': t('lotStatut.controle_qualite'),
+    'validé': t('lotStatut.valide'),
+    'livré': t('lotStatut.livre'),
+  }[st] ?? st.replace('_', ' '))
   const [commandes, setCommandes] = useState<Commande[]>(initial)
   const [selected, setSelected] = useState<Commande | null>(initial[0] ?? null)
   const [activeTab, setActiveTab] = useState<'Avancement' | 'lots' | 'qualite'>('Avancement')
@@ -160,12 +180,12 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
 
   const updateAvancement = async (lotId: string, pct: number) => {
     if (role === 'admin') {
-      window.alert('En tant qu\'admin, vous ne pouvez pas modifier l\'avancement d\'un lot. Cette action revient à la filature ou à la marque.')
+      window.alert(t('alert.adminNoEdit'))
       return
     }
     const lot = selected?.lots.find(l => l.id === lotId)
     if (lot && pct < lot.avancement_pct) {
-      const ok1 = window.confirm('Attention : vous réduisez l\'avancement du lot ' + lot.reference + '. Cette action va générer une alerte admin. Confirmer ?')
+      const ok1 = window.confirm(t('confirm.reduire', { ref: lot.reference }))
       if (!ok1) return
       // Notifier l'admin
       await supabase.from('notifications').insert({
@@ -179,9 +199,9 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
       })
     }
    if (pct === 100) {
-      const ok1 = window.confirm('Confirmer la complétion à 100% du lot ' + (lot?.reference ?? '') + ' ?')
+      const ok1 = window.confirm(t('confirm.completion', { ref: lot?.reference ?? '' }))
       if (!ok1) return
-      const ok2 = window.confirm('Deuxième confirmation : le lot sera marqué comme terminé. Cette action est définitive. Continuer ?')
+      const ok2 = window.confirm(t('confirm.completion2'))
       if (!ok2) return
     }
     setUpdatingLot(lotId)
@@ -224,7 +244,7 @@ export default function ProductionClient({ commandes: initial, user, role }: Pro
 const volumeCommande = (selected.volume_total_tonnes ?? 0) * 1000
 const volumeNouveauLot = parseFloat(newLot.volume_tonnes)
 if (volumeDejaAlloue + volumeNouveauLot > volumeCommande) {
-  alert(`Volume lots (${volumeDejaAlloue + volumeNouveauLot} kg) dépasse la commande (${volumeCommande} kg)`)
+  alert(t('alert.volumeDepasse', { lots: volumeDejaAlloue + volumeNouveauLot, commande: volumeCommande }))
   return
 }
     const reference = `${selected.reference.replace('CMD', 'LOT')}-${String.fromCharCode(65 + (selected.lots?.length ?? 0))}`
@@ -269,12 +289,12 @@ if (volumeDejaAlloue + volumeNouveauLot > volumeCommande) {
         borderRight: '1px solid #e8e3d8', display: 'flex', flexDirection: 'column'
       }}>
         <div style={{ padding: '14px 16px', borderBottom: '1px solid #f5f3ef', fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>
-          Productions actives
+          {t('listeTitre')}
         </div>
         <div style={{ flex: 1, overflowY: 'auto' }}>
           {commandes.length === 0 ? (
             <div style={{ padding: '40px 16px', textAlign: 'center', color: '#8b7355', fontSize: 12 }}>
-              Aucune production active.<br />Soumettez d'abord une commande.
+              {t('listeVide1')}<br />{t('listeVide2')}
             </div>
           ) : commandes.map(cmd => {
             const av = AvancementGlobal(cmd)
@@ -291,10 +311,10 @@ if (volumeDejaAlloue + volumeNouveauLot > volumeCommande) {
                   <span style={{
                     fontSize: 10, fontWeight: 700,
                     color: cmd.priorite === 'urgente' ? '#8b3a3a' : cmd.priorite === 'haute' ? '#D97706' : '#8b7355'
-                  }}>{cmd.priorite}</span>
+                  }}>{prioriteLabel(cmd.priorite)}</span>
                 </div>
                 <div style={{ fontSize: 11, color: '#4a5568', marginBottom: 6 }}>
-                  {cmd.marque?.nom} · {Math.round((cmd.volume_total_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg
+                  {cmd.marque?.nom} · {Math.round((cmd.volume_total_tonnes ?? 0) * 1000).toLocaleString(locale)} kg
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#8b7355', marginBottom: 4 }}>
                   <span>{cmd.filature?.nom}</span>
@@ -319,12 +339,12 @@ if (volumeDejaAlloue + volumeNouveauLot > volumeCommande) {
               <div>
                 <div style={{ fontSize: 18, fontWeight: 900, marginBottom: 2 }}>{selected.reference}</div>
                 <div style={{ fontSize: 12, opacity: 0.75 }}>
-                  {selected.marque?.nom} · {selected.filature?.nom} · {Math.round((selected.volume_total_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg · Fil ETHYS
+                  {selected.marque?.nom} · {selected.filature?.nom} · {Math.round((selected.volume_total_tonnes ?? 0) * 1000).toLocaleString(locale)} kg · {t('filEthys')}
                 </div>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontSize: 28, fontWeight: 900, color: '#c2956e' }}>{AvancementGlobal(selected)}%</div>
-                <div style={{ fontSize: 10, opacity: 0.65 }}>Avancement global</div>
+                <div style={{ fontSize: 10, opacity: 0.65 }}>{t('avancementGlobal')}</div>
               </div>
             </div>
             <div style={{ height: 6, background: 'rgba(255,255,255,0.15)', borderRadius: 3 }}>
@@ -337,24 +357,24 @@ if (volumeDejaAlloue + volumeNouveauLot > volumeCommande) {
                 {selected.date_expedition_prevue ? (
                   <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
                     <div>
-                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginBottom: 2 }}>Expédition prévue</div>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: '#c2956e' }}>{new Date(selected.date_expedition_prevue).toLocaleDateString('fr-FR')}</div>
+                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginBottom: 2 }}>{t('expeditionPrevue')}</div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: '#c2956e' }}>{new Date(selected.date_expedition_prevue).toLocaleDateString(locale)}</div>
                     </div>
                     {selected.date_livraison_prevue && (
                       <div>
-                        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginBottom: 2 }}>Livraison prévue</div>
-                        <div style={{ fontSize: 12, fontWeight: 700, color: '#c2956e' }}>{new Date(selected.date_livraison_prevue).toLocaleDateString('fr-FR')}</div>
+                        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginBottom: 2 }}>{t('livraisonPrevue')}</div>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: '#c2956e' }}>{new Date(selected.date_livraison_prevue).toLocaleDateString(locale)}</div>
                       </div>
                     )}
                     <button onClick={() => { setShowLogistique(true); setLogistiqueForm({ date_expedition_prevue: selected.date_expedition_prevue ?? '', date_livraison_prevue: selected.date_livraison_prevue ?? '' }) }} style={{ marginLeft: 'auto', padding: '4px 10px', borderRadius: 4, border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: '#fff', fontSize: 11, cursor: 'pointer' }}>
-                      Modifier
+                      {t('modifier')}
                     </button>
                   </div>
                 ) : (
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)' }}>Production terminée - saisir les dates logistiques</span>
+                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)' }}>{t('prodTerminee')}</span>
                     <button onClick={() => { setShowLogistique(true); setLogistiqueForm({ date_expedition_prevue: '', date_livraison_prevue: '' }) }} style={{ padding: '5px 12px', borderRadius: 4, border: 'none', background: '#c2956e', color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
-                      Saisir les dates
+                      {t('saisirDates')}
                     </button>
                   </div>
                 )}
@@ -363,7 +383,7 @@ if (volumeDejaAlloue + volumeNouveauLot > volumeCommande) {
 
             {/* Tabs */}
             <div style={{ display: 'flex', gap: 0, marginTop: 14 }}>
-              {[['Avancement', 'Avancement'], ['lots', 'Lots'], ['qualite', 'Contrôles qualité']].map(([val, label]) => (
+              {[['Avancement', t('tabs.avancement')], ['lots', t('tabs.lots')], ['qualite', t('tabs.qualite')]].map(([val, label]) => (
                 <button key={val} onClick={() => setActiveTab(val as typeof activeTab)} style={{
                   padding: '7px 16px', border: 'none', background: 'none', cursor: 'pointer',
                   fontSize: 12, fontWeight: activeTab === val ? 700 : 400,
@@ -382,7 +402,7 @@ if (volumeDejaAlloue + volumeNouveauLot > volumeCommande) {
               <div>
                 <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '20px 24px', marginBottom: 16 }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 18 }}>
-                    Étapes de production
+                    {t('etapesTitre')}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'flex-start' }}>
                     {ETAPES_PROD.map((etape, i) => {
@@ -421,7 +441,7 @@ if (volumeDejaAlloue + volumeNouveauLot > volumeCommande) {
                       <div>
                         <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>{lot.reference}</div>
                         <div style={{ fontSize: 11, color: '#4a5568' }}>
-                          {Math.round((lot.volume_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg · {'Fil ETHYS'} · {'Fil ETHYS'}
+                          {Math.round((lot.volume_tonnes ?? 0) * 1000).toLocaleString(locale)} kg · {t('filEthys')} · {t('filEthys')}
                           {lot.machine && ` · ${lot.machine}`}
                         </div>
                       </div>
@@ -441,7 +461,7 @@ if (volumeDejaAlloue + volumeNouveauLot > volumeCommande) {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                       <div style={{ flex: 1 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 4 }}>
-                          <span style={{ color: '#4a5568' }}>Avancement</span>
+                          <span style={{ color: '#4a5568' }}>{t('avancement')}</span>
                           <span style={{ fontWeight: 700, color: '#1a1a1a' }}>{lot.avancement_pct}%</span>
                         </div>
                         <input
@@ -457,18 +477,18 @@ if (volumeDejaAlloue + volumeNouveauLot > volumeCommande) {
                       <div style={{ marginTop: 10 }}>
                         {lot.certif_ethys_id ? (
                           <div style={{ fontSize: 11, color: '#2d5016', fontWeight: 600, padding: '6px 10px', borderRadius: 6, background: '#f0f4ec', display: 'inline-block' }}>
-                            {'Certification ETHYS : ' + (certifications.find(c => c.id === lot.certif_ethys_id)?.reference ?? lot.certif_ethys_id)}
+                            {t('certifEthysPrefix') + (certifications.find(c => c.id === lot.certif_ethys_id)?.reference ?? lot.certif_ethys_id)}
                           </div>
                         ) : (
                           (() => {
                             const tousLotsTermines = (selected.lots ?? []).every(l => l.avancement_pct === 100)
                             return tousLotsTermines ? (
                               <button onClick={() => router.push(`/certification?commande_id=${selected.id}`)} style={{ padding: '6px 14px', borderRadius: 6, border: '1.5px solid #2d5016', background: '#f0f4ec', color: '#2d5016', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
-  Demander une certification ETHYS
+  {t('demanderCertif')}
 </button>
                             ) : (
   <div style={{ fontSize: 11, color: '#b8860b', background: '#fdf8ec', borderRadius: 6, padding: '6px 10px' }}>
-    La demande de certification ETHYS n'est possible que si tous les lots de la commande sont validés.
+    {t('certifTousLots')}
   </div>
 )
                           })()
@@ -488,25 +508,25 @@ if (volumeDejaAlloue + volumeNouveauLot > volumeCommande) {
                       width: '100%', padding: '10px', borderRadius: 4,
                       border: '2px dashed #f0f4ec', background: '#F0FDF4',
                       color: '#1a1a1a', fontSize: 12, fontWeight: 600, cursor: 'pointer'
-                    }}>+ Ajouter un lot</button>
+                    }}>{t('ajouterLot')}</button>
                   ) : (
                     <div style={{ background: '#fff', borderRadius: 6, border: '1px solid #e8e3d8', padding: '16px 20px' }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 12 }}>Nouveau lot</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 12 }}>{t('nouveauLot')}</div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
                         <div>
-                          <label style={{ fontSize: 11, color: '#4a5568', display: 'block', marginBottom: 4 }}>Type coton</label>
+                          <label style={{ fontSize: 11, color: '#4a5568', display: 'block', marginBottom: 4 }}>{t('typeCoton')}</label>
                           <select value={newLot.type_coton} onChange={e => setNewLot(p => ({ ...p, type_coton: e.target.value }))}
                             style={{ width: '100%', padding: '7px 10px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none' }}>
-                            <option value='recycle'>Fil ETHYS (recyclé)</option>
+                            <option value='recycle'>{t('filEthysRecycle')}</option>
                           </select>
                         </div>
                         <div>
-                          <label style={{ fontSize: 11, color: '#4a5568', display: 'block', marginBottom: 4 }}>Volume (kg)</label>
+                          <label style={{ fontSize: 11, color: '#4a5568', display: 'block', marginBottom: 4 }}>{t('volumeKg')}</label>
                           <input type="number" value={newLot.volume_tonnes} onChange={e => setNewLot(p => ({ ...p, volume_tonnes: e.target.value }))}
-                            placeholder="Ex : 80" style={{ width: '100%', padding: '7px 10px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 12, boxSizing: 'border-box', outline: 'none' }} />
+                            placeholder={t("volumePlaceholder")} style={{ width: '100%', padding: '7px 10px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 12, boxSizing: 'border-box', outline: 'none' }} />
                         </div>
                         <div>
-                          <label style={{ fontSize: 11, color: '#4a5568', display: 'block', marginBottom: 4 }}>Certification</label>
+                          <label style={{ fontSize: 11, color: '#4a5568', display: 'block', marginBottom: 4 }}>{t('certification')}</label>
                           <select value={newLot.certification} onChange={e => setNewLot(p => ({ ...p, certification: e.target.value }))}
                             style={{ width: '100%', padding: '7px 10px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none' }}>
                             <option value="">-</option>
@@ -518,11 +538,11 @@ if (volumeDejaAlloue + volumeNouveauLot > volumeCommande) {
                         <button onClick={ajouterLot} style={{
                           flex: 2, padding: '8px', borderRadius: 8, border: 'none',
                           background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer'
-                        }}>Ajouter</button>
+                        }}>{t('ajouter')}</button>
                         <button onClick={() => setShowAddLot(false)} style={{
                           flex: 1, padding: '8px', borderRadius: 8,
                           border: '1.5px solid #e8e3d8', background: '#fff', fontSize: 12, cursor: 'pointer'
-                        }}>Annuler</button>
+                        }}>{t('annuler')}</button>
                       </div>
                     </div>
                   )
@@ -535,7 +555,7 @@ if (volumeDejaAlloue + volumeNouveauLot > volumeCommande) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {selected.lots?.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: '40px', color: '#8b7355', fontSize: 12 }}>
-                    Aucun lot - ajoutez-en un depuis l'onglet Avancement
+                    {t('aucunLot')}
                   </div>
                 ) : selected.lots?.map(lot => {
                   const [bg, tc] = STATUT_LOT_COLORS[lot.statut] ?? ['#f5f3ef', '#4a5568']
@@ -550,16 +570,16 @@ if (volumeDejaAlloue + volumeNouveauLot > volumeCommande) {
                           }}>{''}</div>
                           <div>
                             <div style={{ fontSize: 14, fontWeight: 800, color: '#1a1a1a' }}>{lot.reference}</div>
-                            <div style={{ fontSize: 11, color: '#4a5568' }}>{Math.round((lot.volume_tonnes ?? 0) * 1000).toLocaleString('fr-FR')} kg - {lot.origine ?? '-'}</div>
+                            <div style={{ fontSize: 11, color: '#4a5568' }}>{Math.round((lot.volume_tonnes ?? 0) * 1000).toLocaleString(locale)} kg - {lot.origine ?? '-'}</div>
                           </div>
                         </div>
                         <span style={{ padding: '3px 10px', borderRadius: 4, fontSize: 11, fontWeight: 700, background: bg, color: tc }}>
-                          {lot.statut.replace('_', ' ')}
+                          {statutLotLabel(lot.statut)}
                         </span>
                       </div>
                       <div style={{ marginBottom: 8 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 4 }}>
-                          <span style={{ color: '#4a5568' }}>Avancement</span>
+                          <span style={{ color: '#4a5568' }}>{t('avancement')}</span>
                           <span style={{ fontWeight: 700, color: '#1a1a1a' }}>{lot.avancement_pct}%</span>
                         </div>
                         <div style={{ height: 6, background: '#d4c5b0', borderRadius: 3 }}>
@@ -582,14 +602,14 @@ if (volumeDejaAlloue + volumeNouveauLot > volumeCommande) {
               <div>
                 {selected.lots?.every(l => l.controles_qualite?.length === 0) ? (
                   <div style={{ textAlign: 'center', padding: '40px', color: '#8b7355', fontSize: 12 }}>
-                    Aucun Contrôle qualité enregistré
+                    {t('aucunControle')}
                   </div>
                 ) : (
                   <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', overflow: 'hidden' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                       <thead>
                         <tr style={{ background: '#f5f3ef' }}>
-                          {['Lot', 'Paramètre', 'Valeur', 'Seuil', 'Résultat', 'Date'].map(h => (
+                          {[t('cq.lot'), t('cq.parametre'), t('cq.valeur'), t('cq.seuil'), t('cq.resultat'), t('cq.date')].map(h => (
                             <th key={h} style={{ padding: '10px 14px', fontSize: 11, fontWeight: 600, color: '#8b7355', textAlign: 'left', textTransform: 'uppercase' }}>{h}</th>
                           ))}
                         </tr>
@@ -607,10 +627,10 @@ if (volumeDejaAlloue + volumeNouveauLot > volumeCommande) {
                                   padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700,
                                   background: cq.conforme ? '#f0f4ec' : '#FEE2E2',
                                   color: cq.conforme ? '#2d5016' : '#991B1B'
-                                }}>{cq.conforme ? ' Conforme' : '✕ Non conforme'}</span>
+                                }}>{cq.conforme ? t('cq.conforme') : t('cq.nonConforme')}</span>
                               </td>
                               <td style={{ padding: '11px 14px', fontSize: 11, color: '#8b7355' }}>
-                                {new Date(cq.date_controle).toLocaleDateString('fr-FR')}
+                                {new Date(cq.date_controle).toLocaleDateString(locale)}
                               </td>
                             </tr>
                           )) ?? []
@@ -627,8 +647,8 @@ if (volumeDejaAlloue + volumeNouveauLot > volumeCommande) {
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8b7355' }}>
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: 40, marginBottom: 12 }}>section</div>
-            <div style={{ fontSize: 14, fontWeight: 600 }}>Aucune production active</div>
-            <div style={{ fontSize: 12, marginTop: 4 }}>Les commandes soumises apparaîtront ici</div>
+            <div style={{ fontSize: 14, fontWeight: 600 }}>{t('aucuneProdActive')}</div>
+            <div style={{ fontSize: 12, marginTop: 4 }}>{t('commandesIci')}</div>
           </div>
         </div>
       )}
@@ -636,24 +656,24 @@ if (volumeDejaAlloue + volumeNouveauLot > volumeCommande) {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }} onClick={() => setShowLogistique(false)}>
           <div style={{ background: '#fff', borderRadius: 12, width: '100%', maxWidth: 420, boxShadow: '0 24px 64px rgba(0,0,0,0.2)', padding: '24px 28px' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
-              <span style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>Dates logistiques</span>
+              <span style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>{t('datesLogistiques')}</span>
               <button onClick={() => setShowLogistique(false)} style={{ border: 'none', background: 'none', fontSize: 18, cursor: 'pointer', color: '#8b7355' }}>x</button>
             </div>
             <div style={{ marginBottom: 14 }}>
-              <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Date d'expédition prévue *</label>
+              <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>{t('dateExpedition')}</label>
               <input type="date" value={logistiqueForm.date_expedition_prevue} onChange={e => setLogistiqueForm(p => ({ ...p, date_expedition_prevue: e.target.value }))} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none', boxSizing: 'border-box' as const }} />
             </div>
             <div style={{ marginBottom: 20 }}>
-              <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Date de livraison prévue (optionnel)</label>
+              <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>{t('dateLivraison')}</label>
               <input type="date" value={logistiqueForm.date_livraison_prevue} onChange={e => setLogistiqueForm(p => ({ ...p, date_livraison_prevue: e.target.value }))} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none', boxSizing: 'border-box' as const }} />
             </div>
             <div style={{ padding: '10px 12px', borderRadius: 6, background: '#fdf8ec', border: '1px solid #e8d5a0', fontSize: 11, color: '#8b6914', marginBottom: 16 }}>
-              {"Par défaut : expédition 14 jours après validation, livraison confirmée 30 jours après expédition si aucune action."}
+              {t('logistiqueDefaut')}
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => setShowLogistique(false)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#8b7355', fontSize: 13, cursor: 'pointer' }}>Annuler</button>
+              <button onClick={() => setShowLogistique(false)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#8b7355', fontSize: 13, cursor: 'pointer' }}>{t('annuler')}</button>
               <button onClick={sauvegarderLogistique} disabled={!logistiqueForm.date_expedition_prevue} style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: !logistiqueForm.date_expedition_prevue ? '#d4c5b0' : '#1a1a1a', color: !logistiqueForm.date_expedition_prevue ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: !logistiqueForm.date_expedition_prevue ? 'default' : 'pointer' }}>
-                Enregistrer
+                {t('enregistrer')}
               </button>
             </div>
           </div>
@@ -664,11 +684,11 @@ if (volumeDejaAlloue + volumeNouveauLot > volumeCommande) {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }} onClick={() => setShowAssocCertif(null)}>
           <div style={{ background: '#fff', borderRadius: 12, width: '100%', maxWidth: 480, maxHeight: '80vh', overflow: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.2)', padding: '24px 28px' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
-              <span style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>Associer une certification</span>
+              <span style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>{t('associerTitre')}</span>
               <button onClick={() => setShowAssocCertif(null)} style={{ border: 'none', background: 'none', fontSize: 18, cursor: 'pointer', color: '#8b7355' }}>x</button>
             </div>
             {certifications.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '30px', color: '#8b7355', fontSize: 13 }}>Aucune certification disponible</div>
+              <div style={{ textAlign: 'center', padding: '30px', color: '#8b7355', fontSize: 13 }}>{t('aucuneCertif')}</div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
                 {certifications.map(c => (
@@ -679,9 +699,9 @@ if (volumeDejaAlloue + volumeNouveauLot > volumeCommande) {
               </div>
             )}
             <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => setShowAssocCertif(null)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#8b7355', fontSize: 13, cursor: 'pointer' }}>Annuler</button>
+              <button onClick={() => setShowAssocCertif(null)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#8b7355', fontSize: 13, cursor: 'pointer' }}>{t('annuler')}</button>
               <button onClick={() => associerCertification(showAssocCertif)} disabled={!selectedCertifId} style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: !selectedCertifId ? '#d4c5b0' : '#1a1a1a', color: !selectedCertifId ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: !selectedCertifId ? 'default' : 'pointer' }}>
-                Associer
+                {t('associer')}
               </button>
             </div>
           </div>
