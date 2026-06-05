@@ -198,34 +198,6 @@
       "vide": "Aucune demande en cours",
       "attente": "En attente"
     },
-    "messagerie": {
-    "title": "Support",
-    "subtitleAdmin": "Toutes les demandes",
-    "subtitleUser": "Suivez vos demandes",
-    "newRequest": "+ Nouvelle demande",
-    "cancel": "Annuler",
-    "formTitle": "Nouvelle demande",
-    "objet": "Objet",
-    "objetPlaceholder": "Ex : problème de connexion, question sur une commande...",
-    "message": "Message",
-    "messagePlaceholder": "Décrivez votre demande en détail...",
-    "attachment": "J'ai une pièce jointe — je l'enverrai par email en réponse à la confirmation",
-    "submit": "Envoyer la demande",
-    "submitting": "Envoi en cours...",
-    "errorFields": "Veuillez remplir objet et message.",
-    "errorSend": "Erreur lors de l'envoi. Veuillez réessayer.",
-    "success": "Votre demande a bien été envoyée. Vous recevrez une confirmation par email.",
-    "loading": "Chargement...",
-    "emptyAdmin": "Aucune demande reçue.",
-    "emptyUser": "Vous n'avez pas encore soumis de demande.",
-    "attachmentBadge": "PJ",
-    "replyEmail": "Répondre par email",
-    "statut": {
-      "envoyee": "Envoyée",
-      "en_cours": "En cours",
-      "cloturee": "Clôturée"
-    }
-  },
     "commandes": {
       "titre": "Dernières commandes",
       "vide": "Aucune commande pour l'instant"
