@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 
 interface Ticket {
@@ -20,17 +21,18 @@ interface Props {
   isAdmin: boolean
 }
 
-const STATUT_STYLE: Record<string, { label: string; background: string; color: string }> = {
-  envoyee:  { label: 'Envoyee',   background: '#dbeafe', color: '#1d4ed8' },
-  en_cours: { label: 'En cours',  background: '#fef3c7', color: '#b45309' },
-  cloturee: { label: 'Cloturee', background: '#dcfce7', color: '#15803d' },
+// On garde uniquement les couleurs ici ; le libellé vient des traductions (key)
+const STATUT_STYLE: Record<string, { key: string; background: string; color: string }> = {
+  envoyee:  { key: 'envoyee',  background: '#dbeafe', color: '#1d4ed8' },
+  en_cours: { key: 'en_cours', background: '#fef3c7', color: '#b45309' },
+  cloturee: { key: 'cloturee', background: '#dcfce7', color: '#15803d' },
 }
 
 function getStatutStyle(statut: string) {
   if (statut === 'envoyée') return STATUT_STYLE.envoyee
   if (statut === 'en_cours') return STATUT_STYLE.en_cours
   if (statut === 'clôturée') return STATUT_STYLE.cloturee
-  return { label: statut, background: '#f5f3ef', color: '#4a5568' }
+  return { key: '', background: '#f5f3ef', color: '#4a5568' }
 }
 
 function getSupportMailto(ref: string, objet: string) {
@@ -38,6 +40,7 @@ function getSupportMailto(ref: string, objet: string) {
 }
 
 export default function SupportClient({ userId, isAdmin }: Props) {
+  const t = useTranslations('messagerie')
   const supabase = createClient()
 
   const [tickets, setTickets] = useState<Ticket[]>([])
@@ -49,6 +52,12 @@ export default function SupportClient({ userId, isAdmin }: Props) {
   const [objet, setObjet] = useState('')
   const [message, setMessage] = useState('')
   const [aPieceJointe, setAPieceJointe] = useState(false)
+
+  // Libellé traduit d'un statut (clé stable, valeur DB inchangée)
+  const labelStatut = (statut: string) => {
+    const k = getStatutStyle(statut).key
+    return k ? t('statut.' + k) : statut
+  }
 
   const fetchTickets = async () => {
     setLoading(true)
@@ -64,7 +73,7 @@ export default function SupportClient({ userId, isAdmin }: Props) {
 
   const handleSubmit = async () => {
     if (!objet.trim() || !message.trim()) {
-      setErrorMsg('Veuillez remplir objet et message.')
+      setErrorMsg(t('errorFields'))
       return
     }
     setSubmitting(true)
@@ -91,7 +100,7 @@ export default function SupportClient({ userId, isAdmin }: Props) {
     })
 
     if (error) {
-      setErrorMsg('Erreur lors de envoi. Veuillez reessayer.')
+      setErrorMsg(t('errorSend'))
       setSubmitting(false)
       return
     }
@@ -110,7 +119,7 @@ export default function SupportClient({ userId, isAdmin }: Props) {
       }),
     })
 
-    setSuccessMsg('Votre demande a bien ete envoyee. Vous recevrez une confirmation par email.')
+    setSuccessMsg(t('success'))
     setObjet('')
     setMessage('')
     setAPieceJointe(false)
@@ -159,9 +168,9 @@ export default function SupportClient({ userId, isAdmin }: Props) {
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Support</h1>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>{t('title')}</h1>
           <p style={{ fontSize: 12, color: '#8b7355', margin: '4px 0 0' }}>
-            {isAdmin ? 'Toutes les demandes' : 'Suivez vos demandes'}
+            {isAdmin ? t('subtitleAdmin') : t('subtitleUser')}
           </p>
         </div>
         {!isAdmin && (
@@ -169,7 +178,7 @@ export default function SupportClient({ userId, isAdmin }: Props) {
             onClick={() => { setShowForm(!showForm); setSuccessMsg(''); setErrorMsg('') }}
             style={{ background: '#1a1a1a', color: '#fff', border: 'none', borderRadius: 8, padding: '9px 18px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
           >
-            {showForm ? 'Annuler' : '+ Nouvelle demande'}
+            {showForm ? t('cancel') : t('newRequest')}
           </button>
         )}
       </div>
@@ -182,26 +191,26 @@ export default function SupportClient({ userId, isAdmin }: Props) {
 
       {showForm && !isAdmin && (
         <div style={{ marginBottom: 24, padding: 20, background: '#fff', border: '1px solid #e8e3d8', borderRadius: 12 }}>
-          <h2 style={{ fontSize: 15, fontWeight: 600, color: '#1a1a1a', margin: '0 0 16px' }}>Nouvelle demande</h2>
+          <h2 style={{ fontSize: 15, fontWeight: 600, color: '#1a1a1a', margin: '0 0 16px' }}>{t('formTitle')}</h2>
 
           <div style={{ marginBottom: 14 }}>
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#4a5568', marginBottom: 6 }}>Objet</label>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#4a5568', marginBottom: 6 }}>{t('objet')}</label>
             <input
               type="text"
               value={objet}
               onChange={e => setObjet(e.target.value)}
-              placeholder="Ex : Problème de connexion, question sur une commande..."
+              placeholder={t('objetPlaceholder')}
               style={{ width: '100%', border: '1px solid #d4c5b0', borderRadius: 8, padding: '9px 12px', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
             />
           </div>
 
           <div style={{ marginBottom: 14 }}>
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#4a5568', marginBottom: 6 }}>Message</label>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#4a5568', marginBottom: 6 }}>{t('message')}</label>
             <textarea
               value={message}
               onChange={e => setMessage(e.target.value)}
               rows={5}
-              placeholder="Décrivez votre demande en détail..."
+              placeholder={t('messagePlaceholder')}
               style={{ width: '100%', border: '1px solid #d4c5b0', borderRadius: 8, padding: '9px 12px', fontSize: 13, outline: 'none', resize: 'none', boxSizing: 'border-box' }}
             />
           </div>
@@ -214,7 +223,7 @@ export default function SupportClient({ userId, isAdmin }: Props) {
                 onChange={e => setAPieceJointe(e.target.checked)}
                 style={{ width: 16, height: 16 }}
               />
-              J'ai une pièce jointe - je l'enverrai par email en réponse à la confirmation
+              {t('attachment')}
             </label>
           </div>
 
@@ -225,16 +234,16 @@ export default function SupportClient({ userId, isAdmin }: Props) {
             disabled={submitting}
             style={{ background: '#1a1a1a', color: '#fff', border: 'none', borderRadius: 8, padding: '9px 20px', fontSize: 13, fontWeight: 600, cursor: submitting ? 'not-allowed' : 'pointer', opacity: submitting ? 0.6 : 1 }}
           >
-            {submitting ? 'Envoi en cours...' : 'Envoyer la demande'}
+            {submitting ? t('submitting') : t('submit')}
           </button>
         </div>
       )}
 
       {loading ? (
-        <p style={{ fontSize: 13, color: '#8b7355' }}>Chargement...</p>
+        <p style={{ fontSize: 13, color: '#8b7355' }}>{t('loading')}</p>
       ) : tickets.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '48px 0', color: '#8b7355', fontSize: 13 }}>
-          {isAdmin ? "Aucune demande recue." : "Vous n avez pas encore soumis de demande."}
+          {isAdmin ? t('emptyAdmin') : t('emptyUser')}
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -245,9 +254,9 @@ export default function SupportClient({ userId, isAdmin }: Props) {
                 {ticket.reference && (
                   <span style={{ fontSize: 11, fontWeight: 700, color: '#8b7355', letterSpacing: 0.5, flexShrink: 0 }}>{ticket.reference}</span>
                 )}
-                <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: st.background, color: st.color, flexShrink: 0 }}>{st.label}</span>
+                <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: st.background, color: st.color, flexShrink: 0 }}>{labelStatut(ticket.statut)}</span>
                 {ticket.a_piece_jointe && (
-                  <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 20, background: '#f5f3ef', color: '#8b7355', flexShrink: 0 }}>PJ</span>
+                  <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 20, background: '#f5f3ef', color: '#8b7355', flexShrink: 0 }}>{t('attachmentBadge')}</span>
                 )}
                 <span style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ticket.objet}</span>
                 <span style={{ fontSize: 11, color: '#a0aec0', flexShrink: 0 }}>{formatDate(ticket.created_at)}</span>
@@ -256,7 +265,7 @@ export default function SupportClient({ userId, isAdmin }: Props) {
                     onClick={() => { window.location.href = getSupportMailto(ticket.reference, ticket.objet) }}
                     style={{ fontSize: 11, color: '#1a1a1a', fontWeight: 600, border: '1px solid #e8e3d8', borderRadius: 6, background: '#f5f3ef', padding: '4px 10px', cursor: 'pointer', flexShrink: 0 }}
                   >
-                    Repondre par email
+                    {t('replyEmail')}
                   </button>
                 )}
                 {isAdmin && (
@@ -270,7 +279,7 @@ export default function SupportClient({ userId, isAdmin }: Props) {
                           disabled={ticket.statut === s}
                           style={{ fontSize: 11, padding: '4px 10px', borderRadius: 6, border: '1px solid #e8e3d8', cursor: ticket.statut === s ? 'default' : 'pointer', background: ticket.statut === s ? ss.background : '#fff', color: ticket.statut === s ? ss.color : '#4a5568', fontWeight: ticket.statut === s ? 600 : 400 }}
                         >
-                          {ss.label}
+                          {labelStatut(s)}
                         </button>
                       )
                     })}
