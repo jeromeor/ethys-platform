@@ -919,9 +919,8 @@
       "enCours": "In progress",
       "paysCouverts": "Countries covered"
     }
-  }
-},
-,"profil": {
+  },
+  "profil": {
     "msg": {
       "entrepriseMaj": "Company updated",
       "profilMaj": "Profile updated",
