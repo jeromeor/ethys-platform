@@ -1001,4 +1001,16 @@
       "typeAssuranceRcPro": "Professional liability insurance"
     }
   }
+},
+"mentionsLegales": {
+    "retour": "Back",
+    "titre": "Legal notice & Privacy policy",
+    "maj": "Last updated: May 2026",
+    "s1": "1. Site publisher",
+    "s2": "2. Hosting",
+    "s3": "3. Personal data — Data controller",
+    "s4": "4. Data collected and purposes",
+    "s5": "5. Your rights",
+    "s6": "6. Cookies"
+  }
 }
