@@ -133,163 +133,246 @@
     "legal": "Mentions légales & RGPD"
   },
   "dashboard": {
-  "bienvenue": "Bienvenue",
-  "vueAdmin": "(vue Admin globale)",
-  "configuration": {
-    "titre": "Votre compte est en cours de configuration",
-    "texte": "Votre entreprise n'est pas encore associée. L'équipe ETHYS va finaliser votre configuration très prochainement.",
-    "cta": "Compléter mon profil"
-  },
-  "kpi": {
-    "commandes": "Commandes actives",
-    "partenaires": "Partenaires actifs",
-    "annuaire": "Annuaire",
-    "esg": "Conformité ESG",
-    "qr": "QR code à valider"
-  },
-  "type": {
-    "marque": "Marque",
-    "filature": "Filature",
-    "fournisseur": "Fournisseur"
-  },
-  "statut": {
-    "en_production": "En production",
-    "livree": "Livrée",
-    "soumise": "Transmise",
-    "validation_filature": "Val. filature",
-    "validation_finale": "Val. finale",
-    "annulee": "Annulée"
-  },
-  "demandesRecues": {
-    "titre": "Demandes reçues",
-    "vide": "Aucune demande en attente",
-    "repondre": "Répondre"
-  },
-  "demandesEnvoyees": {
-    "titre": "Demandes envoyées",
-    "vide": "Aucune demande en cours",
-    "attente": "En attente"
+    "bienvenue": "Bienvenue",
+    "vueAdmin": "(vue Admin globale)",
+    "configuration": {
+      "titre": "Votre compte est en cours de configuration",
+      "texte": "Votre entreprise n'est pas encore associée. L'équipe ETHYS va finaliser votre configuration très prochainement.",
+      "cta": "Compléter mon profil"
+    },
+    "kpi": {
+      "commandes": "Commandes actives",
+      "partenaires": "Partenaires actifs",
+      "annuaire": "Annuaire",
+      "esg": "Conformité ESG",
+      "qr": "QR code à valider"
+    },
+    "type": {
+      "marque": "Marque",
+      "filature": "Filature",
+      "fournisseur": "Fournisseur"
+    },
+    "statut": {
+      "en_production": "En production",
+      "livree": "Livrée",
+      "soumise": "Transmise",
+      "validation_filature": "Val. filature",
+      "validation_finale": "Val. finale",
+      "annulee": "Annulée"
+    },
+    "demandesRecues": {
+      "titre": "Demandes reçues",
+      "vide": "Aucune demande en attente",
+      "repondre": "Répondre"
+    },
+    "demandesEnvoyees": {
+      "titre": "Demandes envoyées",
+      "vide": "Aucune demande en cours",
+      "attente": "En attente"
+    },
+    "commandes": {
+      "titre": "Dernières commandes",
+      "vide": "Aucune commande pour l'instant"
+    },
+    "table": {
+      "reference": "Référence",
+      "statut": "Statut",
+      "date": "Date"
+    },
+    "qr": {
+      "titre": "QR Codes à valider",
+      "vide": "Aucun QR code en attente"
+    }
   },
   "commandes": {
-    "titre": "Dernières commandes",
-    "vide": "Aucune commande pour l'instant"
+    "nouvelle": "+ Nouvelle commande",
+    "statut": {
+      "brouillon": "Brouillon",
+      "soumise": "Transmise",
+      "validation_fournisseur": "Val. fournisseur",
+      "validation_filature": "Val. filature",
+      "validation_finale": "Val. finale",
+      "en_production": "En production",
+      "controle_qualite": "Contrôle qualité",
+      "qr_genere": "QR généré",
+      "expediee": "Expédiée",
+      "livree": "Livrée",
+      "annulee": "Annulée"
+    },
+    "priorite": {
+      "normale": "Normale",
+      "haute": "Haute",
+      "urgente": "Urgente"
+    },
+    "errors": {
+      "champsObligatoires": "Veuillez remplir tous les champs obligatoires : Marque, Filature, Fournisseur et Date de livraison.",
+      "volume": "Veuillez indiquer un volume de coton recyclé supérieur à 0.",
+      "refGeneration": "Erreur lors de la génération de la référence.",
+      "prefix": "Erreur : "
+    },
+    "filtres": {
+      "toutes": "Toutes",
+      "transmises": "Transmises",
+      "toutesMarques": "Toutes marques",
+      "toutesFilatures": "Toutes filatures",
+      "reinitialiser": "Réinitialiser"
+    },
+    "liste": {
+      "vide": "Aucune commande",
+      "videHint": "Cliquez sur \"+ Nouvelle commande\" pour commencer",
+      "annulationBadge": "ANNULATION",
+      "annulationDem": "Annulation dem."
+    },
+    "table": {
+      "reference": "Référence",
+      "marque": "Marque",
+      "filature": "Filature",
+      "volume": "Volume",
+      "composition": "Composition",
+      "statut": "Statut",
+      "livraison": "Livraison",
+      "avancement": "Avancement"
+    },
+    "detail": {
+      "volume": "Volume",
+      "recycle": "Recyclé",
+      "priorite": "Priorité",
+      "livraison": "Livraison",
+      "marque": "Marque",
+      "filature": "Filature",
+      "fournisseur": "Fournisseur",
+      "typeCoton": "Type coton",
+      "typeCotonValue": "Fil ETHYS (51% recyclé / 49% vierge)",
+      "grammage": "Grammage",
+      "statut": "Statut",
+      "chargement": "Chargement...",
+      "annuleeLe": "Annulée le",
+      "refDemande": "Réf. demande :",
+      "commandeAnnulee": "Commande annulée",
+      "annulationImpossible": "Annulation impossible — statut :",
+      "demandeEnAttente": "Demande d'annulation en attente",
+      "motif": "Motif :",
+      "refuser": "Refuser la demande",
+      "annulerCommande": "Annuler la commande",
+      "aucuneDemande": "Aucune demande d'annulation en attente",
+      "demandeEnvoyee": "Demande d'annulation envoyée",
+      "enAttenteTraitement": "En attente de traitement",
+      "demanderAnnulation": "Demander l'annulation"
+    },
+    "modal": {
+      "sousTitre": "{ref} — votre demande sera traitée par Textile Loop",
+      "motifOptionnel": "Motif (optionnel)",
+      "motifPlaceholder": "Ex : erreur de saisie, changement de planning...",
+      "annuler": "Annuler",
+      "envoi": "Envoi...",
+      "envoyer": "Envoyer la demande"
+    },
+    "form": {
+      "titre": "Nouvelle commande ETHYS",
+      "titreInterne": "Titre / référence interne",
+      "titrePlaceholder": "Ex : Collection Printemps 2024",
+      "marque": "Marque *",
+      "filature": "Filature *",
+      "fournisseur": "Fournisseur *",
+      "selectionner": "Sélectionner...",
+      "partenairesBeta": "La fonction de sélection des entreprises partenaires est en cours de test.",
+      "compositionTitre": "Composition Fil ETHYS",
+      "compositionTexte": "51% coton recyclé + 49% coton vierge",
+      "volumeLabel": "Volume total de fil (kg) *",
+      "volumePlaceholder": "Ex : 1000",
+      "cotonRecycle": "Coton recyclé (51%) :",
+      "cotonVierge": "Coton vierge (49%) :",
+      "grammage": "Grammage",
+      "livraison": "Livraison souhaitée *",
+      "priorite": "Priorité",
+      "notes": "Notes",
+      "notesPlaceholder": "Instructions particulières...",
+      "annuler": "Annuler",
+      "creation": "Création...",
+      "creer": "Créer la commande ETHYS"
+    }
   },
-  "table": {
-    "reference": "Référence",
-    "statut": "Statut",
-    "date": "Date"
-  },
-  "qr": {
-    "titre": "QR Codes à valider",
-    "vide": "Aucun QR code en attente"
-  }
-  },
-  "commandes": {
-  "nouvelle": "+ Nouvelle commande",
-  "statut": {
-    "brouillon": "Brouillon",
-    "soumise": "Transmise",
-    "validation_fournisseur": "Val. fournisseur",
-    "validation_filature": "Val. filature",
-    "validation_finale": "Val. finale",
-    "en_production": "En production",
-    "controle_qualite": "Contrôle qualité",
-    "qr_genere": "QR généré",
-    "expediee": "Expédiée",
-    "livree": "Livrée",
-    "annulee": "Annulée"
-  },
-  "priorite": {
-    "normale": "Normale",
-    "haute": "Haute",
-    "urgente": "Urgente"
-  },
-  "errors": {
-    "champsObligatoires": "Veuillez remplir tous les champs obligatoires : Marque, Filature, Fournisseur et Date de livraison.",
-    "volume": "Veuillez indiquer un volume de coton recyclé supérieur à 0.",
-    "refGeneration": "Erreur lors de la génération de la référence.",
-    "prefix": "Erreur : "
-  },
-  "filtres": {
-    "toutes": "Toutes",
-    "transmises": "Transmises",
-    "toutesMarques": "Toutes marques",
-    "toutesFilatures": "Toutes filatures",
-    "reinitialiser": "Réinitialiser"
-  },
-  "liste": {
-    "vide": "Aucune commande",
-    "videHint": "Cliquez sur \"+ Nouvelle commande\" pour commencer",
-    "annulationBadge": "ANNULATION",
-    "annulationDem": "Annulation dem."
-  },
-  "table": {
-    "reference": "Référence",
-    "marque": "Marque",
-    "filature": "Filature",
-    "volume": "Volume",
-    "composition": "Composition",
-    "statut": "Statut",
-    "livraison": "Livraison",
-    "avancement": "Avancement"
-  },
-  "detail": {
-    "volume": "Volume",
-    "recycle": "Recyclé",
-    "priorite": "Priorité",
-    "livraison": "Livraison",
-    "marque": "Marque",
-    "filature": "Filature",
-    "fournisseur": "Fournisseur",
+  "production": {
+    "etapes": {
+      "reception": "Réception matière",
+      "preparation": "Préparation fibres",
+      "filage": "Filage",
+      "bobinage": "Bobinage",
+      "controle": "Contrôle qualité",
+      "conditionnement": "Conditionnement",
+      "expedition": "Expédition"
+    },
+    "priorite": {
+      "normale": "Normale",
+      "haute": "Haute",
+      "urgente": "Urgente"
+    },
+    "lotStatut": {
+      "en_attente": "En attente",
+      "en_production": "En production",
+      "controle_qualite": "Contrôle qualité",
+      "valide": "Validé",
+      "livre": "Livré"
+    },
+    "alert": {
+      "adminNoEdit": "En tant qu'admin, vous ne pouvez pas modifier l'avancement d'un lot. Cette action revient à la filature ou à la marque.",
+      "volumeDepasse": "Volume lots ({lots} kg) dépasse la commande ({commande} kg)"
+    },
+    "confirm": {
+      "reduire": "Attention : vous réduisez l'avancement du lot {ref}. Cette action va générer une alerte admin. Confirmer ?",
+      "completion": "Confirmer la complétion à 100% du lot {ref} ?",
+      "completion2": "Deuxième confirmation : le lot sera marqué comme terminé. Cette action est définitive. Continuer ?"
+    },
+    "listeTitre": "Productions actives",
+    "listeVide1": "Aucune production active.",
+    "listeVide2": "Soumettez d'abord une commande.",
+    "avancementGlobal": "Avancement global",
+    "expeditionPrevue": "Expédition prévue",
+    "livraisonPrevue": "Livraison prévue",
+    "modifier": "Modifier",
+    "prodTerminee": "Production terminée - saisir les dates logistiques",
+    "saisirDates": "Saisir les dates",
+    "tabs": {
+      "avancement": "Avancement",
+      "lots": "Lots",
+      "qualite": "Contrôles qualité"
+    },
+    "etapesTitre": "Étapes de production",
+    "filEthys": "Fil ETHYS",
+    "avancement": "Avancement",
+    "certifEthysPrefix": "Certification ETHYS : ",
+    "demanderCertif": "Demander une certification ETHYS",
+    "certifTousLots": "La demande de certification ETHYS n'est possible que si tous les lots de la commande sont validés.",
+    "ajouterLot": "+ Ajouter un lot",
+    "nouveauLot": "Nouveau lot",
     "typeCoton": "Type coton",
-    "typeCotonValue": "Fil ETHYS (51% recyclé / 49% vierge)",
-    "grammage": "Grammage",
-    "statut": "Statut",
-    "chargement": "Chargement...",
-    "annuleeLe": "Annulée le",
-    "refDemande": "Réf. demande :",
-    "commandeAnnulee": "Commande annulée",
-    "annulationImpossible": "Annulation impossible — statut :",
-    "demandeEnAttente": "Demande d'annulation en attente",
-    "motif": "Motif :",
-    "refuser": "Refuser la demande",
-    "annulerCommande": "Annuler la commande",
-    "aucuneDemande": "Aucune demande d'annulation en attente",
-    "demandeEnvoyee": "Demande d'annulation envoyée",
-    "enAttenteTraitement": "En attente de traitement",
-    "demanderAnnulation": "Demander l'annulation"
-  },
-  "modal": {
-    "sousTitre": "{ref} — votre demande sera traitée par Textile Loop",
-    "motifOptionnel": "Motif (optionnel)",
-    "motifPlaceholder": "Ex : erreur de saisie, changement de planning...",
+    "filEthysRecycle": "Fil ETHYS (recyclé)",
+    "volumeKg": "Volume (kg)",
+    "volumePlaceholder": "Ex : 80",
+    "certification": "Certification",
+    "ajouter": "Ajouter",
     "annuler": "Annuler",
-    "envoi": "Envoi...",
-    "envoyer": "Envoyer la demande"
-  },
-  "form": {
-    "titre": "Nouvelle commande ETHYS",
-    "titreInterne": "Titre / référence interne",
-    "titrePlaceholder": "Ex : Collection Printemps 2024",
-    "marque": "Marque *",
-    "filature": "Filature *",
-    "fournisseur": "Fournisseur *",
-    "selectionner": "Sélectionner...",
-    "partenairesBeta": "La fonction de sélection des entreprises partenaires est en cours de test.",
-    "compositionTitre": "Composition Fil ETHYS",
-    "compositionTexte": "51% coton recyclé + 49% coton vierge",
-    "volumeLabel": "Volume total de fil (kg) *",
-    "volumePlaceholder": "Ex : 1000",
-    "cotonRecycle": "Coton recyclé (51%) :",
-    "cotonVierge": "Coton vierge (49%) :",
-    "grammage": "Grammage",
-    "livraison": "Livraison souhaitée *",
-    "priorite": "Priorité",
-    "notes": "Notes",
-    "notesPlaceholder": "Instructions particulières...",
-    "annuler": "Annuler",
-    "creation": "Création...",
-    "creer": "Créer la commande ETHYS"
+    "aucunLot": "Aucun lot - ajoutez-en un depuis l'onglet Avancement",
+    "aucunControle": "Aucun contrôle qualité enregistré",
+    "cq": {
+      "lot": "Lot",
+      "parametre": "Paramètre",
+      "valeur": "Valeur",
+      "seuil": "Seuil",
+      "resultat": "Résultat",
+      "date": "Date",
+      "conforme": "✓ Conforme",
+      "nonConforme": "✕ Non conforme"
+    },
+    "aucuneProdActive": "Aucune production active",
+    "commandesIci": "Les commandes soumises apparaîtront ici",
+    "datesLogistiques": "Dates logistiques",
+    "dateExpedition": "Date d'expédition prévue *",
+    "dateLivraison": "Date de livraison prévue (optionnel)",
+    "logistiqueDefaut": "Par défaut : expédition 14 jours après validation, livraison confirmée 30 jours après expédition si aucune action.",
+    "enregistrer": "Enregistrer",
+    "associerTitre": "Associer une certification",
+    "aucuneCertif": "Aucune certification disponible",
+    "associer": "Associer"
   }
-}
 }
