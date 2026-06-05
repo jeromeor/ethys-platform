@@ -374,5 +374,94 @@
     "associerTitre": "Link a certification",
     "aucuneCertif": "No certification available",
     "associer": "Link"
+  },
+  "certification": {
+    "listeTitre": "ETHYS Certifications",
+    "suffix": {
+      "certifiees": "certified",
+      "enAttenteCount": "pending",
+      "enCours": "in progress",
+      "kgRecycle": "kg recycled"
+    },
+    "demander": "+ Request",
+    "section": {
+      "aValider": "To validate",
+      "enCoursExamen": "Under review",
+      "certifiees": "Certified"
+    },
+    "statut": {
+      "duplicatasCourt": "Duplicates",
+      "duplicatasDemandes": "Duplicates requested",
+      "enAttente": "Pending",
+      "certifiee": "Certified"
+    },
+    "aucuneCertif": "No certification.",
+    "filEthys": "ETHYS Yarn",
+    "annuler": "Cancel",
+    "commandePrefix": "Order",
+    "soumiseLe": "Submitted on",
+    "emiseLe": "Issued on",
+    "valideJusqu": "Valid until",
+    "certifObtenue": "ETHYS certification obtained",
+    "decisionTitre": "TEXTILE LOOP decision",
+    "demanderDuplicatas": "Request duplicates",
+    "duplicatasAttente": "Duplicates requested — awaiting receipt",
+    "refuser": "Reject",
+    "certifEnCours": "Certifying...",
+    "certifierEthys": "Certify ETHYS",
+    "motifPlaceholder": "Reason for rejection...",
+    "confirmerRefus": "Confirm rejection",
+    "emptyTitre": "ETHYS Certification",
+    "erreurPrefix": "Error: ",
+    "labels": {
+      "type": "Type",
+      "volumeTotal": "Total volume",
+      "volumeRecycle": "Recycled volume",
+      "volumeVierge": "Virgin volume",
+      "pctRecycle": "% recycled",
+      "filature": "Spinning mill",
+      "pays": "Country"
+    },
+    "form": {
+      "titre": "ETHYS certification request",
+      "commandeLabel": "Order to certify *",
+      "selectCommande": "Select an order...",
+      "recap": "Summary",
+      "volumeTotal": "Total volume",
+      "type": "Type",
+      "pctRecycle": "% recycled",
+      "volumeRecycle": "Recycled volume",
+      "volumeVierge": "Virgin volume",
+      "filature": "Spinning mill",
+      "marque": "Brand",
+      "honneurTitre": "Declaration of honour",
+      "honneurTexte": "I certify on my honour that the information is accurate and that this declaration meets the ETHYS criteria (minimum 51% recycled cotton, verifiable traceability).",
+      "envoi": "Sending...",
+      "soumettre": "Submit request"
+    },
+    "declFilature": {
+      "titre": "Request under review",
+      "dupMsg1": "TEXTILE LOOP has requested the duplicates of your recycled and virgin cotton orders.",
+      "dupMsg2": "Please send them by email to",
+      "attMsg1": "Your request is being reviewed by TEXTILE LOOP.",
+      "attMsg2": "You will receive a notification as soon as it is processed."
+    },
+    "empty": {
+      "adminAValider": "Select a request to validate or reject it.",
+      "adminVide": "No pending request.",
+      "filatureEligibles": "You have eligible orders. Click + Request to submit.",
+      "filatureVoir": "Select a request to see its status.",
+      "filatureVide": "No order eligible for certification at the moment."
+    },
+    "msg": {
+      "selectCommande": "Please select an order.",
+      "cocherHonneur": "Please tick the declaration of honour.",
+      "commandeIntrouvable": "Order not found.",
+      "demandeSoumise": "Certification request submitted. It will be reviewed by TEXTILE LOOP.",
+      "duplicatasEnvoyes": "Duplicate request sent by email.",
+      "erreurCertif": "Error during certification: ",
+      "certifAccordee": "Certification granted. Number: ",
+      "motifRefus": "Please provide a reason for rejection."
+    }
   }
 }
