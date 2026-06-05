@@ -582,169 +582,227 @@
     "annuler": "Cancel"
   },
   "facturation": {
-  "statuts": {
-    "brouillon": "Draft",
-    "emise": "Issued",
-    "en_attente": "Pending",
-    "payee": "Paid",
-    "en_retard": "Overdue",
-    "annulee": "Cancelled"
-  },
-  "kpi": {
-    "totalFacture": "Total invoiced",
-    "encaisse": "Collected",
-    "enAttente": "Pending",
-    "enRetard": "Overdue"
-  },
-  "filtres": {
-    "toutes": "All"
-  },
-  "boutons": {
-    "accordsCommerciaux": "Commercial agreements",
-    "nouvelleFacture": "New invoice",
-    "nouvelAccord": "New agreement",
-    "voir": "View",
-    "marquerPayee": "Mark as paid",
-    "fermer": "Close",
-    "annuler": "Cancel",
-    "ajouterLigne": "Add a line"
-  },
-  "accords": {
-    "titre": "Commercial agreements",
-    "aucun": "No commercial agreement. Click '+ New agreement' to create one.",
-    "du": "From {debut}",
-    "auDate": "to {fin}",
-    "illimite": "(unlimited)",
-    "actif": "Active",
-    "prixNegocieKg": "Negotiated price/kg",
-    "base": "Base: €{prix}",
-    "remiseVolumeAnnuel": "Annual volume discount",
-    "desSeuil": "From {seuil}T/year",
-    "remisePalierCommande": "Order tier discount",
-    "remisePalierDetail": "1% ≥ 5T · 2% ≥ 10T",
-    "standardEthys": "ETHYS standard"
-  },
-  "formAccord": {
-    "titre": "New commercial agreement",
-    "marque": "Brand *",
-    "selectMarque": "Select a brand…",
-    "prixNegocie": "Negotiated price (€/kg) *",
-    "remiseAnnuelle": "Annual discount (%)",
-    "seuilVolume": "Annual volume threshold (T)",
-    "dateFin": "End date (optional)",
-    "notes": "Notes (optional)",
-    "enregistrer": "Save agreement"
-  },
-  "table": {
-    "aucuneFacture": "No invoice",
-    "reference": "Reference",
-    "emetteur": "Issuer",
-    "destinataire": "Recipient",
-    "montantTtc": "Amount incl. VAT",
-    "emission": "Issued",
-    "echeance": "Due",
-    "statut": "Status"
-  },
-  "detail": {
-    "factureEthys": "ETHYS INVOICE",
-    "refCommande": "Order ref.: {ref}",
-    "prixAccord": "Commercial agreement price",
-    "decompositionPrix": "Price breakdown",
-    "prixBase": "Base price",
-    "remiseVolumeCommande": "Order volume discount",
-    "remiseVolumeAnnuel": "Annual volume discount",
-    "prixApplicable": "Applicable price",
-    "ttc": "incl. VAT",
-    "emetteur": "Issuer",
-    "destinataire": "Recipient",
-    "dateEmission": "Issue date",
-    "dateEcheance": "Due date",
-    "datePaiement": "Payment date",
-    "detailPrestations": "Service details",
-    "colDescription": "Description",
-    "colQte": "Qty",
-    "colUnite": "Unit",
-    "colPu": "Unit price (€)",
-    "colTotalHt": "Total excl. VAT",
-    "sousTotalHt": "Subtotal excl. VAT",
-    "tva": "VAT {pct}%",
-    "totalTtc": "Total incl. VAT"
-  },
-  "formFacture": {
-    "titre": "New invoice",
-    "commande": "Order *",
-    "selectionner": "Select…",
-    "emetteur": "Issuer *",
-    "destinataire": "Recipient *",
-    "dateEcheance": "Due date *",
-    "tva": "VAT (%)",
-    "lignes": "Invoice lines",
-    "phDescription": "Description",
-    "phQte": "Qty",
-    "phPu": "Unit price €",
-    "totalHt": "Total excl. VAT",
-    "tvaLigne": "VAT {pct}%",
-    "totalTtc": "Total incl. VAT",
-    "creation": "Creating…",
-    "creer": "Create invoice"
-  },
+    "statuts": {
+      "brouillon": "Draft",
+      "emise": "Issued",
+      "en_attente": "Pending",
+      "payee": "Paid",
+      "en_retard": "Overdue",
+      "annulee": "Cancelled"
+    },
+    "kpi": {
+      "totalFacture": "Total invoiced",
+      "encaisse": "Collected",
+      "enAttente": "Pending",
+      "enRetard": "Overdue"
+    },
+    "filtres": {
+      "toutes": "All"
+    },
+    "boutons": {
+      "accordsCommerciaux": "Commercial agreements",
+      "nouvelleFacture": "New invoice",
+      "nouvelAccord": "New agreement",
+      "voir": "View",
+      "marquerPayee": "Mark as paid",
+      "fermer": "Close",
+      "annuler": "Cancel",
+      "ajouterLigne": "Add a line"
+    },
+    "accords": {
+      "titre": "Commercial agreements",
+      "aucun": "No commercial agreement. Click '+ New agreement' to create one.",
+      "du": "From {debut}",
+      "auDate": "to {fin}",
+      "illimite": "(unlimited)",
+      "actif": "Active",
+      "prixNegocieKg": "Negotiated price/kg",
+      "base": "Base: €{prix}",
+      "remiseVolumeAnnuel": "Annual volume discount",
+      "desSeuil": "From {seuil}T/year",
+      "remisePalierCommande": "Order tier discount",
+      "remisePalierDetail": "1% ≥ 5T · 2% ≥ 10T",
+      "standardEthys": "ETHYS standard"
+    },
+    "formAccord": {
+      "titre": "New commercial agreement",
+      "marque": "Brand *",
+      "selectMarque": "Select a brand…",
+      "prixNegocie": "Negotiated price (€/kg) *",
+      "remiseAnnuelle": "Annual discount (%)",
+      "seuilVolume": "Annual volume threshold (T)",
+      "dateFin": "End date (optional)",
+      "notes": "Notes (optional)",
+      "enregistrer": "Save agreement"
+    },
+    "table": {
+      "aucuneFacture": "No invoice",
+      "reference": "Reference",
+      "emetteur": "Issuer",
+      "destinataire": "Recipient",
+      "montantTtc": "Amount incl. VAT",
+      "emission": "Issued",
+      "echeance": "Due",
+      "statut": "Status"
+    },
+    "detail": {
+      "factureEthys": "ETHYS INVOICE",
+      "refCommande": "Order ref.: {ref}",
+      "prixAccord": "Commercial agreement price",
+      "decompositionPrix": "Price breakdown",
+      "prixBase": "Base price",
+      "remiseVolumeCommande": "Order volume discount",
+      "remiseVolumeAnnuel": "Annual volume discount",
+      "prixApplicable": "Applicable price",
+      "ttc": "incl. VAT",
+      "emetteur": "Issuer",
+      "destinataire": "Recipient",
+      "dateEmission": "Issue date",
+      "dateEcheance": "Due date",
+      "datePaiement": "Payment date",
+      "detailPrestations": "Service details",
+      "colDescription": "Description",
+      "colQte": "Qty",
+      "colUnite": "Unit",
+      "colPu": "Unit price (€)",
+      "colTotalHt": "Total excl. VAT",
+      "sousTotalHt": "Subtotal excl. VAT",
+      "tva": "VAT {pct}%",
+      "totalTtc": "Total incl. VAT"
+    },
+    "formFacture": {
+      "titre": "New invoice",
+      "commande": "Order *",
+      "selectionner": "Select…",
+      "emetteur": "Issuer *",
+      "destinataire": "Recipient *",
+      "dateEcheance": "Due date *",
+      "tva": "VAT (%)",
+      "lignes": "Invoice lines",
+      "phDescription": "Description",
+      "phQte": "Qty",
+      "phPu": "Unit price €",
+      "totalHt": "Total excl. VAT",
+      "tvaLigne": "VAT {pct}%",
+      "totalTtc": "Total incl. VAT",
+      "creation": "Creating…",
+      "creer": "Create invoice"
+    },
     "reporting": {
-  "tabs": {
-    "vueGlobale": "Overview",
-    "volumes": "Volumes",
-    "finances": "Finances",
-    "partenaires": "Partners"
+      "tabs": {
+        "vueGlobale": "Overview",
+        "volumes": "Volumes",
+        "finances": "Finances",
+        "partenaires": "Partners"
+      },
+      "kpi": {
+        "volumeTotal": "Total volume",
+        "commandes": "{count} orders",
+        "caTotal": "Total revenue",
+        "factures": "{count} invoices",
+        "pctCotonRecycle": "% Recycled cotton",
+        "partenaires": "Partners",
+        "verifies": "{count} verified"
+      },
+      "aucuneDonnee": "No data",
+      "aucuneCommande": "No order",
+      "types": {
+        "marques": "Brands",
+        "filatures": "Spinning mills",
+        "fournisseurs": "Suppliers"
+      },
+      "vueGlobale": {
+        "volumesMensuels": "Monthly volumes (thousands of kg)",
+        "volumeSerie": "Volume (thousands of kg)",
+        "statutsCommandes": "Order statuses",
+        "resumeCommandes": "Order summary",
+        "colStatut": "Status",
+        "colNbCommandes": "Orders",
+        "colVolumeTotal": "Total volume",
+        "colPctRecycle": "Avg. % recycled"
+      },
+      "volumes": {
+        "evolution": "Volume trend",
+        "volumeSerie": "Volume (T)",
+        "volumeTotal": "Total volume",
+        "lotsActifs": "Active batches",
+        "lotsTotal": "{count} batches total"
+      },
+      "finances": {
+        "caMensuel": "Monthly revenue",
+        "caSerie": "Revenue in euros",
+        "caTotal": "Total revenue",
+        "facturesPayees": "Paid invoices",
+        "facturesAttente": "Pending invoices",
+        "tauxEncaissement": "Collection rate"
+      },
+      "partenaires": {
+        "parPays": "Breakdown by country",
+        "partenairesSerie": "Partners",
+        "parType": "Breakdown by type",
+        "totalPartenaires": "Total partners",
+        "verifies": "Verified",
+        "enCours": "In progress",
+        "paysCouverts": "Countries covered"
+      }
+    }
   },
-  "kpi": {
-    "volumeTotal": "Total volume",
-    "commandes": "{count} orders",
-    "caTotal": "Total revenue",
-    "factures": "{count} invoices",
-    "pctCotonRecycle": "% Recycled cotton",
-    "partenaires": "Partners",
-    "verifies": "{count} verified"
-  },
-  "aucuneDonnee": "No data",
-  "aucuneCommande": "No order",
-  "types": {
-    "marques": "Brands",
-    "filatures": "Spinning mills",
-    "fournisseurs": "Suppliers"
-  },
-  "vueGlobale": {
-    "volumesMensuels": "Monthly volumes (thousands of kg)",
-    "volumeSerie": "Volume (thousands of kg)",
-    "statutsCommandes": "Order statuses",
-    "resumeCommandes": "Order summary",
-    "colStatut": "Status",
-    "colNbCommandes": "Orders",
-    "colVolumeTotal": "Total volume",
-    "colPctRecycle": "Avg. % recycled"
-  },
-  "volumes": {
-    "evolution": "Volume trend",
-    "volumeSerie": "Volume (T)",
-    "volumeTotal": "Total volume",
-    "lotsActifs": "Active batches",
-    "lotsTotal": "{count} batches total"
-  },
-  "finances": {
-    "caMensuel": "Monthly revenue",
-    "caSerie": "Revenue in euros",
-    "caTotal": "Total revenue",
-    "facturesPayees": "Paid invoices",
-    "facturesAttente": "Pending invoices",
-    "tauxEncaissement": "Collection rate"
-  },
-  "partenaires": {
-    "parPays": "Breakdown by country",
-    "partenairesSerie": "Partners",
-    "parType": "Breakdown by type",
-    "totalPartenaires": "Total partners",
-    "verifies": "Verified",
-    "enCours": "In progress",
-    "paysCouverts": "Countries covered"
+  "reporting": {
+    "tabs": {
+      "vueGlobale": "Overview",
+      "volumes": "Volumes",
+      "finances": "Finances",
+      "partenaires": "Partners"
+    },
+    "kpi": {
+      "volumeTotal": "Total volume",
+      "commandes": "{count} orders",
+      "caTotal": "Total revenue",
+      "factures": "{count} invoices",
+      "pctCotonRecycle": "% Recycled cotton",
+      "partenaires": "Partners",
+      "verifies": "{count} verified"
+    },
+    "aucuneDonnee": "No data",
+    "aucuneCommande": "No order",
+    "types": {
+      "marques": "Brands",
+      "filatures": "Spinning mills",
+      "fournisseurs": "Suppliers"
+    },
+    "vueGlobale": {
+      "volumesMensuels": "Monthly volumes (thousands of kg)",
+      "volumeSerie": "Volume (thousands of kg)",
+      "statutsCommandes": "Order statuses",
+      "resumeCommandes": "Order summary",
+      "colStatut": "Status",
+      "colNbCommandes": "Orders",
+      "colVolumeTotal": "Total volume",
+      "colPctRecycle": "Avg. % recycled"
+    },
+    "volumes": {
+      "evolution": "Volume trend",
+      "volumeSerie": "Volume (T)",
+      "volumeTotal": "Total volume",
+      "lotsActifs": "Active batches",
+      "lotsTotal": "{count} batches total"
+    },
+    "finances": {
+      "caMensuel": "Monthly revenue",
+      "caSerie": "Revenue in euros",
+      "caTotal": "Total revenue",
+      "facturesPayees": "Paid invoices",
+      "facturesAttente": "Pending invoices",
+      "tauxEncaissement": "Collection rate"
+    },
+    "partenaires": {
+      "parPays": "Breakdown by country",
+      "partenairesSerie": "Partners",
+      "parType": "Breakdown by type",
+      "totalPartenaires": "Total partners",
+      "verifies": "Verified",
+      "enCours": "In progress",
+      "paysCouverts": "Countries covered"
+    }
   }
-}
-}
 }
