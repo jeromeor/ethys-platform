@@ -920,4 +920,85 @@
       "paysCouverts": "Pays couverts"
     }
   }
-}
+},
+,"profil": {
+    "msg": {
+      "entrepriseMaj": "Entreprise mise à jour",
+      "profilMaj": "Profil mis à jour",
+      "documentAjoute": "Document ajouté"
+    },
+    "hero": {
+      "verifie": "Profil vérifié",
+      "enVerification": "En cours de vérification",
+      "rolePlateforme": "Rôle plateforme"
+    },
+    "btn": {
+      "modifier": "Modifier",
+      "annuler": "Annuler",
+      "enregistrer": "Enregistrer",
+      "ajouter": "+ Ajouter",
+      "voir": "Voir",
+      "supprimer": "Sup."
+    },
+    "entreprise": {
+      "titre": "Informations légales et adresse",
+      "raisonSociale": "Raison sociale",
+      "siret": "SIRET",
+      "tva": "TVA",
+      "tvaIntra": "TVA intracommunautaire",
+      "adresse": "Adresse",
+      "codePostal": "Code postal",
+      "ville": "Ville",
+      "pays": "Pays",
+      "description": "Description"
+    },
+    "contact": {
+      "titre": "Contact entreprise",
+      "email": "Email",
+      "emailContact": "Email contact",
+      "telephone": "Téléphone",
+      "siteWeb": "Site web",
+      "nomContact": "Nom contact",
+      "prenomContact": "Prénom contact",
+      "fonction": "Fonction"
+    },
+    "perso": {
+      "titre": "Mon profil personnel",
+      "prenom": "Prénom",
+      "nom": "Nom",
+      "telephone": "Téléphone",
+      "email": "Email",
+      "emailNonModifiable": "Email (non modifiable)"
+    },
+    "certifs": {
+      "titre": "Certifications ({count})",
+      "aucune": "Aucune certification enregistrée"
+    },
+    "documents": {
+      "titre": "Documents ({count})",
+      "aucun": "Aucun document",
+      "exp": "Exp.",
+      "ko": "ko",
+      "type": {
+        "kbis": "Kbis",
+        "certificat": "Certificat",
+        "assurance": "Assurance",
+        "autre": "Autre"
+      }
+    },
+    "suppression": {
+      "titre": "Supprimer mon compte",
+      "texte": "Cette action est irréversible. Toutes vos données seront supprimées conformément au RGPD.",
+      "bouton": "Supprimer mon compte"
+    },
+    "modal": {
+      "titre": "Ajouter un document",
+      "nomLabel": "Nom du document *",
+      "nomPlaceholder": "Ex : Kbis 2026, Certificat GOTS...",
+      "typeLabel": "Type *",
+      "dateExp": "Date d'expiration (optionnel)",
+      "fichier": "Fichier *",
+      "upload": "Upload...",
+      "typeAssuranceRcPro": "Assurance RC Pro"
+    }
+  }
