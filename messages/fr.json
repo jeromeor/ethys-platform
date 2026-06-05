@@ -687,6 +687,64 @@
     "totalTtc": "Total TTC",
     "creation": "Création…",
     "creer": "Créer la facture"
+  },
+    "reporting": {
+  "tabs": {
+    "vueGlobale": "Vue globale",
+    "volumes": "Volumes",
+    "finances": "Finances",
+    "partenaires": "Partenaires"
+  },
+  "kpi": {
+    "volumeTotal": "Volume total",
+    "commandes": "{count} commandes",
+    "caTotal": "CA total",
+    "factures": "{count} factures",
+    "pctCotonRecycle": "% Coton recyclé",
+    "partenaires": "Partenaires",
+    "verifies": "{count} Vérifiés"
+  },
+  "aucuneDonnee": "Aucune donnée",
+  "aucuneCommande": "Aucune commande",
+  "types": {
+    "marques": "Marques",
+    "filatures": "Filatures",
+    "fournisseurs": "Fournisseurs"
+  },
+  "vueGlobale": {
+    "volumesMensuels": "Volumes mensuels (milliers de kg)",
+    "volumeSerie": "Volume (milliers de kg)",
+    "statutsCommandes": "Statuts commandes",
+    "resumeCommandes": "Résumé des commandes",
+    "colStatut": "Statut",
+    "colNbCommandes": "Nb commandes",
+    "colVolumeTotal": "Volume total",
+    "colPctRecycle": "% recyclé moy."
+  },
+  "volumes": {
+    "evolution": "Évolution volumes",
+    "volumeSerie": "Volume (T)",
+    "volumeTotal": "Volume total",
+    "lotsActifs": "Lots actifs",
+    "lotsTotal": "{count} lots total"
+  },
+  "finances": {
+    "caMensuel": "CA mensuel",
+    "caSerie": "CA en euros",
+    "caTotal": "CA total",
+    "facturesPayees": "Factures payées",
+    "facturesAttente": "Factures en attente",
+    "tauxEncaissement": "Taux encaissement"
+  },
+  "partenaires": {
+    "parPays": "Répartition par pays",
+    "partenairesSerie": "Partenaires",
+    "parType": "Répartition par type",
+    "totalPartenaires": "Total partenaires",
+    "verifies": "Vérifiés",
+    "enCours": "En cours",
+    "paysCouverts": "Pays couverts"
   }
+}
 }
 }
