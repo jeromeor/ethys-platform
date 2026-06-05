@@ -919,9 +919,8 @@
       "enCours": "En cours",
       "paysCouverts": "Pays couverts"
     }
-  }
-},
-,"profil": {
+   },
+  "profil": {
     "msg": {
       "entrepriseMaj": "Entreprise mise à jour",
       "profilMaj": "Profil mis à jour",
