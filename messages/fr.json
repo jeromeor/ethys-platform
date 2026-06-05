@@ -1001,4 +1001,16 @@
       "typeAssuranceRcPro": "Assurance RC Pro"
     }
   }
+},
+"mentionsLegales": {
+    "retour": "Retour",
+    "titre": "Mentions légales & Politique de confidentialité",
+    "maj": "Dernière mise à jour : mai 2026",
+    "s1": "1. Éditeur du site",
+    "s2": "2. Hébergement",
+    "s3": "3. Données personnelles — Responsable de traitement",
+    "s4": "4. Données collectées et finalités",
+    "s5": "5. Vos droits",
+    "s6": "6. Cookies"
+  }
 }
