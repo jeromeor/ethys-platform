@@ -463,5 +463,122 @@
       "certifAccordee": "Certification granted. Number: ",
       "motifRefus": "Please provide a reason for rejection."
     }
+  },
+  "qrcode": {
+    "certType": {
+      "fil": "ETHYS Yarn",
+      "tissu": "ETHYS Fabric",
+      "produitFini": "ETHYS Finished product"
+    },
+    "coton": {
+      "recycle": "Recycled",
+      "vierge": "Virgin"
+    },
+    "btn": {
+      "demandeEnAttente": "Generation request pending",
+      "refuserDemande": "Reject request",
+      "generation": "Generating...",
+      "genererQR": "Generate QR Code",
+      "genererQREthys": "Generate ETHYS QR Code",
+      "demandeEnvoyee1": "Request sent",
+      "demandeEnvoyee2": "awaiting Textile Loop validation",
+      "lot100": "The lot must be at 100% to request a QR Code",
+      "envoi": "Sending...",
+      "demanderGeneration": "Request QR generation"
+    },
+    "tabs": {
+      "lots": "Lots",
+      "certifications": "Certifications"
+    },
+    "lotsProduction": "Production lots",
+    "certificationsEthys": "ETHYS Certifications",
+    "suffix": {
+      "qrGeneres": "QR generated",
+      "enAttente": "pending"
+    },
+    "filtreDemandesOn": "▣ QR requests only",
+    "filtreDemandesOff": "▣ View QR requests",
+    "aucuneCertif": "No certification available.",
+    "badge": {
+      "qrActif": "QR active",
+      "sansQR": "No QR",
+      "demandeQR": "QR request",
+      "enAttente": "Pending"
+    },
+    "aucuneDemande": "No pending QR request.",
+    "aucunLot": "No lot available.",
+    "scans": "scan(s)",
+    "infosLot": "Lot information",
+    "labels": {
+      "marque": "Brand",
+      "filature": "Spinning mill",
+      "volume": "Volume"
+    },
+    "lotInfo": {
+      "refLot": "Lot reference",
+      "commande": "Order",
+      "fournisseur": "Supplier",
+      "typeCoton": "Cotton type",
+      "origine": "Origin",
+      "certifFil": "Yarn certification",
+      "avancement": "Progress"
+    },
+    "qrActifTitre": "Active QR Code",
+    "qrEthysTitre": "ETHYS QR Code",
+    "donneesEncodees": "Encoded data",
+    "encoded": {
+      "certification": "Certification"
+    },
+    "voirPagePublique": "View public page",
+    "apercu": "Preview",
+    "telecharger": "Download",
+    "urlCopiee": "URL copied!",
+    "copierURL": "Copy URL",
+    "selectionnezLot": "Select a lot",
+    "public": {
+      "tracabilite": "ETHYS · FULL traceability",
+      "votreFil": "Your ETHYS yarn",
+      "lot": "Lot",
+      "matieres": "RAW MATERIALS",
+      "cotonRecycle": "Recycled cotton",
+      "cotonVierge": "Virgin cotton",
+      "filCertifie": "ETHYS certified yarn",
+      "description": "This ETHYS certified yarn is the result of processing recycled cotton (51%) and virgin cotton (49%). It was made by {filature}.",
+      "laFilature": "the spinning mill",
+      "origineMatiere": "Material origin",
+      "nonRenseigne": "Not specified",
+      "certifFil": "Yarn certification",
+      "fournisseurCoton": "Cotton supplier",
+      "donneesVerifiees": "Data verified and certified by TEXTILE LOOP",
+      "plateforme": "ETHYS Platform",
+      "ouvrirPage": "Open public page"
+    },
+    "valideJusqu": "Valid until",
+    "certifie": "Certified",
+    "composition": "Composition",
+    "certInfo": {
+      "entreprise": "Company",
+      "paysFilature": "Mill country",
+      "provenanceCoton": "Cotton origin"
+    },
+    "qrCodeActif": "Active QR Code",
+    "copiee": "Copied!",
+    "transfererMarque": "Transfer to a brand",
+    "genererQRConso": "Generate consumer QR Code",
+    "transfert": {
+      "titre": "Transfer the QR to a brand",
+      "marqueNonEnreg": "Brand not registered on ETHYS",
+      "emailLabel": "Brand email *",
+      "emailInfo": "An invitation email will be sent to this address.",
+      "selectLabel": "Select the brand *",
+      "selectPlaceholder": "Select a brand...",
+      "confirm": "Confirm the final transfer to \"{marque}\"?\n\nThis QR code can no longer be transferred to another brand.",
+      "msgInvitation": "Invitation email sent to the brand.",
+      "msgTransfere": "QR code transferred. The brand received an email.",
+      "erreurPrefix": "Error: ",
+      "inconnue": "unknown",
+      "envoyer": "Send"
+    },
+    "annuler": "Cancel"
   }
 }
