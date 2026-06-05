@@ -626,7 +626,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
 
               <div>
                 {labelInput(t('form.volumeLabel'))}
-                <input type="number" min="0" value={form.volume_total_kg} onChange={e => set('volume_total_kg', e.target.value)} placeholder={t('form.volumePlaceholder')} style={inputStyle} />
+                <input type="number" min="0" value={form.volume_total_kg} onChange={e => set('volume_total_kg', e.target.value)} onWheel={e => (e.currentTarget as HTMLInputElement).blur()} placeholder={t('form.volumePlaceholder')} style={inputStyle} />
                 {volumeTotal > 0 && (
                   <div style={{ marginTop: 8, padding: '10px 12px', background: '#f5f3ef', borderRadius: 6, fontSize: 12, color: '#4a5568' }}>
                     {t('form.cotonRecycle')} <strong>{volumeRecycle.toLocaleString(locale)} kg</strong>
