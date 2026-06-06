@@ -149,7 +149,7 @@ export default function QRCodeClient({ lots: initial, user, profil, certificatio
       return
     }
 
-    const urlPublique = window.location.origin + '/tracabilite/' + reference
+    const urlPublique = 'https://www.ethys-textileloop.com/tracabilite/' + reference
     const dataEncodee = {
       lot_id: selected.id,
       lot_reference: selected.reference,
