@@ -219,6 +219,7 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
       <div style={{ maxWidth: 480, margin: '0 auto', padding: '24px' }}>
 
         {/* Carte de tracabilite des acteurs */}
+        <pre style={{ fontSize: 10, background: '#fff', padding: 8 }}>{JSON.stringify(lotActeurs)}</pre>
         <MapTraceabilite acteurs={lotActeurs as any} />
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
