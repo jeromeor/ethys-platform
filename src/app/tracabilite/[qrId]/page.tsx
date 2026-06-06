@@ -1,8 +1,10 @@
-﻿import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
+import { getTranslations } from 'next-intl/server'
 
-export default async function TraçabilitéPage({ params }: { params: Promise<{ qrId: string }> }) {
+export default async function TracabilitePage({ params }: { params: Promise<{ qrId: string }> }) {
   const { qrId } = await params
   const supabase = await createClient()
+  const t = await getTranslations('tracabilite')
 
   const { data: qrCode } = await supabase
     .from('qr_codes')
@@ -15,8 +17,8 @@ export default async function TraçabilitéPage({ params }: { params: Promise<{ 
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F7F8FA', fontFamily: 'sans-serif' }}>
         <div style={{ textAlign: 'center', padding: '40px' }}>
           <div style={{ fontSize: 48, marginBottom: 16 }}>?</div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a', marginBottom: 8 }}>QR Code introuvable</div>
-          <div style={{ fontSize: 13, color: '#8b7355' }}>Ce code ne correspond a aucun produit enregistre sur la plateforme ETHYS.</div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a', marginBottom: 8 }}>{t('introuvableTitre')}</div>
+          <div style={{ fontSize: 13, color: '#8b7355' }}>{t('introuvableTexte')}</div>
         </div>
       </div>
     )
@@ -43,7 +45,7 @@ export default async function TraçabilitéPage({ params }: { params: Promise<{ 
     const totalKg = Number(cert?.volume_total ?? 0)
     const volRecycle = Math.round(totalKg * 0.51)
     const volVierge = Math.round(totalKg * 0.49)
-    const typeLabel = decl?.type_produit === 'fil' ? 'Fil ETHYS' : decl?.type_produit === 'tissu' ? 'Tissu ETHYS' : 'Produit fini ETHYS'
+    const typeLabel = decl?.type_produit === 'fil' ? t('typeFil') : decl?.type_produit === 'tissu' ? t('typeTissu') : t('typeProduitFini')
 
     return (
       <div style={{ minHeight: '100vh', background: '#f5f3ef', fontFamily: "'Inter', system-ui, sans-serif" }}>
@@ -51,68 +53,65 @@ export default async function TraçabilitéPage({ params }: { params: Promise<{ 
           <div style={{ maxWidth: 480, margin: '0 auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 10 }}>
             <div>
-              <div style={{ fontSize: 9, color: '#c2956e', fontWeight: 600, letterSpacing: 1, marginBottom: 6 }}>ETHYS — CERTIFICATION</div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', lineHeight: 1.2, marginBottom: 2 }}>Fil certifié ETHYS</div>
+              <div style={{ fontSize: 9, color: '#c2956e', fontWeight: 600, letterSpacing: 1, marginBottom: 6 }}>{t('certBadge')}</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', lineHeight: 1.2, marginBottom: 2 }}>{t('certTitre')}</div>
               <div style={{ fontSize: 11, opacity: 0.6 }}>{cert?.numero}</div>
             </div>
             <img src='/logo_ethys.png' alt='ETHYS' style={{ width: 90, height: 'auto', filter: 'invert(1)', flexShrink: 0 }} />
           </div>
 
-
-
-
             <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 4, padding: '16px', marginBottom: 14 }}>
-              <div style={{ fontSize: 10, color: '#c2956e', fontWeight: 600, marginBottom: 10, letterSpacing: 1 }}>MATIÈRES PREMIÈRES</div>
+              <div style={{ fontSize: 10, color: '#c2956e', fontWeight: 600, marginBottom: 10, letterSpacing: 1 }}>{t('matieres')}</div>
               <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
                 <div style={{ flex: pctRecyclé, background: '#8b7355', borderRadius: 4, padding: '10px 8px', textAlign: 'center' }}>
                   <div style={{ fontSize: 22, fontWeight: 900, color: '#fff' }}>{pctRecyclé}%</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>Coton recyclé</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>{t('cotonRecycle')}</div>
                   <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>{Number(decl?.volume_recyclé_kg ?? 0).toLocaleString('fr-FR')} kg</div>
                 </div>
                 <div style={{ flex: pctVierge, background: 'rgba(255,255,255,0.12)', borderRadius: 4, padding: '10px 8px', textAlign: 'center' }}>
                   <div style={{ fontSize: 22, fontWeight: 900, color: '#fff' }}>{pctVierge}%</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>Coton vierge</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>{t('cotonVierge')}</div>
                   <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>{Number(decl?.volume_vierge_kg ?? 0).toLocaleString('fr-FR')} kg</div>
                 </div>
               </div>
               <div style={{ height: 6, background: 'rgba(255,255,255,0.12)', borderRadius: 2, overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: `${pctRecyclé}%`, background: '#c2956e', borderRadius: 2 }} />
+                <div style={{ height: '100%', width: pctRecyclé + '%', background: '#c2956e', borderRadius: 2 }} />
               </div>
             </div>
             <div style={{ background: 'rgba(194,149,110,0.15)', borderRadius: 4, padding: '12px 14px', border: '1px solid rgba(194,149,110,0.3)', textAlign: 'center' }}>
-              <div style={{ fontSize: 14, fontWeight: 900, color: '#c2956e', marginBottom: 4 }}>✓ Certifié ETHYS</div>
+              <div style={{ fontSize: 14, fontWeight: 900, color: '#c2956e', marginBottom: 4 }}>{t('certifieBadge')}</div>
               <div style={{ fontSize: 11, fontWeight: 700, color: '#c2956e' }}>{cert?.numero}</div>
               <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5, marginTop: 4 }}>
-                Certifié par TEXTILE LOOP - traçabilité verifiee
+                {t('certifieParTL')}
               </div>
             </div>
           </div>
         </div>
         <div style={{ maxWidth: 480, margin: '0 auto', padding: '24px' }}><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
           {[
-            { label: 'Entreprise', value: (decl?.entreprise as any)?.nom ?? '-' },
-            { label: 'Pays', value: (decl?.entreprise as any)?.pays ?? '-' },
-            { label: 'Filature', value: decl?.filature_nom ?? '-' },
-            { label: 'Pays filature', value: decl?.filature_pays ?? '-' },
-            { label: 'Provenance coton', value: decl?.provenance_pays ?? '-' },
-            { label: 'Type produit', value: typeLabel },
-            { label: 'Numero certification', value: cert?.numero ?? '-' },
-            { label: 'Date émission', value: cert ? new Date(cert.date_émission).toLocaleDateString('fr-FR') : '-' },
-          ].map(({ label, value }) => (
-            <div key={label} style={{ display: 'flex', gap: 14, alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #e8e3d8' }}>
-              <div style={{ width: 36, height: 36, borderRadius: 8, background: label === 'Numero certification' ? '#f0f4ec' : '#f5f3ef', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>
+            { key: 'entreprise', label: t('lblEntreprise'), value: (decl?.entreprise as any)?.nom ?? '-' },
+            { key: 'pays', label: t('lblPays'), value: (decl?.entreprise as any)?.pays ?? '-' },
+            { key: 'filature', label: t('lblFilature'), value: decl?.filature_nom ?? '-' },
+            { key: 'paysFilature', label: t('lblPaysFilature'), value: decl?.filature_pays ?? '-' },
+            { key: 'provenance', label: t('lblProvenance'), value: decl?.provenance_pays ?? '-' },
+            { key: 'typeProduit', label: t('lblTypeProduit'), value: typeLabel },
+            { key: 'numeroCert', label: t('lblNumeroCert'), value: cert?.numero ?? '-' },
+            { key: 'dateEmission', label: t('lblDateEmission'), value: cert ? new Date(cert.date_émission).toLocaleDateString('fr-FR') : '-' },
+          ].map(({ key, label, value }) => (
+            <div key={key} style={{ display: 'flex', gap: 14, alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #e8e3d8' }}>
+              <div style={{ width: 36, height: 36, borderRadius: 8, background: key === 'numeroCert' ? '#f0f4ec' : '#f5f3ef', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>
                 {label[0]}
               </div>
               <div>
                 <div style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>{label}</div>
-                <div style={{ fontSize: 11, color: label === 'Numero certification' ? '#2d5016' : '#4a5568', fontWeight: label === 'Numero certification' ? 700 : 400 }}>{value}</div>
+                <div style={{ fontSize: 11, color: key === 'numeroCert' ? '#2d5016' : '#4a5568', fontWeight: key === 'numeroCert' ? 700 : 400 }}>{value}</div>
               </div>
             </div>
           ))}
           </div><div style={{ marginTop: 20, padding: '14px', borderRadius: 4, background: '#fff', border: '1px solid #e8e3d8', textAlign: 'center' }}>
-            <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 4 }}>Scan #{qrCode.nb_scans + 1}</div>
-            <div style={{ fontSize: 10, color: '#d4c5b0' }}>Données vérifiées et certifiées par TEXTILE LOOP</div>
-            <div style={{ fontSize: 10, color: '#d4c5b0', marginTop: 2 }}>Plateforme ETHYS - {qrCode.reference}</div>
+            <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 4 }}>{t('scan', { n: qrCode.nb_scans + 1 })}</div>
+            <div style={{ fontSize: 10, color: '#d4c5b0' }}>{t('donneesVerifiees')}</div>
+            <div style={{ fontSize: 10, color: '#d4c5b0', marginTop: 2 }}>{t('plateforme')} {qrCode.reference}</div>
           </div>
         </div>
       </div>
@@ -141,65 +140,64 @@ export default async function TraçabilitéPage({ params }: { params: Promise<{ 
         <div style={{ maxWidth: 480, margin: '0 auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 16 }}>
             <div>
-              <div style={{ fontSize: 9, color: '#c2956e', fontWeight: 600, letterSpacing: 1, marginBottom: 6 }}>ETHYS — TRAÇABILITÉ</div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', lineHeight: 1.2, marginBottom: 4 }}>Votre fil ETHYS</div>
-              <div style={{ fontSize: 11, opacity: 0.6, marginTop: 2 }}>Lot #{String(lot?.reference ?? '')} - {String(commande?.reference ?? '')}</div>
+              <div style={{ fontSize: 9, color: '#c2956e', fontWeight: 600, letterSpacing: 1, marginBottom: 6 }}>{t('tracaBadge')}</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', lineHeight: 1.2, marginBottom: 4 }}>{t('tracaTitre')}</div>
+              <div style={{ fontSize: 11, opacity: 0.6, marginTop: 2 }}>{t('lotLabel')} #{String(lot?.reference ?? '')} - {String(commande?.reference ?? '')}</div>
             </div>
             <img src='/logo_ethys.png' alt='ETHYS' style={{ width: 90, height: 'auto', filter: 'invert(1)', flexShrink: 0 }} />
           </div>
 
           <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 4, padding: '16px', marginBottom: 14 }}>
-            <div style={{ fontSize: 10, color: '#c2956e', fontWeight: 600, marginBottom: 10, letterSpacing: 1 }}>MATIÈRES PREMIÈRES</div>
+            <div style={{ fontSize: 10, color: '#c2956e', fontWeight: 600, marginBottom: 10, letterSpacing: 1 }}>{t('matieres')}</div>
             <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
               <div style={{ flex: pctRecyclé, background: '#8b7355', borderRadius: 4, padding: '10px 8px', textAlign: 'center' }}>
                 <div style={{ fontSize: 22, fontWeight: 900, color: '#fff' }}>{pctRecyclé}%</div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>Coton recyclé</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>{t('cotonRecycle')}</div>
                 <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>{Math.round(volumeRecyclé * 1000).toLocaleString('fr-FR')} kg</div>
               </div>
               <div style={{ flex: pctVierge, background: 'rgba(255,255,255,0.12)', borderRadius: 4, padding: '10px 8px', textAlign: 'center' }}>
                 <div style={{ fontSize: 22, fontWeight: 900, color: '#fff' }}>{pctVierge}%</div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>Coton vierge</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>{t('cotonVierge')}</div>
                 <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>{Math.round(volumeVierge * 1000).toLocaleString('fr-FR')} kg</div>
               </div>
             </div>
             <div style={{ height: 6, background: 'rgba(255,255,255,0.12)', borderRadius: 2, overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${pctRecyclé}%`, background: '#c2956e', borderRadius: 2 }} />
+              <div style={{ height: '100%', width: pctRecyclé + '%', background: '#c2956e', borderRadius: 2 }} />
             </div>
           </div>
           <div style={{ background: 'rgba(194,149,110,0.15)', borderRadius: 4, padding: '12px 14px', border: '1px solid rgba(194,149,110,0.3)', textAlign: 'center' }}>
-            <div style={{ fontSize: 14, fontWeight: 900, color: '#c2956e', marginBottom: 4 }}>Fil certifié ETHYS</div>
+            <div style={{ fontSize: 14, fontWeight: 900, color: '#c2956e', marginBottom: 4 }}>{t('filCertifie')}</div>
             <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
-              Ce fil est le résultat de la transformation de coton recyclé et vierge par {filature?.nom ?? 'la filature'}, certifié par la plateforme TEXTILE LOOP.
+              {t('descriptionFil', { filature: filature?.nom ?? t('laFilature') })}
             </div>
           </div>
         </div>
       </div>
       <div style={{ maxWidth: 480, margin: '0 auto', padding: '24px' }}><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
         {[
-          { label: 'Origine matière', value: String(lot?.origine ?? 'Non renseigné') },
-          { label: 'Filature', value: filature?.nom ?? '-' },
-          { label: 'Certification fil', value: String(lot?.certification ?? 'ETHYS') },
-          { label: 'Fournisseur coton', value: fournisseur?.nom ?? '-' },
-          { label: 'Marque', value: marque?.nom ?? '-' },
-          { label: 'Volume total', value: `${Math.round(totalVolume * 1000).toLocaleString('fr-FR')} kg` },
-        ].map(({ label, value }) => (
-          <div key={label} style={{ display: 'flex', gap: 14, alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #e8e3d8' }}>
+          { key: 'origine', label: t('lblOrigine'), value: String(lot?.origine ?? t('nonRenseigne')) },
+          { key: 'filature', label: t('lblFilature'), value: filature?.nom ?? '-' },
+          { key: 'certificationFil', label: t('lblCertificationFil'), value: String(lot?.certification ?? 'ETHYS') },
+          { key: 'fournisseur', label: t('lblFournisseur'), value: fournisseur?.nom ?? '-' },
+          { key: 'marque', label: t('lblMarque'), value: marque?.nom ?? '-' },
+          { key: 'volumeTotal', label: t('lblVolumeTotal'), value: Math.round(totalVolume * 1000).toLocaleString('fr-FR') + ' kg' },
+        ].map(({ key, label, value }) => (
+          <div key={key} style={{ display: 'flex', gap: 14, alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #e8e3d8' }}>
             <div style={{ width: 36, height: 36, borderRadius: 8, background: '#f5f3ef', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 14 }}>
-              {label === 'Certification fil' ? 'E' : label === 'Filature' ? 'F' : label === 'Origine matière' ? 'O' : label === 'Marque' ? 'M' : label === 'Volume total' ? 'V' : 'C'}
+              {key === 'certificationFil' ? 'E' : key === 'filature' ? 'F' : key === 'origine' ? 'O' : key === 'marque' ? 'M' : key === 'volumeTotal' ? 'V' : 'C'}
             </div>
             <div>
               <div style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>{label}</div>
-              <div style={{ fontSize: 11, color: label === 'Certification fil' ? '#2d5016' : '#4a5568', fontWeight: label === 'Certification fil' ? 700 : 400 }}>{value}</div>
+              <div style={{ fontSize: 11, color: key === 'certificationFil' ? '#2d5016' : '#4a5568', fontWeight: key === 'certificationFil' ? 700 : 400 }}>{value}</div>
             </div>
           </div>
         ))}
         </div><div style={{ marginTop: 20, padding: '14px', borderRadius: 4, background: '#fff', border: '1px solid #e8e3d8', textAlign: 'center' }}>
-          <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 4 }}>Scan #{qrCode.nb_scans + 1}</div>
-          <div style={{ fontSize: 10, color: '#d4c5b0' }}>Données vérifiées et certifiées par TEXTILE LOOP</div>
-          <div style={{ fontSize: 10, color: '#d4c5b0', marginTop: 2 }}>Plateforme ETHYS - {String(qrCode.reference)}</div>
+          <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 4 }}>{t('scan', { n: qrCode.nb_scans + 1 })}</div>
+          <div style={{ fontSize: 10, color: '#d4c5b0' }}>{t('donneesVerifiees')}</div>
+          <div style={{ fontSize: 10, color: '#d4c5b0', marginTop: 2 }}>{t('plateforme')} {String(qrCode.reference)}</div>
         </div>
       </div>
     </div>
   )
 }
-

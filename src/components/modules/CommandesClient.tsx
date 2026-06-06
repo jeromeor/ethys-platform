@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useTranslations, useLocale } from 'next-intl'
 
 type StatutCommande =
   | 'brouillon' | 'soumise' | 'validation_fournisseur'
@@ -44,20 +45,6 @@ interface Props {
   commandesAvecDemandeIds: string[]
 }
 
-const STATUT_LABELS: Record<StatutCommande, string> = {
-  brouillon:              'Brouillon',
-  soumise:                'Transmise',
-  validation_fournisseur: 'Val. fournisseur',
-  validation_filature:    'Val. filature',
-  validation_finale:      'Val. finale',
-  en_production:          'En production',
-  controle_qualite:       'Controle qualite',
-  qr_genere:              'QR genere',
-  expediee:               'Expediee',
-  livree:                 'Livrée',
-  annulee:                'Annulée',
-}
-
 const STATUT_COLORS: Record<string, [string, string, string]> = {
   brouillon:              ['#f5f3ef', '#4a5568', '#8b7355'],
   soumise:                ['#DBEAFE', '#1E40AF', '#3B82F6'],
@@ -83,6 +70,31 @@ function extractGrammageNumber(g: string): number | null {
 
 export default function CommandesClient({ user, profil, commandes: initial, entreprises, commandesAvecDemandeIds }: Props) {
   const supabase = createClient()
+  const t = useTranslations('commandes')
+  const locale = useLocale()
+
+  // Libellés de statut traduits
+  const statutLabel = (s: StatutCommande): string => ({
+    brouillon:              t('statut.brouillon'),
+    soumise:                t('statut.soumise'),
+    validation_fournisseur: t('statut.validation_fournisseur'),
+    validation_filature:    t('statut.validation_filature'),
+    validation_finale:      t('statut.validation_finale'),
+    en_production:          t('statut.en_production'),
+    controle_qualite:       t('statut.controle_qualite'),
+    qr_genere:              t('statut.qr_genere'),
+    expediee:               t('statut.expediee'),
+    livree:                 t('statut.livree'),
+    annulee:                t('statut.annulee'),
+  }[s] ?? s)
+
+  // Libellé de priorité traduit
+  const prioriteLabel = (p: string): string => ({
+    normale: t('priorite.normale'),
+    haute:   t('priorite.haute'),
+    urgente: t('priorite.urgente'),
+  }[p] ?? p)
+
   const [commandes, setCommandes] = useState<Commande[]>(initial)
   const [showForm, setShowForm] = useState(false)
   const [selected, setSelected] = useState<Commande | null>(null)
@@ -156,11 +168,11 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
 
   const creerCommande = async () => {
     if (!form.marque_id || !form.filature_id || !form.fournisseur_id || !form.date_livraison_souhaitee) {
-      setError('Veuillez remplir tous les champs obligatoires : Marque, Filature, Fournisseur et Date de livraison.')
+      setError(t('errors.champsObligatoires'))
       return
     }
     if (!form.volume_total_kg || volumeTotal <= 0) {
-      setError('Veuillez indiquer un volume de coton recyclé superieur a 0.')
+      setError(t('errors.volume'))
       return
     }
     setError('')
@@ -170,7 +182,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
 
     const { data: refData, error: refError } = await supabase.rpc('generate_commande_reference')
     if (refError || !refData) {
-      setError('Erreur lors de la generation de la reference.')
+      setError(t('errors.refGeneration'))
       setLoading(false)
       return
     }
@@ -199,7 +211,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
     const result = await res.json()
 
     if (result.error) {
-      setError('Erreur : ' + result.error)
+      setError(t('errors.prefix') + result.error)
       setLoading(false)
       return
     }
@@ -238,7 +250,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
     const result = await res.json()
 
     if (result.error) {
-      setError('Erreur : ' + result.error)
+      setError(t('errors.prefix') + result.error)
     } else {
       setDemandeAnnulation(result.data)
       setShowModalAnnulation(false)
@@ -260,7 +272,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
     const result = await res.json()
 
     if (result.error) {
-      setError('Erreur : ' + result.error)
+      setError(t('errors.prefix') + result.error)
     } else {
       if (statut === 'acceptee') {
         setCommandes(prev => prev.map(c =>
@@ -304,22 +316,22 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
                 background: filterStatut === s ? '#1a1a1a' : '#f5f3ef',
                 color: filterStatut === s ? '#fff' : '#4a5568'
               }}>
-                {s === 'tous' ? 'Toutes' : s === 'soumise' ? 'Transmises' : STATUT_LABELS[s as StatutCommande]}
+                {s === 'tous' ? t('filtres.toutes') : s === 'soumise' ? t('filtres.transmises') : statutLabel(s as StatutCommande)}
               </button>
             ))}
             <select value={filterMarque} onChange={e => setFilterMarque(e.target.value)} style={{ padding: '5px 10px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 11, outline: 'none', background: filterMarque ? '#1a1a1a' : '#f5f3ef', color: filterMarque ? '#fff' : '#4a5568' }}>
-              <option value="">Toutes marques</option>
+              <option value="">{t('filtres.toutesMarques')}</option>
               {marques.map(m => <option key={m.id} value={m.nom}>{m.nom}</option>)}
             </select>
             <select value={filterFilature} onChange={e => setFilterFilature(e.target.value)} style={{ padding: '5px 10px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 11, outline: 'none', background: filterFilature ? '#1a1a1a' : '#f5f3ef', color: filterFilature ? '#fff' : '#4a5568' }}>
-              <option value="">Toutes filatures</option>
+              <option value="">{t('filtres.toutesFilatures')}</option>
               {filatures.map(f => <option key={f.id} value={f.nom}>{f.nom}</option>)}
             </select>
             <input type="date" value={filterDateDebut} onChange={e => setFilterDateDebut(e.target.value)} style={{ padding: '5px 8px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 11, outline: 'none' }} />
             <input type="date" value={filterDateFin} onChange={e => setFilterDateFin(e.target.value)} style={{ padding: '5px 8px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 11, outline: 'none' }} />
             {(filterMarque || filterFilature || filterDateDebut || filterDateFin) && (
               <button onClick={() => { setFilterMarque(''); setFilterFilature(''); setFilterDateDebut(''); setFilterDateFin('') }} style={{ padding: '5px 10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#fff', fontSize: 11, color: '#8b7355', cursor: 'pointer' }}>
-                Reinitialiser
+                {t('filtres.reinitialiser')}
               </button>
             )}
           </div>
@@ -327,7 +339,7 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
             <button onClick={() => setShowForm(true)} style={{
               padding: '8px 16px', borderRadius: 4, border: 'none',
               background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', flexShrink: 0
-            }}>+ Nouvelle commande</button>
+            }}>{t('nouvelle')}</button>
           )}
         </div>
 
@@ -335,15 +347,15 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
           {filtrees.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '60px 0', color: '#8b7355' }}>
               <div style={{ fontSize: 32, marginBottom: 10 }}>◈</div>
-              <div style={{ fontSize: 14, fontWeight: 600 }}>Aucune commande</div>
-              <div style={{ fontSize: 12, marginTop: 4 }}>Cliquez sur "+ Nouvelle commande" pour commencer</div>
+              <div style={{ fontSize: 14, fontWeight: 600 }}>{t('liste.vide')}</div>
+              <div style={{ fontSize: 12, marginTop: 4 }}>{t('liste.videHint')}</div>
             </div>
           ) : (
             <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', overflow: 'hidden' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ background: '#f5f3ef' }}>
-                    {['Reference', 'Marque', 'Filature', 'Volume', 'Composition', 'Statut', 'Livraison'].concat(selected ? [] : ['Avancement']).map(h => (
+                    {[t('table.reference'), t('table.marque'), t('table.filature'), t('table.volume'), t('table.composition'), t('table.statut'), t('table.livraison')].concat(selected ? [] : [t('table.avancement')]).map(h => (
                       <th key={h} style={{ padding: '10px 14px', fontSize: 11, fontWeight: 600, color: '#8b7355', textAlign: 'left', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{h}</th>
                     ))}
                   </tr>
@@ -370,13 +382,13 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
                               fontSize: 9, fontWeight: 700, background: '#fef3c7',
                               color: '#b8860b', border: '1px solid #fde68a', verticalAlign: 'middle'
                             }}>
-                              ANNULATION
+                              {t('liste.annulationBadge')}
                             </span>
                           )}
                         </td>
                         <td style={{ padding: '12px 14px', fontSize: 12, color: '#4a5568' }}>{c.marque?.nom ?? '-'}</td>
                         <td style={{ padding: '12px 14px', fontSize: 12, color: '#4a5568' }}>{c.filature?.nom ?? '-'}</td>
-                        <td style={{ padding: '12px 14px', fontSize: 12, fontWeight: 600 }}> {Math.round((c.volume_total_tonnes ?? 0) * 1000 + 0.0001).toLocaleString('fr-FR')} kg</td>
+                        <td style={{ padding: '12px 14px', fontSize: 12, fontWeight: 600 }}> {Math.round((c.volume_total_tonnes ?? 0) * 1000 + 0.0001).toLocaleString(locale)} kg</td>
                         <td style={{ padding: '12px 14px' }}>
                           <span style={{ fontSize: 11, fontWeight: 600, color: '#059669' }}>
                             {Math.round(c.pct_recycle ?? 0)}%
@@ -390,11 +402,11 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
                             display: 'inline-flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap'
                           }}>
                             <span style={{ width: 5, height: 5, borderRadius: '50%', background: commandesAvecDemandeIds.includes(c.id) ? '#b8860b' : dot }} />
-                            {commandesAvecDemandeIds.includes(c.id) ? 'Annulation dem.' : STATUT_LABELS[c.statut]}
+                            {commandesAvecDemandeIds.includes(c.id) ? t('liste.annulationDem') : statutLabel(c.statut)}
                           </span>
                         </td>
                         <td style={{ padding: '12px 14px', fontSize: 11, color: '#8b7355', whiteSpace: 'nowrap' }}>
-                          {new Date(c.date_livraison_souhaitee).toLocaleDateString('fr-FR')}
+                          {new Date(c.date_livraison_souhaitee).toLocaleDateString(locale)}
                         </td>
                         {!selected && (
                           <td style={{ padding: '12px 14px', minWidth: 140 }}>
@@ -448,10 +460,10 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
               {selected.titre && <div style={{ fontSize: 11, opacity: 0.75, marginBottom: 10 }}>{selected.titre}</div>}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                 {[
-                  ['Volume', String(Math.round((selected.volume_total_tonnes ?? 0) * 1000).toLocaleString('fr-FR')) + ' kg'],
-                  ['Recycle', String(Math.round(selected.pct_recycle ?? 0)) + '%'],
-                  ['priorite', selected.priorite],
-                  ['Livraison', new Date(selected.date_livraison_souhaitee).toLocaleDateString('fr-FR')],
+                  [t('detail.volume'), String(Math.round((selected.volume_total_tonnes ?? 0) * 1000).toLocaleString(locale)) + ' kg'],
+                  [t('detail.recycle'), String(Math.round(selected.pct_recycle ?? 0)) + '%'],
+                  [t('detail.priorite'), prioriteLabel(selected.priorite)],
+                  [t('detail.livraison'), new Date(selected.date_livraison_souhaitee).toLocaleDateString(locale)],
                 ].map(([l, v]) => (
                   <div key={l} style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 10px' }}>
                     <div style={{ fontSize: 13, fontWeight: 800, color: '#c2956e' }}>{v}</div>
@@ -462,12 +474,12 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
             </div>
 
             {[
-              ['Marque', selected.marque?.nom],
-              ['Filature', selected.filature?.nom],
-              ['Fournisseur', selected.fournisseur?.nom],
-              ['Type coton', 'Fil ETHYS (51% recycle / 49% vierge)'],
-              ['Grammage', selected.grammage ? 'Ne ' + selected.grammage + '/1' : '-'],
-              ['Statut', STATUT_LABELS[selected.statut]],
+              [t('detail.marque'), selected.marque?.nom],
+              [t('detail.filature'), selected.filature?.nom],
+              [t('detail.fournisseur'), selected.fournisseur?.nom],
+              [t('detail.typeCoton'), t('detail.typeCotonValue')],
+              [t('detail.grammage'), selected.grammage ? 'Ne ' + selected.grammage + '/1' : '-'],
+              [t('detail.statut'), statutLabel(selected.statut)],
             ].map(([l, v]) => (
               <div key={l} style={{ display: 'flex', gap: 12, marginBottom: 10 }}>
                 <span style={{ fontSize: 12, color: '#8b7355', width: 100, flexShrink: 0 }}>{l}</span>
@@ -483,55 +495,55 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
 
             <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid #f5f3ef' }}>
               {loadingDemande ? (
-                <div style={{ fontSize: 11, color: '#8b7355', textAlign: 'center' }}>Chargement...</div>
+                <div style={{ fontSize: 11, color: '#8b7355', textAlign: 'center' }}>{t('detail.chargement')}</div>
               ) : estBloque ? (
                 <div style={{ fontSize: 11, color: '#8b7355', background: '#f5f3ef', borderRadius: 6, padding: '10px 12px', textAlign: 'center' }}>
                   {selected.statut === 'annulee' ? (
                     demandeAnnulation?.traite_at ? (
                       <>
-                        Annulée le {new Date(demandeAnnulation.traite_at).toLocaleDateString('fr-FR')}<br />
-                        <span style={{ fontSize: 10, color: '#b8860b' }}>Réf. demande : {demandeAnnulation.id.slice(0, 8).toUpperCase()}</span>
+                        {t('detail.annuleeLe')} {new Date(demandeAnnulation.traite_at).toLocaleDateString(locale)}<br />
+                        <span style={{ fontSize: 10, color: '#b8860b' }}>{t('detail.refDemande')} {demandeAnnulation.id.slice(0, 8).toUpperCase()}</span>
                       </>
                     ) : (
-                      <>Commande annulée</>
+                      <>{t('detail.commandeAnnulee')}</>
                     )
                   ) : (
-                    <>Annulation impossible — statut : {STATUT_LABELS[selected.statut]}</>
+                    <>{t('detail.annulationImpossible')} {statutLabel(selected.statut)}</>
                   )}
                 </div>
               ) : role === 'admin' ? (
                 demandeAnnulation ? (
                   <div>
                     <div style={{ fontSize: 11, fontWeight: 700, color: '#b8860b', background: '#fdf8ec', borderRadius: 6, padding: '10px 12px', marginBottom: 10, textAlign: 'center' }}>
-                      Demande d'annulation en attente
+                      {t('detail.demandeEnAttente')}
                       {demandeAnnulation.motif && (
                         <div style={{ fontWeight: 400, marginTop: 4, color: '#4a5568' }}>
-                          Motif : {demandeAnnulation.motif}
+                          {t('detail.motif')} {demandeAnnulation.motif}
                         </div>
                       )}
                     </div>
                     <div style={{ display: 'flex', gap: 8 }}>
                       <button onClick={() => traiterDemande('refusee')} disabled={loading} style={{ flex: 1, padding: '9px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#fff', color: '#4a5568', fontSize: 12, fontWeight: 700, cursor: loading ? 'default' : 'pointer', opacity: loading ? 0.6 : 1 }}>
-                        Refuser la demande
+                        {t('detail.refuser')}
                       </button>
                       <button onClick={() => traiterDemande('acceptee')} disabled={loading} style={{ flex: 1, padding: '9px', borderRadius: 4, border: '1.5px solid #fca5a5', background: '#fff', color: '#dc2626', fontSize: 12, fontWeight: 700, cursor: loading ? 'default' : 'pointer', opacity: loading ? 0.6 : 1 }}>
-                        {loading ? '...' : 'Annuler la commande'}
+                        {loading ? '...' : t('detail.annulerCommande')}
                       </button>
                     </div>
                   </div>
                 ) : (
                   <div style={{ fontSize: 11, color: '#8b7355', background: '#f5f3ef', borderRadius: 6, padding: '10px 12px', textAlign: 'center' }}>
-                    Aucune demande d'annulation en attente
+                    {t('detail.aucuneDemande')}
                   </div>
                 )
               ) : (
                 demandeAnnulation ? (
                   <div style={{ fontSize: 11, color: '#b8860b', background: '#fdf8ec', borderRadius: 6, padding: '10px 12px', textAlign: 'center' }}>
-                    Demande d'annulation envoyée<br />En attente de traitement
+                    {t('detail.demandeEnvoyee')}<br />{t('detail.enAttenteTraitement')}
                   </div>
                 ) : (
                   <button onClick={() => setShowModalAnnulation(true)} style={{ width: '100%', padding: '9px', borderRadius: 4, border: '1.5px solid #fca5a5', background: '#fff', color: '#dc2626', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
-                    Demander l'annulation
+                    {t('detail.demanderAnnulation')}
                   </button>
                 )
               )}
@@ -544,19 +556,19 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
       {showModalAnnulation && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 300, padding: 20 }}>
           <div style={{ background: '#fff', borderRadius: 18, width: '100%', maxWidth: 420, boxShadow: '0 24px 64px rgba(0,0,0,0.2)', padding: '28px' }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', marginBottom: 6 }}>Demander l'annulation</div>
-            <div style={{ fontSize: 12, color: '#8b7355', marginBottom: 18 }}>{selected?.reference} — votre demande sera traitée par Textile Loop</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', marginBottom: 6 }}>{t('detail.demanderAnnulation')}</div>
+            <div style={{ fontSize: 12, color: '#8b7355', marginBottom: 18 }}>{t('modal.sousTitre', { ref: selected?.reference ?? '' })}</div>
             <div style={{ marginBottom: 16 }}>
-              {labelInput('Motif (optionnel)')}
-              <textarea value={motifAnnulation} onChange={e => setMotifAnnulation(e.target.value)} placeholder="Ex : erreur de saisie, changement de planning..." rows={3} style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit' }} />
+              {labelInput(t('modal.motifOptionnel'))}
+              <textarea value={motifAnnulation} onChange={e => setMotifAnnulation(e.target.value)} placeholder={t('modal.motifPlaceholder')} rows={3} style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit' }} />
             </div>
             {error && (
               <div style={{ padding: '10px 14px', borderRadius: 8, background: '#fdf0f0', border: '1px solid #c8a0a0', fontSize: 12, color: '#8b3a3a', marginBottom: 12 }}>{error}</div>
             )}
             <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => { setShowModalAnnulation(false); setMotifAnnulation(''); setError('') }} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#8b7355', fontSize: 13, cursor: 'pointer' }}>Annuler</button>
+              <button onClick={() => { setShowModalAnnulation(false); setMotifAnnulation(''); setError('') }} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#8b7355', fontSize: 13, cursor: 'pointer' }}>{t('modal.annuler')}</button>
               <button onClick={demanderAnnulation} disabled={loading} style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: loading ? '#d4c5b0' : '#1a1a1a', color: loading ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: loading ? 'default' : 'pointer' }}>
-                {loading ? 'Envoi...' : 'Envoyer la demande'}
+                {loading ? t('modal.envoi') : t('modal.envoyer')}
               </button>
             </div>
           </div>
@@ -568,35 +580,35 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: 20 }}>
           <div style={{ background: '#fff', borderRadius: 18, width: '100%', maxWidth: 560, maxHeight: '90vh', overflow: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.2)' }}>
             <div style={{ padding: '22px 28px', borderBottom: '1px solid #f5f3ef', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>Nouvelle commande ETHYS</span>
+              <span style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>{t('form.titre')}</span>
               <button onClick={() => setShowForm(false)} style={{ border: 'none', background: 'none', fontSize: 18, color: '#8b7355', cursor: 'pointer' }}>x</button>
             </div>
             <div style={{ padding: '22px 28px', display: 'flex', flexDirection: 'column', gap: 14 }}>
 
               <div>
-                {labelInput('Titre / référence interne')}
-                <input value={form.titre} onChange={e => set('titre', e.target.value)} placeholder="Ex : Collection Printemps 2024" style={inputStyle} />
+                {labelInput(t('form.titreInterne'))}
+                <input value={form.titre} onChange={e => set('titre', e.target.value)} placeholder={t('form.titrePlaceholder')} style={inputStyle} />
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
                 <div>
-                  {labelInput('Marque *')}
+                  {labelInput(t('form.marque'))}
                   <select value={form.marque_id} onChange={e => set('marque_id', e.target.value)} disabled={role === 'marque'} style={{ ...selectStyle, background: role === 'marque' ? '#f5f3ef' : '#fff', cursor: role === 'marque' ? 'default' : 'pointer' }}>
-                    <option value="">Sélectionner...</option>
+                    <option value="">{t('form.selectionner')}</option>
                     {marques.map(m => <option key={m.id} value={m.id}>{m.nom}</option>)}
                   </select>
                 </div>
                 <div>
-                  {labelInput('Filature *')}
+                  {labelInput(t('form.filature'))}
                   <select value={form.filature_id} onChange={e => set('filature_id', e.target.value)} disabled={role === 'filature'} style={{ ...selectStyle, background: role === 'filature' ? '#f5f3ef' : '#fff', cursor: role === 'filature' ? 'default' : 'pointer' }}>
-                    <option value="">Sélectionner...</option>
+                    <option value="">{t('form.selectionner')}</option>
                     {filatures.map(f => <option key={f.id} value={f.id}>{f.nom}</option>)}
                   </select>
                 </div>
                 <div>
-                  {labelInput('Fournisseur *')}
+                  {labelInput(t('form.fournisseur'))}
                   <select value={form.fournisseur_id} onChange={e => set('fournisseur_id', e.target.value)} disabled={role === 'fournisseur_coton'} style={{ ...selectStyle, background: role === 'fournisseur_coton' ? '#f5f3ef' : '#fff', cursor: role === 'fournisseur_coton' ? 'default' : 'pointer' }}>
-                    <option value="">Sélectionner...</option>
+                    <option value="">{t('form.selectionner')}</option>
                     {fournisseurs.map(f => <option key={f.id} value={f.id}>{f.nom}</option>)}
                   </select>
                 </div>
@@ -604,50 +616,50 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
 
               {/* Mention beta test partenariats */}
               <div style={{ padding: '8px 14px', borderRadius: 6, background: '#fdf8ec', border: '1px solid #e8c97a', fontSize: 11, color: '#b8860b' }}>
-                La fonction de sélection des entreprises partenaires est en cours de test.
+                {t('form.partenairesBeta')}
               </div>
 
               <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, padding: '12px 14px' }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#15803d', marginBottom: 4 }}>Composition Fil ETHYS</div>
-                <div style={{ fontSize: 11, color: '#4a5568' }}>51% coton recyclé + 49% coton vierge</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#15803d', marginBottom: 4 }}>{t('form.compositionTitre')}</div>
+                <div style={{ fontSize: 11, color: '#4a5568' }}>{t('form.compositionTexte')}</div>
               </div>
 
               <div>
-                {labelInput('Volume total de fil (kg) *')}
-                <input type="number" min="0" value={form.volume_total_kg} onChange={e => set('volume_total_kg', e.target.value)} placeholder="Ex : 1000" style={inputStyle} />
+                {labelInput(t('form.volumeLabel'))}
+                <input type="number" min="0" value={form.volume_total_kg} onChange={e => set('volume_total_kg', e.target.value)} onWheel={e => (e.currentTarget as HTMLInputElement).blur()} placeholder={t('form.volumePlaceholder')} style={inputStyle} />
                 {volumeTotal > 0 && (
                   <div style={{ marginTop: 8, padding: '10px 12px', background: '#f5f3ef', borderRadius: 6, fontSize: 12, color: '#4a5568' }}>
-                    Coton recyclé (51%) : <strong>{volumeRecycle.toLocaleString('fr-FR')} kg</strong>
-                    {' — '}Coton vierge (49%) : <strong>{volumeVierge.toLocaleString('fr-FR')} kg</strong>
+                    {t('form.cotonRecycle')} <strong>{volumeRecycle.toLocaleString(locale)} kg</strong>
+                    {' — '}{t('form.cotonVierge')} <strong>{volumeVierge.toLocaleString(locale)} kg</strong>
                   </div>
                 )}
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
                 <div>
-                  {labelInput('Grammage')}
+                  {labelInput(t('form.grammage'))}
                   <select value={form.grammage} onChange={e => set('grammage', e.target.value)} style={selectStyle}>
                     <option value="">-</option>
                     {GRAMMAGES.map(g => <option key={g} value={g}>{g}</option>)}
                   </select>
                 </div>
                 <div>
-                  {labelInput('Livraison souhaitée *')}
+                  {labelInput(t('form.livraison'))}
                   <input type="date" value={form.date_livraison_souhaitee} onChange={e => set('date_livraison_souhaitee', e.target.value)} style={inputStyle} />
                 </div>
                 <div>
-                  {labelInput('priorite')}
+                  {labelInput(t('form.priorite'))}
                   <select value={form.priorite} onChange={e => set('priorite', e.target.value)} style={selectStyle}>
-                    <option value="normale">Normale</option>
-                    <option value="haute">Haute</option>
-                    <option value="urgente">Urgente</option>
+                    <option value="normale">{t('priorite.normale')}</option>
+                    <option value="haute">{t('priorite.haute')}</option>
+                    <option value="urgente">{t('priorite.urgente')}</option>
                   </select>
                 </div>
               </div>
 
               <div>
-                {labelInput('Notes')}
-                <textarea value={form.notes} onChange={e => set('notes', e.target.value)} placeholder="Instructions particulières..." rows={3} style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit' }} />
+                {labelInput(t('form.notes'))}
+                <textarea value={form.notes} onChange={e => set('notes', e.target.value)} placeholder={t('form.notesPlaceholder')} rows={3} style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit' }} />
               </div>
 
               {error && (
@@ -655,9 +667,9 @@ export default function CommandesClient({ user, profil, commandes: initial, entr
               )}
 
               <div style={{ display: 'flex', gap: 10, paddingTop: 4 }}>
-                <button onClick={() => setShowForm(false)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#8b7355', fontSize: 13, cursor: 'pointer' }}>Annuler</button>
+                <button onClick={() => setShowForm(false)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#8b7355', fontSize: 13, cursor: 'pointer' }}>{t('form.annuler')}</button>
                 <button onClick={creerCommande} disabled={loading} style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: loading ? '#d4c5b0' : '#1a1a1a', color: loading ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: loading ? 'default' : 'pointer' }}>
-                  {loading ? 'Création...' : 'Créer la commande ETHYS'}
+                  {loading ? t('form.creation') : t('form.creer')}
                 </button>
               </div>
 

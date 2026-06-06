@@ -1,18 +1,22 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 
+// Les libellés/descriptions des rôles sont traduits via les clés "role_..."
 const ROLES = [
-  { value: 'marque', label: 'Marque', desc: 'Donneur d ordre, commande du fil' },
-  { value: 'filature', label: 'Filature', desc: 'Transforme le coton en fil' },
-  { value: 'fournisseur_coton', label: 'Fournisseur coton', desc: 'Fournit le coton recycle' },
+  { value: 'marque' },
+  { value: 'filature' },
+  { value: 'fournisseur_coton' },
 ]
 
 export default function RegisterPage() {
   const router = useRouter()
   const supabase = createClient()
+  const t = useTranslations('Register')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -25,8 +29,8 @@ export default function RegisterPage() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (password !== confirmPassword) { setError('Les mots de passe ne correspondent pas.'); return }
-    if (!consentement) { setError('Vous devez accepter la politique de confidentialité pour créer un compte.'); return }
+    if (password !== confirmPassword) { setError(t('mismatch')); return }
+    if (!consentement) { setError(t('errorConsent')); return }
     setLoading(true)
     setError('')
     const { error: signUpError } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: 'https://www.ethys-textileloop.com/auth/callback?next=/en-attente' } })
@@ -65,44 +69,49 @@ export default function RegisterPage() {
   )
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 0', background: '#f5f3ef', fontFamily: "'Inter', system-ui, sans-serif" }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 0', background: '#f5f3ef', fontFamily: "'Inter', system-ui, sans-serif", position: 'relative' }}>
+      {/* Sélecteur de langue (pastilles drapeaux) en haut a droite */}
+      <div style={{ position: 'absolute', top: 20, right: 20, zIndex: 10 }}>
+        <LanguageSwitcher />
+      </div>
+
       <div style={{ width: '100%', maxWidth: 420, padding: '0 24px' }}>
         <div style={{ textAlign: 'center', marginBottom: 16 }}>
           <a href="/login"><img src="/logo_ethys.png" alt="ETHYS" style={{ width: 65, height: 'auto', margin: '0 auto 6px', display: 'block' }} /></a>
           <div style={{ fontSize: 10, color: '#8b7355', letterSpacing: 2, textTransform: 'uppercase' }}>Platform</div>
         </div>
         <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #d4c5b0', padding: '22px 26px', boxShadow: '0 2px 12px rgba(26,26,26,0.06)' }}>
-          <div style={{ fontSize: 17, fontWeight: 700, color: '#1a1a1a', marginBottom: 3 }}>Créer un compte</div>
-          <div style={{ fontSize: 12, color: '#8b7355', marginBottom: 14 }}>Rejoignez la plateforme ETHYS</div>
+          <div style={{ fontSize: 17, fontWeight: 700, color: '#1a1a1a', marginBottom: 3 }}>{t('title')}</div>
+          <div style={{ fontSize: 12, color: '#8b7355', marginBottom: 14 }}>{t('subtitle')}</div>
           <form onSubmit={handleRegister}>
             <div style={{ marginBottom: 10 }}>
-              <label style={{ fontSize: 11, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>Email professionnel</label>
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="vous@entreprise.fr" required style={inputStyle} onFocus={e => e.target.style.borderColor='#1a1a1a'} onBlur={e => e.target.style.borderColor='#d4c5b0'} />
+              <label style={{ fontSize: 11, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('emailLabel')}</label>
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder={t('emailPlaceholder')} required style={inputStyle} onFocus={e => e.target.style.borderColor='#1a1a1a'} onBlur={e => e.target.style.borderColor='#d4c5b0'} />
             </div>
             <div style={{ marginBottom: 10 }}>
-              <label style={{ fontSize: 11, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>Mot de passe</label>
+              <label style={{ fontSize: 11, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('passwordLabel')}</label>
               <div style={{ position: 'relative' }}>
-                <input type={showPassword ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="8 caractères minimum" required minLength={8} style={{ ...inputStyle, paddingRight: 40 }} onFocus={e => e.target.style.borderColor='#1a1a1a'} onBlur={e => e.target.style.borderColor='#d4c5b0'} />
+                <input type={showPassword ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder={t('passwordPlaceholder')} required minLength={8} style={{ ...inputStyle, paddingRight: 40 }} onFocus={e => e.target.style.borderColor='#1a1a1a'} onBlur={e => e.target.style.borderColor='#d4c5b0'} />
                 <EyeIcon show={showPassword} toggle={() => setShowPassword(v => !v)} />
               </div>
             </div>
             <div style={{ marginBottom: 12 }}>
-              <label style={{ fontSize: 11, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>Confirmer le mot de passe</label>
+              <label style={{ fontSize: 11, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('confirmLabel')}</label>
               <div style={{ position: 'relative' }}>
-                <input type={showConfirm ? 'text' : 'password'} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Répétez le mot de passe" onPaste={e => e.preventDefault()} onCopy={e => e.preventDefault()} required minLength={8} style={{ ...inputStyle, paddingRight: 40, borderColor: confirmPassword && password !== confirmPassword ? '#8b3a3a' : '#d4c5b0' }} onFocus={e => e.target.style.borderColor='#1a1a1a'} onBlur={e => e.target.style.borderColor= confirmPassword && password !== confirmPassword ? '#8b3a3a' : '#d4c5b0'} />
+                <input type={showConfirm ? 'text' : 'password'} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder={t('confirmPlaceholder')} onPaste={e => e.preventDefault()} onCopy={e => e.preventDefault()} required minLength={8} style={{ ...inputStyle, paddingRight: 40, borderColor: confirmPassword && password !== confirmPassword ? '#8b3a3a' : '#d4c5b0' }} onFocus={e => e.target.style.borderColor='#1a1a1a'} onBlur={e => e.target.style.borderColor= confirmPassword && password !== confirmPassword ? '#8b3a3a' : '#d4c5b0'} />
                 <EyeIcon show={showConfirm} toggle={() => setShowConfirm(v => !v)} />
               </div>
-              {confirmPassword && password !== confirmPassword && <div style={{ fontSize: 11, color: '#8b3a3a', marginTop: 3 }}>Les mots de passe ne correspondent pas.</div>}
-              {confirmPassword && password === confirmPassword && <div style={{ fontSize: 11, color: '#2d5016', marginTop: 3 }}>Les mots de passe correspondent.</div>}
+              {confirmPassword && password !== confirmPassword && <div style={{ fontSize: 11, color: '#8b3a3a', marginTop: 3 }}>{t('mismatch')}</div>}
+              {confirmPassword && password === confirmPassword && <div style={{ fontSize: 11, color: '#2d5016', marginTop: 3 }}>{t('match')}</div>}
             </div>
             <div style={{ marginBottom: 14 }}>
-              <label style={{ fontSize: 11, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>Votre role</label>
+              <label style={{ fontSize: 11, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('roleLabel')}</label>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {ROLES.map(r => (
                   <div key={r.value} onClick={() => setRole(r.value)} style={{ padding: '9px 12px', borderRadius: 4, border: `1.5px solid ${role === r.value ? '#1a1a1a' : '#d4c5b0'}`, background: role === r.value ? '#f5f3ef' : '#fff', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                      <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a' }}>{r.label}</div>
-                      <div style={{ fontSize: 11, color: '#8b7355' }}>{r.desc}</div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a' }}>{t('role_' + r.value)}</div>
+                      <div style={{ fontSize: 11, color: '#8b7355' }}>{t('role_' + r.value + '_desc')}</div>
                     </div>
                     {role === r.value && <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#1a1a1a' }} />}
                   </div>
@@ -118,30 +127,26 @@ export default function RegisterPage() {
                 style={{ marginTop: 2, accentColor: '#1a1a1a', flexShrink: 0, width: 14, height: 14, cursor: 'pointer' }}
               />
               <label htmlFor="consentement" style={{ fontSize: 12, color: '#4a5568', lineHeight: 1.5, cursor: 'pointer' }}>
-                J'ai lu et j'accepte la{' '}
-                <a href="/mentions-legales" target="_blank" style={{ color: '#1a1a1a', fontWeight: 600, textDecoration: 'underline' }}>
-                  politique de confidentialité
-                </a>
-                {' '}et le traitement de mes données personnelles par TEXTILE LOOP conformément au RGPD.
+                {t.rich('consent', {
+                  link: (chunks) => <a href="/mentions-legales" target="_blank" style={{ color: '#1a1a1a', fontWeight: 600, textDecoration: 'underline' }}>{chunks}</a>
+                })}
               </label>
             </div>
             {error && <div style={{ padding: '8px 12px', borderRadius: 4, background: '#fdf0f0', border: '1px solid #8b3a3a', fontSize: 12, color: '#8b3a3a', marginBottom: 10 }}>{error}</div>}
             <button type="submit" disabled={loading || !consentement} style={{ width: '100%', padding: '11px', borderRadius: 4, border: 'none', background: loading || !consentement ? '#e8e3d8' : '#1a1a1a', color: loading || !consentement ? '#8b7355' : '#fff', fontSize: 12, fontWeight: 600, cursor: loading || !consentement ? 'default' : 'pointer', letterSpacing: 0.5, textTransform: 'uppercase', fontFamily: 'inherit' }}>
-              {loading ? 'Creation...' : 'Créer mon compte'}
+              {loading ? t('creating') : t('submit')}
             </button>
           </form>
           <div style={{ textAlign: 'center', marginTop: 12, fontSize: 12, color: '#8b7355' }}>
-            Déjà un compte ?{' '}
-            <a href="/login" style={{ color: '#1a1a1a', fontWeight: 600, textDecoration: 'none' }}>Se connecter</a>
+            {t('hasAccount')}{' '}
+            <a href="/login" style={{ color: '#1a1a1a', fontWeight: 600, textDecoration: 'none' }}>{t('signIn')}</a>
           </div>
         </div>
         <div style={{ textAlign: 'center', marginTop: 12, fontSize: 11, color: '#d4c5b0' }}>
-          <a href='/mentions-legales' style={{ color: '#8b7355', textDecoration: 'none' }}>Mentions légales &amp; RGPD</a>
+          <a href='/mentions-legales' style={{ color: '#8b7355', textDecoration: 'none' }}>{t('legal')}</a>
           {' — '} TEXTILE LOOP © 2026
         </div>
       </div>
     </div>
   )
 }
-
-

@@ -1,0 +1,1073 @@
+{
+  "messagerie": {
+    "title": "Support",
+    "subtitleAdmin": "All requests",
+    "subtitleUser": "Track your requests",
+    "newRequest": "+ New request",
+    "cancel": "Cancel",
+    "formTitle": "New request",
+    "objet": "Subject",
+    "objetPlaceholder": "E.g. login issue, question about an order...",
+    "message": "Message",
+    "messagePlaceholder": "Describe your request in detail...",
+    "attachment": "I have an attachment — I'll send it by email in reply to the confirmation",
+    "submit": "Send request",
+    "submitting": "Sending...",
+    "errorFields": "Please fill in the subject and message.",
+    "errorSend": "Sending error. Please try again.",
+    "success": "Your request has been sent. You'll receive a confirmation by email.",
+    "loading": "Loading...",
+    "emptyAdmin": "No requests received.",
+    "emptyUser": "You haven't submitted any request yet.",
+    "attachmentBadge": "Att.",
+    "replyEmail": "Reply by email",
+    "statut": {
+      "envoyee": "Sent",
+      "en_cours": "In progress",
+      "cloturee": "Closed"
+    }
+  },
+  "Login": {
+    "heroTitle1": "Textile traceability",
+    "heroTitle2": "serving ethics",
+    "heroSubtitle": "ETHYS certification platform by TEXTILE LOOP",
+    "beta": "Beta version — May 2026",
+    "platform": "Platform",
+    "title": "Sign in",
+    "subtitle": "Access your ETHYS workspace",
+    "emailLabel": "Email address",
+    "emailPlaceholder": "you@company.com",
+    "passwordLabel": "Password",
+    "forgotPassword": "Forgot password?",
+    "errorInvalid": "Incorrect email or password. Please check your entry.",
+    "submit": "Sign in",
+    "submitting": "Signing in...",
+    "noAccount": "No account yet?",
+    "createAccount": "Create an account",
+    "legal": "Legal notice & GDPR"
+  },
+  "Nav": {
+    "Dashboard": "Dashboard",
+    "Profil": "Profile",
+    "Annuaire": "Directory",
+    "Support": "Support",
+    "Commandes": "Orders",
+    "Production": "Production",
+    "QR Code": "QR Code",
+    "Facturation": "Invoicing",
+    "Reporting": "Reporting",
+    "ESG": "ESG",
+    "Certification": "Certification",
+    "Admin": "Admin",
+    "Entreprises": "Company management",
+    "legal": "Legal notice",
+    "myProfile": "My profile",
+    "logout": "Log out"
+  },
+  "Register": {
+    "title": "Create an account",
+    "subtitle": "Join the ETHYS platform",
+    "emailLabel": "Email address",
+    "emailPlaceholder": "you@company.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "8 characters minimum",
+    "confirmLabel": "Confirm password",
+    "confirmPlaceholder": "Repeat password",
+    "mismatch": "Passwords do not match.",
+    "match": "Passwords match.",
+    "roleLabel": "Your role",
+    "role_marque": "Brand",
+    "role_marque_desc": "Client, orders yarn",
+    "role_filature": "Spinning mill",
+    "role_filature_desc": "Turns cotton into yarn",
+    "role_fournisseur_coton": "Cotton supplier",
+    "role_fournisseur_coton_desc": "Supplies recycled cotton",
+    "consent": "I have read and accept the <link>privacy policy</link> and the processing of my personal data by TEXTILE LOOP in accordance with the GDPR.",
+    "errorConsent": "You must accept the privacy policy to create an account.",
+    "creating": "Creating...",
+    "submit": "Create my account",
+    "hasAccount": "Already have an account?",
+    "signIn": "Sign in",
+    "legal": "Legal notice & GDPR"
+  },
+  "ForgotPassword": {
+    "title": "Forgot password",
+    "subtitle1": "Enter your email. You will receive a link to create a new password.",
+    "subtitle2": "Your current password will be disabled immediately.",
+    "emailLabel": "Email address",
+    "emailPlaceholder": "you@company.com",
+    "error": "An error occurred. Please check your email.",
+    "sending": "Sending...",
+    "submit": "Send reset link",
+    "backToLogin": "Back to sign in",
+    "sentTitle": "Email sent",
+    "sentTo": "A reset link has been sent to",
+    "sentLine2": "Your current password has been disabled.",
+    "sentLine3": "Check your inbox and click the link to set a new password.",
+    "spamWarning": "Remember to check your spam folder if you don't see the email in your inbox.",
+    "linkValidity": "The link is valid for 1 hour. After that, you will need to make a new request."
+  },
+  "ResetPassword": {
+    "errorMin": "Minimum 8 characters.",
+    "mismatch": "Passwords do not match.",
+    "updated": "Password updated. Redirecting...",
+    "title": "New password",
+    "subtitle": "Choose a secure password.",
+    "newPasswordLabel": "New password",
+    "newPasswordPlaceholder": "Minimum 8 characters",
+    "confirmLabel": "Confirm password",
+    "confirmPlaceholder": "Repeat password",
+    "updating": "Updating...",
+    "submit": "Set new password"
+  },
+  "Onboarding": {
+    "step0Title": "Validate your email",
+    "step0Desc1": "A validation email has been sent to your address.",
+    "step0Desc2": "Click the link in this email to activate your account.",
+    "step0Warning": "You have 7 days to validate your email and complete your profile.",
+    "resendEmail": "Resend validation email",
+    "continueToProfile": "Continue to my profile",
+    "emailResent": "Validation email resent.",
+    "step1Title": "Complete your profile",
+    "step1Desc": "This information is required to access all features of the ETHYS platform.",
+    "redirectWarning": "You tried to access a page that requires a complete profile. Please fill in your details to unlock access to all modules.",
+    "firstNameLabel": "First name *",
+    "firstNamePlaceholder": "Marie",
+    "lastNameLabel": "Last name *",
+    "lastNamePlaceholder": "Dupont",
+    "phoneLabel": "Phone *",
+    "phonePlaceholder": "06 12 34 56 78",
+    "addressLabel": "Address *",
+    "addressPlaceholder": "12 Peace Street",
+    "cityPlaceholder": "Paris",
+    "countryLabel": "Country",
+    "countryPlaceholder": "France",
+    "verifyNotice": "After your profile is validated, your company will be verified by TEXTILE LOOP before you can access all features.",
+    "errorRequired": "Please fill in all required fields.",
+    "errorPrefix": "Error: ",
+    "saving": "Saving...",
+    "submit": "Submit my profile"
+  },
+  "EnAttente": {
+    "title": "Profile under review",
+    "desc1": "Your profile has been submitted successfully.",
+    "desc2": "The TEXTILE LOOP team is reviewing your information.",
+    "desc3": "Your account will soon be linked to your company.",
+    "desc4": "You will receive an email at",
+    "desc5": "as soon as your access is activated.",
+    "notice24h": "This verification usually takes less than 24 business hours.",
+    "autoCheck": "Automatic check every 10 seconds...",
+    "logout": "Log out",
+    "legal": "Legal notice & GDPR"
+  },
+  "dashboard": {
+    "bienvenue": "Welcome",
+    "vueAdmin": "(global Admin view)",
+    "configuration": {
+      "titre": "Your account is being set up",
+      "texte": "Your company is not linked yet. The ETHYS team will finalize your setup very soon.",
+      "cta": "Complete my profile"
+    },
+    "kpi": {
+      "commandes": "Active orders",
+      "partenaires": "Active partners",
+      "annuaire": "Directory",
+      "esg": "ESG compliance",
+      "qr": "QR codes to validate"
+    },
+    "type": {
+      "marque": "Brand",
+      "filature": "Spinning mill",
+      "fournisseur": "Supplier"
+    },
+    "statut": {
+      "en_production": "In production",
+      "livree": "Delivered",
+      "soumise": "Submitted",
+      "validation_filature": "Mill approval",
+      "validation_finale": "Final approval",
+      "annulee": "Cancelled"
+    },
+    "demandesRecues": {
+      "titre": "Requests received",
+      "vide": "No pending requests",
+      "repondre": "Reply"
+    },
+    "demandesEnvoyees": {
+      "titre": "Requests sent",
+      "vide": "No requests in progress",
+      "attente": "Pending"
+    },
+    "messagerie": {
+    "title": "Support",
+    "subtitleAdmin": "All requests",
+    "subtitleUser": "Track your requests",
+    "newRequest": "+ New request",
+    "cancel": "Cancel",
+    "formTitle": "New request",
+    "objet": "Subject",
+    "objetPlaceholder": "E.g. login issue, question about an order...",
+    "message": "Message",
+    "messagePlaceholder": "Describe your request in detail...",
+    "attachment": "I have an attachment — I'll send it by email in reply to the confirmation",
+    "submit": "Send request",
+    "submitting": "Sending...",
+    "errorFields": "Please fill in the subject and message.",
+    "errorSend": "Sending error. Please try again.",
+    "success": "Your request has been sent. You'll receive a confirmation by email.",
+    "loading": "Loading...",
+    "emptyAdmin": "No requests received.",
+    "emptyUser": "You haven't submitted any request yet.",
+    "attachmentBadge": "Att.",
+    "replyEmail": "Reply by email",
+    "statut": {
+      "envoyee": "Sent",
+      "en_cours": "In progress",
+      "cloturee": "Closed"
+    }
+  },
+    "commandes": {
+      "titre": "Latest orders",
+      "vide": "No orders yet"
+    },
+    "table": {
+      "reference": "Reference",
+      "statut": "Status",
+      "date": "Date"
+    },
+    "qr": {
+      "titre": "QR codes to validate",
+      "vide": "No QR code pending"
+    }
+  },
+  "esg": {
+    "tabs": {
+      "score": "ESG score",
+      "indicators": "Indicators",
+      "report": "CSR report"
+    },
+    "header": {
+      "scoreLabel": "ESG SCORE",
+      "title": "ESG performance — {nom}",
+      "subtitle": "Calculated in real time from your data",
+      "noCert": "No active certification",
+      "kpiCertifications": "Certifications",
+      "kpiConformite": "Compliance"
+    },
+    "axes": {
+      "tracabilite": "Traceability",
+      "certifications": "Certifications",
+      "conformite": "Compliance",
+      "partenaires": "Partners",
+      "reporting": "Reporting"
+    },
+    "months": {
+      "jan": "Jan",
+      "feb": "Feb",
+      "mar": "Mar",
+      "apr": "Apr",
+      "may": "May"
+    },
+    "score": {
+      "radar": "ESG radar",
+      "evolution": "Score trend",
+      "detail": "Detail by axis"
+    },
+    "indicators": {
+      "environnement": "Environment",
+      "social": "Social",
+      "gouvernance": "Governance",
+      "lotsAvecCert": "Lots with certification",
+      "volumeRecycle": "Recycled volume",
+      "certsActives": "Active certifications",
+      "partenairesVerifies": "Verified partners",
+      "paysRisque": "High-risk countries",
+      "commandesWorkflow": "Orders with workflow",
+      "conformiteRgpd": "GDPR compliance",
+      "auditLog": "Audit log active",
+      "oui": "Yes"
+    },
+    "report": {
+      "documents": "Available documents",
+      "lastScore": "Last saved score",
+      "downloadHint": "Generate your report to download it",
+      "generateTitle": "Generate CSR report",
+      "company": "Company",
+      "generating": "Generating...",
+      "ready": "Report ready",
+      "generate": "Generate CSR report",
+      "fileReady": "ready"
+    }
+  },
+  "commandes": {
+    "nouvelle": "+ New order",
+    "statut": {
+      "brouillon": "Draft",
+      "soumise": "Submitted",
+      "validation_fournisseur": "Supplier approval",
+      "validation_filature": "Mill approval",
+      "validation_finale": "Final approval",
+      "en_production": "In production",
+      "controle_qualite": "Quality control",
+      "qr_genere": "QR generated",
+      "expediee": "Shipped",
+      "livree": "Delivered",
+      "annulee": "Cancelled"
+    },
+    "priorite": {
+      "normale": "Normal",
+      "haute": "High",
+      "urgente": "Urgent"
+    },
+    "errors": {
+      "champsObligatoires": "Please fill in all required fields: Brand, Spinning mill, Supplier and Delivery date.",
+      "volume": "Please enter a recycled cotton volume greater than 0.",
+      "refGeneration": "Error generating the reference.",
+      "prefix": "Error: "
+    },
+    "filtres": {
+      "toutes": "All",
+      "transmises": "Submitted",
+      "toutesMarques": "All brands",
+      "toutesFilatures": "All mills",
+      "reinitialiser": "Reset"
+    },
+    "liste": {
+      "vide": "No orders",
+      "videHint": "Click \"+ New order\" to get started",
+      "annulationBadge": "CANCELLATION",
+      "annulationDem": "Cancel. requested"
+    },
+    "table": {
+      "reference": "Reference",
+      "marque": "Brand",
+      "filature": "Spinning mill",
+      "volume": "Volume",
+      "composition": "Composition",
+      "statut": "Status",
+      "livraison": "Delivery",
+      "avancement": "Progress"
+    },
+    "detail": {
+      "volume": "Volume",
+      "recycle": "Recycled",
+      "priorite": "Priority",
+      "livraison": "Delivery",
+      "marque": "Brand",
+      "filature": "Spinning mill",
+      "fournisseur": "Supplier",
+      "typeCoton": "Cotton type",
+      "typeCotonValue": "ETHYS Yarn (51% recycled / 49% virgin)",
+      "grammage": "Yarn count",
+      "statut": "Status",
+      "chargement": "Loading...",
+      "annuleeLe": "Cancelled on",
+      "refDemande": "Request ref.:",
+      "commandeAnnulee": "Order cancelled",
+      "annulationImpossible": "Cancellation not possible — status:",
+      "demandeEnAttente": "Cancellation request pending",
+      "motif": "Reason:",
+      "refuser": "Reject request",
+      "annulerCommande": "Cancel the order",
+      "aucuneDemande": "No pending cancellation request",
+      "demandeEnvoyee": "Cancellation request sent",
+      "enAttenteTraitement": "Awaiting processing",
+      "demanderAnnulation": "Request cancellation"
+    },
+    "modal": {
+      "sousTitre": "{ref} — your request will be processed by Textile Loop",
+      "motifOptionnel": "Reason (optional)",
+      "motifPlaceholder": "E.g. data entry error, schedule change...",
+      "annuler": "Cancel",
+      "envoi": "Sending...",
+      "envoyer": "Send request"
+    },
+    "form": {
+      "titre": "New ETHYS order",
+      "titreInterne": "Internal title / reference",
+      "titrePlaceholder": "E.g. Spring Collection 2024",
+      "marque": "Brand *",
+      "filature": "Spinning mill *",
+      "fournisseur": "Supplier *",
+      "selectionner": "Select...",
+      "partenairesBeta": "The partner company selection feature is currently being tested.",
+      "compositionTitre": "ETHYS Yarn composition",
+      "compositionTexte": "51% recycled cotton + 49% virgin cotton",
+      "volumeLabel": "Total yarn volume (kg) *",
+      "volumePlaceholder": "E.g. 1000",
+      "cotonRecycle": "Recycled cotton (51%):",
+      "cotonVierge": "Virgin cotton (49%):",
+      "grammage": "Yarn count",
+      "livraison": "Requested delivery *",
+      "priorite": "Priority",
+      "notes": "Notes",
+      "notesPlaceholder": "Special instructions...",
+      "annuler": "Cancel",
+      "creation": "Creating...",
+      "creer": "Create ETHYS order"
+    }
+  },
+  "production": {
+    "etapes": {
+      "reception": "Material reception",
+      "preparation": "Fiber preparation",
+      "filage": "Spinning",
+      "bobinage": "Winding",
+      "controle": "Quality control",
+      "conditionnement": "Packaging",
+      "expedition": "Shipping"
+    },
+    "priorite": {
+      "normale": "Normal",
+      "haute": "High",
+      "urgente": "Urgent"
+    },
+    "lotStatut": {
+      "en_attente": "Pending",
+      "en_production": "In production",
+      "controle_qualite": "Quality control",
+      "valide": "Validated",
+      "livre": "Delivered"
+    },
+    "alert": {
+      "adminNoEdit": "As an admin, you cannot change a lot's progress. This action is up to the spinning mill or the brand.",
+      "volumeDepasse": "Lot volume ({lots} kg) exceeds the order ({commande} kg)"
+    },
+    "confirm": {
+      "reduire": "Warning: you are reducing the progress of lot {ref}. This action will generate an admin alert. Confirm?",
+      "completion": "Confirm 100% completion of lot {ref}?",
+      "completion2": "Second confirmation: the lot will be marked as finished. This action is final. Continue?"
+    },
+    "listeTitre": "Active productions",
+    "listeVide1": "No active production.",
+    "listeVide2": "Submit an order first.",
+    "avancementGlobal": "Overall progress",
+    "expeditionPrevue": "Planned shipping",
+    "livraisonPrevue": "Planned delivery",
+    "modifier": "Edit",
+    "prodTerminee": "Production finished - enter logistics dates",
+    "saisirDates": "Enter dates",
+    "tabs": {
+      "avancement": "Progress",
+      "lots": "Lots",
+      "qualite": "Quality controls"
+    },
+    "etapesTitre": "Production steps",
+    "filEthys": "ETHYS Yarn",
+    "avancement": "Progress",
+    "certifEthysPrefix": "ETHYS certification: ",
+    "demanderCertif": "Request an ETHYS certification",
+    "certifTousLots": "An ETHYS certification can only be requested once all lots of the order are validated.",
+    "ajouterLot": "+ Add a lot",
+    "nouveauLot": "New lot",
+    "typeCoton": "Cotton type",
+    "filEthysRecycle": "ETHYS Yarn (recycled)",
+    "volumeKg": "Volume (kg)",
+    "volumePlaceholder": "E.g. 80",
+    "certification": "Certification",
+    "ajouter": "Add",
+    "annuler": "Cancel",
+    "aucunLot": "No lot - add one from the Progress tab",
+    "aucunControle": "No quality control recorded",
+    "cq": {
+      "lot": "Lot",
+      "parametre": "Parameter",
+      "valeur": "Value",
+      "seuil": "Threshold",
+      "resultat": "Result",
+      "date": "Date",
+      "conforme": "✓ Compliant",
+      "nonConforme": "✕ Non-compliant"
+    },
+    "aucuneProdActive": "No active production",
+    "commandesIci": "Submitted orders will appear here",
+    "datesLogistiques": "Logistics dates",
+    "dateExpedition": "Planned shipping date *",
+    "dateLivraison": "Planned delivery date (optional)",
+    "logistiqueDefaut": "By default: shipping 14 days after validation, delivery confirmed 30 days after shipping if no action.",
+    "enregistrer": "Save",
+    "associerTitre": "Link a certification",
+    "aucuneCertif": "No certification available",
+    "associer": "Link"
+  },
+  "certification": {
+    "listeTitre": "ETHYS Certifications",
+    "suffix": {
+      "certifiees": "certified",
+      "enAttenteCount": "pending",
+      "enCours": "in progress",
+      "kgRecycle": "kg recycled"
+    },
+    "demander": "+ Request",
+    "section": {
+      "aValider": "To validate",
+      "enCoursExamen": "Under review",
+      "certifiees": "Certified"
+    },
+    "statut": {
+      "duplicatasCourt": "Duplicates",
+      "duplicatasDemandes": "Duplicates requested",
+      "enAttente": "Pending",
+      "certifiee": "Certified"
+    },
+    "aucuneCertif": "No certification.",
+    "filEthys": "ETHYS Yarn",
+    "annuler": "Cancel",
+    "commandePrefix": "Order",
+    "soumiseLe": "Submitted on",
+    "emiseLe": "Issued on",
+    "valideJusqu": "Valid until",
+    "certifObtenue": "ETHYS certification obtained",
+    "decisionTitre": "TEXTILE LOOP decision",
+    "demanderDuplicatas": "Request duplicates",
+    "duplicatasAttente": "Duplicates requested — awaiting receipt",
+    "refuser": "Reject",
+    "certifEnCours": "Certifying...",
+    "certifierEthys": "Certify ETHYS",
+    "motifPlaceholder": "Reason for rejection...",
+    "confirmerRefus": "Confirm rejection",
+    "emptyTitre": "ETHYS Certification",
+    "erreurPrefix": "Error: ",
+    "labels": {
+      "type": "Type",
+      "volumeTotal": "Total volume",
+      "volumeRecycle": "Recycled volume",
+      "volumeVierge": "Virgin volume",
+      "pctRecycle": "% recycled",
+      "filature": "Spinning mill",
+      "pays": "Country"
+    },
+    "form": {
+      "titre": "ETHYS certification request",
+      "commandeLabel": "Order to certify *",
+      "selectCommande": "Select an order...",
+      "recap": "Summary",
+      "volumeTotal": "Total volume",
+      "type": "Type",
+      "pctRecycle": "% recycled",
+      "volumeRecycle": "Recycled volume",
+      "volumeVierge": "Virgin volume",
+      "filature": "Spinning mill",
+      "marque": "Brand",
+      "honneurTitre": "Declaration of honour",
+      "honneurTexte": "I certify on my honour that the information is accurate and that this declaration meets the ETHYS criteria (minimum 51% recycled cotton, verifiable traceability).",
+      "envoi": "Sending...",
+      "soumettre": "Submit request"
+    },
+    "declFilature": {
+      "titre": "Request under review",
+      "dupMsg1": "TEXTILE LOOP has requested the duplicates of your recycled and virgin cotton orders.",
+      "dupMsg2": "Please send them by email to",
+      "attMsg1": "Your request is being reviewed by TEXTILE LOOP.",
+      "attMsg2": "You will receive a notification as soon as it is processed."
+    },
+    "empty": {
+      "adminAValider": "Select a request to validate or reject it.",
+      "adminVide": "No pending request.",
+      "filatureEligibles": "You have eligible orders. Click + Request to submit.",
+      "filatureVoir": "Select a request to see its status.",
+      "filatureVide": "No order eligible for certification at the moment."
+    },
+    "msg": {
+      "selectCommande": "Please select an order.",
+      "cocherHonneur": "Please tick the declaration of honour.",
+      "commandeIntrouvable": "Order not found.",
+      "demandeSoumise": "Certification request submitted. It will be reviewed by TEXTILE LOOP.",
+      "duplicatasEnvoyes": "Duplicate request sent by email.",
+      "erreurCertif": "Error during certification: ",
+      "certifAccordee": "Certification granted. Number: ",
+      "motifRefus": "Please provide a reason for rejection."
+    }
+  },
+  "qrcode": {
+    "certType": {
+      "fil": "ETHYS Yarn",
+      "tissu": "ETHYS Fabric",
+      "produitFini": "ETHYS Finished product"
+    },
+    "coton": {
+      "recycle": "Recycled",
+      "vierge": "Virgin"
+    },
+    "btn": {
+      "demandeEnAttente": "Generation request pending",
+      "refuserDemande": "Reject request",
+      "generation": "Generating...",
+      "genererQR": "Generate QR Code",
+      "genererQREthys": "Generate ETHYS QR Code",
+      "demandeEnvoyee1": "Request sent",
+      "demandeEnvoyee2": "awaiting Textile Loop validation",
+      "lot100": "The lot must be at 100% to request a QR Code",
+      "envoi": "Sending...",
+      "demanderGeneration": "Request QR generation"
+    },
+    "tabs": {
+      "lots": "Lots",
+      "certifications": "Certifications"
+    },
+    "lotsProduction": "Production lots",
+    "certificationsEthys": "ETHYS Certifications",
+    "suffix": {
+      "qrGeneres": "QR generated",
+      "enAttente": "pending"
+    },
+    "filtreDemandesOn": "▣ QR requests only",
+    "filtreDemandesOff": "▣ View QR requests",
+    "aucuneCertif": "No certification available.",
+    "badge": {
+      "qrActif": "QR active",
+      "sansQR": "No QR",
+      "demandeQR": "QR request",
+      "enAttente": "Pending"
+    },
+    "aucuneDemande": "No pending QR request.",
+    "aucunLot": "No lot available.",
+    "scans": "scan(s)",
+    "infosLot": "Lot information",
+    "labels": {
+      "marque": "Brand",
+      "filature": "Spinning mill",
+      "volume": "Volume"
+    },
+    "lotInfo": {
+      "refLot": "Lot reference",
+      "commande": "Order",
+      "fournisseur": "Supplier",
+      "typeCoton": "Cotton type",
+      "origine": "Origin",
+      "certifFil": "Yarn certification",
+      "avancement": "Progress"
+    },
+    "qrActifTitre": "Active QR Code",
+    "qrEthysTitre": "ETHYS QR Code",
+    "donneesEncodees": "Encoded data",
+    "encoded": {
+      "certification": "Certification"
+    },
+    "voirPagePublique": "View public page",
+    "apercu": "Preview",
+    "telecharger": "Download",
+    "urlCopiee": "URL copied!",
+    "copierURL": "Copy URL",
+    "selectionnezLot": "Select a lot",
+    "public": {
+      "tracabilite": "ETHYS · FULL traceability",
+      "votreFil": "Your ETHYS yarn",
+      "lot": "Lot",
+      "matieres": "RAW MATERIALS",
+      "cotonRecycle": "Recycled cotton",
+      "cotonVierge": "Virgin cotton",
+      "filCertifie": "ETHYS certified yarn",
+      "description": "This ETHYS certified yarn is the result of processing recycled cotton (51%) and virgin cotton (49%). It was made by {filature}.",
+      "laFilature": "the spinning mill",
+      "origineMatiere": "Material origin",
+      "nonRenseigne": "Not specified",
+      "certifFil": "Yarn certification",
+      "fournisseurCoton": "Cotton supplier",
+      "donneesVerifiees": "Data verified and certified by TEXTILE LOOP",
+      "plateforme": "ETHYS Platform",
+      "ouvrirPage": "Open public page"
+    },
+    "valideJusqu": "Valid until",
+    "certifie": "Certified",
+    "composition": "Composition",
+    "certInfo": {
+      "entreprise": "Company",
+      "paysFilature": "Mill country",
+      "provenanceCoton": "Cotton origin"
+    },
+    "qrCodeActif": "Active QR Code",
+    "copiee": "Copied!",
+    "transfererMarque": "Transfer to a brand",
+    "genererQRConso": "Generate consumer QR Code",
+    "transfert": {
+      "titre": "Transfer the QR to a brand",
+      "marqueNonEnreg": "Brand not registered on ETHYS",
+      "emailLabel": "Brand email *",
+      "emailInfo": "An invitation email will be sent to this address.",
+      "selectLabel": "Select the brand *",
+      "selectPlaceholder": "Select a brand...",
+      "confirm": "Confirm the final transfer to \"{marque}\"?\n\nThis QR code can no longer be transferred to another brand.",
+      "msgInvitation": "Invitation email sent to the brand.",
+      "msgTransfere": "QR code transferred. The brand received an email.",
+      "erreurPrefix": "Error: ",
+      "inconnue": "unknown",
+      "envoyer": "Send"
+    },
+    "annuler": "Cancel"
+  },
+  "facturation": {
+    "statuts": {
+      "brouillon": "Draft",
+      "emise": "Issued",
+      "en_attente": "Pending",
+      "payee": "Paid",
+      "en_retard": "Overdue",
+      "annulee": "Cancelled"
+    },
+    "kpi": {
+      "totalFacture": "Total invoiced",
+      "encaisse": "Collected",
+      "enAttente": "Pending",
+      "enRetard": "Overdue"
+    },
+    "filtres": {
+      "toutes": "All"
+    },
+    "boutons": {
+      "accordsCommerciaux": "Commercial agreements",
+      "nouvelleFacture": "New invoice",
+      "nouvelAccord": "New agreement",
+      "voir": "View",
+      "marquerPayee": "Mark as paid",
+      "fermer": "Close",
+      "annuler": "Cancel",
+      "ajouterLigne": "Add a line"
+    },
+    "accords": {
+      "titre": "Commercial agreements",
+      "aucun": "No commercial agreement. Click '+ New agreement' to create one.",
+      "du": "From {debut}",
+      "auDate": "to {fin}",
+      "illimite": "(unlimited)",
+      "actif": "Active",
+      "prixNegocieKg": "Negotiated price/kg",
+      "base": "Base: €{prix}",
+      "remiseVolumeAnnuel": "Annual volume discount",
+      "desSeuil": "From {seuil}T/year",
+      "remisePalierCommande": "Order tier discount",
+      "remisePalierDetail": "1% ≥ 5T · 2% ≥ 10T",
+      "standardEthys": "ETHYS standard"
+    },
+    "formAccord": {
+      "titre": "New commercial agreement",
+      "marque": "Brand *",
+      "selectMarque": "Select a brand…",
+      "prixNegocie": "Negotiated price (€/kg) *",
+      "remiseAnnuelle": "Annual discount (%)",
+      "seuilVolume": "Annual volume threshold (T)",
+      "dateFin": "End date (optional)",
+      "notes": "Notes (optional)",
+      "enregistrer": "Save agreement"
+    },
+    "table": {
+      "aucuneFacture": "No invoice",
+      "reference": "Reference",
+      "emetteur": "Issuer",
+      "destinataire": "Recipient",
+      "montantTtc": "Amount incl. VAT",
+      "emission": "Issued",
+      "echeance": "Due",
+      "statut": "Status"
+    },
+    "detail": {
+      "factureEthys": "ETHYS INVOICE",
+      "refCommande": "Order ref.: {ref}",
+      "prixAccord": "Commercial agreement price",
+      "decompositionPrix": "Price breakdown",
+      "prixBase": "Base price",
+      "remiseVolumeCommande": "Order volume discount",
+      "remiseVolumeAnnuel": "Annual volume discount",
+      "prixApplicable": "Applicable price",
+      "ttc": "incl. VAT",
+      "emetteur": "Issuer",
+      "destinataire": "Recipient",
+      "dateEmission": "Issue date",
+      "dateEcheance": "Due date",
+      "datePaiement": "Payment date",
+      "detailPrestations": "Service details",
+      "colDescription": "Description",
+      "colQte": "Qty",
+      "colUnite": "Unit",
+      "colPu": "Unit price (€)",
+      "colTotalHt": "Total excl. VAT",
+      "sousTotalHt": "Subtotal excl. VAT",
+      "tva": "VAT {pct}%",
+      "totalTtc": "Total incl. VAT"
+    },
+    "formFacture": {
+      "titre": "New invoice",
+      "commande": "Order *",
+      "selectionner": "Select…",
+      "emetteur": "Issuer *",
+      "destinataire": "Recipient *",
+      "dateEcheance": "Due date *",
+      "tva": "VAT (%)",
+      "lignes": "Invoice lines",
+      "phDescription": "Description",
+      "phQte": "Qty",
+      "phPu": "Unit price €",
+      "totalHt": "Total excl. VAT",
+      "tvaLigne": "VAT {pct}%",
+      "totalTtc": "Total incl. VAT",
+      "creation": "Creating…",
+      "creer": "Create invoice"
+    },
+    "reporting": {
+      "tabs": {
+        "vueGlobale": "Overview",
+        "volumes": "Volumes",
+        "finances": "Finances",
+        "partenaires": "Partners"
+      },
+      "kpi": {
+        "volumeTotal": "Total volume",
+        "commandes": "{count} orders",
+        "caTotal": "Total revenue",
+        "factures": "{count} invoices",
+        "pctCotonRecycle": "% Recycled cotton",
+        "partenaires": "Partners",
+        "verifies": "{count} verified"
+      },
+      "aucuneDonnee": "No data",
+      "aucuneCommande": "No order",
+      "types": {
+        "marques": "Brands",
+        "filatures": "Spinning mills",
+        "fournisseurs": "Suppliers"
+      },
+      "vueGlobale": {
+        "volumesMensuels": "Monthly volumes (thousands of kg)",
+        "volumeSerie": "Volume (thousands of kg)",
+        "statutsCommandes": "Order statuses",
+        "resumeCommandes": "Order summary",
+        "colStatut": "Status",
+        "colNbCommandes": "Orders",
+        "colVolumeTotal": "Total volume",
+        "colPctRecycle": "Avg. % recycled"
+      },
+      "volumes": {
+        "evolution": "Volume trend",
+        "volumeSerie": "Volume (T)",
+        "volumeTotal": "Total volume",
+        "lotsActifs": "Active batches",
+        "lotsTotal": "{count} batches total"
+      },
+      "finances": {
+        "caMensuel": "Monthly revenue",
+        "caSerie": "Revenue in euros",
+        "caTotal": "Total revenue",
+        "facturesPayees": "Paid invoices",
+        "facturesAttente": "Pending invoices",
+        "tauxEncaissement": "Collection rate"
+      },
+      "partenaires": {
+        "parPays": "Breakdown by country",
+        "partenairesSerie": "Partners",
+        "parType": "Breakdown by type",
+        "totalPartenaires": "Total partners",
+        "verifies": "Verified",
+        "enCours": "In progress",
+        "paysCouverts": "Countries covered"
+      }
+    }
+  },
+  "reporting": {
+    "tabs": {
+      "vueGlobale": "Overview",
+      "volumes": "Volumes",
+      "finances": "Finances",
+      "partenaires": "Partners"
+    },
+    "kpi": {
+      "volumeTotal": "Total volume",
+      "commandes": "{count} orders",
+      "caTotal": "Total revenue",
+      "factures": "{count} invoices",
+      "pctCotonRecycle": "% Recycled cotton",
+      "partenaires": "Partners",
+      "verifies": "{count} verified"
+    },
+    "aucuneDonnee": "No data",
+    "aucuneCommande": "No order",
+    "types": {
+      "marques": "Brands",
+      "filatures": "Spinning mills",
+      "fournisseurs": "Suppliers"
+    },
+    "vueGlobale": {
+      "volumesMensuels": "Monthly volumes (thousands of kg)",
+      "volumeSerie": "Volume (thousands of kg)",
+      "statutsCommandes": "Order statuses",
+      "resumeCommandes": "Order summary",
+      "colStatut": "Status",
+      "colNbCommandes": "Orders",
+      "colVolumeTotal": "Total volume",
+      "colPctRecycle": "Avg. % recycled"
+    },
+    "volumes": {
+      "evolution": "Volume trend",
+      "volumeSerie": "Volume (T)",
+      "volumeTotal": "Total volume",
+      "lotsActifs": "Active batches",
+      "lotsTotal": "{count} batches total"
+    },
+    "finances": {
+      "caMensuel": "Monthly revenue",
+      "caSerie": "Revenue in euros",
+      "caTotal": "Total revenue",
+      "facturesPayees": "Paid invoices",
+      "facturesAttente": "Pending invoices",
+      "tauxEncaissement": "Collection rate"
+    },
+    "partenaires": {
+      "parPays": "Breakdown by country",
+      "partenairesSerie": "Partners",
+      "parType": "Breakdown by type",
+      "totalPartenaires": "Total partners",
+      "verifies": "Verified",
+      "enCours": "In progress",
+      "paysCouverts": "Countries covered"
+    }
+  },
+  "profil": {
+    "msg": {
+      "entrepriseMaj": "Company updated",
+      "profilMaj": "Profile updated",
+      "documentAjoute": "Document added"
+    },
+    "hero": {
+      "verifie": "Verified profile",
+      "enVerification": "Verification in progress",
+      "rolePlateforme": "Platform role"
+    },
+    "btn": {
+      "modifier": "Edit",
+      "annuler": "Cancel",
+      "enregistrer": "Save",
+      "ajouter": "+ Add",
+      "voir": "View",
+      "supprimer": "Del."
+    },
+    "entreprise": {
+      "titre": "Legal information and address",
+      "raisonSociale": "Company name",
+      "siret": "SIRET",
+      "tva": "VAT",
+      "tvaIntra": "Intra-EU VAT",
+      "adresse": "Address",
+      "codePostal": "Postal code",
+      "ville": "City",
+      "pays": "Country",
+      "description": "Description"
+    },
+    "contact": {
+      "titre": "Company contact",
+      "email": "Email",
+      "emailContact": "Contact email",
+      "telephone": "Phone",
+      "siteWeb": "Website",
+      "nomContact": "Contact last name",
+      "prenomContact": "Contact first name",
+      "fonction": "Role"
+    },
+    "perso": {
+      "titre": "My personal profile",
+      "prenom": "First name",
+      "nom": "Last name",
+      "telephone": "Phone",
+      "email": "Email",
+      "emailNonModifiable": "Email (cannot be changed)"
+    },
+    "certifs": {
+      "titre": "Certifications ({count})",
+      "aucune": "No certification recorded"
+    },
+    "documents": {
+      "titre": "Documents ({count})",
+      "aucun": "No document",
+      "exp": "Exp.",
+      "ko": "KB",
+      "type": {
+        "kbis": "Registration",
+        "certificat": "Certificate",
+        "assurance": "Insurance",
+        "autre": "Other"
+      }
+    },
+    "suppression": {
+      "titre": "Delete my account",
+      "texte": "This action is irreversible. All your data will be deleted in accordance with GDPR.",
+      "bouton": "Delete my account"
+    },
+    "modal": {
+      "titre": "Add a document",
+      "nomLabel": "Document name *",
+      "nomPlaceholder": "e.g. Registration 2026, GOTS certificate...",
+      "typeLabel": "Type *",
+      "dateExp": "Expiry date (optional)",
+      "fichier": "File *",
+      "upload": "Uploading...",
+      "typeAssuranceRcPro": "Professional liability insurance"
+    }
+},
+"mentionsLegales": {
+    "retour": "Back",
+    "titre": "Legal notice & Privacy policy",
+    "maj": "Last updated: May 2026",
+    "s1": "1. Site publisher",
+    "s2": "2. Hosting",
+    "s3": "3. Personal data — Data controller",
+    "s4": "4. Data collected and purposes",
+    "s5": "5. Your rights",
+    "s6": "6. Cookies"
+  },
+  "tracabilite": {
+    "introuvableTitre": "QR Code not found",
+    "introuvableTexte": "This code does not match any product registered on the ETHYS platform.",
+    "certBadge": "ETHYS — CERTIFICATION",
+    "certTitre": "ETHYS Certified Yarn",
+    "matieres": "RAW MATERIALS",
+    "cotonRecycle": "Recycled cotton",
+    "cotonVierge": "Virgin cotton",
+    "certifieBadge": "✓ ETHYS Certified",
+    "certifieParTL": "Certified by TEXTILE LOOP — verified traceability",
+    "typeFil": "ETHYS Yarn",
+    "typeTissu": "ETHYS Fabric",
+    "typeProduitFini": "ETHYS Finished Product",
+    "lblEntreprise": "Company",
+    "lblPays": "Country",
+    "lblFilature": "Spinning mill",
+    "lblPaysFilature": "Mill country",
+    "lblProvenance": "Cotton origin",
+    "lblTypeProduit": "Product type",
+    "lblNumeroCert": "Certification number",
+    "lblDateEmission": "Issue date",
+    "scan": "Scan #{n}",
+    "donneesVerifiees": "Data verified and certified by TEXTILE LOOP",
+    "plateforme": "ETHYS Platform -",
+    "tracaBadge": "ETHYS — TRACEABILITY",
+    "tracaTitre": "Your ETHYS yarn",
+    "lotLabel": "Batch",
+    "filCertifie": "ETHYS Certified Yarn",
+    "descriptionFil": "This yarn results from the transformation of recycled and virgin cotton by {filature}, certified by the TEXTILE LOOP platform.",
+    "laFilature": "the spinning mill",
+    "lblOrigine": "Material origin",
+    "lblCertificationFil": "Yarn certification",
+    "lblFournisseur": "Cotton supplier",
+    "lblMarque": "Brand",
+    "lblVolumeTotal": "Total volume",
+    "nonRenseigne": "Not specified"
+  },
+  "qrAccess": {
+    "badge": "ETHYS — CERTIFIED QR CODE",
+    "soustitre": "Secure transfer · Single use",
+    "sectionCert": "Certification",
+    "lblFilature": "Spinning mill",
+    "lblMarque": "Brand",
+    "lblVolumeTotal": "Total volume",
+    "lblPctRecycle": "% recycled",
+    "lblVolumeRecycle": "Recycled volume",
+    "lblVolumeVierge": "Virgin volume",
+    "lblEmiseLe": "Issued on",
+    "lblValideJusqu": "Valid until",
+    "titreQR": "Traceability QR Code",
+    "telecharger": "Download QR code",
+    "recupereLe": "Recovered on {date}",
+    "qrIndisponible": "QR code unavailable. Contact TEXTILE LOOP.",
+    "mentionReserve": "This QR code is strictly reserved for the use of",
+    "mentionInterdite": "Any unauthorized distribution is prohibited.",
+    "mentionCertifie": "Certified by TEXTILE LOOP ·",
+    "votremarque": "your brand"
+  }
+}

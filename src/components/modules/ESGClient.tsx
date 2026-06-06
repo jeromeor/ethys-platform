@@ -1,6 +1,7 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
 import { createClient } from '@/lib/supabase/client'
 
@@ -16,13 +17,19 @@ interface Props {
   scoreExistant: { score_global: number; score_Traçabilité: number; score_recyclage: number; score_certifications: number; score_conformite: number; score_partenaires: number; score_reporting: number; Période_debut: string; Période_fin: string } | null
 }
 
-const TABS = ['Score ESG', 'Indicateurs', 'Rapport RSE']
-
 export default function ESGClient({ profil, commandes, lots, certifications, scoreExistant }: Props) {
+  const t = useTranslations('esg')
   const supabase = createClient()
-  const [activeTab, setActiveTab] = useState('Score ESG')
+  const [activeTab, setActiveTab] = useState('score')
   const [generating, setGenerating] = useState(false)
   const [generated, setGenerated] = useState(false)
+
+  // Onglets : id stable (logique) + label traduit (affichage)
+  const tabs = [
+    { id: 'score', label: t('tabs.score') },
+    { id: 'indicators', label: t('tabs.indicators') },
+    { id: 'report', label: t('tabs.report') },
+  ]
 
   const totalLots = lots.length
   const lotsAvecCert = lots.filter(l => l.certification).length
@@ -44,19 +51,19 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
   const scoreGlobal = Math.round(Object.values(scores).reduce((s, v) => s + v, 0) / Object.values(scores).length)
 
   const radarData = [
-    { axe: 'Traçabilité', score: scores.Traçabilité },
-    { axe: 'Certifications', score: scores.certifications },
-    { axe: 'Conformité', score: scores.conformite },
-    { axe: 'Partenaires', score: scores.partenaires },
-    { axe: 'Reporting', score: scores.reporting },
+    { axe: t('axes.tracabilite'), score: scores.Traçabilité },
+    { axe: t('axes.certifications'), score: scores.certifications },
+    { axe: t('axes.conformite'), score: scores.conformite },
+    { axe: t('axes.partenaires'), score: scores.partenaires },
+    { axe: t('axes.reporting'), score: scores.reporting },
   ]
 
   const evolutionData = [
-    { mois: 'Jan', score: Math.max(60, scoreGlobal - 15) },
-    { mois: 'Fev', score: Math.max(65, scoreGlobal - 10) },
-    { mois: 'Mar', score: Math.max(70, scoreGlobal - 6) },
-    { mois: 'Avr', score: Math.max(75, scoreGlobal - 3) },
-    { mois: 'Mai', score: scoreGlobal },
+    { mois: t('months.jan'), score: Math.max(60, scoreGlobal - 15) },
+    { mois: t('months.feb'), score: Math.max(65, scoreGlobal - 10) },
+    { mois: t('months.mar'), score: Math.max(70, scoreGlobal - 6) },
+    { mois: t('months.apr'), score: Math.max(75, scoreGlobal - 3) },
+    { mois: t('months.may'), score: scoreGlobal },
   ]
 
   const SauvegarderScore = async () => {
@@ -91,20 +98,20 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
               <div style={{ fontSize: 9, opacity: 0.7 }}>/ 100</div>
             </div>
           </div>
-          <div style={{ fontSize: 9, color: '#c2956e', fontWeight: 600, marginTop: 6 }}>SCORE ESG</div>
+          <div style={{ fontSize: 9, color: '#c2956e', fontWeight: 600, marginTop: 6 }}>{t('header.scoreLabel')}</div>
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 18, fontWeight: 900, marginBottom: 4 }}>Performance ESG — {profil?.entreprise?.nom ?? 'ETHYS'}</div>
-          <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 10 }}>Calculé en temps réel depuis vos données</div>
+          <div style={{ fontSize: 18, fontWeight: 900, marginBottom: 4 }}>{t('header.title', { nom: profil?.entreprise?.nom ?? 'ETHYS' })}</div>
+          <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 10 }}>{t('header.subtitle')}</div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {certifications.filter(c => c.valide).map(c => (
               <span key={c.id} style={{ padding: '3px 10px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: 'rgba(110,231,183,0.2)', color: '#c2956e', border: '1px solid rgba(110,231,183,0.3)' }}>v {c.label}</span>
             ))}
-            {certifications.filter(c => c.valide).length === 0 && <span style={{ fontSize: 11, opacity: 0.6 }}>Aucune certification active</span>}
+            {certifications.filter(c => c.valide).length === 0 && <span style={{ fontSize: 11, opacity: 0.6 }}>{t('header.noCert')}</span>}
           </div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, flexShrink: 0 }}>
-          {[[String(certsValides), 'Certifications'], ['100%', 'Conformité']].map(([v, l]) => (
+          {[[String(certsValides), t('header.kpiCertifications')], ['100%', t('header.kpiConformite')]].map(([v, l]) => (
             <div key={l} style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 4, padding: '8px 12px', textAlign: 'center' }}>
               <div style={{ fontSize: 16, fontWeight: 900, color: '#c2956e' }}>{v}</div>
               <div style={{ fontSize: 9, opacity: 0.65, marginTop: 2 }}>{l}</div>
@@ -114,16 +121,16 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
       </div>
 
       <div style={{ display: 'flex', borderBottom: '2px solid #e8e3d8', padding: '0 22px', flexShrink: 0, background: '#fff' }}>
-        {TABS.map(t => (
-          <button key={t} onClick={() => setActiveTab(t)} style={{ padding: '10px 18px', border: 'none', background: 'none', cursor: 'pointer', fontSize: 13, fontWeight: activeTab === t ? 700 : 500, color: activeTab === t ? '#1a1a1a' : '#8b7355', borderBottom: activeTab === t ? '2px solid #1a1a1a' : '2px solid transparent', marginBottom: -2 }}>{t}</button>
+        {tabs.map(tab => (
+          <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ padding: '10px 18px', border: 'none', background: 'none', cursor: 'pointer', fontSize: 13, fontWeight: activeTab === tab.id ? 700 : 500, color: activeTab === tab.id ? '#1a1a1a' : '#8b7355', borderBottom: activeTab === tab.id ? '2px solid #1a1a1a' : '2px solid transparent', marginBottom: -2 }}>{tab.label}</button>
         ))}
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', padding: '12px 16px' }}>
-        {activeTab === 'Score ESG' && (
+        {activeTab === 'score' && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, height: '100%' }}>
             <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '18px 22px' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 16 }}>Radar ESG</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 16 }}>{t('score.radar')}</div>
               <ResponsiveContainer width="100%" height={190}>
                 <RadarChart data={radarData}>
                   <PolarGrid stroke="#d4c5b0" />
@@ -134,7 +141,7 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, minHeight: 0, overflow: 'hidden' }}>
               <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '18px 22px' }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 14 }}>Evolution score</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 14 }}>{t('score.evolution')}</div>
                 <ResponsiveContainer width="100%" height={110}>
                   <LineChart data={evolutionData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f5f3ef" />
@@ -146,7 +153,7 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
                 </ResponsiveContainer>
               </div>
               <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '18px 20px' }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a', marginBottom: 12 }}>Detail par axe</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a', marginBottom: 12 }}>{t('score.detail')}</div>
                 {radarData.map((s, i) => (
                   <div key={i} style={{ marginBottom: 10 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
@@ -163,22 +170,22 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
           </div>
         )}
 
-        {activeTab === 'Indicateurs' && (
+        {activeTab === 'indicators' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {[
-              { cat: 'Environnement', lettre: 'E', couleur: '#2d5016', bg: '#f0f4ec', items: [
-                { label: 'Lots avec certification', val: lotsAvecCert + '/' + totalLots, ok: lotsAvecCert === totalLots },
-                { label: 'Volume Recyclé', val: (Math.round(volumeRecyclé * 1000)).toLocaleString('fr-FR') + ' kg', ok: true },
+              { cat: t('indicators.environnement'), lettre: 'E', couleur: '#2d5016', bg: '#f0f4ec', items: [
+                { label: t('indicators.lotsAvecCert'), val: lotsAvecCert + '/' + totalLots, ok: lotsAvecCert === totalLots },
+                { label: t('indicators.volumeRecycle'), val: (Math.round(volumeRecyclé * 1000)).toLocaleString('fr-FR') + ' kg', ok: true },
               ]},
-              { cat: 'Social', lettre: 'S', couleur: '#1E40AF', bg: '#DBEAFE', items: [
-                { label: 'Certifications actives', val: String(certsValides), ok: certsValides >= 2 },
-                { label: 'Partenaires vérifiés', val: '6/7', ok: false },
-                { label: 'Pays à risque', val: '0', ok: true },
+              { cat: t('indicators.social'), lettre: 'S', couleur: '#1E40AF', bg: '#DBEAFE', items: [
+                { label: t('indicators.certsActives'), val: String(certsValides), ok: certsValides >= 2 },
+                { label: t('indicators.partenairesVerifies'), val: '6/7', ok: false },
+                { label: t('indicators.paysRisque'), val: '0', ok: true },
               ]},
-              { cat: 'Gouvernance', lettre: 'G', couleur: '#6B21A8', bg: '#F3E8FF', items: [
-                { label: 'Commandes avec workflow', val: String(commandes.length), ok: true },
-                { label: 'Conformité RGPD', val: '100%', ok: true },
-                { label: 'Audit log actif', val: 'Oui', ok: true },
+              { cat: t('indicators.gouvernance'), lettre: 'G', couleur: '#6B21A8', bg: '#F3E8FF', items: [
+                { label: t('indicators.commandesWorkflow'), val: String(commandes.length), ok: true },
+                { label: t('indicators.conformiteRgpd'), val: '100%', ok: true },
+                { label: t('indicators.auditLog'), val: t('indicators.oui'), ok: true },
               ]},
             ].map((cat, ci) => (
               <div key={ci} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', overflow: 'hidden' }}>
@@ -202,32 +209,32 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
           </div>
         )}
 
-        {activeTab === 'Rapport RSE' && (
+        {activeTab === 'report' && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 20 }}>
             <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '20px 22px' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 14 }}>Documents disponibles</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 14 }}>{t('report.documents')}</div>
               {scoreExistant && (
                 <div style={{ padding: '12px 14px', borderRadius: 4, background: '#F0FDF4', border: '1px solid #c8d8b8', marginBottom: 12 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#2d5016' }}>Dernier score Sauvegarde</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#2d5016' }}>{t('report.lastScore')}</div>
                   <div style={{ fontSize: 24, fontWeight: 900, color: '#1a1a1a' }}>{scoreExistant.score_global}/100</div>
                 </div>
               )}
               <div style={{ padding: '10px 14px', borderRadius: 8, background: '#f5f3ef', fontSize: 11, color: '#8b7355' }}>
-              Générez votre rapport pour le télécharger
+              {t('report.downloadHint')}
               </div>
             </div>
             <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '20px 22px' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 14 }}>Générer rapport RSE</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 14 }}>{t('report.generateTitle')}</div>
               <div style={{ marginBottom: 12 }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 5 }}>Entreprise</label>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 5 }}>{t('report.company')}</label>
                 <div style={{ padding: '8px 12px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 12, background: '#f5f3ef' }}>{profil?.entreprise?.nom ?? '-'}</div>
               </div>
               <button onClick={GénérerRapport} disabled={generating} style={{ width: '100%', padding: '10px', borderRadius: 4, border: 'none', background: generating ? '#d4c5b0' : '#1a1a1a', color: generating ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: generating ? 'default' : 'pointer' }}>
-                {generating ? 'Generation...' : generated ? 'v Rapport prêt' : 'Générer rapport RSE'}
+                {generating ? t('report.generating') : generated ? t('report.ready') : t('report.generate')}
               </button>
               {generated && (
                 <div style={{ marginTop: 8, padding: '8px 12px', borderRadius: 8, background: '#f0f4ec', fontSize: 11, color: '#2d5016', fontWeight: 600, textAlign: 'center' }}>
-                  Rapport_RSE_{profil?.entreprise?.nom ?? 'ETHYS'}_2026.pdf prêt
+                  Rapport_RSE_{profil?.entreprise?.nom ?? 'ETHYS'}_2026.pdf {t('report.fileReady')}
                 </div>
               )}
             </div>
@@ -237,12 +244,3 @@ export default function ESGClient({ profil, commandes, lots, certifications, sco
     </div>
   )
 }
-
-
-
-
-
-
-
-
-

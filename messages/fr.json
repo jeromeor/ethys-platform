@@ -1,0 +1,1073 @@
+{
+  "messagerie": {
+    "title": "Support",
+    "subtitleAdmin": "Toutes les demandes",
+    "subtitleUser": "Suivez vos demandes",
+    "newRequest": "+ Nouvelle demande",
+    "cancel": "Annuler",
+    "formTitle": "Nouvelle demande",
+    "objet": "Objet",
+    "objetPlaceholder": "Ex : problème de connexion, question sur une commande...",
+    "message": "Message",
+    "messagePlaceholder": "Décrivez votre demande en détail...",
+    "attachment": "J'ai une pièce jointe — je l'enverrai par email en réponse à la confirmation",
+    "submit": "Envoyer la demande",
+    "submitting": "Envoi en cours...",
+    "errorFields": "Veuillez remplir objet et message.",
+    "errorSend": "Erreur lors de l'envoi. Veuillez réessayer.",
+    "success": "Votre demande a bien été envoyée. Vous recevrez une confirmation par email.",
+    "loading": "Chargement...",
+    "emptyAdmin": "Aucune demande reçue.",
+    "emptyUser": "Vous n'avez pas encore soumis de demande.",
+    "attachmentBadge": "PJ",
+    "replyEmail": "Répondre par email",
+    "statut": {
+      "envoyee": "Envoyée",
+      "en_cours": "En cours",
+      "cloturee": "Clôturée"
+    }
+  },
+  "Login": {
+    "heroTitle1": "La traçabilité textile",
+    "heroTitle2": "au service de l'éthique",
+    "heroSubtitle": "Plateforme de certification ETHYS par TEXTILE LOOP",
+    "beta": "Version Beta — Mai 2026",
+    "platform": "Platform",
+    "title": "Connexion",
+    "subtitle": "Accédez à votre espace ETHYS",
+    "emailLabel": "Email professionnel",
+    "emailPlaceholder": "vous@entreprise.fr",
+    "passwordLabel": "Mot de passe",
+    "forgotPassword": "Mot de passe oublié ?",
+    "errorInvalid": "Email ou mot de passe incorrect. Vérifiez votre saisie.",
+    "submit": "Se connecter",
+    "submitting": "Connexion...",
+    "noAccount": "Pas encore de compte ?",
+    "createAccount": "Créer un compte",
+    "legal": "Mentions légales & RGPD"
+  },
+  "Nav": {
+    "Dashboard": "Dashboard",
+    "Profil": "Profil",
+    "Annuaire": "Annuaire",
+    "Support": "Support",
+    "Commandes": "Commandes",
+    "Production": "Production",
+    "QR Code": "QR Code",
+    "Facturation": "Facturation",
+    "Reporting": "Reporting",
+    "ESG": "ESG",
+    "Certification": "Certification",
+    "Admin": "Admin",
+    "Entreprises": "Gestion entreprises",
+    "legal": "Mentions légales",
+    "myProfile": "Mon profil",
+    "logout": "Déconnexion"
+  },
+  "Register": {
+    "title": "Créer un compte",
+    "subtitle": "Rejoignez la plateforme ETHYS",
+    "emailLabel": "Email professionnel",
+    "emailPlaceholder": "vous@entreprise.fr",
+    "passwordLabel": "Mot de passe",
+    "passwordPlaceholder": "8 caractères minimum",
+    "confirmLabel": "Confirmer le mot de passe",
+    "confirmPlaceholder": "Répétez le mot de passe",
+    "mismatch": "Les mots de passe ne correspondent pas.",
+    "match": "Les mots de passe correspondent.",
+    "roleLabel": "Votre rôle",
+    "role_marque": "Marque",
+    "role_marque_desc": "Donneur d'ordre, commande du fil",
+    "role_filature": "Filature",
+    "role_filature_desc": "Transforme le coton en fil",
+    "role_fournisseur_coton": "Fournisseur coton",
+    "role_fournisseur_coton_desc": "Fournit le coton recyclé",
+    "consent": "J'ai lu et j'accepte la <link>politique de confidentialité</link> et le traitement de mes données personnelles par TEXTILE LOOP conformément au RGPD.",
+    "errorConsent": "Vous devez accepter la politique de confidentialité pour créer un compte.",
+    "creating": "Création...",
+    "submit": "Créer mon compte",
+    "hasAccount": "Déjà un compte ?",
+    "signIn": "Se connecter",
+    "legal": "Mentions légales & RGPD"
+  },
+  "ForgotPassword": {
+    "title": "Mot de passe oublié",
+    "subtitle1": "Saisissez votre email. Vous recevrez un lien pour créer un nouveau mot de passe.",
+    "subtitle2": "Votre mot de passe actuel sera désactivé immédiatement.",
+    "emailLabel": "Email professionnel",
+    "emailPlaceholder": "vous@entreprise.fr",
+    "error": "Une erreur est survenue. Vérifiez votre email.",
+    "sending": "Envoi...",
+    "submit": "Envoyer le lien de réinitialisation",
+    "backToLogin": "Retour à la connexion",
+    "sentTitle": "Email envoyé",
+    "sentTo": "Un lien de réinitialisation a été envoyé à",
+    "sentLine2": "Votre mot de passe actuel a été désactivé.",
+    "sentLine3": "Vérifiez votre boîte mail et cliquez sur le lien pour définir un nouveau mot de passe.",
+    "spamWarning": "Pensez à vérifier vos spams si vous ne voyez pas l'email dans votre boîte de réception.",
+    "linkValidity": "Le lien est valable 1 heure. Après ce délai, vous devrez faire une nouvelle demande."
+  },
+  "ResetPassword": {
+    "errorMin": "Minimum 8 caractères.",
+    "mismatch": "Les mots de passe ne correspondent pas.",
+    "updated": "Mot de passe mis à jour. Redirection...",
+    "title": "Nouveau mot de passe",
+    "subtitle": "Choisissez un mot de passe sécurisé.",
+    "newPasswordLabel": "Nouveau mot de passe",
+    "newPasswordPlaceholder": "Minimum 8 caractères",
+    "confirmLabel": "Confirmer le mot de passe",
+    "confirmPlaceholder": "Répétez le mot de passe",
+    "updating": "Mise à jour...",
+    "submit": "Définir le nouveau mot de passe"
+  },
+  "Onboarding": {
+    "step0Title": "Validez votre email",
+    "step0Desc1": "Un email de validation vous a été envoyé à votre adresse.",
+    "step0Desc2": "Cliquez sur le lien dans cet email pour activer votre compte.",
+    "step0Warning": "Vous avez 7 jours pour valider votre email et compléter votre profil.",
+    "resendEmail": "Renvoyer l'email de validation",
+    "continueToProfile": "Continuer vers mon profil",
+    "emailResent": "Email de validation renvoyé.",
+    "step1Title": "Complétez votre profil",
+    "step1Desc": "Ces informations sont nécessaires pour accéder à l'ensemble des fonctionnalités de la plateforme ETHYS.",
+    "redirectWarning": "Vous avez tenté d'accéder à une page qui nécessite un profil complet. Veuillez renseigner vos coordonnées pour débloquer l'accès à tous les modules.",
+    "firstNameLabel": "Prénom *",
+    "firstNamePlaceholder": "Marie",
+    "lastNameLabel": "Nom *",
+    "lastNamePlaceholder": "Dupont",
+    "phoneLabel": "Téléphone *",
+    "phonePlaceholder": "06 12 34 56 78",
+    "addressLabel": "Adresse *",
+    "addressPlaceholder": "12 rue de la Paix",
+    "cityPlaceholder": "Paris",
+    "countryLabel": "Pays",
+    "countryPlaceholder": "France",
+    "verifyNotice": "Après validation de votre profil, votre entreprise sera vérifiée par TEXTILE LOOP avant que vous puissiez accéder à toutes les fonctionnalités.",
+    "errorRequired": "Veuillez remplir tous les champs obligatoires.",
+    "errorPrefix": "Erreur : ",
+    "saving": "Sauvegarde...",
+    "submit": "Valider mon profil"
+  },
+  "EnAttente": {
+    "title": "Profil en cours de validation",
+    "desc1": "Votre profil a été transmis avec succès.",
+    "desc2": "L'équipe TEXTILE LOOP vérifie vos informations.",
+    "desc3": "Votre compte sera associé prochainement à votre entreprise.",
+    "desc4": "Vous recevrez un email à",
+    "desc5": "dès que votre accès sera activé.",
+    "notice24h": "Cette vérification prend généralement moins de 24 heures ouvrées.",
+    "autoCheck": "Vérification automatique toutes les 10 secondes...",
+    "logout": "Se déconnecter",
+    "legal": "Mentions légales & RGPD"
+  },
+  "dashboard": {
+    "bienvenue": "Bienvenue",
+    "vueAdmin": "(vue Admin globale)",
+    "configuration": {
+      "titre": "Votre compte est en cours de configuration",
+      "texte": "Votre entreprise n'est pas encore associée. L'équipe ETHYS va finaliser votre configuration très prochainement.",
+      "cta": "Compléter mon profil"
+    },
+    "kpi": {
+      "commandes": "Commandes actives",
+      "partenaires": "Partenaires actifs",
+      "annuaire": "Annuaire",
+      "esg": "Conformité ESG",
+      "qr": "QR code à valider"
+    },
+    "type": {
+      "marque": "Marque",
+      "filature": "Filature",
+      "fournisseur": "Fournisseur"
+    },
+    "statut": {
+      "en_production": "En production",
+      "livree": "Livrée",
+      "soumise": "Transmise",
+      "validation_filature": "Val. filature",
+      "validation_finale": "Val. finale",
+      "annulee": "Annulée"
+    },
+    "demandesRecues": {
+      "titre": "Demandes reçues",
+      "vide": "Aucune demande en attente",
+      "repondre": "Répondre"
+    },
+    "demandesEnvoyees": {
+      "titre": "Demandes envoyées",
+      "vide": "Aucune demande en cours",
+      "attente": "En attente"
+    },
+    "messagerie": {
+    "title": "Support",
+    "subtitleAdmin": "Toutes les demandes",
+    "subtitleUser": "Suivez vos demandes",
+    "newRequest": "+ Nouvelle demande",
+    "cancel": "Annuler",
+    "formTitle": "Nouvelle demande",
+    "objet": "Objet",
+    "objetPlaceholder": "Ex : problème de connexion, question sur une commande...",
+    "message": "Message",
+    "messagePlaceholder": "Décrivez votre demande en détail...",
+    "attachment": "J'ai une pièce jointe — je l'enverrai par email en réponse à la confirmation",
+    "submit": "Envoyer la demande",
+    "submitting": "Envoi en cours...",
+    "errorFields": "Veuillez remplir objet et message.",
+    "errorSend": "Erreur lors de l'envoi. Veuillez réessayer.",
+    "success": "Votre demande a bien été envoyée. Vous recevrez une confirmation par email.",
+    "loading": "Chargement...",
+    "emptyAdmin": "Aucune demande reçue.",
+    "emptyUser": "Vous n'avez pas encore soumis de demande.",
+    "attachmentBadge": "PJ",
+    "replyEmail": "Répondre par email",
+    "statut": {
+      "envoyee": "Envoyée",
+      "en_cours": "En cours",
+      "cloturee": "Clôturée"
+    }
+  },
+    "commandes": {
+      "titre": "Dernières commandes",
+      "vide": "Aucune commande pour l'instant"
+    },
+    "table": {
+      "reference": "Référence",
+      "statut": "Statut",
+      "date": "Date"
+    },
+    "qr": {
+      "titre": "QR Codes à valider",
+      "vide": "Aucun QR code en attente"
+    }
+  },
+  "esg": {
+    "tabs": {
+      "score": "Score ESG",
+      "indicators": "Indicateurs",
+      "report": "Rapport RSE"
+    },
+    "header": {
+      "scoreLabel": "SCORE ESG",
+      "title": "Performance ESG — {nom}",
+      "subtitle": "Calculé en temps réel depuis vos données",
+      "noCert": "Aucune certification active",
+      "kpiCertifications": "Certifications",
+      "kpiConformite": "Conformité"
+    },
+    "axes": {
+      "tracabilite": "Traçabilité",
+      "certifications": "Certifications",
+      "conformite": "Conformité",
+      "partenaires": "Partenaires",
+      "reporting": "Reporting"
+    },
+    "months": {
+      "jan": "Jan",
+      "feb": "Fév",
+      "mar": "Mar",
+      "apr": "Avr",
+      "may": "Mai"
+    },
+    "score": {
+      "radar": "Radar ESG",
+      "evolution": "Évolution score",
+      "detail": "Détail par axe"
+    },
+    "indicators": {
+      "environnement": "Environnement",
+      "social": "Social",
+      "gouvernance": "Gouvernance",
+      "lotsAvecCert": "Lots avec certification",
+      "volumeRecycle": "Volume recyclé",
+      "certsActives": "Certifications actives",
+      "partenairesVerifies": "Partenaires vérifiés",
+      "paysRisque": "Pays à risque",
+      "commandesWorkflow": "Commandes avec workflow",
+      "conformiteRgpd": "Conformité RGPD",
+      "auditLog": "Audit log actif",
+      "oui": "Oui"
+    },
+    "report": {
+      "documents": "Documents disponibles",
+      "lastScore": "Dernier score sauvegardé",
+      "downloadHint": "Générez votre rapport pour le télécharger",
+      "generateTitle": "Générer rapport RSE",
+      "company": "Entreprise",
+      "generating": "Génération...",
+      "ready": "Rapport prêt",
+      "generate": "Générer rapport RSE",
+      "fileReady": "prêt"
+    }
+  },
+  "commandes": {
+    "nouvelle": "+ Nouvelle commande",
+    "statut": {
+      "brouillon": "Brouillon",
+      "soumise": "Transmise",
+      "validation_fournisseur": "Val. fournisseur",
+      "validation_filature": "Val. filature",
+      "validation_finale": "Val. finale",
+      "en_production": "En production",
+      "controle_qualite": "Contrôle qualité",
+      "qr_genere": "QR généré",
+      "expediee": "Expédiée",
+      "livree": "Livrée",
+      "annulee": "Annulée"
+    },
+    "priorite": {
+      "normale": "Normale",
+      "haute": "Haute",
+      "urgente": "Urgente"
+    },
+    "errors": {
+      "champsObligatoires": "Veuillez remplir tous les champs obligatoires : Marque, Filature, Fournisseur et Date de livraison.",
+      "volume": "Veuillez indiquer un volume de coton recyclé supérieur à 0.",
+      "refGeneration": "Erreur lors de la génération de la référence.",
+      "prefix": "Erreur : "
+    },
+    "filtres": {
+      "toutes": "Toutes",
+      "transmises": "Transmises",
+      "toutesMarques": "Toutes marques",
+      "toutesFilatures": "Toutes filatures",
+      "reinitialiser": "Réinitialiser"
+    },
+    "liste": {
+      "vide": "Aucune commande",
+      "videHint": "Cliquez sur \"+ Nouvelle commande\" pour commencer",
+      "annulationBadge": "ANNULATION",
+      "annulationDem": "Annulation dem."
+    },
+    "table": {
+      "reference": "Référence",
+      "marque": "Marque",
+      "filature": "Filature",
+      "volume": "Volume",
+      "composition": "Composition",
+      "statut": "Statut",
+      "livraison": "Livraison",
+      "avancement": "Avancement"
+    },
+    "detail": {
+      "volume": "Volume",
+      "recycle": "Recyclé",
+      "priorite": "Priorité",
+      "livraison": "Livraison",
+      "marque": "Marque",
+      "filature": "Filature",
+      "fournisseur": "Fournisseur",
+      "typeCoton": "Type coton",
+      "typeCotonValue": "Fil ETHYS (51% recyclé / 49% vierge)",
+      "grammage": "Grammage",
+      "statut": "Statut",
+      "chargement": "Chargement...",
+      "annuleeLe": "Annulée le",
+      "refDemande": "Réf. demande :",
+      "commandeAnnulee": "Commande annulée",
+      "annulationImpossible": "Annulation impossible — statut :",
+      "demandeEnAttente": "Demande d'annulation en attente",
+      "motif": "Motif :",
+      "refuser": "Refuser la demande",
+      "annulerCommande": "Annuler la commande",
+      "aucuneDemande": "Aucune demande d'annulation en attente",
+      "demandeEnvoyee": "Demande d'annulation envoyée",
+      "enAttenteTraitement": "En attente de traitement",
+      "demanderAnnulation": "Demander l'annulation"
+    },
+    "modal": {
+      "sousTitre": "{ref} — votre demande sera traitée par Textile Loop",
+      "motifOptionnel": "Motif (optionnel)",
+      "motifPlaceholder": "Ex : erreur de saisie, changement de planning...",
+      "annuler": "Annuler",
+      "envoi": "Envoi...",
+      "envoyer": "Envoyer la demande"
+    },
+    "form": {
+      "titre": "Nouvelle commande ETHYS",
+      "titreInterne": "Titre / référence interne",
+      "titrePlaceholder": "Ex : Collection Printemps 2024",
+      "marque": "Marque *",
+      "filature": "Filature *",
+      "fournisseur": "Fournisseur *",
+      "selectionner": "Sélectionner...",
+      "partenairesBeta": "La fonction de sélection des entreprises partenaires est en cours de test.",
+      "compositionTitre": "Composition Fil ETHYS",
+      "compositionTexte": "51% coton recyclé + 49% coton vierge",
+      "volumeLabel": "Volume total de fil (kg) *",
+      "volumePlaceholder": "Ex : 1000",
+      "cotonRecycle": "Coton recyclé (51%) :",
+      "cotonVierge": "Coton vierge (49%) :",
+      "grammage": "Grammage",
+      "livraison": "Livraison souhaitée *",
+      "priorite": "Priorité",
+      "notes": "Notes",
+      "notesPlaceholder": "Instructions particulières...",
+      "annuler": "Annuler",
+      "creation": "Création...",
+      "creer": "Créer la commande ETHYS"
+    }
+  },
+  "production": {
+    "etapes": {
+      "reception": "Réception matière",
+      "preparation": "Préparation fibres",
+      "filage": "Filage",
+      "bobinage": "Bobinage",
+      "controle": "Contrôle qualité",
+      "conditionnement": "Conditionnement",
+      "expedition": "Expédition"
+    },
+    "priorite": {
+      "normale": "Normale",
+      "haute": "Haute",
+      "urgente": "Urgente"
+    },
+    "lotStatut": {
+      "en_attente": "En attente",
+      "en_production": "En production",
+      "controle_qualite": "Contrôle qualité",
+      "valide": "Validé",
+      "livre": "Livré"
+    },
+    "alert": {
+      "adminNoEdit": "En tant qu'admin, vous ne pouvez pas modifier l'avancement d'un lot. Cette action revient à la filature ou à la marque.",
+      "volumeDepasse": "Volume lots ({lots} kg) dépasse la commande ({commande} kg)"
+    },
+    "confirm": {
+      "reduire": "Attention : vous réduisez l'avancement du lot {ref}. Cette action va générer une alerte admin. Confirmer ?",
+      "completion": "Confirmer la complétion à 100% du lot {ref} ?",
+      "completion2": "Deuxième confirmation : le lot sera marqué comme terminé. Cette action est définitive. Continuer ?"
+    },
+    "listeTitre": "Productions actives",
+    "listeVide1": "Aucune production active.",
+    "listeVide2": "Soumettez d'abord une commande.",
+    "avancementGlobal": "Avancement global",
+    "expeditionPrevue": "Expédition prévue",
+    "livraisonPrevue": "Livraison prévue",
+    "modifier": "Modifier",
+    "prodTerminee": "Production terminée - saisir les dates logistiques",
+    "saisirDates": "Saisir les dates",
+    "tabs": {
+      "avancement": "Avancement",
+      "lots": "Lots",
+      "qualite": "Contrôles qualité"
+    },
+    "etapesTitre": "Étapes de production",
+    "filEthys": "Fil ETHYS",
+    "avancement": "Avancement",
+    "certifEthysPrefix": "Certification ETHYS : ",
+    "demanderCertif": "Demander une certification ETHYS",
+    "certifTousLots": "La demande de certification ETHYS n'est possible que si tous les lots de la commande sont validés.",
+    "ajouterLot": "+ Ajouter un lot",
+    "nouveauLot": "Nouveau lot",
+    "typeCoton": "Type coton",
+    "filEthysRecycle": "Fil ETHYS (recyclé)",
+    "volumeKg": "Volume (kg)",
+    "volumePlaceholder": "Ex : 80",
+    "certification": "Certification",
+    "ajouter": "Ajouter",
+    "annuler": "Annuler",
+    "aucunLot": "Aucun lot - ajoutez-en un depuis l'onglet Avancement",
+    "aucunControle": "Aucun contrôle qualité enregistré",
+    "cq": {
+      "lot": "Lot",
+      "parametre": "Paramètre",
+      "valeur": "Valeur",
+      "seuil": "Seuil",
+      "resultat": "Résultat",
+      "date": "Date",
+      "conforme": "✓ Conforme",
+      "nonConforme": "✕ Non conforme"
+    },
+    "aucuneProdActive": "Aucune production active",
+    "commandesIci": "Les commandes soumises apparaîtront ici",
+    "datesLogistiques": "Dates logistiques",
+    "dateExpedition": "Date d'expédition prévue *",
+    "dateLivraison": "Date de livraison prévue (optionnel)",
+    "logistiqueDefaut": "Par défaut : expédition 14 jours après validation, livraison confirmée 30 jours après expédition si aucune action.",
+    "enregistrer": "Enregistrer",
+    "associerTitre": "Associer une certification",
+    "aucuneCertif": "Aucune certification disponible",
+    "associer": "Associer"
+  },
+  "certification": {
+    "listeTitre": "Certifications ETHYS",
+    "suffix": {
+      "certifiees": "certifiées",
+      "enAttenteCount": "en attente",
+      "enCours": "en cours",
+      "kgRecycle": "kg recyclé"
+    },
+    "demander": "+ Demander",
+    "section": {
+      "aValider": "À valider",
+      "enCoursExamen": "En cours d'examen",
+      "certifiees": "Certifiées"
+    },
+    "statut": {
+      "duplicatasCourt": "Duplicatas",
+      "duplicatasDemandes": "Duplicatas demandés",
+      "enAttente": "En attente",
+      "certifiee": "Certifiée"
+    },
+    "aucuneCertif": "Aucune certification.",
+    "filEthys": "Fil ETHYS",
+    "annuler": "Annuler",
+    "commandePrefix": "Commande",
+    "soumiseLe": "Soumise le",
+    "emiseLe": "Émise le",
+    "valideJusqu": "Valide jusqu'au",
+    "certifObtenue": "Certification ETHYS obtenue",
+    "decisionTitre": "Décision TEXTILE LOOP",
+    "demanderDuplicatas": "Demander les duplicatas",
+    "duplicatasAttente": "Duplicatas demandés — en attente de réception",
+    "refuser": "Refuser",
+    "certifEnCours": "Certification...",
+    "certifierEthys": "Certifier ETHYS",
+    "motifPlaceholder": "Motif du refus...",
+    "confirmerRefus": "Confirmer le refus",
+    "emptyTitre": "Certification ETHYS",
+    "erreurPrefix": "Erreur : ",
+    "labels": {
+      "type": "Type",
+      "volumeTotal": "Volume total",
+      "volumeRecycle": "Volume recyclé",
+      "volumeVierge": "Volume vierge",
+      "pctRecycle": "% recyclé",
+      "filature": "Filature",
+      "pays": "Pays"
+    },
+    "form": {
+      "titre": "Demande de certification ETHYS",
+      "commandeLabel": "Commande à certifier *",
+      "selectCommande": "Sélectionner une commande...",
+      "recap": "Récapitulatif",
+      "volumeTotal": "Volume total",
+      "type": "Type",
+      "pctRecycle": "% recyclé",
+      "volumeRecycle": "Volume recyclé",
+      "volumeVierge": "Volume vierge",
+      "filature": "Filature",
+      "marque": "Marque",
+      "honneurTitre": "Déclaration sur honneur",
+      "honneurTexte": "Je certifie sur l'honneur que les informations sont exactes et que cette déclaration respecte les critères ETHYS (minimum 51% de coton recyclé, traçabilité vérifiable).",
+      "envoi": "Envoi...",
+      "soumettre": "Soumettre la demande"
+    },
+    "declFilature": {
+      "titre": "Demande en cours d'examen",
+      "dupMsg1": "TEXTILE LOOP vous a demandé les duplicatas de vos commandes de coton recyclé et vierge.",
+      "dupMsg2": "Merci de les transmettre par email à",
+      "attMsg1": "Votre demande est en cours d'examen par TEXTILE LOOP.",
+      "attMsg2": "Vous recevrez une notification dès qu'elle sera traitée."
+    },
+    "empty": {
+      "adminAValider": "Sélectionnez une demande pour la valider ou la refuser.",
+      "adminVide": "Aucune demande en attente.",
+      "filatureEligibles": "Vous avez des commandes éligibles. Cliquez sur + Demander pour soumettre.",
+      "filatureVoir": "Sélectionnez une demande pour voir son statut.",
+      "filatureVide": "Aucune commande éligible à certifier pour le moment."
+    },
+    "msg": {
+      "selectCommande": "Veuillez sélectionner une commande.",
+      "cocherHonneur": "Veuillez cocher la déclaration sur honneur.",
+      "commandeIntrouvable": "Commande introuvable.",
+      "demandeSoumise": "Demande de certification soumise. Elle sera examinée par TEXTILE LOOP.",
+      "duplicatasEnvoyes": "Demande de duplicatas envoyée par email.",
+      "erreurCertif": "Erreur lors de la certification : ",
+      "certifAccordee": "Certification accordée. Numéro : ",
+      "motifRefus": "Veuillez indiquer un motif de refus."
+    }
+  },
+  "qrcode": {
+    "certType": {
+      "fil": "Fil ETHYS",
+      "tissu": "Tissu ETHYS",
+      "produitFini": "Produit fini ETHYS"
+    },
+    "coton": {
+      "recycle": "Recyclé",
+      "vierge": "Vierge"
+    },
+    "btn": {
+      "demandeEnAttente": "Demande de génération en attente",
+      "refuserDemande": "Refuser la demande",
+      "generation": "Génération...",
+      "genererQR": "Générer le QR Code",
+      "genererQREthys": "Générer le QR Code ETHYS",
+      "demandeEnvoyee1": "Demande envoyée",
+      "demandeEnvoyee2": "en attente de validation Textile Loop",
+      "lot100": "Le lot doit être à 100% pour demander un QR Code",
+      "envoi": "Envoi...",
+      "demanderGeneration": "Demander la génération QR"
+    },
+    "tabs": {
+      "lots": "Lots",
+      "certifications": "Certifications"
+    },
+    "lotsProduction": "Lots de production",
+    "certificationsEthys": "Certifications ETHYS",
+    "suffix": {
+      "qrGeneres": "QR générés",
+      "enAttente": "en attente"
+    },
+    "filtreDemandesOn": "▣ Demandes QR uniquement",
+    "filtreDemandesOff": "▣ Voir demandes QR",
+    "aucuneCertif": "Aucune certification disponible.",
+    "badge": {
+      "qrActif": "QR actif",
+      "sansQR": "Sans QR",
+      "demandeQR": "Demande QR",
+      "enAttente": "En attente"
+    },
+    "aucuneDemande": "Aucune demande QR en attente.",
+    "aucunLot": "Aucun lot disponible.",
+    "scans": "scan(s)",
+    "infosLot": "Informations du lot",
+    "labels": {
+      "marque": "Marque",
+      "filature": "Filature",
+      "volume": "Volume"
+    },
+    "lotInfo": {
+      "refLot": "Référence lot",
+      "commande": "Commande",
+      "fournisseur": "Fournisseur",
+      "typeCoton": "Type coton",
+      "origine": "Origine",
+      "certifFil": "Certification fil",
+      "avancement": "Avancement"
+    },
+    "qrActifTitre": "QR Code actif",
+    "qrEthysTitre": "QR Code ETHYS",
+    "donneesEncodees": "Données encodées",
+    "encoded": {
+      "certification": "Certification"
+    },
+    "voirPagePublique": "Voir page publique",
+    "apercu": "Aperçu",
+    "telecharger": "Télécharger",
+    "urlCopiee": "URL copiée !",
+    "copierURL": "Copier URL",
+    "selectionnezLot": "Sélectionnez un lot",
+    "public": {
+      "tracabilite": "ETHYS · Traçabilité TOTALE",
+      "votreFil": "Votre fil ETHYS",
+      "lot": "Lot",
+      "matieres": "MATIÈRES PREMIÈRES",
+      "cotonRecycle": "Coton recyclé",
+      "cotonVierge": "Coton vierge",
+      "filCertifie": "Fil certifié ETHYS",
+      "description": "Ce fil certifié ETHYS est le résultat de la transformation de coton recyclé (51%) et de coton vierge (49%). Il a été réalisé par {filature}.",
+      "laFilature": "la filature",
+      "origineMatiere": "Origine matière",
+      "nonRenseigne": "Non renseigné",
+      "certifFil": "Certification fil",
+      "fournisseurCoton": "Fournisseur coton",
+      "donneesVerifiees": "Données vérifiées et certifiées par TEXTILE LOOP",
+      "plateforme": "Plateforme ETHYS",
+      "ouvrirPage": "Ouvrir la page publique"
+    },
+    "valideJusqu": "Valide jusqu'au",
+    "certifie": "Certifié",
+    "composition": "Composition",
+    "certInfo": {
+      "entreprise": "Entreprise",
+      "paysFilature": "Pays filature",
+      "provenanceCoton": "Provenance coton"
+    },
+    "qrCodeActif": "QR Code actif",
+    "copiee": "Copiée !",
+    "transfererMarque": "Transférer à une marque",
+    "genererQRConso": "Générer le QR Code consommateur",
+    "transfert": {
+      "titre": "Transférer le QR à une marque",
+      "marqueNonEnreg": "Marque non enregistrée sur ETHYS",
+      "emailLabel": "Email de la marque *",
+      "emailInfo": "Un email d'invitation sera envoyé à cette adresse.",
+      "selectLabel": "Sélectionner la marque *",
+      "selectPlaceholder": "Sélectionner une marque...",
+      "confirm": "Confirmer le transfert définitif à \"{marque}\" ?\n\nCe QR code ne pourra plus être transféré à une autre marque.",
+      "msgInvitation": "Email d'invitation envoyé à la marque.",
+      "msgTransfere": "QR code transféré. La marque a reçu un email.",
+      "erreurPrefix": "Erreur : ",
+      "inconnue": "inconnue",
+      "envoyer": "Envoyer"
+    },
+    "annuler": "Annuler"
+  },
+  "facturation": {
+    "statuts": {
+      "brouillon": "Brouillon",
+      "emise": "Émises",
+      "en_attente": "En attente",
+      "payee": "Payée",
+      "en_retard": "En retard",
+      "annulee": "Annulée"
+    },
+    "kpi": {
+      "totalFacture": "Total facturé",
+      "encaisse": "Encaissé",
+      "enAttente": "En attente",
+      "enRetard": "En retard"
+    },
+    "filtres": {
+      "toutes": "Toutes"
+    },
+    "boutons": {
+      "accordsCommerciaux": "Accords commerciaux",
+      "nouvelleFacture": "Nouvelle facture",
+      "nouvelAccord": "Nouvel accord",
+      "voir": "Voir",
+      "marquerPayee": "Marquer comme payée",
+      "fermer": "Fermer",
+      "annuler": "Annuler",
+      "ajouterLigne": "Ajouter une ligne"
+    },
+    "accords": {
+      "titre": "Accords commerciaux",
+      "aucun": "Aucun accord commercial. Cliquez sur « + Nouvel accord » pour en créer un.",
+      "du": "Du {debut}",
+      "auDate": "au {fin}",
+      "illimite": "(illimité)",
+      "actif": "Actif",
+      "prixNegocieKg": "Prix négocié/kg",
+      "base": "Base : {prix}€",
+      "remiseVolumeAnnuel": "Remise volume annuel",
+      "desSeuil": "Dès {seuil}T/an",
+      "remisePalierCommande": "Remise palier commande",
+      "remisePalierDetail": "1% ≥ 5T · 2% ≥ 10T",
+      "standardEthys": "Standard ETHYS"
+    },
+    "formAccord": {
+      "titre": "Nouvel accord commercial",
+      "marque": "Marque *",
+      "selectMarque": "Sélectionner une marque…",
+      "prixNegocie": "Prix négocié (€/kg) *",
+      "remiseAnnuelle": "Remise annuelle (%)",
+      "seuilVolume": "Seuil volume annuel (T)",
+      "dateFin": "Date fin (optionnel)",
+      "notes": "Notes (optionnel)",
+      "enregistrer": "Enregistrer l'accord"
+    },
+    "table": {
+      "aucuneFacture": "Aucune facture",
+      "reference": "Référence",
+      "emetteur": "Émetteur",
+      "destinataire": "Destinataire",
+      "montantTtc": "Montant TTC",
+      "emission": "Émission",
+      "echeance": "Échéance",
+      "statut": "Statut"
+    },
+    "detail": {
+      "factureEthys": "FACTURE ETHYS",
+      "refCommande": "Réf. commande : {ref}",
+      "prixAccord": "Prix accord commercial",
+      "decompositionPrix": "Décomposition du prix",
+      "prixBase": "Prix de base",
+      "remiseVolumeCommande": "Remise volume commande",
+      "remiseVolumeAnnuel": "Remise volume annuel",
+      "prixApplicable": "Prix applicable",
+      "ttc": "TTC",
+      "emetteur": "Émetteur",
+      "destinataire": "Destinataire",
+      "dateEmission": "Date d'émission",
+      "dateEcheance": "Date d'échéance",
+      "datePaiement": "Date de paiement",
+      "detailPrestations": "Détail des prestations",
+      "colDescription": "Description",
+      "colQte": "Qté",
+      "colUnite": "Unité",
+      "colPu": "PU (€)",
+      "colTotalHt": "Total HT",
+      "sousTotalHt": "Sous-total HT",
+      "tva": "TVA {pct}%",
+      "totalTtc": "Total TTC"
+    },
+    "formFacture": {
+      "titre": "Nouvelle facture",
+      "commande": "Commande *",
+      "selectionner": "Sélectionner…",
+      "emetteur": "Émetteur *",
+      "destinataire": "Destinataire *",
+      "dateEcheance": "Date d'échéance *",
+      "tva": "TVA (%)",
+      "lignes": "Lignes de facturation",
+      "phDescription": "Description",
+      "phQte": "Qté",
+      "phPu": "PU €",
+      "totalHt": "Total HT",
+      "tvaLigne": "TVA {pct}%",
+      "totalTtc": "Total TTC",
+      "creation": "Création…",
+      "creer": "Créer la facture"
+    },
+    "reporting": {
+      "tabs": {
+        "vueGlobale": "Vue globale",
+        "volumes": "Volumes",
+        "finances": "Finances",
+        "partenaires": "Partenaires"
+      },
+      "kpi": {
+        "volumeTotal": "Volume total",
+        "commandes": "{count} commandes",
+        "caTotal": "CA total",
+        "factures": "{count} factures",
+        "pctCotonRecycle": "% Coton recyclé",
+        "partenaires": "Partenaires",
+        "verifies": "{count} Vérifiés"
+      },
+      "aucuneDonnee": "Aucune donnée",
+      "aucuneCommande": "Aucune commande",
+      "types": {
+        "marques": "Marques",
+        "filatures": "Filatures",
+        "fournisseurs": "Fournisseurs"
+      },
+      "vueGlobale": {
+        "volumesMensuels": "Volumes mensuels (milliers de kg)",
+        "volumeSerie": "Volume (milliers de kg)",
+        "statutsCommandes": "Statuts commandes",
+        "resumeCommandes": "Résumé des commandes",
+        "colStatut": "Statut",
+        "colNbCommandes": "Nb commandes",
+        "colVolumeTotal": "Volume total",
+        "colPctRecycle": "% recyclé moy."
+      },
+      "volumes": {
+        "evolution": "Évolution volumes",
+        "volumeSerie": "Volume (T)",
+        "volumeTotal": "Volume total",
+        "lotsActifs": "Lots actifs",
+        "lotsTotal": "{count} lots total"
+      },
+      "finances": {
+        "caMensuel": "CA mensuel",
+        "caSerie": "CA en euros",
+        "caTotal": "CA total",
+        "facturesPayees": "Factures payées",
+        "facturesAttente": "Factures en attente",
+        "tauxEncaissement": "Taux encaissement"
+      },
+      "partenaires": {
+        "parPays": "Répartition par pays",
+        "partenairesSerie": "Partenaires",
+        "parType": "Répartition par type",
+        "totalPartenaires": "Total partenaires",
+        "verifies": "Vérifiés",
+        "enCours": "En cours",
+        "paysCouverts": "Pays couverts"
+      }
+    }
+  },
+  "reporting": {
+    "tabs": {
+      "vueGlobale": "Vue globale",
+      "volumes": "Volumes",
+      "finances": "Finances",
+      "partenaires": "Partenaires"
+    },
+    "kpi": {
+      "volumeTotal": "Volume total",
+      "commandes": "{count} commandes",
+      "caTotal": "CA total",
+      "factures": "{count} factures",
+      "pctCotonRecycle": "% Coton recyclé",
+      "partenaires": "Partenaires",
+      "verifies": "{count} Vérifiés"
+    },
+    "aucuneDonnee": "Aucune donnée",
+    "aucuneCommande": "Aucune commande",
+    "types": {
+      "marques": "Marques",
+      "filatures": "Filatures",
+      "fournisseurs": "Fournisseurs"
+    },
+    "vueGlobale": {
+      "volumesMensuels": "Volumes mensuels (milliers de kg)",
+      "volumeSerie": "Volume (milliers de kg)",
+      "statutsCommandes": "Statuts commandes",
+      "resumeCommandes": "Résumé des commandes",
+      "colStatut": "Statut",
+      "colNbCommandes": "Nb commandes",
+      "colVolumeTotal": "Volume total",
+      "colPctRecycle": "% recyclé moy."
+    },
+    "volumes": {
+      "evolution": "Évolution volumes",
+      "volumeSerie": "Volume (T)",
+      "volumeTotal": "Volume total",
+      "lotsActifs": "Lots actifs",
+      "lotsTotal": "{count} lots total"
+    },
+    "finances": {
+      "caMensuel": "CA mensuel",
+      "caSerie": "CA en euros",
+      "caTotal": "CA total",
+      "facturesPayees": "Factures payées",
+      "facturesAttente": "Factures en attente",
+      "tauxEncaissement": "Taux encaissement"
+    },
+    "partenaires": {
+      "parPays": "Répartition par pays",
+      "partenairesSerie": "Partenaires",
+      "parType": "Répartition par type",
+      "totalPartenaires": "Total partenaires",
+      "verifies": "Vérifiés",
+      "enCours": "En cours",
+      "paysCouverts": "Pays couverts"
+    }
+   },
+  "profil": {
+    "msg": {
+      "entrepriseMaj": "Entreprise mise à jour",
+      "profilMaj": "Profil mis à jour",
+      "documentAjoute": "Document ajouté"
+    },
+    "hero": {
+      "verifie": "Profil vérifié",
+      "enVerification": "En cours de vérification",
+      "rolePlateforme": "Rôle plateforme"
+    },
+    "btn": {
+      "modifier": "Modifier",
+      "annuler": "Annuler",
+      "enregistrer": "Enregistrer",
+      "ajouter": "+ Ajouter",
+      "voir": "Voir",
+      "supprimer": "Sup."
+    },
+    "entreprise": {
+      "titre": "Informations légales et adresse",
+      "raisonSociale": "Raison sociale",
+      "siret": "SIRET",
+      "tva": "TVA",
+      "tvaIntra": "TVA intracommunautaire",
+      "adresse": "Adresse",
+      "codePostal": "Code postal",
+      "ville": "Ville",
+      "pays": "Pays",
+      "description": "Description"
+    },
+    "contact": {
+      "titre": "Contact entreprise",
+      "email": "Email",
+      "emailContact": "Email contact",
+      "telephone": "Téléphone",
+      "siteWeb": "Site web",
+      "nomContact": "Nom contact",
+      "prenomContact": "Prénom contact",
+      "fonction": "Fonction"
+    },
+    "perso": {
+      "titre": "Mon profil personnel",
+      "prenom": "Prénom",
+      "nom": "Nom",
+      "telephone": "Téléphone",
+      "email": "Email",
+      "emailNonModifiable": "Email (non modifiable)"
+    },
+    "certifs": {
+      "titre": "Certifications ({count})",
+      "aucune": "Aucune certification enregistrée"
+    },
+    "documents": {
+      "titre": "Documents ({count})",
+      "aucun": "Aucun document",
+      "exp": "Exp.",
+      "ko": "ko",
+      "type": {
+        "kbis": "Kbis",
+        "certificat": "Certificat",
+        "assurance": "Assurance",
+        "autre": "Autre"
+      }
+    },
+    "suppression": {
+      "titre": "Supprimer mon compte",
+      "texte": "Cette action est irréversible. Toutes vos données seront supprimées conformément au RGPD.",
+      "bouton": "Supprimer mon compte"
+    },
+    "modal": {
+      "titre": "Ajouter un document",
+      "nomLabel": "Nom du document *",
+      "nomPlaceholder": "Ex : Kbis 2026, Certificat GOTS...",
+      "typeLabel": "Type *",
+      "dateExp": "Date d'expiration (optionnel)",
+      "fichier": "Fichier *",
+      "upload": "Upload...",
+      "typeAssuranceRcPro": "Assurance RC Pro"
+    }
+},
+"mentionsLegales": {
+    "retour": "Retour",
+    "titre": "Mentions légales & Politique de confidentialité",
+    "maj": "Dernière mise à jour : mai 2026",
+    "s1": "1. Éditeur du site",
+    "s2": "2. Hébergement",
+    "s3": "3. Données personnelles — Responsable de traitement",
+    "s4": "4. Données collectées et finalités",
+    "s5": "5. Vos droits",
+    "s6": "6. Cookies"
+  },
+  "tracabilite": {
+    "introuvableTitre": "QR Code introuvable",
+    "introuvableTexte": "Ce code ne correspond à aucun produit enregistré sur la plateforme ETHYS.",
+    "certBadge": "ETHYS — CERTIFICATION",
+    "certTitre": "Fil certifié ETHYS",
+    "matieres": "MATIÈRES PREMIÈRES",
+    "cotonRecycle": "Coton recyclé",
+    "cotonVierge": "Coton vierge",
+    "certifieBadge": "✓ Certifié ETHYS",
+    "certifieParTL": "Certifié par TEXTILE LOOP — traçabilité vérifiée",
+    "typeFil": "Fil ETHYS",
+    "typeTissu": "Tissu ETHYS",
+    "typeProduitFini": "Produit fini ETHYS",
+    "lblEntreprise": "Entreprise",
+    "lblPays": "Pays",
+    "lblFilature": "Filature",
+    "lblPaysFilature": "Pays filature",
+    "lblProvenance": "Provenance coton",
+    "lblTypeProduit": "Type produit",
+    "lblNumeroCert": "Numéro certification",
+    "lblDateEmission": "Date émission",
+    "scan": "Scan #{n}",
+    "donneesVerifiees": "Données vérifiées et certifiées par TEXTILE LOOP",
+    "plateforme": "Plateforme ETHYS -",
+    "tracaBadge": "ETHYS — TRAÇABILITÉ",
+    "tracaTitre": "Votre fil ETHYS",
+    "lotLabel": "Lot",
+    "filCertifie": "Fil certifié ETHYS",
+    "descriptionFil": "Ce fil est le résultat de la transformation de coton recyclé et vierge par {filature}, certifié par la plateforme TEXTILE LOOP.",
+    "laFilature": "la filature",
+    "lblOrigine": "Origine matière",
+    "lblCertificationFil": "Certification fil",
+    "lblFournisseur": "Fournisseur coton",
+    "lblMarque": "Marque",
+    "lblVolumeTotal": "Volume total",
+    "nonRenseigne": "Non renseigné"
+  },
+  "qrAccess": {
+    "badge": "ETHYS — QR CODE CERTIFIÉ",
+    "soustitre": "Transfert sécurisé · Usage unique",
+    "sectionCert": "Certification",
+    "lblFilature": "Filature",
+    "lblMarque": "Marque",
+    "lblVolumeTotal": "Volume total",
+    "lblPctRecycle": "% recyclé",
+    "lblVolumeRecycle": "Volume recyclé",
+    "lblVolumeVierge": "Volume vierge",
+    "lblEmiseLe": "Émise le",
+    "lblValideJusqu": "Valide jusqu''au",
+    "titreQR": "QR Code de traçabilité",
+    "telecharger": "Télécharger le QR code",
+    "recupereLe": "Récupéré le {date}",
+    "qrIndisponible": "QR code non disponible. Contactez TEXTILE LOOP.",
+    "mentionReserve": "Ce QR code est strictement réservé à l''usage de",
+    "mentionInterdite": "Toute diffusion non autorisée est interdite.",
+    "mentionCertifie": "Certifié par TEXTILE LOOP ·",
+    "votremarque": "votre marque"
+  }
+}

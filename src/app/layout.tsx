@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Source_Sans_3 } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale } from "next-intl/server";
 import "./globals.css";
 
 const inter = Inter({
@@ -19,15 +21,20 @@ export const metadata: Metadata = {
   description: "Plateforme ETHYS par TEXTILE LOOP — Tracabilite et certification du fil recycle",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Langue active lue depuis la config next-intl (cookie)
+  const locale = await getLocale();
+
   return (
-    <html lang="fr">
+    <html lang={locale}>
       <body className={`${inter.variable} ${sourceSans.variable}`} style={{ margin: 0, fontFamily: "var(--font-inter), system-ui, sans-serif" }}>
-        {children}
+        <NextIntlClientProvider>
+          {children}
+        </NextIntlClientProvider>
       </body>
     </html>
   );

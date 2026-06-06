@@ -2,11 +2,14 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 
 export default function LoginPage() {
   const router = useRouter()
   const supabase = createClient()
+  const t = useTranslations('Login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -19,7 +22,7 @@ export default function LoginPage() {
     setError('')
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
-      setError('Email ou mot de passe incorrect. Vérifiez votre saisie.')
+      setError(t('errorInvalid'))
       setLoading(false)
       return
     }
@@ -34,10 +37,15 @@ export default function LoginPage() {
 
   return (
     <div style={{
-      height: '100vh', display: 'flex', overflow: 'hidden',
+      height: '100vh', display: 'flex', overflow: 'hidden', position: 'relative',
       background: '#f5f3ef',
       fontFamily: "'Inter', system-ui, sans-serif"
     }}>
+      {/* Sélecteur de langue (pastilles drapeaux) en haut a droite */}
+      <div style={{ position: 'absolute', top: 20, right: 20, zIndex: 10 }}>
+        <LanguageSwitcher />
+      </div>
+
       {/* Panneau gauche decoratif */}
       <div style={{
         display: 'none',
@@ -48,13 +56,13 @@ export default function LoginPage() {
         <img src="/logo_ethys.png" alt="ETHYS" style={{ width: 80 }} />
         <div>
           <div style={{ fontSize: 28, fontWeight: 700, color: '#ffffff', lineHeight: 1.3, marginBottom: 16 }}>
-            La tracabilite textile<br />au service de l'ethique
+            {t('heroTitle1')}<br />{t('heroTitle2')}
           </div>
           <div style={{ fontSize: 14, color: '#8b7355', lineHeight: 1.6 }}>
-            Plateforme de certification ETHYS par TEXTILE LOOP
+            {t('heroSubtitle')}
           </div>
         </div>
-        <div style={{ fontSize: 11, color: '#4a5568' }}>Version Beta — Mai 2026</div>
+        <div style={{ fontSize: 11, color: '#4a5568' }}>{t('beta')}</div>
       </div>
 
       {/* Panneau droit formulaire */}
@@ -65,19 +73,19 @@ export default function LoginPage() {
         <div style={{ width: '100%', maxWidth: 400 }}>
           <div style={{ textAlign: 'center', marginBottom: 20 }}>
             <a href="/login"><img src="/logo_ethys.png" alt="ETHYS" style={{ width: 80, height: 'auto', margin: '0 auto 8px', display: 'block', cursor: 'pointer' }} /></a>
-            <div style={{ fontSize: 11, color: '#8b7355', letterSpacing: 2, textTransform: 'uppercase', marginTop: 6 }}>Platform</div>
+            <div style={{ fontSize: 11, color: '#8b7355', letterSpacing: 2, textTransform: 'uppercase', marginTop: 6 }}>{t('platform')}</div>
           </div>
 
           <div style={{ background: '#ffffff', borderRadius: 8, border: '1px solid #d4c5b0', padding: '24px 28px', boxShadow: '0 2px 12px rgba(26,26,26,0.06)' }}>
-            <div style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a', marginBottom: 4 }}>Connexion</div>
-            <div style={{ fontSize: 13, color: '#8b7355', marginBottom: 12 }}>Accédez à votre espace ETHYS</div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a', marginBottom: 4 }}>{t('title')}</div>
+            <div style={{ fontSize: 13, color: '#8b7355', marginBottom: 12 }}>{t('subtitle')}</div>
 
             <form onSubmit={handleLogin}>
               <div style={{ marginBottom: 12 }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>Email professionnel</label>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('emailLabel')}</label>
                 <input
                   type="email" value={email} onChange={e => setEmail(e.target.value)}
-                  placeholder="vous@entreprise.fr" required
+                  placeholder={t('emailPlaceholder')} required
                   style={{ width: '100%', padding: '11px 14px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 13, boxSizing: 'border-box' as const, outline: 'none', color: '#1a1a1a', background: '#fff', fontFamily: 'inherit' }}
                   onFocus={e => e.target.style.borderColor = '#1a1a1a'}
                   onBlur={e => e.target.style.borderColor = '#d4c5b0'}
@@ -85,7 +93,7 @@ export default function LoginPage() {
               </div>
 
               <div style={{ marginBottom: 8 }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>Mot de passe</label>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('passwordLabel')}</label>
                 <div style={{ position: 'relative' }}>
                   <input
                     type={showPassword ? 'text' : 'password'}
@@ -102,7 +110,7 @@ export default function LoginPage() {
               </div>
 
               <div style={{ textAlign: 'right', marginBottom: 14 }}>
-                <a href="/forgot-password" style={{ fontSize: 12, color: '#8b7355', textDecoration: 'none' }}>Mot de passe oublié ?</a>
+                <a href="/forgot-password" style={{ fontSize: 12, color: '#8b7355', textDecoration: 'none' }}>{t('forgotPassword')}</a>
               </div>
 
               {error && (
@@ -116,17 +124,17 @@ export default function LoginPage() {
                 fontSize: 13, fontWeight: 600, cursor: loading ? 'default' : 'pointer',
                 letterSpacing: 0.5, textTransform: 'uppercase', fontFamily: 'inherit'
               }}>
-                {loading ? 'Connexion...' : 'Se connecter'}
+                {loading ? t('submitting') : t('submit')}
               </button>
             </form>
 
             <div style={{ textAlign: 'center', marginTop: 24, fontSize: 13, color: '#8b7355' }}>
-              Pas encore de compte ?{' '}
-              <a href="/register" style={{ color: '#1a1a1a', fontWeight: 600, textDecoration: 'none' }}>Créer un compte</a>
+              {t('noAccount')}{' '}
+              <a href="/register" style={{ color: '#1a1a1a', fontWeight: 600, textDecoration: 'none' }}>{t('createAccount')}</a>
             </div>
           </div>
           <div style={{ textAlign: 'center', marginTop: 20, fontSize: 11, color: '#d4c5b0' }}>
-            <a href='/mentions-legales' style={{ color: '#8b7355', textDecoration: 'none' }}>Mentions légales &amp; RGPD</a>
+            <a href='/mentions-legales' style={{ color: '#8b7355', textDecoration: 'none' }}>{t('legal')}</a>
             {' — '} TEXTILE LOOP © 2026
           </div>
         </div>

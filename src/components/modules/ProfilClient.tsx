@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useTranslations, useLocale } from 'next-intl'
 
 interface Props {
   user: { id: string; email?: string } | null
@@ -13,6 +14,8 @@ interface Props {
 
 export default function ProfilClient({ user, profil, entreprise, certifications, documents }: Props) {
   const supabase = createClient()
+  const t = useTranslations('profil')
+  const locale = useLocale()
 
   const [editEntreprise, setEditEntreprise] = useState(false)
   const [editContact, setEditContact] = useState(false)
@@ -57,7 +60,7 @@ export default function ProfilClient({ user, profil, entreprise, certifications,
     setSaving(false)
     setEditEntreprise(false)
     setEditContact(false)
-    setSuccessMsg('Entreprise mise a jour')
+    setSuccessMsg(t('msg.entrepriseMaj'))
     setTimeout(() => setSuccessMsg(''), 3000)
   }
 
@@ -72,7 +75,7 @@ export default function ProfilClient({ user, profil, entreprise, certifications,
     }).eq('id', user.id)
     setSaving(false)
     setEditContact(false)
-    setSuccessMsg('Profil mis a jour')
+    setSuccessMsg(t('msg.profilMaj'))
     setTimeout(() => setSuccessMsg(''), 3000)
   }
 
@@ -108,7 +111,7 @@ export default function ProfilClient({ user, profil, entreprise, certifications,
       setShowUpload(false)
       setUploadForm({ nom: '', type: 'kbis', date_expiration: '' })
       if (fileInputRef.current) fileInputRef.current.value = ''
-      setSuccessMsg('Document ajoute')
+      setSuccessMsg(t('msg.documentAjoute'))
       setTimeout(() => setSuccessMsg(''), 3000)
     }
     setUploading(false)
@@ -150,7 +153,7 @@ export default function ProfilClient({ user, profil, entreprise, certifications,
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6 }}>
             <span style={{ fontSize: 22, fontWeight: 900 }}>{entreprise?.nom ?? user?.email}</span>
             <span style={{ padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: entreprise?.statut === 'verifie' ? '#2d5016' : '#b8860b', color: '#fff' }}>
-              {entreprise?.statut === 'verifie' ? 'Profil verifie' : 'En cours de verification'}
+              {entreprise?.statut === 'verifie' ? t('hero.verifie') : t('hero.enVerification')}
             </span>
           </div>
           <div style={{ fontSize: 13, opacity: 0.75 }}>
@@ -158,7 +161,7 @@ export default function ProfilClient({ user, profil, entreprise, certifications,
           </div>
         </div>
         <div style={{ textAlign: 'right', flexShrink: 0 }}>
-          <div style={{ fontSize: 11, opacity: 0.65, marginBottom: 4 }}>Role plateforme</div>
+          <div style={{ fontSize: 11, opacity: 0.65, marginBottom: 4 }}>{t('hero.rolePlateforme')}</div>
           <div style={{ padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 700, background: 'rgba(255,255,255,0.12)', color: '#c2956e', textTransform: 'capitalize' }}>{profil?.role}</div>
         </div>
       </div>
@@ -169,23 +172,23 @@ export default function ProfilClient({ user, profil, entreprise, certifications,
         <div>
           <div style={cardStyle}>
             <div style={cardHeaderStyle}>
-              <span>Informations legales et adresse</span>
+              <span>{t('entreprise.titre')}</span>
               {!editEntreprise
-                ? <button style={btnEdit} onClick={() => setEditEntreprise(true)}>Modifier</button>
-                : <div><button style={btnCancel} onClick={() => setEditEntreprise(false)}>Annuler</button><button style={btnSave} onClick={sauvegarderEntreprise} disabled={saving}>{saving ? '...' : 'Enregistrer'}</button></div>
+                ? <button style={btnEdit} onClick={() => setEditEntreprise(true)}>{t('btn.modifier')}</button>
+                : <div><button style={btnCancel} onClick={() => setEditEntreprise(false)}>{t('btn.annuler')}</button><button style={btnSave} onClick={sauvegarderEntreprise} disabled={saving}>{saving ? '...' : t('btn.enregistrer')}</button></div>
               }
             </div>
             <div style={{ padding: '18px 22px' }}>
               {!editEntreprise ? (
                 <>
                   {[
-                    ['Raison sociale', formEntreprise.nom],
-                    ['SIRET', formEntreprise.siret || '-'],
-                    ['TVA', formEntreprise.tva || '-'],
-                    ['Adresse', formEntreprise.adresse_rue || '-'],
-                    ['Code postal', formEntreprise.code_postal || '-'],
-                    ['Ville', formEntreprise.ville || '-'],
-                    ['Pays', formEntreprise.pays || '-'],
+                    [t('entreprise.raisonSociale'), formEntreprise.nom],
+                    [t('entreprise.siret'), formEntreprise.siret || '-'],
+                    [t('entreprise.tva'), formEntreprise.tva || '-'],
+                    [t('entreprise.adresse'), formEntreprise.adresse_rue || '-'],
+                    [t('entreprise.codePostal'), formEntreprise.code_postal || '-'],
+                    [t('entreprise.ville'), formEntreprise.ville || '-'],
+                    [t('entreprise.pays'), formEntreprise.pays || '-'],
                   ].map(([l, v]) => (
                     <div key={l} style={rowStyle}><span style={lblStyle}>{l}</span><span style={valStyle}>{v}</span></div>
                   ))}
@@ -193,17 +196,17 @@ export default function ProfilClient({ user, profil, entreprise, certifications,
               ) : (
                 <>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                    <div style={fieldStyle}><label style={labelStyle}>Raison sociale</label><input style={inputStyle} value={formEntreprise.nom} onChange={e => setFormEntreprise(p => ({ ...p, nom: e.target.value }))} /></div>
-                    <div style={fieldStyle}><label style={labelStyle}>SIRET</label><input style={inputStyle} value={formEntreprise.siret} onChange={e => setFormEntreprise(p => ({ ...p, siret: e.target.value }))} /></div>
-                    <div style={fieldStyle}><label style={labelStyle}>TVA intracommunautaire</label><input style={inputStyle} value={formEntreprise.tva} onChange={e => setFormEntreprise(p => ({ ...p, tva: e.target.value }))} /></div>
-                    <div style={fieldStyle}><label style={labelStyle}>Pays</label><input style={inputStyle} value={formEntreprise.pays} onChange={e => setFormEntreprise(p => ({ ...p, pays: e.target.value }))} /></div>
+                    <div style={fieldStyle}><label style={labelStyle}>{t('entreprise.raisonSociale')}</label><input style={inputStyle} value={formEntreprise.nom} onChange={e => setFormEntreprise(p => ({ ...p, nom: e.target.value }))} /></div>
+                    <div style={fieldStyle}><label style={labelStyle}>{t('entreprise.siret')}</label><input style={inputStyle} value={formEntreprise.siret} onChange={e => setFormEntreprise(p => ({ ...p, siret: e.target.value }))} /></div>
+                    <div style={fieldStyle}><label style={labelStyle}>{t('entreprise.tvaIntra')}</label><input style={inputStyle} value={formEntreprise.tva} onChange={e => setFormEntreprise(p => ({ ...p, tva: e.target.value }))} /></div>
+                    <div style={fieldStyle}><label style={labelStyle}>{t('entreprise.pays')}</label><input style={inputStyle} value={formEntreprise.pays} onChange={e => setFormEntreprise(p => ({ ...p, pays: e.target.value }))} /></div>
                   </div>
-                  <div style={fieldStyle}><label style={labelStyle}>Adresse</label><input style={inputStyle} value={formEntreprise.adresse_rue} onChange={e => setFormEntreprise(p => ({ ...p, adresse_rue: e.target.value }))} /></div>
+                  <div style={fieldStyle}><label style={labelStyle}>{t('entreprise.adresse')}</label><input style={inputStyle} value={formEntreprise.adresse_rue} onChange={e => setFormEntreprise(p => ({ ...p, adresse_rue: e.target.value }))} /></div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 10 }}>
-                    <div style={fieldStyle}><label style={labelStyle}>Code postal</label><input style={inputStyle} value={formEntreprise.code_postal} onChange={e => setFormEntreprise(p => ({ ...p, code_postal: e.target.value }))} /></div>
-                    <div style={fieldStyle}><label style={labelStyle}>Ville</label><input style={inputStyle} value={formEntreprise.ville} onChange={e => setFormEntreprise(p => ({ ...p, ville: e.target.value }))} /></div>
+                    <div style={fieldStyle}><label style={labelStyle}>{t('entreprise.codePostal')}</label><input style={inputStyle} value={formEntreprise.code_postal} onChange={e => setFormEntreprise(p => ({ ...p, code_postal: e.target.value }))} /></div>
+                    <div style={fieldStyle}><label style={labelStyle}>{t('entreprise.ville')}</label><input style={inputStyle} value={formEntreprise.ville} onChange={e => setFormEntreprise(p => ({ ...p, ville: e.target.value }))} /></div>
                   </div>
-                  <div style={fieldStyle}><label style={labelStyle}>Description</label><textarea style={{ ...inputStyle, height: 60, resize: 'vertical' }} value={formEntreprise.description} onChange={e => setFormEntreprise(p => ({ ...p, description: e.target.value }))} /></div>
+                  <div style={fieldStyle}><label style={labelStyle}>{t('entreprise.description')}</label><textarea style={{ ...inputStyle, height: 60, resize: 'vertical' }} value={formEntreprise.description} onChange={e => setFormEntreprise(p => ({ ...p, description: e.target.value }))} /></div>
                 </>
               )}
             </div>
@@ -216,36 +219,36 @@ export default function ProfilClient({ user, profil, entreprise, certifications,
           {/* Contact entreprise */}
           <div style={cardStyle}>
             <div style={cardHeaderStyle}>
-              <span>Contact entreprise</span>
+              <span>{t('contact.titre')}</span>
               {!editContact
-                ? <button style={btnEdit} onClick={() => setEditContact(true)}>Modifier</button>
-                : <div><button style={btnCancel} onClick={() => setEditContact(false)}>Annuler</button><button style={btnSave} onClick={sauvegarderEntreprise} disabled={saving}>{saving ? '...' : 'Enregistrer'}</button></div>
+                ? <button style={btnEdit} onClick={() => setEditContact(true)}>{t('btn.modifier')}</button>
+                : <div><button style={btnCancel} onClick={() => setEditContact(false)}>{t('btn.annuler')}</button><button style={btnSave} onClick={sauvegarderEntreprise} disabled={saving}>{saving ? '...' : t('btn.enregistrer')}</button></div>
               }
             </div>
             <div style={{ padding: '18px 22px' }}>
               {!editContact ? (
                 <>
                   {[
-                    ['Email', formEntreprise.email_contact || user?.email || '-'],
-                    ['Telephone', formEntreprise.telephone || '-'],
-                    ['Site web', formEntreprise.site_web || '-'],
-                    ['Nom contact', formEntreprise.contact_nom || '-'],
-                    ['Prenom contact', formEntreprise.contact_prenom || '-'],
-                    ['Fonction', formEntreprise.contact_fonction || '-'],
+                    [t('contact.email'), formEntreprise.email_contact || user?.email || '-'],
+                    [t('contact.telephone'), formEntreprise.telephone || '-'],
+                    [t('contact.siteWeb'), formEntreprise.site_web || '-'],
+                    [t('contact.nomContact'), formEntreprise.contact_nom || '-'],
+                    [t('contact.prenomContact'), formEntreprise.contact_prenom || '-'],
+                    [t('contact.fonction'), formEntreprise.contact_fonction || '-'],
                   ].map(([l, v]) => (
                     <div key={l} style={rowStyle}><span style={lblStyle}>{l}</span><span style={valStyle}>{v}</span></div>
                   ))}
                 </>
               ) : (
                 <>
-                  <div style={fieldStyle}><label style={labelStyle}>Email contact</label><input style={inputStyle} value={formEntreprise.email_contact} onChange={e => setFormEntreprise(p => ({ ...p, email_contact: e.target.value }))} /></div>
-                  <div style={fieldStyle}><label style={labelStyle}>Telephone</label><input style={inputStyle} value={formEntreprise.telephone} onChange={e => setFormEntreprise(p => ({ ...p, telephone: e.target.value }))} /></div>
-                  <div style={fieldStyle}><label style={labelStyle}>Site web</label><input style={inputStyle} value={formEntreprise.site_web} onChange={e => setFormEntreprise(p => ({ ...p, site_web: e.target.value }))} /></div>
+                  <div style={fieldStyle}><label style={labelStyle}>{t('contact.emailContact')}</label><input style={inputStyle} value={formEntreprise.email_contact} onChange={e => setFormEntreprise(p => ({ ...p, email_contact: e.target.value }))} /></div>
+                  <div style={fieldStyle}><label style={labelStyle}>{t('contact.telephone')}</label><input style={inputStyle} value={formEntreprise.telephone} onChange={e => setFormEntreprise(p => ({ ...p, telephone: e.target.value }))} /></div>
+                  <div style={fieldStyle}><label style={labelStyle}>{t('contact.siteWeb')}</label><input style={inputStyle} value={formEntreprise.site_web} onChange={e => setFormEntreprise(p => ({ ...p, site_web: e.target.value }))} /></div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                    <div style={fieldStyle}><label style={labelStyle}>Nom contact</label><input style={inputStyle} value={formEntreprise.contact_nom} onChange={e => setFormEntreprise(p => ({ ...p, contact_nom: e.target.value }))} /></div>
-                    <div style={fieldStyle}><label style={labelStyle}>Prenom contact</label><input style={inputStyle} value={formEntreprise.contact_prenom} onChange={e => setFormEntreprise(p => ({ ...p, contact_prenom: e.target.value }))} /></div>
+                    <div style={fieldStyle}><label style={labelStyle}>{t('contact.nomContact')}</label><input style={inputStyle} value={formEntreprise.contact_nom} onChange={e => setFormEntreprise(p => ({ ...p, contact_nom: e.target.value }))} /></div>
+                    <div style={fieldStyle}><label style={labelStyle}>{t('contact.prenomContact')}</label><input style={inputStyle} value={formEntreprise.contact_prenom} onChange={e => setFormEntreprise(p => ({ ...p, contact_prenom: e.target.value }))} /></div>
                   </div>
-                  <div style={fieldStyle}><label style={labelStyle}>Fonction</label><input style={inputStyle} value={formEntreprise.contact_fonction} onChange={e => setFormEntreprise(p => ({ ...p, contact_fonction: e.target.value }))} /></div>
+                  <div style={fieldStyle}><label style={labelStyle}>{t('contact.fonction')}</label><input style={inputStyle} value={formEntreprise.contact_fonction} onChange={e => setFormEntreprise(p => ({ ...p, contact_fonction: e.target.value }))} /></div>
                 </>
               )}
             </div>
@@ -254,20 +257,20 @@ export default function ProfilClient({ user, profil, entreprise, certifications,
           {/* Profil personnel */}
           <div style={cardStyle}>
             <div style={cardHeaderStyle}>
-              <span>Mon profil personnel</span>
+              <span>{t('perso.titre')}</span>
               {!editContact
-                ? <button style={btnEdit} onClick={() => setEditContact(true)}>Modifier</button>
-                : <div><button style={btnCancel} onClick={() => setEditContact(false)}>Annuler</button><button style={btnSave} onClick={sauvegarderProfil} disabled={saving}>{saving ? '...' : 'Enregistrer'}</button></div>
+                ? <button style={btnEdit} onClick={() => setEditContact(true)}>{t('btn.modifier')}</button>
+                : <div><button style={btnCancel} onClick={() => setEditContact(false)}>{t('btn.annuler')}</button><button style={btnSave} onClick={sauvegarderProfil} disabled={saving}>{saving ? '...' : t('btn.enregistrer')}</button></div>
               }
             </div>
             <div style={{ padding: '18px 22px' }}>
               {!editContact ? (
                 <>
                   {[
-                    ['Prenom', formProfil.prenom || '-'],
-                    ['Nom', formProfil.nom || '-'],
-                    ['Telephone', formProfil.telephone || '-'],
-                    ['Email', user?.email || '-'],
+                    [t('perso.prenom'), formProfil.prenom || '-'],
+                    [t('perso.nom'), formProfil.nom || '-'],
+                    [t('perso.telephone'), formProfil.telephone || '-'],
+                    [t('perso.email'), user?.email || '-'],
                   ].map(([l, v]) => (
                     <div key={l} style={rowStyle}><span style={lblStyle}>{l}</span><span style={valStyle}>{v}</span></div>
                   ))}
@@ -275,11 +278,11 @@ export default function ProfilClient({ user, profil, entreprise, certifications,
               ) : (
                 <>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                    <div style={fieldStyle}><label style={labelStyle}>Prenom</label><input style={inputStyle} value={formProfil.prenom} onChange={e => setFormProfil(p => ({ ...p, prenom: e.target.value }))} /></div>
-                    <div style={fieldStyle}><label style={labelStyle}>Nom</label><input style={inputStyle} value={formProfil.nom} onChange={e => setFormProfil(p => ({ ...p, nom: e.target.value }))} /></div>
+                    <div style={fieldStyle}><label style={labelStyle}>{t('perso.prenom')}</label><input style={inputStyle} value={formProfil.prenom} onChange={e => setFormProfil(p => ({ ...p, prenom: e.target.value }))} /></div>
+                    <div style={fieldStyle}><label style={labelStyle}>{t('perso.nom')}</label><input style={inputStyle} value={formProfil.nom} onChange={e => setFormProfil(p => ({ ...p, nom: e.target.value }))} /></div>
                   </div>
-                  <div style={fieldStyle}><label style={labelStyle}>Telephone</label><input style={inputStyle} value={formProfil.telephone} onChange={e => setFormProfil(p => ({ ...p, telephone: e.target.value }))} /></div>
-                  <div style={fieldStyle}><label style={labelStyle}>Email (non modifiable)</label><input style={{ ...inputStyle, background: '#f5f3ef', color: '#8b7355' }} value={user?.email ?? ''} disabled /></div>
+                  <div style={fieldStyle}><label style={labelStyle}>{t('perso.telephone')}</label><input style={inputStyle} value={formProfil.telephone} onChange={e => setFormProfil(p => ({ ...p, telephone: e.target.value }))} /></div>
+                  <div style={fieldStyle}><label style={labelStyle}>{t('perso.emailNonModifiable')}</label><input style={{ ...inputStyle, background: '#f5f3ef', color: '#8b7355' }} value={user?.email ?? ''} disabled /></div>
                 </>
               )}
             </div>
@@ -287,10 +290,10 @@ export default function ProfilClient({ user, profil, entreprise, certifications,
 
           {/* Certifications */}
           <div style={cardStyle}>
-            <div style={cardHeaderStyle}><span>{'Certifications (' + (certifications?.length ?? 0) + ')'}</span></div>
+            <div style={cardHeaderStyle}><span>{t('certifs.titre', { count: certifications?.length ?? 0 })}</span></div>
             <div style={{ padding: '14px 18px' }}>
               {!certifications || certifications.length === 0 ? (
-                <div style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', padding: '10px 0' }}>Aucune certification enregistree</div>
+                <div style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', padding: '10px 0' }}>{t('certifs.aucune')}</div>
               ) : (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                   {certifications.map((c, i) => (
@@ -306,12 +309,12 @@ export default function ProfilClient({ user, profil, entreprise, certifications,
           {/* Documents */}
           <div style={cardStyle}>
             <div style={cardHeaderStyle}>
-              <span>{'Documents (' + docs.length + ')'}</span>
-              <button style={btnEdit} onClick={() => setShowUpload(true)}>+ Ajouter</button>
+              <span>{t('documents.titre', { count: docs.length })}</span>
+              <button style={btnEdit} onClick={() => setShowUpload(true)}>{t('btn.ajouter')}</button>
             </div>
             <div style={{ padding: '14px 18px' }}>
               {docs.length === 0 ? (
-                <div style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', padding: '10px 0' }}>Aucun document</div>
+                <div style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', padding: '10px 0' }}>{t('documents.aucun')}</div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {docs.map((d, i) => (
@@ -323,18 +326,18 @@ export default function ProfilClient({ user, profil, entreprise, certifications,
                         <div>
                           <div style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>{d.nom}</div>
                           <div style={{ fontSize: 10, color: '#8b7355' }}>
-                            {(d.type === 'kbis' ? 'Kbis' : d.type === 'certificat' ? 'Certificat' : d.type === 'assurance' ? 'Assurance' : 'Autre') +
-                              (d.date_expiration ? ' - Exp. ' + new Date(d.date_expiration).toLocaleDateString('fr-FR') : '') +
-                              (d.taille_kb ? ' - ' + d.taille_kb + ' ko' : '')}
+                            {(d.type === 'kbis' ? t('documents.type.kbis') : d.type === 'certificat' ? t('documents.type.certificat') : d.type === 'assurance' ? t('documents.type.assurance') : t('documents.type.autre')) +
+                              (d.date_expiration ? ' - ' + t('documents.exp') + ' ' + new Date(d.date_expiration).toLocaleDateString(locale) : '') +
+                              (d.taille_kb ? ' - ' + d.taille_kb + ' ' + t('documents.ko') : '')}
                           </div>
                         </div>
                       </div>
                       <div style={{ display: 'flex', gap: 6 }}>
                         <button onClick={() => telechargerDocument(d.url, d.nom)} style={{ padding: '4px 10px', borderRadius: 4, border: '1.5px solid #d4c5b0', background: '#fff', fontSize: 11, cursor: 'pointer', color: '#4a5568' }}>
-                          Voir
+                          {t('btn.voir')}
                         </button>
                         <button onClick={() => supprimerDocument(d.id, d.url)} style={{ padding: '4px 10px', borderRadius: 4, border: '1.5px solid #fde8e8', background: '#fff', fontSize: 11, cursor: 'pointer', color: '#8b3a3a' }}>
-                          Sup.
+                          {t('btn.supprimer')}
                         </button>
                       </div>
                     </div>
@@ -350,11 +353,11 @@ export default function ProfilClient({ user, profil, entreprise, certifications,
       {/* Suppression compte */}
       <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #fde8e8', padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
         <div>
-          <div style={{ fontSize: 14, fontWeight: 700, color: '#8b3a3a', marginBottom: 4 }}>Supprimer mon compte</div>
-          <div style={{ fontSize: 12, color: '#8b7355' }}>Cette action est irreversible. Toutes vos donnees seront supprimees conformement au RGPD.</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: '#8b3a3a', marginBottom: 4 }}>{t('suppression.titre')}</div>
+          <div style={{ fontSize: 12, color: '#8b7355' }}>{t('suppression.texte')}</div>
         </div>
         <a href="/profil/supprimer" style={{ padding: '8px 16px', borderRadius: 4, border: '1.5px solid #8b3a3a', background: '#fff', color: '#8b3a3a', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'none', display: 'inline-block' }}>
-          Supprimer mon compte
+          {t('suppression.bouton')}
         </a>
       </div>
 
@@ -363,34 +366,34 @@ export default function ProfilClient({ user, profil, entreprise, certifications,
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }} onClick={() => setShowUpload(false)}>
           <div style={{ background: '#fff', borderRadius: 8, padding: '28px 32px', width: 420, boxShadow: '0 24px 64px rgba(0,0,0,0.15)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
-              <span style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>Ajouter un document</span>
+              <span style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>{t('modal.titre')}</span>
               <button onClick={() => setShowUpload(false)} style={{ border: 'none', background: 'none', fontSize: 18, cursor: 'pointer', color: '#8b7355' }}>x</button>
             </div>
             <div style={{ marginBottom: 12 }}>
-              <label style={labelStyle}>Nom du document *</label>
-              <input style={inputStyle} value={uploadForm.nom} onChange={e => setUploadForm(p => ({ ...p, nom: e.target.value }))} placeholder="Ex: Kbis 2026, Certificat GOTS..." />
+              <label style={labelStyle}>{t('modal.nomLabel')}</label>
+              <input style={inputStyle} value={uploadForm.nom} onChange={e => setUploadForm(p => ({ ...p, nom: e.target.value }))} placeholder={t('modal.nomPlaceholder')} />
             </div>
             <div style={{ marginBottom: 12 }}>
-              <label style={labelStyle}>Type *</label>
+              <label style={labelStyle}>{t('modal.typeLabel')}</label>
               <select style={inputStyle} value={uploadForm.type} onChange={e => setUploadForm(p => ({ ...p, type: e.target.value }))}>
-                <option value="kbis">Kbis</option>
-                <option value="certificat">Certificat</option>
-                <option value="assurance">Assurance RC Pro</option>
-                <option value="autre">Autre</option>
+                <option value="kbis">{t('documents.type.kbis')}</option>
+                <option value="certificat">{t('documents.type.certificat')}</option>
+                <option value="assurance">{t('modal.typeAssuranceRcPro')}</option>
+                <option value="autre">{t('documents.type.autre')}</option>
               </select>
             </div>
             <div style={{ marginBottom: 12 }}>
-              <label style={labelStyle}>Date d'expiration (optionnel)</label>
+              <label style={labelStyle}>{t('modal.dateExp')}</label>
               <input type="date" style={inputStyle} value={uploadForm.date_expiration} onChange={e => setUploadForm(p => ({ ...p, date_expiration: e.target.value }))} />
             </div>
             <div style={{ marginBottom: 20 }}>
-              <label style={labelStyle}>Fichier *</label>
+              <label style={labelStyle}>{t('modal.fichier')}</label>
               <input ref={fileInputRef} type="file" accept=".pdf,.jpg,.jpeg,.png" style={{ ...inputStyle, padding: '6px 10px' }} />
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => setShowUpload(false)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#8b7355', fontSize: 13, cursor: 'pointer' }}>Annuler</button>
+              <button onClick={() => setShowUpload(false)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#8b7355', fontSize: 13, cursor: 'pointer' }}>{t('btn.annuler')}</button>
               <button onClick={uploaderDocument} disabled={uploading} style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: uploading ? '#d4c5b0' : '#1a1a1a', color: uploading ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: uploading ? 'default' : 'pointer' }}>
-                {uploading ? 'Upload...' : 'Enregistrer'}
+                {uploading ? t('modal.upload') : t('btn.enregistrer')}
               </button>
             </div>
           </div>
