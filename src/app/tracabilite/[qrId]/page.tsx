@@ -139,6 +139,17 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
     .eq('id', qrCode.lot_id)
     .single()
 
+  // Recuperation de la certification ETHYS liee au lot (pour afficher la date d'attribution)
+  let certEthys: { date_emission: string } | null = null
+  if (lot?.certif_ethys_id) {
+    const { data } = await supabase
+      .from('certifications_ethys')
+      .select('date_emission')
+      .eq('id', lot.certif_ethys_id)
+      .single()
+    certEthys = data
+  }
+
   const commande = lot?.commande as any
   const filature = commande?.filature as Record<string, string>
   const fournisseur = commande?.fournisseur as Record<string, string>
@@ -223,11 +234,11 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
           { key: 'certificationFil', label: t('lblCertificationFil'), value: String(lot?.certification ?? 'ETHYS') },
           { key: 'fournisseur', label: t('lblFournisseur'), value: fournisseur?.nom ?? '-' },
           { key: 'marque', label: t('lblMarque'), value: marque?.nom ?? '-' },
-          { key: 'volumeTotal', label: t('lblVolumeTotal'), value: Math.round(totalVolume * 1000).toLocaleString('fr-FR') + ' kg' },
+          { key: 'dateCertif', label: 'Date de certification ETHYS', value: certEthys?.date_emission ? new Date(certEthys.date_emission).toLocaleDateString('fr-FR') : '-' },
         ].map(({ key, label, value }) => (
           <div key={key} style={{ display: 'flex', gap: 14, alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #e8e3d8' }}>
             <div style={{ width: 36, height: 36, borderRadius: 8, background: '#f5f3ef', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 14 }}>
-              {key === 'certificationFil' ? 'E' : key === 'filature' ? 'F' : key === 'origine' ? 'O' : key === 'marque' ? 'M' : key === 'volumeTotal' ? 'V' : 'C'}
+              {key === 'certificationFil' ? 'E' : key === 'filature' ? 'F' : key === 'origine' ? 'O' : key === 'marque' ? 'M' : key === 'dateCertif' ? 'D' : 'C'}
             </div>
             <div>
               <div style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>{label}</div>
