@@ -164,6 +164,21 @@ export default function QRCodeClient({ lots: initial, user, profil, certificatio
       generated_at: new Date().toISOString(),
     }
 
+    // Récupération de la certification ETHYS active de la filature pour la lier au lot
+    const filatureId = (selected.commande as any)?.filature?.id
+    let certEthysId: string | null = null
+    if (filatureId) {
+      const { data: certActive } = await supabase
+        .from('certifications_ethys')
+        .select('id')
+        .eq('filature_id', filatureId)
+        .eq('statut', 'certifiee')
+        .order('date_emission', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      certEthysId = certActive?.id ?? null
+    }
+
     const { data, error } = await supabase
       .from('qr_codes')
       .insert({ lot_id: selected.id, reference, url_publique: urlPublique, data_encodee: dataEncodee, actif: true, nb_scans: 0 })
@@ -174,7 +189,7 @@ export default function QRCodeClient({ lots: initial, user, profil, certificatio
       const updatedLot = { ...selected, qr_codes: [data as QRCodeData] }
       setLots(prev => prev.map(l => l.id === selected.id ? updatedLot : l))
       setSelected(updatedLot)
-      await supabase.from('lots').update({ statut: 'valide' }).eq('id', selected.id)
+      await supabase.from('lots').update({ statut: 'valide', certif_ethys_id: certEthysId }).eq('id', selected.id)
 
       // Si génération suite à demande : marque la demande comme acceptée
       if (demandeId) {
