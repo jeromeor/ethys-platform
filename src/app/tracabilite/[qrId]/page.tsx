@@ -154,9 +154,9 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
   const filature = commande?.filature as Record<string, string>
   const fournisseur = commande?.fournisseur as Record<string, string>
   const marque = commande?.marque as Record<string, string>
-  const totalVolume = Number(lot?.volume_tonnes) ?? 0
-  const volumeRecyclé = Math.round(totalVolume * 0.51)
-  const volumeVierge = Math.round(totalVolume * 0.49)
+  const totalKg = Math.round((Number(lot?.volume_tonnes) ?? 0) * 1000)
+  const volumeRecycleKg = Math.round(totalKg * 0.51)
+  const volumeViergeKg = totalKg - volumeRecycleKg
   const pctRecyclé = 51
   const pctVierge = 49
 
@@ -203,12 +203,12 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
               <div style={{ flex: pctRecyclé, background: '#8b7355', borderRadius: 4, padding: '10px 8px', textAlign: 'center' }}>
                 <div style={{ fontSize: 22, fontWeight: 900, color: '#fff' }}>{pctRecyclé}%</div>
                 <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>{t('cotonRecycle')}</div>
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>{Math.round(volumeRecyclé * 1000).toLocaleString('fr-FR')} kg</div>
+                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>{volumeRecycleKg.toLocaleString('fr-FR')} kg</div>
               </div>
               <div style={{ flex: pctVierge, background: 'rgba(255,255,255,0.12)', borderRadius: 4, padding: '10px 8px', textAlign: 'center' }}>
                 <div style={{ fontSize: 22, fontWeight: 900, color: '#fff' }}>{pctVierge}%</div>
                 <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>{t('cotonVierge')}</div>
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>{Math.round(volumeVierge * 1000).toLocaleString('fr-FR')} kg</div>
+                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>{volumeViergeKg.toLocaleString('fr-FR')} kg</div>
               </div>
             </div>
             <div style={{ height: 6, background: 'rgba(255,255,255,0.12)', borderRadius: 2, overflow: 'hidden' }}>
@@ -229,7 +229,6 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
         {[
-          { key: 'origine', label: t('lblOrigine'), value: String(lot?.origine ?? t('nonRenseigne')) },
           { key: 'filature', label: t('lblFilature'), value: filature?.nom ?? '-' },
           { key: 'certificationFil', label: t('lblCertificationFil'), value: String(lot?.certification ?? 'ETHYS') },
           { key: 'fournisseur', label: t('lblFournisseur'), value: fournisseur?.nom ?? '-' },
@@ -238,7 +237,7 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
         ].map(({ key, label, value }) => (
           <div key={key} style={{ display: 'flex', gap: 14, alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #e8e3d8' }}>
             <div style={{ width: 36, height: 36, borderRadius: 8, background: '#f5f3ef', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 14 }}>
-              {key === 'certificationFil' ? 'E' : key === 'filature' ? 'F' : key === 'origine' ? 'O' : key === 'marque' ? 'M' : key === 'dateCertif' ? 'D' : 'C'}
+              {key === 'certificationFil' ? 'E' : key === 'filature' ? 'F' : key === 'marque' ? 'M' : key === 'dateCertif' ? 'D' : 'C'}
             </div>
             <div>
               <div style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>{label}</div>
