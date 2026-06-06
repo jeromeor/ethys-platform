@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { getTranslations } from 'next-intl/server'
+import MapTraceabilite from '@/components/MapTraceabilite'
 
 export default async function TracabilitePage({ params }: { params: Promise<{ qrId: string }> }) {
   const { qrId } = await params
@@ -35,7 +36,7 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
 
     const { data: decl } = await supabase
       .from('declarations_ethys')
-      .select('*, entreprise:entreprises(nom, pays)')
+      .select('*, entreprise:entreprises(nom, pays, ville, latitude, longitude)')
       .eq('id', cert?.declaration_id)
       .single()
 
@@ -46,6 +47,18 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
     const volRecycle = Math.round(totalKg * 0.51)
     const volVierge = Math.round(totalKg * 0.49)
     const typeLabel = decl?.type_produit === 'fil' ? t('typeFil') : decl?.type_produit === 'tissu' ? t('typeTissu') : t('typeProduitFini')
+
+    // Acteurs pour la carte (filature depuis la declaration)
+    const entDecl = decl?.entreprise as any
+    const certActeurs = [
+      entDecl?.latitude ? {
+        type: 'filature',
+        nom: entDecl?.nom || '-',
+        ville: entDecl?.ville || '',
+        latitude: Number(entDecl?.latitude),
+        longitude: Number(entDecl?.longitude),
+      } : null,
+    ].filter(Boolean)
 
     return (
       <div style={{ minHeight: '100vh', background: '#f5f3ef', fontFamily: "'Inter', system-ui, sans-serif" }}>
@@ -87,7 +100,12 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
             </div>
           </div>
         </div>
-        <div style={{ maxWidth: 480, margin: '0 auto', padding: '24px' }}><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
+        <div style={{ maxWidth: 480, margin: '0 auto', padding: '24px' }}>
+
+          {/* Carte de tracabilite */}
+          <MapTraceabilite acteurs={certActeurs as any} />
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
           {[
             { key: 'entreprise', label: t('lblEntreprise'), value: (decl?.entreprise as any)?.nom ?? '-' },
             { key: 'pays', label: t('lblPays'), value: (decl?.entreprise as any)?.pays ?? '-' },
@@ -120,7 +138,7 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
 
   const { data: lot } = await supabase
     .from('lots')
-    .select('*, commande:commandes(reference, marque:entreprises!commandes_marque_id_fkey(nom), filature:entreprises!commandes_filature_id_fkey(nom), fournisseur:entreprises!commandes_fournisseur_id_fkey(nom))')
+    .select('*, commande:commandes(reference, marque:entreprises!commandes_marque_id_fkey(nom, ville, latitude, longitude), filature:entreprises!commandes_filature_id_fkey(nom, ville, latitude, longitude), fournisseur:entreprises!commandes_fournisseur_id_fkey(nom, ville, latitude, longitude))')
     .eq('id', qrCode.lot_id)
     .single()
 
@@ -133,6 +151,31 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
   const volumeVierge = Math.round(totalVolume * 0.49)
   const pctRecyclé = 51
   const pctVierge = 49
+
+  // Acteurs pour la carte (3 points de la boucle ETHYS)
+  const lotActeurs = [
+    fournisseur?.latitude ? {
+      type: 'coton',
+      nom: fournisseur.nom || '-',
+      ville: fournisseur.ville || '',
+      latitude: Number(fournisseur.latitude),
+      longitude: Number(fournisseur.longitude),
+    } : null,
+    filature?.latitude ? {
+      type: 'filature',
+      nom: filature.nom || '-',
+      ville: filature.ville || '',
+      latitude: Number(filature.latitude),
+      longitude: Number(filature.longitude),
+    } : null,
+    marque?.latitude ? {
+      type: 'marque',
+      nom: marque.nom || '-',
+      ville: marque.ville || '',
+      latitude: Number(marque.latitude),
+      longitude: Number(marque.longitude),
+    } : null,
+  ].filter(Boolean)
 
   return (
     <div style={{ minHeight: '100vh', background: '#f5f3ef', fontFamily: "'Inter', system-ui, sans-serif" }}>
@@ -173,7 +216,12 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
           </div>
         </div>
       </div>
-      <div style={{ maxWidth: 480, margin: '0 auto', padding: '24px' }}><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
+      <div style={{ maxWidth: 480, margin: '0 auto', padding: '24px' }}>
+
+        {/* Carte de tracabilite des acteurs */}
+        <MapTraceabilite acteurs={lotActeurs as any} />
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
         {[
           { key: 'origine', label: t('lblOrigine'), value: String(lot?.origine ?? t('nonRenseigne')) },
           { key: 'filature', label: t('lblFilature'), value: filature?.nom ?? '-' },
