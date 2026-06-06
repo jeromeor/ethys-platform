@@ -1048,5 +1048,26 @@
     "lblMarque": "Brand",
     "lblVolumeTotal": "Total volume",
     "nonRenseigne": "Not specified"
+  },
+  "qrAccess": {
+    "badge": "ETHYS — CERTIFIED QR CODE",
+    "soustitre": "Secure transfer · Single use",
+    "sectionCert": "Certification",
+    "lblFilature": "Spinning mill",
+    "lblMarque": "Brand",
+    "lblVolumeTotal": "Total volume",
+    "lblPctRecycle": "% recycled",
+    "lblVolumeRecycle": "Recycled volume",
+    "lblVolumeVierge": "Virgin volume",
+    "lblEmiseLe": "Issued on",
+    "lblValideJusqu": "Valid until",
+    "titreQR": "Traceability QR Code",
+    "telecharger": "Download QR code",
+    "recupereLe": "Recovered on {date}",
+    "qrIndisponible": "QR code unavailable. Contact TEXTILE LOOP.",
+    "mentionReserve": "This QR code is strictly reserved for the use of",
+    "mentionInterdite": "Any unauthorized distribution is prohibited.",
+    "mentionCertifie": "Certified by TEXTILE LOOP ·",
+    "votremarque": "your brand"
   }
 }
