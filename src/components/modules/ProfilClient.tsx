@@ -53,10 +53,31 @@ export default function ProfilClient({ user, profil, entreprise, certifications,
   const sauvegarderEntreprise = async () => {
     if (!profil?.entreprise_id) return
     setSaving(true)
-    await supabase.from('entreprises').update({
+
+    // Géocodage automatique ville/pays → latitude/longitude via Nominatim (OpenStreetMap)
+    const updateData: Record<string, unknown> = {
       ...formEntreprise,
       updated_at: new Date().toISOString(),
-    }).eq('id', profil.entreprise_id)
+    }
+
+    if (formEntreprise.ville && formEntreprise.pays) {
+      try {
+        const query = encodeURIComponent(formEntreprise.ville + ', ' + formEntreprise.pays)
+        const res = await fetch(
+          'https://nominatim.openstreetmap.org/search?q=' + query + '&format=json&limit=1',
+          { headers: { 'Accept': 'application/json' } }
+        )
+        const geo = await res.json()
+        if (geo && geo.length > 0) {
+          updateData.latitude = parseFloat(geo[0].lat)
+          updateData.longitude = parseFloat(geo[0].lon)
+        }
+      } catch (e) {
+        // Erreur réseau : sauvegarde sans écraser les coordonnées existantes
+      }
+    }
+
+    await supabase.from('entreprises').update(updateData).eq('id', profil.entreprise_id)
     setSaving(false)
     setEditEntreprise(false)
     setEditContact(false)
