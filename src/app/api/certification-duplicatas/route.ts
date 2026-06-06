@@ -1,10 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
 
 export async function POST(request: NextRequest) {
   const { filature_nom, declaration_id } = await request.json()
 
-  // MVP : email fixe pour tests — à remplacer par l'email réel de la filature
-  const destinataire = 'jeromeoriol1964@proton.me'
+  // Client Supabase service role pour accès server-side
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
+  // Recuperation de l'entreprise filature liee a la declaration
+  const { data: declaration, error: errDecl } = await supabase
+    .from('declarations_ethys')
+    .select('entreprise_id')
+    .eq('id', declaration_id)
+    .single()
+
+  if (errDecl || !declaration?.entreprise_id) {
+    console.error('Declaration introuvable:', errDecl)
+    return NextResponse.json({ success: false, error: 'Declaration introuvable' }, { status: 404 })
+  }
+
+  // Recuperation de l'email de contact de la filature
+  const { data: entreprise, error: errEnt } = await supabase
+    .from('entreprises')
+    .select('email_contact')
+    .eq('id', declaration.entreprise_id)
+    .single()
+
+  if (errEnt || !entreprise?.email_contact) {
+    console.error('Email de contact filature introuvable:', errEnt)
+    return NextResponse.json({ success: false, error: 'Email filature introuvable' }, { status: 404 })
+  }
+
+  const destinataire = entreprise.email_contact
 
   try {
     const res = await fetch('https://api.resend.com/emails', {
