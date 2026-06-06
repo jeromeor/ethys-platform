@@ -100,9 +100,6 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
         </div>
         <div style={{ maxWidth: 480, margin: '0 auto', padding: '24px' }}>
 
-          {/* DEBUG CERTIFICATION — A SUPPRIMER APRES TEST */}
-          <pre style={{ fontSize: 10, background: '#ff0', padding: 8, color: '#000' }}>CERT: {JSON.stringify(certActeurs)}</pre>
-
           <MapTraceabilite acteurs={certActeurs as any} />
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
@@ -216,9 +213,6 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
         </div>
       </div>
       <div style={{ maxWidth: 480, margin: '0 auto', padding: '24px' }}>
-
-        {/* DEBUG LOT — A SUPPRIMER APRES TEST */}
-        <pre style={{ fontSize: 10, background: '#ff0', padding: 8, color: '#000' }}>LOT: {JSON.stringify(lotActeurs)}</pre>
 
         <MapTraceabilite acteurs={lotActeurs as any} />
 
