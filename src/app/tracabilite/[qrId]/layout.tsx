@@ -3,7 +3,7 @@ import LanguageSwitcher from '@/components/LanguageSwitcher'
 export default function TracabiliteLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <div style={{ background: '#f5f3ef', padding: '12px 16px', display: 'flex', justifyContent: 'flex-end' }}>
+        <div style={{ position: 'fixed', top: 12, right: 12, zIndex: 100 }}>
         <LanguageSwitcher />
       </div>
       {children}
