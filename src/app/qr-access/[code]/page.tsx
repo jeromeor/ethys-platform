@@ -133,6 +133,7 @@ export default async function QRAccessPage({ params }: { params: Promise<{ code:
             />
             <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 4 }}>{qrCode.reference}</div>
             <div style={{ fontSize: 11, color: '#a0aec0', marginBottom: 16 }}>{qrCode.url_publique}</div>
+            <a
             
               href={'https://api.qrserver.com/v1/create-qr-code/?size=1000x1000&data=' + encodeURIComponent(qrCode.url_publique)}
               download={'QR-ETHYS-' + (cert?.reference ?? 'code') + '.png'}
