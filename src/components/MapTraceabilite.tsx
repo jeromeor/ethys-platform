@@ -120,7 +120,7 @@ export default function MapTraceabilite({ acteurs }: Props) {
           var labelRight = p.x < W / 2
           var labelX = labelRight ? p.x + 22 : p.x - 22
           var dotX = labelRight ? p.x + 12 : p.x - 12
-          var anchor = (labelRight ? 'start' : 'end') as const
+          var anchor: 'start' | 'end' = labelRight ? 'start' : 'end'
 
           return (
             <g key={i}>
