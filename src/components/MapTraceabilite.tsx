@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
+// @ts-ignore
 import { geoMercator, geoPath } from 'd3-geo'
 // @ts-ignore
 import { merge, mesh } from 'topojson-client'
