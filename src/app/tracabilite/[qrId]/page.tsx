@@ -40,7 +40,6 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
       .eq('id', cert?.declaration_id)
       .single()
 
-    // Fallback sur les donnees encodees dans le QR code si decl est null
     const pctRecyclé = 51
     const pctVierge = 49
     const totalKg = Number(cert?.volume_total ?? 0)
@@ -48,7 +47,6 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
     const volVierge = Math.round(totalKg * 0.49)
     const typeLabel = decl?.type_produit === 'fil' ? t('typeFil') : decl?.type_produit === 'tissu' ? t('typeTissu') : t('typeProduitFini')
 
-    // Acteurs pour la carte (filature depuis la declaration)
     const entDecl = decl?.entreprise as any
     const certActeurs = [
       entDecl?.latitude ? {
@@ -102,7 +100,9 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
         </div>
         <div style={{ maxWidth: 480, margin: '0 auto', padding: '24px' }}>
 
-          {/* Carte de tracabilite */}
+          {/* DEBUG CERTIFICATION — A SUPPRIMER APRES TEST */}
+          <pre style={{ fontSize: 10, background: '#ff0', padding: 8, color: '#000' }}>CERT: {JSON.stringify(certActeurs)}</pre>
+
           <MapTraceabilite acteurs={certActeurs as any} />
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
@@ -152,7 +152,6 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
   const pctRecyclé = 51
   const pctVierge = 49
 
-  // Acteurs pour la carte (3 points de la boucle ETHYS)
   const lotActeurs = [
     fournisseur?.latitude ? {
       type: 'coton',
@@ -218,8 +217,9 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
       </div>
       <div style={{ maxWidth: 480, margin: '0 auto', padding: '24px' }}>
 
-        {/* Carte de tracabilite des acteurs */}
-        <pre style={{ fontSize: 10, background: '#fff', padding: 8 }}>{JSON.stringify(lotActeurs)}</pre>
+        {/* DEBUG LOT — A SUPPRIMER APRES TEST */}
+        <pre style={{ fontSize: 10, background: '#ff0', padding: 8, color: '#000' }}>LOT: {JSON.stringify(lotActeurs)}</pre>
+
         <MapTraceabilite acteurs={lotActeurs as any} />
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
