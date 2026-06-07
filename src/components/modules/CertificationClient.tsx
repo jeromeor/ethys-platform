@@ -786,28 +786,24 @@ export default function CertificationClient({
                 <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
                   <img
                     src={qrCode.data_encodee}
-                    alt={"QR code"}
+                    alt="QR code"
                     style={{ width: 120, height: 120, borderRadius: 4, background: '#fff', padding: 6, border: '1px solid #e8e3d8' }}
                   />
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 4 }}>{"Page publique de traçabilité"}</div>
+                    <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 4 }}>{"Page publique de tra\u00e7abilit\u00e9"}</div>
                     <div style={{ fontSize: 12, fontWeight: 600, color: '#1A202C', marginBottom: 10, wordBreak: 'break-all' }}>{qrCode.reference}</div>
                     
                       href={qrCode.url_publique}
                       target="_blank"
                       rel="noopener noreferrer"
-                      style={{ display: 'inline-block', padding: '8px 14px', borderRadius: 4, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, textDecoration: 'none' }}
+                      style={{ display: 'inline-block', padding: '8px 14px', borderRadius: 4, background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, textDecoration: 'none' }}
                     >
-                      {"Voir page publique →"}
+                      {"Voir page publique \u2192"}
                     </a>
                   </div>
                 </div>
               </div>
             )}
-          </div>
-        </div>
-      )
-    }
 
     // Aucune sélection
     return (
