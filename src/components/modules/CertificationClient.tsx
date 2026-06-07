@@ -800,6 +800,10 @@ export default function CertificationClient({
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )
+    }
 
     // Aucune sélection
     return (
