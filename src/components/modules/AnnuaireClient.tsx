@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { useTranslations } from 'next-intl'
 
 const INDICATIFS: Record<string, string> = {
   'France': '+33', 'Turquie': '+90', 'Maroc': '+212',
@@ -20,10 +21,6 @@ const typeColors: Record<string, [string, string]> = {
   marque: ['#DBEAFE', '#1E40AF'],
   filature: ['#f0f4ec', '#2d5016'],
   fournisseur_coton: ['#fdf8ec', '#b8860b'],
-}
-
-const typeLabels: Record<string, string> = {
-  marque: 'Marque', filature: 'Filature', fournisseur_coton: 'Fournisseur',
 }
 
 interface Partnership {
@@ -53,6 +50,14 @@ interface Props {
 }
 
 export default function AnnuaireClient({ partenaires, paysList, userRole, userEntrepriseId, partnerships }: Props) {
+  const t = useTranslations('annuaire')
+
+  const typeLabels: Record<string, string> = {
+    marque: t('typeMarque'),
+    filature: t('typeFilature'),
+    fournisseur_coton: t('typeFournisseur'),
+  }
+
   const [search, setSearch] = useState('')
   const [filterType, setFilterType] = useState('Tous')
   const [filterPays, setFilterPays] = useState('Tous')
@@ -62,7 +67,7 @@ export default function AnnuaireClient({ partenaires, paysList, userRole, userEn
   const [form, setForm] = useState<Partial<Partenaire>>({})
   const [partnershipState, setPartnershipState] = useState<Partnership[]>(partnerships)
   const [sendingPartnership, setSendingPartnership] = useState(false)
-const [filterPartenaire, setFilterPartenaire] = useState(false)
+  const [filterPartenaire, setFilterPartenaire] = useState(false)
   const filtered = useMemo(() => partenaires.filter(p => {
     if (search && !p.nom.toLowerCase().includes(search.toLowerCase()) && !p.ville?.toLowerCase().includes(search.toLowerCase())) return false
     if (filterType !== 'Tous' && p.type !== filterType) return false
@@ -171,7 +176,9 @@ const [filterPartenaire, setFilterPartenaire] = useState(false)
 
   const contacter = (p: Partenaire) => {
     if (!p.email_contact) return
-    window.location.href = `mailto:${p.email_contact}?cc=contact@textile-loop.fr&subject=Contact via plateforme ETHYS - ${p.nom}&body=Bonjour,%0D%0A%0D%0AJe vous contacte via la plateforme ETHYS de TEXTILE LOOP.%0D%0A%0D%0ACordialement`
+    const subject = t('emailSubject', { nom: p.nom })
+    const body = t('emailBody')
+    window.location.href = 'mailto:' + p.email_contact + '?cc=contact@textile-loop.fr&subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body)
   }
 
   // Bouton partenariat selon l'état
@@ -186,7 +193,7 @@ const [filterPartenaire, setFilterPartenaire] = useState(false)
           disabled={sendingPartnership}
           style={{ width: '100%', padding: '9px', borderRadius: 4, border: '1.5px solid #1a1a1a', background: '#fff', color: '#1a1a1a', fontSize: 12, fontWeight: 700, cursor: 'pointer', marginTop: 8 }}
         >
-          + Demander un partenariat
+          {t('demanderPartenariat')}
         </button>
       )
     }
@@ -201,14 +208,14 @@ const [filterPartenaire, setFilterPartenaire] = useState(false)
               disabled={sendingPartnership}
               style={{ flex: 1, padding: '9px', borderRadius: 4, border: 'none', background: '#2d5016', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
             >
-              Accepter
+              {t('accepter')}
             </button>
             <button
               onClick={() => repondrePartenariat(ps.id, 'rejected')}
               disabled={sendingPartnership}
               style={{ flex: 1, padding: '9px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#fff', color: '#8b7355', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
             >
-              Refuser
+              {t('refuser')}
             </button>
           </div>
         )
@@ -216,7 +223,7 @@ const [filterPartenaire, setFilterPartenaire] = useState(false)
       // L'utilisateur est le requester → demande en attente
       return (
         <button disabled style={{ width: '100%', padding: '9px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#8b7355', fontSize: 12, fontWeight: 700, cursor: 'default', marginTop: 8 }}>
-          ⏳ Demande en attente
+          {'⏳ ' + t('demandeEnAttente')}
         </button>
       )
     }
@@ -224,7 +231,7 @@ const [filterPartenaire, setFilterPartenaire] = useState(false)
     if (ps.status === 'accepted') {
       return (
         <button disabled style={{ width: '100%', padding: '9px', borderRadius: 4, border: '1.5px solid #c8d8b8', background: '#f0f4ec', color: '#2d5016', fontSize: 12, fontWeight: 700, cursor: 'default', marginTop: 8 }}>
-          ✓ Partenaire
+          {'✓ ' + t('partenaire')}
         </button>
       )
     }
@@ -236,7 +243,7 @@ const [filterPartenaire, setFilterPartenaire] = useState(false)
           disabled={sendingPartnership}
           style={{ width: '100%', padding: '9px', borderRadius: 4, border: '1.5px solid #1a1a1a', background: '#fff', color: '#1a1a1a', fontSize: 12, fontWeight: 700, cursor: 'pointer', marginTop: 8 }}
         >
-          + Demander un partenariat
+          {t('demanderPartenariat')}
         </button>
       )
     }
@@ -248,11 +255,11 @@ const [filterPartenaire, setFilterPartenaire] = useState(false)
     <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
 
       <div style={{ width: 220, minWidth: 220, background: '#fff', borderRight: '1px solid #e8e3d8', padding: '16px 14px', overflowY: 'auto' }}>
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Nom, ville..." style={{ width: '100%', padding: '7px 10px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 12, boxSizing: 'border-box', outline: 'none', color: '#1A202C', marginBottom: 16 }} />
-        <div style={{ fontSize: 11, fontWeight: 700, color: '#8b7355', marginBottom: 6, textTransform: 'uppercase' }}>Type</div>
-        {['Tous', 'marque', 'filature', 'fournisseur_coton'].map(t => (
-          <button key={t} onClick={() => setFilterType(t)} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 10px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 12, marginBottom: 2, background: filterType === t ? '#f0f4ec' : 'transparent', color: filterType === t ? '#2d5016' : '#4a5568', fontWeight: filterType === t ? 700 : 400 }}>
-            {t === 'Tous' ? 'Tous' : typeLabels[t] ?? t}
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('searchPlaceholder')} style={{ width: '100%', padding: '7px 10px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 12, boxSizing: 'border-box', outline: 'none', color: '#1A202C', marginBottom: 16 }} />
+        <div style={{ fontSize: 11, fontWeight: 700, color: '#8b7355', marginBottom: 6, textTransform: 'uppercase' }}>{t('type')}</div>
+        {['Tous', 'marque', 'filature', 'fournisseur_coton'].map(tp => (
+          <button key={tp} onClick={() => setFilterType(tp)} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 10px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 12, marginBottom: 2, background: filterType === tp ? '#f0f4ec' : 'transparent', color: filterType === tp ? '#2d5016' : '#4a5568', fontWeight: filterType === tp ? 700 : 400 }}>
+            {tp === 'Tous' ? t('tous') : typeLabels[tp] ?? tp}
           </button>
         ))}
         <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', padding: '7px 10px', borderRadius: 8, marginTop: 8, background: filterPartenaire ? '#f0f4ec' : 'transparent' }}>
@@ -263,21 +270,21 @@ const [filterPartenaire, setFilterPartenaire] = useState(false)
             style={{ accentColor: '#2d5016', width: 13, height: 13 }}
           />
           <span style={{ fontSize: 12, fontWeight: filterPartenaire ? 700 : 400, color: filterPartenaire ? '#2d5016' : '#4a5568' }}>
-            Mes partenaires
+            {t('mesPartenaires')}
           </span>
         </label>
-        <div style={{ fontSize: 11, fontWeight: 700, color: '#8b7355', margin: '14px 0 6px', textTransform: 'uppercase' }}>Pays</div>
+        <div style={{ fontSize: 11, fontWeight: 700, color: '#8b7355', margin: '14px 0 6px', textTransform: 'uppercase' }}>{t('pays')}</div>
         <select value={filterPays} onChange={e => setFilterPays(e.target.value)} style={{ width: '100%', padding: '7px 10px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 12, background: '#f5f3ef', outline: 'none', marginBottom: 12 }}>
-          <option>Tous</option>
-          {paysList.map(p => <option key={p}>{p}</option>)}
+          <option value="Tous">{t('tous')}</option>
+          {paysList.map(p => <option key={p} value={p}>{p}</option>)}
         </select>
-        <div style={{ fontSize: 11, color: '#8b7355' }}><span style={{ fontWeight: 700, color: '#1a1a1a' }}>{filtered.length}</span> résultat(s)</div>
+        <div style={{ fontSize: 11, color: '#8b7355' }}><span style={{ fontWeight: 700, color: '#1a1a1a' }}>{filtered.length}</span> {t('resultats')}</div>
       </div>
 
       <div style={{ flex: 1, overflow: 'auto', padding: '16px 18px' }}>
         {filtered.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 0', color: '#8b7355' }}>
-            <div style={{ fontSize: 14, fontWeight: 600 }}>Aucun partenaire trouve</div>
+            <div style={{ fontSize: 14, fontWeight: 600 }}>{t('aucunPartenaire')}</div>
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: selected ? '1fr' : '1fr 1fr', gap: 12 }}>
@@ -294,10 +301,10 @@ const [filterPartenaire, setFilterPartenaire] = useState(false)
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
                       <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: p.statut === 'Vérifié' ? '#f0f4ec' : '#fdf8ec', color: p.statut === 'Vérifié' ? '#2d5016' : '#b8860b' }}>
-                        {p.statut === 'Vérifié' ? 'Vérifié' : 'En cours'}
+                        {p.statut === 'Vérifié' ? t('verifie') : t('enCours')}
                       </span>
-                      {ps?.status === 'accepted' && <span style={{ fontSize: 9, fontWeight: 700, color: '#2d5016' }}>✓ Partenaire</span>}
-                      {ps?.status === 'pending' && <span style={{ fontSize: 9, fontWeight: 700, color: '#b8860b' }}>⏳ En attente</span>}
+                      {ps?.status === 'accepted' && <span style={{ fontSize: 9, fontWeight: 700, color: '#2d5016' }}>{'✓ ' + t('partenaire')}</span>}
+                      {ps?.status === 'pending' && <span style={{ fontSize: 9, fontWeight: 700, color: '#b8860b' }}>{'⏳ ' + t('enAttente')}</span>}
                     </div>
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 8 }}>
@@ -308,8 +315,8 @@ const [filterPartenaire, setFilterPartenaire] = useState(false)
                     })}
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
-                    {note ? <span style={{ color: '#F59E0B', fontWeight: 700 }}>{note}</span> : <span style={{ color: '#CBD5E1' }}>Non noté</span>}
-                    {p.capacite_annuelle_tonnes && <span style={{ color: '#4a5568' }}>{(p.capacite_annuelle_tonnes * 1000).toLocaleString('fr-FR')} kg/an</span>}
+                    {note ? <span style={{ color: '#F59E0B', fontWeight: 700 }}>{note}</span> : <span style={{ color: '#CBD5E1' }}>{t('nonNote')}</span>}
+                    {p.capacite_annuelle_tonnes && <span style={{ color: '#4a5568' }}>{(p.capacite_annuelle_tonnes * 1000).toLocaleString('fr-FR')} {t('kgAn')}</span>}
                   </div>
                 </div>
               )
@@ -321,10 +328,10 @@ const [filterPartenaire, setFilterPartenaire] = useState(false)
       {selected && (
         <div style={{ width: 320, minWidth: 320, background: (() => { const ps = getPartnership(selected.id); return ps?.status === 'accepted' ? '#f0f4ec' : ps?.status === 'pending' ? '#fdf8ec' : '#fff' })(), borderLeft: '1px solid #e8e3d8', display: 'flex', flexDirection: 'column' }}>
           <div style={{ padding: '14px 18px', borderBottom: '1px solid #f5f3ef', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontWeight: 700, fontSize: 13, color: '#1a1a1a' }}>Fiche partenaire</span>
+            <span style={{ fontWeight: 700, fontSize: 13, color: '#1a1a1a' }}>{t('fichePartenaire')}</span>
             <div style={{ display: 'flex', gap: 8 }}>
               {userRole === 'admin' && !editMode && (
-                <button onClick={() => ouvrirEdition(selected)} style={{ padding: '4px 10px', borderRadius: 7, border: '1.5px solid #e8e3d8', background: '#f5f3ef', fontSize: 11, cursor: 'pointer', color: '#4a5568' }}>Modifier</button>
+                <button onClick={() => ouvrirEdition(selected)} style={{ padding: '4px 10px', borderRadius: 7, border: '1.5px solid #e8e3d8', background: '#f5f3ef', fontSize: 11, cursor: 'pointer', color: '#4a5568' }}>{t('modifier')}</button>
               )}
               <button onClick={() => { setSelected(null); setEditMode(false) }} style={{ border: 'none', background: 'none', fontSize: 16, color: '#8b7355', cursor: 'pointer' }}>x</button>
             </div>
@@ -339,36 +346,36 @@ const [filterPartenaire, setFilterPartenaire] = useState(false)
                   {selected.capacite_annuelle_tonnes && (
                     <div style={{ marginTop: 10, background: 'rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 12px' }}>
                       <div style={{ fontSize: 16, fontWeight: 800, color: '#c2956e' }}>{(selected.capacite_annuelle_tonnes * 1000).toLocaleString('fr-FR')} kg</div>
-                      <div style={{ fontSize: 10, opacity: 0.65 }}>Capacité annuelle</div>
+                      <div style={{ fontSize: 10, opacity: 0.65 }}>{t('capaciteAnnuelle')}</div>
                     </div>
                   )}
                 </div>
 
                 <div style={{ marginBottom: 14 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#1a1a1a', marginBottom: 8, textTransform: 'uppercase' }}>Adresse</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#1a1a1a', marginBottom: 8, textTransform: 'uppercase' }}>{t('adresse')}</div>
                   {selected.adresse_rue && <div style={{ fontSize: 12, color: '#4a5568', marginBottom: 2 }}>{selected.adresse_rue}</div>}
                   {(selected.code_postal || selected.ville) && <div style={{ fontSize: 12, color: '#4a5568', marginBottom: 2 }}>{selected.code_postal} {selected.ville}</div>}
                   <div style={{ fontSize: 12, color: '#4a5568' }}>{selected.pays}</div>
                 </div>
 
                 <div style={{ marginBottom: 14 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#1a1a1a', marginBottom: 8, textTransform: 'uppercase' }}>Contact</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#1a1a1a', marginBottom: 8, textTransform: 'uppercase' }}>{t('contact')}</div>
                   {selected.email_contact && (
                     <div style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
-                      <span style={{ fontSize: 11, color: '#8b7355', width: 60, flexShrink: 0 }}>Email</span>
-                      <a href={`mailto:${selected.email_contact}`} style={{ fontSize: 12, color: '#1a1a1a', fontWeight: 600, textDecoration: 'none' }}>{selected.email_contact}</a>
+                      <span style={{ fontSize: 11, color: '#8b7355', width: 60, flexShrink: 0 }}>{t('email')}</span>
+                      <a href={'mailto:' + selected.email_contact} style={{ fontSize: 12, color: '#1a1a1a', fontWeight: 600, textDecoration: 'none' }}>{selected.email_contact}</a>
                     </div>
                   )}
                   {selected.telephone && (
                     <div style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
-                      <span style={{ fontSize: 11, color: '#8b7355', width: 60, flexShrink: 0 }}>Tel</span>
+                      <span style={{ fontSize: 11, color: '#8b7355', width: 60, flexShrink: 0 }}>{t('tel')}</span>
                       <span style={{ fontSize: 12, fontWeight: 600, color: '#1A202C' }}>{selected.telephone_indicatif} {selected.telephone}</span>
                     </div>
                   )}
                   {selected.site_web && (
                     <div style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
-                      <span style={{ fontSize: 11, color: '#8b7355', width: 60, flexShrink: 0 }}>Web</span>
-                      <a href={selected.site_web.startsWith('http') ? selected.site_web : `https://${selected.site_web}`} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: '#1a1a1a', fontWeight: 600, textDecoration: 'none' }}>{selected.site_web}</a>
+                      <span style={{ fontSize: 11, color: '#8b7355', width: 60, flexShrink: 0 }}>{t('web')}</span>
+                      <a href={selected.site_web.startsWith('http') ? selected.site_web : 'https://' + selected.site_web} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: '#1a1a1a', fontWeight: 600, textDecoration: 'none' }}>{selected.site_web}</a>
                     </div>
                   )}
                 </div>
@@ -376,9 +383,9 @@ const [filterPartenaire, setFilterPartenaire] = useState(false)
                 {afficherContact(selected) && (selected.contact_nom || selected.contact_prenom) && (
                   <div style={{ marginBottom: 14, padding: '12px 14px', borderRadius: 4, background: '#F0FDF4', border: '1px solid #c8d8b8' }}>
                     <div style={{ fontSize: 11, fontWeight: 700, color: '#2d5016', marginBottom: 6, textTransform: 'uppercase' }}>
-                      Personne de contact
+                      {t('personneContact')}
                       {!selected.contact_visible && userRole === 'admin' && (
-                        <span style={{ fontSize: 9, background: '#fdf8ec', color: '#b8860b', padding: '1px 6px', borderRadius: 4, marginLeft: 6 }}>Admin uniquement</span>
+                        <span style={{ fontSize: 9, background: '#fdf8ec', color: '#b8860b', padding: '1px 6px', borderRadius: 4, marginLeft: 6 }}>{t('adminUniquement')}</span>
                       )}
                     </div>
                     <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>{selected.contact_prenom} {selected.contact_nom}</div>
@@ -387,10 +394,10 @@ const [filterPartenaire, setFilterPartenaire] = useState(false)
                 )}
 
                 <div style={{ marginBottom: 14 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#1a1a1a', marginBottom: 8, textTransform: 'uppercase' }}>Certifications</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#1a1a1a', marginBottom: 8, textTransform: 'uppercase' }}>{t('certifications')}</div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                     {!selected.Certifications?.length ? (
-                      <span style={{ fontSize: 11, color: '#8b7355' }}>Aucune certification</span>
+                      <span style={{ fontSize: 11, color: '#8b7355' }}>{t('aucuneCertification')}</span>
                     ) : selected.Certifications.filter(c => c.valide).map(c => {
                       const [bg, tc] = certColors[c.label] ?? ['#f5f3ef', '#4a5568']
                       return <span key={c.label} style={{ padding: '3px 10px', borderRadius: 4, fontSize: 11, fontWeight: 700, background: bg, color: tc }}>✓ {c.label}</span>
@@ -402,62 +409,62 @@ const [filterPartenaire, setFilterPartenaire] = useState(false)
               </>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 4 }}>Modifier la fiche</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 4 }}>{t('modifierFiche')}</div>
                 <div>
-                  <label style={{ fontSize: 11, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 4 }}>Adresse (rue)</label>
-                  <input value={form.adresse_rue ?? ''} onChange={e => setForm(f => ({ ...f, adresse_rue: e.target.value }))} style={inputStyle} placeholder="12 rue de la Paix" />
+                  <label style={{ fontSize: 11, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 4 }}>{t('adresseRue')}</label>
+                  <input value={form.adresse_rue ?? ''} onChange={e => setForm(f => ({ ...f, adresse_rue: e.target.value }))} style={inputStyle} placeholder={t('adresseRuePlaceholder')} />
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 8 }}>
                   <div>
-                    <label style={{ fontSize: 11, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 4 }}>Code postal</label>
-                    <input value={form.code_postal ?? ''} onChange={e => setForm(f => ({ ...f, code_postal: e.target.value }))} style={inputStyle} placeholder="75001" />
+                    <label style={{ fontSize: 11, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 4 }}>{t('codePostal')}</label>
+                    <input value={form.code_postal ?? ''} onChange={e => setForm(f => ({ ...f, code_postal: e.target.value }))} style={inputStyle} placeholder={t('codePostalPlaceholder')} />
                   </div>
                   <div>
-                    <label style={{ fontSize: 11, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 4 }}>Email contact</label>
-                    <input type="email" value={form.email_contact ?? ''} onChange={e => setForm(f => ({ ...f, email_contact: e.target.value }))} style={inputStyle} placeholder="contact@entreprise.com" />
+                    <label style={{ fontSize: 11, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 4 }}>{t('emailContact')}</label>
+                    <input type="email" value={form.email_contact ?? ''} onChange={e => setForm(f => ({ ...f, email_contact: e.target.value }))} style={inputStyle} placeholder={t('emailContactPlaceholder')} />
                   </div>
                 </div>
                 <div>
-                  <label style={{ fontSize: 11, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 4 }}>Telephone</label>
+                  <label style={{ fontSize: 11, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 4 }}>{t('telephone')}</label>
                   <div style={{ display: 'flex', gap: 6 }}>
                     <select value={form.telephone_indicatif ?? '+33'} onChange={e => setForm(f => ({ ...f, telephone_indicatif: e.target.value }))} style={{ ...inputStyle, width: 110, flexShrink: 0 }}>
                       {Object.entries(INDICATIFS).map(([pays, ind]) => (
                         <option key={pays} value={ind}>{ind} {pays}</option>
                       ))}
                     </select>
-                    <input value={form.telephone ?? ''} onChange={e => setForm(f => ({ ...f, telephone: e.target.value }))} style={inputStyle} placeholder="06 12 34 56 78" />
+                    <input value={form.telephone ?? ''} onChange={e => setForm(f => ({ ...f, telephone: e.target.value }))} style={inputStyle} placeholder={t('telephonePlaceholder')} />
                   </div>
                 </div>
                 <div>
-                  <label style={{ fontSize: 11, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 4 }}>Site web</label>
-                  <input value={form.site_web ?? ''} onChange={e => setForm(f => ({ ...f, site_web: e.target.value }))} style={inputStyle} placeholder="www.entreprise.com" />
+                  <label style={{ fontSize: 11, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 4 }}>{t('siteWeb')}</label>
+                  <input value={form.site_web ?? ''} onChange={e => setForm(f => ({ ...f, site_web: e.target.value }))} style={inputStyle} placeholder={t('siteWebPlaceholder')} />
                 </div>
                 <div style={{ padding: '12px', borderRadius: 4, background: '#f5f3ef', border: '1px solid #e8e3d8' }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#1a1a1a', marginBottom: 10, textTransform: 'uppercase' }}>Personne de contact</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#1a1a1a', marginBottom: 10, textTransform: 'uppercase' }}>{t('personneContact')}</div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
                     <div>
-                      <label style={{ fontSize: 11, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 4 }}>Prenom</label>
-                      <input value={form.contact_prenom ?? ''} onChange={e => setForm(f => ({ ...f, contact_prenom: e.target.value }))} style={inputStyle} placeholder="Marie" />
+                      <label style={{ fontSize: 11, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 4 }}>{t('prenom')}</label>
+                      <input value={form.contact_prenom ?? ''} onChange={e => setForm(f => ({ ...f, contact_prenom: e.target.value }))} style={inputStyle} placeholder={t('prenomPlaceholder')} />
                     </div>
                     <div>
-                      <label style={{ fontSize: 11, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 4 }}>Nom</label>
-                      <input value={form.contact_nom ?? ''} onChange={e => setForm(f => ({ ...f, contact_nom: e.target.value }))} style={inputStyle} placeholder="Dupont" />
+                      <label style={{ fontSize: 11, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 4 }}>{t('nom')}</label>
+                      <input value={form.contact_nom ?? ''} onChange={e => setForm(f => ({ ...f, contact_nom: e.target.value }))} style={inputStyle} placeholder={t('nomPlaceholder')} />
                     </div>
                   </div>
                   <div style={{ marginBottom: 10 }}>
-                    <label style={{ fontSize: 11, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 4 }}>Fonction</label>
-                    <input value={form.contact_fonction ?? ''} onChange={e => setForm(f => ({ ...f, contact_fonction: e.target.value }))} style={inputStyle} placeholder="Directeur commercial" />
+                    <label style={{ fontSize: 11, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 4 }}>{t('fonction')}</label>
+                    <input value={form.contact_fonction ?? ''} onChange={e => setForm(f => ({ ...f, contact_fonction: e.target.value }))} style={inputStyle} placeholder={t('fonctionPlaceholder')} />
                   </div>
                   <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
                     <input type="checkbox" checked={form.contact_visible ?? false} onChange={e => setForm(f => ({ ...f, contact_visible: e.target.checked }))} style={{ accentColor: '#1a1a1a', width: 14, height: 14 }} />
-                    <span style={{ fontSize: 12, color: '#4a5568' }}>Rendre ce contact visible par tous les utilisateurs</span>
+                    <span style={{ fontSize: 12, color: '#4a5568' }}>{t('contactVisibleLabel')}</span>
                   </label>
-                  <div style={{ fontSize: 10, color: '#8b7355', marginTop: 4 }}>Si non coche, visible uniquement par les administrateurs.</div>
+                  <div style={{ fontSize: 10, color: '#8b7355', marginTop: 4 }}>{t('contactVisibleHint')}</div>
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
-                  <button onClick={() => setEditMode(false)} style={{ flex: 1, padding: '8px', borderRadius: 8, border: '1.5px solid #e8e3d8', background: '#f5f3ef', fontSize: 12, cursor: 'pointer' }}>Annuler</button>
+                  <button onClick={() => setEditMode(false)} style={{ flex: 1, padding: '8px', borderRadius: 8, border: '1.5px solid #e8e3d8', background: '#f5f3ef', fontSize: 12, cursor: 'pointer' }}>{t('annuler')}</button>
                   <button onClick={sauvegarder} disabled={saving} style={{ flex: 2, padding: '8px', borderRadius: 8, border: 'none', background: saving ? '#d4c5b0' : '#1a1a1a', color: saving ? '#8b7355' : '#fff', fontSize: 12, fontWeight: 700, cursor: saving ? 'default' : 'pointer' }}>
-                    {saving ? 'Sauvegarde...' : 'Sauvegarder'}
+                    {saving ? t('sauvegardeEnCours') : t('sauvegarder')}
                   </button>
                 </div>
               </div>
@@ -470,7 +477,7 @@ const [filterPartenaire, setFilterPartenaire] = useState(false)
                 onClick={() => contacter(selected)}
                 style={{ width: '100%', padding: '9px', borderRadius: 4, border: 'none', background: selected.email_contact ? '#1a1a1a' : '#d4c5b0', color: selected.email_contact ? '#fff' : '#8b7355', fontSize: 12, fontWeight: 700, cursor: selected.email_contact ? 'pointer' : 'default' }}
               >
-                {selected.email_contact ? 'Contacter' : 'Pas de contact disponible'}
+                {selected.email_contact ? t('contacter') : t('pasDeContact')}
               </button>
               {renderBoutonPartenariat(selected)}
             </div>
