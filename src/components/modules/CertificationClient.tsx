@@ -785,7 +785,7 @@ export default function CertificationClient({
               <div style={{ marginTop: 16, padding: 16, borderRadius: 8, background: '#f5f3ef', border: '1px solid #e8e3d8' }}>
                 <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
                   <img
-                    src={qrCode.data_encodee}
+                    src={"https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=" + encodeURIComponent(qrCode.url_publique)}
                     alt="QR code"
                     style={{ width: 120, height: 120, borderRadius: 4, background: '#fff', padding: 6, border: '1px solid #e8e3d8' }}
                   />
