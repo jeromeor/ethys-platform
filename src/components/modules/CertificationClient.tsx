@@ -793,11 +793,7 @@ export default function CertificationClient({
                     <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 4 }}>{"Page publique de tra\u00e7abilit\u00e9"}</div>
                     <div style={{ fontSize: 12, fontWeight: 600, color: '#1A202C', marginBottom: 10, wordBreak: 'break-all' }}>{qrCode.reference}</div>
                     
-                      href={qrCode.url_publique}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ display: 'inline-block', padding: '8px 14px', borderRadius: 4, background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, textDecoration: 'none' }}
-                    >
+                      <a href={qrCode.url_publique} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', padding: '8px 14px', borderRadius: 4, background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, textDecoration: 'none' }}>
                       {"Voir page publique \u2192"}
                     </a>
                   </div>
