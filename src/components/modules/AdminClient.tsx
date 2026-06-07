@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 
 interface Utilisateur {
@@ -80,15 +81,17 @@ const ROLE_COLORS: Record<string, [string, string]> = {
   fournisseur: ['#fdf8ec', '#b8860b'],
 }
 
-const TABS = ['Utilisateurs', 'Comptes à valider', 'Demandes en attente', 'Export commandes', 'Royalties filatures', 'Sécurité']
+// IDs stables pour les onglets (ne pas traduire) - le label affiché passe par t()
+const TAB_IDS = ['users', 'pending', 'requests', 'export', 'royalties', 'security'] as const
 
 export default function AdminClient({ utilisateurs: initial = [], audit = [], entreprises = [], royalties = [], currentUserId }: Props) {
+  const t = useTranslations('admin')
   const supabase = createClient()
   const [filtreEntreprise, setFiltreEntreprise] = useState('')
   const [filtreDateDebut, setFiltreDateDebut] = useState('')
   const [filtreDateFin, setFiltreDateFin] = useState('')
   const [utilisateurs, setUtilisateurs] = useState<Utilisateur[]>((initial ?? []).slice().sort((a, b) => (a.nom ?? '').localeCompare(b.nom ?? '')))
-  const [activeTab, setActiveTab] = useState('Utilisateurs')
+  const [activeTab, setActiveTab] = useState<string>('users')
   const [selectedUser, setSelectedUser] = useState<Utilisateur | null>(null)
   const [demandes, setDemandes] = useState<DemandeModification[]>([])
   const [demandeForm, setDemandeForm] = useState({ role: '', entreprise_id: '' })
@@ -96,6 +99,7 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
   const [sending, setSending] = useState(false)
   const [confirming, setConfirming] = useState(false)
   const [message, setMessage] = useState('')
+  const [messageType, setMessageType] = useState<'success' | 'error' | ''>('')
   const [exportDateDebut, setExportDateDebut] = useState('')
   const [exportDateFin, setExportDateFin]     = useState('')
   const [exportClient, setExportClient]       = useState('')
@@ -106,36 +110,43 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
   const [royaltyDateFin, setRoyaltyDateFin] = useState('')
   const [exportingRoyalties, setExportingRoyalties] = useState(false)
 
+  // Mapping des labels affichés (traduits)
+  const tabLabels: Record<string, string> = {
+    users: t('tabUsers'),
+    pending: t('tabPending'),
+    requests: t('tabRequests'),
+    export: t('tabExport'),
+    royalties: t('tabRoyalties'),
+    security: t('tabSecurity'),
+  }
+
   const exportRoyaltiesExcel = async () => {
     setExportingRoyalties(true)
     try {
-      // Chargement dynamique de SheetJS
       const XLSX = await import('https://cdn.sheetjs.com/xlsx-0.20.1/package/xlsx.mjs' as any)
-      
+
       const royaltiesFiltrees = royalties.filter(r =>
         !royaltyFiltre || r.filature?.nom?.toLowerCase().includes(royaltyFiltre.toLowerCase())
       )
 
-      // Lignes détail
       const lignes = royaltiesFiltrees.map(r => ({
-        'Référence facture':     r.facture?.reference ?? '-',
-        'Filature':              r.filature?.nom ?? '-',
-        'Marque':                r.marque?.nom ?? '-',
-        'Date facture':          r.date_facture ?? '-',
-        'Date encaissement':     r.date_encaissement ?? '-',
-        'Date échéance royalty': r.date_echeance ?? '-',
-        'Montant HT facture':    Number(r.montant_ht_facture),
-        'Taux royalty':          '1%',
-        'Montant royalty (€)':   Number(r.montant_royalty),
-        'Intérêts retard (€)':   Number(r.interets_retard),
-        'Total dû (€)':          Number(r.montant_total_du),
-        'Statut':                r.statut,
+        [t('xlsRefFacture')]:        r.facture?.reference ?? '-',
+        [t('xlsFilature')]:          r.filature?.nom ?? '-',
+        [t('xlsMarque')]:            r.marque?.nom ?? '-',
+        [t('xlsDateFacture')]:       r.date_facture ?? '-',
+        [t('xlsDateEncaissement')]:  r.date_encaissement ?? '-',
+        [t('xlsDateEcheance')]:      r.date_echeance ?? '-',
+        [t('xlsMontantHT')]:         Number(r.montant_ht_facture),
+        [t('xlsTauxRoyalty')]:       '1%',
+        [t('xlsMontantRoyalty')]:    Number(r.montant_royalty),
+        [t('xlsInterets')]:          Number(r.interets_retard),
+        [t('xlsTotalDu')]:           Number(r.montant_total_du),
+        [t('xlsStatut')]:            r.statut,
       }))
 
-      // Ligne cumul par filature
       const cumuls = Object.values(
         royaltiesFiltrees.reduce((acc, r) => {
-          const nom = r.filature?.nom ?? 'Inconnu'
+          const nom = r.filature?.nom ?? t('inconnu')
           if (!acc[nom]) acc[nom] = { filature: nom, total_royalty: 0, total_du: 0, nb: 0 }
           acc[nom].total_royalty += Number(r.montant_royalty)
           acc[nom].total_du     += Number(r.montant_total_du)
@@ -143,18 +154,18 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
           return acc
         }, {} as Record<string, { filature: string; total_royalty: number; total_du: number; nb: number }>)
       ).map(c => ({
-        'Filature':              c.filature,
-        'Nb relevés':            c.nb,
-        'Total royalties (€)':   c.total_royalty,
-        'Total dû avec intérêts (€)': c.total_du,
+        [t('xlsFilature')]:          c.filature,
+        [t('xlsNbReleves')]:         c.nb,
+        [t('xlsTotalRoyalties')]:    c.total_royalty,
+        [t('xlsTotalDuInterets')]:   c.total_du,
       }))
 
       const wb = XLSX.utils.book_new()
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(lignes),  'Détail')
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(cumuls), 'Cumul par filature')
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(lignes),  t('xlsSheetDetail'))
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(cumuls), t('xlsSheetCumul'))
       XLSX.writeFile(wb, `royalties_filatures_${new Date().toISOString().slice(0,10)}.xlsx`)
     } catch (e) {
-      alert('Erreur export Excel')
+      alert(t('erreurExportExcel'))
     }
     setExportingRoyalties(false)
   }
@@ -164,18 +175,18 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
     window.location.reload()
   }
 
-  // États pour la création de nouvelle entreprise dans "Comptes à valider"
   const [nouvelleEntrepriseNom, setNouvelleEntrepriseNom] = useState<Record<string, string>>({})
   const [nouvelleEntrepriseType, setNouvelleEntrepriseType] = useState<Record<string, string>>({})
   const [createMode, setCreateMode] = useState<Record<string, boolean>>({})
 
+  // Identifiants stables pour les params sécurité, labels traduits via t()
   const [params, setParams] = useState([
-    { label: 'Authentification 2FA', actif: true },
-    { label: 'Sessions auto-expirees', actif: true },
-    { label: 'Chiffrement TLS 1.3', actif: true },
-    { label: 'IP Whitelist Admin', actif: false },
-    { label: 'Audit log complet', actif: true },
-    { label: 'Backups AES-256', actif: true },
+    { key: 'auth2FA', actif: true },
+    { key: 'sessions', actif: true },
+    { key: 'tls', actif: true },
+    { key: 'ipWhitelist', actif: false },
+    { key: 'auditLog', actif: true },
+    { key: 'backups', actif: true },
   ])
 
   const chargerDemandes = async () => {
@@ -185,14 +196,14 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
       .eq('statut', 'en_attente')
       .order('date_demande', { ascending: false })
     setDemandes(data ?? [])
-    setActiveTab('Demandes en attente')
+    setActiveTab('requests')
   }
 
   const toggleStatut = async (id: string) => {
     const user = utilisateurs.find(u => u.id === id)
     if (!user || id === currentUserId) return
-    const action = user.statut === 'actif' ? 'désactiver' : 'réactiver'
-    const confirm = window.confirm(`Voulez-vous vraiment ${action} le compte ${user.email} ?`)
+    const actionLabel = user.statut === 'actif' ? t('actionDesactiver') : t('actionReactiver')
+    const confirm = window.confirm(t('confirmToggle', { action: actionLabel, email: user.email }))
     if (!confirm) return
     const newStatut = user.statut === 'actif' ? 'inactif' : 'actif'
     await supabase.from('profils_utilisateurs').update({ statut: newStatut }).eq('id', id)
@@ -203,6 +214,7 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
     if (!selectedUser || !demandeForm.role) return
     setSending(true)
     setMessage('')
+    setMessageType('')
 
     const { error } = await supabase
       .from('demandes_modification_droits')
@@ -215,17 +227,20 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
       })
 
     if (!error) {
-      setMessage('Demande soumise. Un second administrateur devra valider cette modification.')
+      setMessage(t('demandeSoumise'))
+      setMessageType('success')
       setSelectedUser(null)
     } else {
-      setMessage('Erreur lors de la soumission.')
+      setMessage(t('erreurSoumission'))
+      setMessageType('error')
     }
     setSending(false)
   }
 
   const validerDemande = async (demande: DemandeModification) => {
     if (demande.demandeur_id === currentUserId) {
-      setMessage('Vous ne pouvez pas valider votre propre demande.')
+      setMessage(t('erreurPropreDemande'))
+      setMessageType('error')
       return
     }
     setConfirming(true)
@@ -284,10 +299,10 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8, padding: '6px 22px', flexShrink: 0 }}>
         {[
-          { label: 'Utilisateurs actifs', value: String(nbActifs), bg: '#f0f4ec', tc: '#2d5016' },
-          { label: 'Alertes Sécurité', value: String(nbAlertes), bg: nbAlertes > 0 ? '#FEE2E2' : '#f5f3ef', tc: nbAlertes > 0 ? '#991B1B' : '#4a5568' },
-          { label: 'Conformité RGPD', value: '100%', bg: '#F0FDF4', tc: '#2d5016' },
-          { label: 'Score Sécurité', value: secScore + '%', bg: '#DBEAFE', tc: '#1E40AF' },
+          { label: t('kpiUtilisateursActifs'), value: String(nbActifs), bg: '#f0f4ec', tc: '#2d5016' },
+          { label: t('kpiAlertesSecurite'), value: String(nbAlertes), bg: nbAlertes > 0 ? '#FEE2E2' : '#f5f3ef', tc: nbAlertes > 0 ? '#991B1B' : '#4a5568' },
+          { label: t('kpiConformiteRGPD'), value: '100%', bg: '#F0FDF4', tc: '#2d5016' },
+          { label: t('kpiScoreSecurite'), value: secScore + '%', bg: '#DBEAFE', tc: '#1E40AF' },
         ].map((k, i) => (
           <div key={i} style={{ background: '#fff', borderRadius: 4, border: '1px solid #e8e3d8', padding: '8px 12px' }}>
             <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 2 }}>{k.label}</div>
@@ -299,22 +314,22 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }} onClick={() => setShowInvite(false)}>
             <div style={{ background: '#fff', borderRadius: 8, padding: '26px 30px', width: 420, boxShadow: '0 24px 64px rgba(0,0,0,0.15)' }} onClick={e => e.stopPropagation()}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
-                <span style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>Inviter un utilisateur</span>
+                <span style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>{t('inviterUtilisateur')}</span>
                 <button onClick={() => setShowInvite(false)} style={{ border: 'none', background: 'none', fontSize: 18, cursor: 'pointer' }}>x</button>
               </div>
               <div style={{ marginBottom: 14 }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Email</label>
-                <input type="email" placeholder="julie@entreprise.fr" style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 13, boxSizing: 'border-box', outline: 'none', color: '#1A202C' }} />
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>{t('email')}</label>
+                <input type="email" placeholder={t('emailPlaceholder')} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 13, boxSizing: 'border-box', outline: 'none', color: '#1A202C' }} />
               </div>
               <div style={{ marginBottom: 20 }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Role</label>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>{t('role')}</label>
                 <select style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 13, outline: 'none' }}>
                   {['marque', 'filature', 'fournisseur', 'admin'].map(r => <option key={r}>{r}</option>)}
                 </select>
               </div>
               <div style={{ display: 'flex', gap: 10 }}>
-                <button onClick={() => setShowInvite(false)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#8b7355', fontSize: 13, cursor: 'pointer' }}>Annuler</button>
-                <button onClick={() => setShowInvite(false)} style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Envoyer invitation</button>
+                <button onClick={() => setShowInvite(false)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#8b7355', fontSize: 13, cursor: 'pointer' }}>{t('annuler')}</button>
+                <button onClick={() => setShowInvite(false)} style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>{t('envoyerInvitation')}</button>
               </div>
             </div>
           </div>
@@ -322,16 +337,16 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
       </div>
 
       <div style={{ display: 'flex', borderBottom: '2px solid #e8e3d8', padding: '0 22px', background: '#fff', flexShrink: 0 }}>
-        {TABS.map(t => (
-          <button key={t} onClick={() => { setActiveTab(t); if (t === 'Demandes en attente') chargerDemandes() }} style={{
+        {TAB_IDS.map(tabId => (
+          <button key={tabId} onClick={() => { setActiveTab(tabId); if (tabId === 'requests') chargerDemandes() }} style={{
             padding: '10px 16px', border: 'none', background: 'none', cursor: 'pointer',
-            fontSize: 13, fontWeight: activeTab === t ? 700 : 500,
-            color: activeTab === t ? '#1a1a1a' : '#8b7355',
-            borderBottom: activeTab === t ? '2px solid #1a1a1a' : '2px solid transparent',
+            fontSize: 13, fontWeight: activeTab === tabId ? 700 : 500,
+            color: activeTab === tabId ? '#1a1a1a' : '#8b7355',
+            borderBottom: activeTab === tabId ? '2px solid #1a1a1a' : '2px solid transparent',
             marginBottom: -2
           }}>
-            {t}
-            {t === 'Comptes à valider' && utilisateurs.filter(u => !u.entreprise_id && u.role !== 'admin').length > 0 && (
+            {tabLabels[tabId]}
+            {tabId === 'pending' && utilisateurs.filter(u => !u.entreprise_id && u.role !== 'admin').length > 0 && (
               <span style={{ marginLeft: 6, background: '#EF4444', color: '#fff', borderRadius: '50%', minWidth: 18, height: 18, fontSize: 10, fontWeight: 700, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>
                 {utilisateurs.filter(u => !u.entreprise_id && u.role !== 'admin').length}
               </span>
@@ -339,30 +354,30 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
           </button>
         ))}
         <div style={{ flex: 1 }} />
-        <button onClick={() => setShowInvite(true)} style={{ margin: '4px 0', padding: '5px 12px', borderRadius: 8, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer', alignSelf: 'center' }}>+ Inviter</button>
+        <button onClick={() => setShowInvite(true)} style={{ margin: '4px 0', padding: '5px 12px', borderRadius: 8, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer', alignSelf: 'center' }}>{t('btnInviter')}</button>
       </div>
 
       {message && (
-        <div style={{ margin: '12px 22px 0', padding: '10px 14px', borderRadius: 8, background: message.includes('Erreur') ? '#fdf0f0' : '#F0FDF4', border: `1px solid ${message.includes('Erreur') ? '#c8a0a0' : '#c8d8b8'}`, fontSize: 12, color: message.includes('Erreur') ? '#8b3a3a' : '#2d5016' }}>
+        <div style={{ margin: '12px 22px 0', padding: '10px 14px', borderRadius: 8, background: messageType === 'error' ? '#fdf0f0' : '#F0FDF4', border: `1px solid ${messageType === 'error' ? '#c8a0a0' : '#c8d8b8'}`, fontSize: 12, color: messageType === 'error' ? '#8b3a3a' : '#2d5016' }}>
           {message}
         </div>
       )}
 
       <div style={{ flex: 1, overflow: 'auto', padding: '16px 22px' }}>
 
-        {activeTab === 'Utilisateurs' && (
+        {activeTab === 'users' && (
           <>
             <div style={{ padding: '12px 22px', borderBottom: '1px solid #e8e3d8', display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
               <select value={filtreEntreprise} onChange={e => setFiltreEntreprise(e.target.value)} style={{ padding: '6px 12px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 12, color: '#1a1a1a', background: '#fff' }}>
-                <option value=''>Toutes les entreprises</option>
+                <option value=''>{t('toutesEntreprises')}</option>
                 {entreprises.map(e => <option key={e.id} value={e.id}>{e.nom}</option>)}
               </select>
               <input type="date" value={filtreDateDebut} onChange={e => setFiltreDateDebut(e.target.value)} style={{ padding: '6px 10px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none' }} />
-              <span style={{ fontSize: 12, color: '#8b7355' }}>au</span>
+              <span style={{ fontSize: 12, color: '#8b7355' }}>{t('au')}</span>
               <input type="date" value={filtreDateFin} onChange={e => setFiltreDateFin(e.target.value)} style={{ padding: '6px 10px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none' }} />
               {(filtreDateDebut || filtreDateFin) && (
                 <button onClick={() => { setFiltreDateDebut(''); setFiltreDateFin('') }} style={{ padding: '6px 10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', fontSize: 11, color: '#8b7355', cursor: 'pointer' }}>
-                  Reinitialiser
+                  {t('reinitialiser')}
                 </button>
               )}
             </div>
@@ -370,7 +385,7 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ background: '#f5f3ef' }}>
-                    {['Nom', 'Prénom', 'Email', 'Role', 'Entreprise', 'Statut', 'Dernière connexion', 'Actions'].map(h => (
+                    {[t('hNom'), t('hPrenom'), t('hEmail'), t('hRole'), t('hEntreprise'), t('hStatut'), t('hDerniereConnexion'), t('hActions')].map(h => (
                       <th key={h} style={{ padding: '10px 16px', fontSize: 11, fontWeight: 600, color: '#8b7355', textAlign: 'left', textTransform: 'uppercase' }}>{h}</th>
                     ))}
                   </tr>
@@ -396,16 +411,16 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
                           <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: u.statut === 'actif' ? '#f0f4ec' : '#f5f3ef', color: u.statut === 'actif' ? '#2d5016' : '#8b7355' }}>{u.statut}</span>
                         </td>
                         <td style={{ padding: '12px 16px', fontSize: 11, color: '#8b7355' }}>
-                          {u.derniere_connexion ? new Date(u.derniere_connexion).toLocaleDateString('fr-FR') + ' ' + new Date(u.derniere_connexion).toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'}) : '-'}
+                          {u.derniere_connexion ? new Date(u.derniere_connexion).toLocaleDateString() + ' ' + new Date(u.derniere_connexion).toLocaleTimeString(undefined, {hour: '2-digit', minute: '2-digit'}) : '-'}
                         </td>
                         <td style={{ padding: '12px 16px' }}>
                           <div style={{ display: 'flex', gap: 6 }}>
-                            <button onClick={() => { setSelectedUser(u); setDemandeForm({ role: u.role, entreprise_id: u.entreprise_id ?? '' }); setMessage('') }} style={{ padding: '4px 10px', borderRadius: 7, border: '1.5px solid #e8e3d8', background: '#f5f3ef', fontSize: 11, cursor: 'pointer' }}>
-                              Modifier droits
+                            <button onClick={() => { setSelectedUser(u); setDemandeForm({ role: u.role, entreprise_id: u.entreprise_id ?? '' }); setMessage(''); setMessageType('') }} style={{ padding: '4px 10px', borderRadius: 7, border: '1.5px solid #e8e3d8', background: '#f5f3ef', fontSize: 11, cursor: 'pointer' }}>
+                              {t('modifierDroits')}
                             </button>
                             {u.id !== currentUserId && (
                               <button onClick={() => toggleStatut(u.id)} style={{ padding: '4px 10px', borderRadius: 7, border: 'none', background: u.statut === 'actif' ? '#FEE2E2' : '#f0f4ec', color: u.statut === 'actif' ? '#8b3a3a' : '#2d5016', fontSize: 11, cursor: 'pointer' }}>
-                                {u.statut === 'actif' ? 'Désactiver' : 'Activer'}
+                                {u.statut === 'actif' ? t('desactiver') : t('activer')}
                               </button>
                             )}
                           </div>
@@ -419,13 +434,13 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
           </>
         )}
 
-        {activeTab === 'Comptes à valider' && (
+        {activeTab === 'pending' && (
           <div>
             {utilisateurs.filter(u => !u.entreprise_id && u.role !== 'admin').length === 0 ? (
               <div style={{ textAlign: 'center', padding: '60px', color: '#8b7355' }}>
                 <div style={{ fontSize: 32, marginBottom: 12 }}></div>
-                <div style={{ fontSize: 14, fontWeight: 600 }}>Aucun compte en attente</div>
-                <div style={{ fontSize: 12, marginTop: 4 }}>Tous les comptes sont validés.</div>
+                <div style={{ fontSize: 14, fontWeight: 600 }}>{t('aucunCompteAttente')}</div>
+                <div style={{ fontSize: 12, marginTop: 4 }}>{t('tousValides')}</div>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -434,12 +449,12 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
                       <div>
                         <div style={{ fontSize: 13, fontWeight: 700, color: '#1A202C', marginBottom: 4 }}>{u.email}</div>
-                        <div style={{ fontSize: 11, color: '#8b7355' }}>Rôle : {u.role} · Inscrit le {new Date(u.created_at).toLocaleDateString('fr-FR')}</div>
+                        <div style={{ fontSize: 11, color: '#8b7355' }}>{t('roleColon')} {u.role} · {t('inscritLe')} {new Date(u.created_at).toLocaleDateString()}</div>
                       </div>
-                      <span style={{ padding: '3px 10px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: '#fdf8ec', color: '#b8860b' }}>En attente</span>
+                      <span style={{ padding: '3px 10px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: '#fdf8ec', color: '#b8860b' }}>{t('enAttente')}</span>
                     </div>
                     <div style={{ marginBottom: 12 }}>
-                      <div style={{ fontSize: 11, fontWeight: 600, color: '#4a5568', marginBottom: 6 }}>Associer à une entreprise :</div>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: '#4a5568', marginBottom: 6 }}>{t('associerEntreprise')}</div>
                       <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
                           <select
@@ -447,15 +462,15 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
                             onChange={e => setCreateMode(prev => ({ ...prev, [u.id]: e.target.value === '__new__' }))}
                             style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none' }}
                           >
-                            <option value="">Sélectionner une entreprise...</option>
+                            <option value="">{t('selectionnerEntreprise')}</option>
                             {entreprises.map(e => <option key={e.id} value={e.id}>{e.nom} ({e.type})</option>)}
-                            <option value="__new__">+ Créer une nouvelle entreprise</option>
+                            <option value="__new__">{t('creerNouvelleEntreprise')}</option>
                           </select>
                           {createMode[u.id] && (
                             <div style={{ display: 'flex', gap: 8 }}>
                               <input
                                 type="text"
-                                placeholder="Nom de l'entreprise"
+                                placeholder={t('nomEntreprise')}
                                 value={nouvelleEntrepriseNom[u.id] ?? ''}
                                 onChange={e => setNouvelleEntrepriseNom(prev => ({ ...prev, [u.id]: e.target.value }))}
                                 style={{ flex: 2, padding: '8px 10px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none' }}
@@ -476,35 +491,34 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
                             let entrepriseId = sel?.value
                             if (!entrepriseId) return
 
-                            // Créer une nouvelle entreprise si demandé
                             if (entrepriseId === '__new__') {
                               const nom = nouvelleEntrepriseNom[u.id]?.trim()
-                              if (!nom) { alert("Veuillez saisir un nom d'entreprise."); return }
+                              if (!nom) { alert(t('alertNomEntreprise')); return }
                               const type = nouvelleEntrepriseType[u.id] ?? 'filature'
                               const { data: newEnt, error } = await supabase
                                 .from('entreprises')
                                 .insert({ nom, type, statut: 'actif' })
                                 .select('id')
                                 .single()
-                              if (error || !newEnt) { alert('Erreur création entreprise : ' + error?.message); return }
+                              if (error || !newEnt) { alert(t('erreurCreationEntreprise') + ' ' + (error?.message ?? '')); return }
                               entrepriseId = newEnt.id
                             }
 
                             const entreprise = entreprises.find(e => e.id === entrepriseId)
                             const nomAffiche = entreprise?.nom ?? nouvelleEntrepriseNom[u.id] ?? entrepriseId
-                            if (!window.confirm('Première confirmation : associer ' + u.email + ' avec ' + nomAffiche + ' ?')) return
-                            if (!window.confirm('Deuxième confirmation : cette action est immédiate et donnera accès complet à ' + u.email + '. Continuer ?')) return
+                            if (!window.confirm(t('confirm1', { email: u.email, nom: nomAffiche }))) return
+                            if (!window.confirm(t('confirm2', { email: u.email }))) return
                             await supabase.from('profils_utilisateurs').update({ entreprise_id: entrepriseId }).eq('id', u.id)
                             window.location.reload()
                           }}
                           style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', flexShrink: 0, alignSelf: 'flex-start' }}
                         >
-                          Valider
+                          {t('valider')}
                         </button>
                       </div>
                     </div>
                     <div style={{ fontSize: 11, color: '#8b7355' }}>
-                      L'association sera immédiate. Le compte aura accès complet après validation.
+                      {t('associationImmediate')}
                     </div>
                   </div>
                 ))}
@@ -513,13 +527,13 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
           </div>
         )}
 
-        {activeTab === 'Demandes en attente' && (
+        {activeTab === 'requests' && (
           <div>
             {demandes.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '60px', color: '#8b7355' }}>
                 <div style={{ fontSize: 32, marginBottom: 12 }}>v</div>
-                <div style={{ fontSize: 14, fontWeight: 600 }}>Aucune demande en attente</div>
-                <div style={{ fontSize: 12, marginTop: 4 }}>Toutes les modifications de droits ont été traitées.</div>
+                <div style={{ fontSize: 14, fontWeight: 600 }}>{t('aucuneDemande')}</div>
+                <div style={{ fontSize: 12, marginTop: 4 }}>{t('toutesTraitees')}</div>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -533,28 +547,28 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
                         <div>
                           <div style={{ fontSize: 13, fontWeight: 700, color: '#1A202C', marginBottom: 4 }}>
-                            Modification droits — {cible?.email ?? d.cible_user_id}
+                            {t('modifDroits')} {cible?.email ?? d.cible_user_id}
                           </div>
                           <div style={{ fontSize: 11, color: '#8b7355' }}>
-                            demandée par {demandeur?.email ?? 'Admin'} · {new Date(d.date_demande).toLocaleDateString('fr-FR')}
+                            {t('demandeePar')} {demandeur?.email ?? 'Admin'} · {new Date(d.date_demande).toLocaleDateString()}
                           </div>
                         </div>
                         {estMaDemande && (
                           <span style={{ padding: '3px 10px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: '#fdf8ec', color: '#b8860b' }}>
-                            Votre demande
+                            {t('votreDemande')}
                           </span>
                         )}
                       </div>
                       <div style={{ display: 'flex', gap: 12, marginBottom: 14 }}>
                         <div style={{ flex: 1, padding: '10px 14px', borderRadius: 8, background: '#f5f3ef', border: '1px solid #e8e3d8' }}>
-                          <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 4 }}>Role actuel</div>
+                          <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 4 }}>{t('roleActuel')}</div>
                           <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 700, background: ROLE_COLORS[cible?.role ?? 'marque']?.[0], color: ROLE_COLORS[cible?.role ?? 'marque']?.[1] }}>
                             {cible?.role ?? '-'}
                           </span>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', fontSize: 18, color: '#8b7355' }}>→</div>
                         <div style={{ flex: 1, padding: '10px 14px', borderRadius: 8, background: '#F0FDF4', border: '1px solid #c8d8b8' }}>
-                          <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 4 }}>Nouveau role</div>
+                          <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 4 }}>{t('nouveauRole')}</div>
                           <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 700, background: rbg, color: rtc }}>
                             {d.nouveau_role}
                           </span>
@@ -562,15 +576,15 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
                       </div>
                       {estMaDemande ? (
                         <div style={{ padding: '10px 14px', borderRadius: 8, background: '#fdf8ec', border: '1px solid #b8860b', fontSize: 12, color: '#b8860b' }}>
-                          En attente de validation par un autre administrateur. Vous ne pouvez pas valider votre propre demande.
+                          {t('attenteAutreAdmin')}
                         </div>
                       ) : (
                         <div style={{ display: 'flex', gap: 10 }}>
                           <button onClick={() => refuserDemande(d.id)} style={{ flex: 1, padding: '9px', borderRadius: 4, border: '1.5px solid #c8a0a0', background: '#fdf0f0', color: '#8b3a3a', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
-                            Refuser
+                            {t('refuser')}
                           </button>
                           <button onClick={() => validerDemande(d)} disabled={confirming} style={{ flex: 2, padding: '9px', borderRadius: 4, border: 'none', background: confirming ? '#d4c5b0' : '#1a1a1a', color: confirming ? '#8b7355' : '#fff', fontSize: 12, fontWeight: 700, cursor: confirming ? 'default' : 'pointer' }}>
-                            {confirming ? 'Validation...' : 'Valider la modification'}
+                            {confirming ? t('validationEnCours') : t('validerModif')}
                           </button>
                         </div>
                       )}
@@ -582,64 +596,63 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
           </div>
         )}
 
-        {activeTab === 'Export commandes' && (
+        {activeTab === 'export' && (
           <div style={{ maxWidth: 560 }}>
             <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '24px 28px' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 20 }}>Filtres export</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 20 }}>{t('filtresExport')}</div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
                 <div>
-                  <label style={{ fontSize: 11, fontWeight: 600, color: '#8b7355', display: 'block', marginBottom: 5 }}>Date début</label>
+                  <label style={{ fontSize: 11, fontWeight: 600, color: '#8b7355', display: 'block', marginBottom: 5 }}>{t('dateDebut')}</label>
                   <input type="date" value={exportDateDebut} onChange={e => setExportDateDebut(e.target.value)}
                     style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 12, boxSizing: 'border-box' }} />
                 </div>
                 <div>
-                  <label style={{ fontSize: 11, fontWeight: 600, color: '#8b7355', display: 'block', marginBottom: 5 }}>Date fin</label>
+                  <label style={{ fontSize: 11, fontWeight: 600, color: '#8b7355', display: 'block', marginBottom: 5 }}>{t('dateFin')}</label>
                   <input type="date" value={exportDateFin} onChange={e => setExportDateFin(e.target.value)}
                     style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 12, boxSizing: 'border-box' }} />
                 </div>
               </div>
               <div style={{ marginBottom: 14 }}>
-                <label style={{ fontSize: 11, fontWeight: 600, color: '#8b7355', display: 'block', marginBottom: 5 }}>Client (marque)</label>
-                <input type="text" placeholder="Nom de la marque..." value={exportClient} onChange={e => setExportClient(e.target.value)}
+                <label style={{ fontSize: 11, fontWeight: 600, color: '#8b7355', display: 'block', marginBottom: 5 }}>{t('clientMarque')}</label>
+                <input type="text" placeholder={t('clientPlaceholder')} value={exportClient} onChange={e => setExportClient(e.target.value)}
                   style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 12, boxSizing: 'border-box' }} />
               </div>
               <div style={{ marginBottom: 24 }}>
-                <label style={{ fontSize: 11, fontWeight: 600, color: '#8b7355', display: 'block', marginBottom: 5 }}>Zone</label>
+                <label style={{ fontSize: 11, fontWeight: 600, color: '#8b7355', display: 'block', marginBottom: 5 }}>{t('zone')}</label>
                 <select value={exportZone} onChange={e => setExportZone(e.target.value)}
                   style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1.5px solid #d4c5b0', fontSize: 12 }}>
-                  <option value=''>Toutes les zones</option>
-                  <option value='Europe'>Europe</option>
-                  <option value='Asie'>Asie</option>
-                  <option value='Amérique du Nord'>Amérique du Nord</option>
-                  <option value='Amérique du Sud'>Amérique du Sud</option>
-                  <option value='Afrique'>Afrique</option>
-                  <option value='Autre'>Autre</option>
+                  <option value=''>{t('toutesZones')}</option>
+                  <option value='Europe'>{t('zoneEurope')}</option>
+                  <option value='Asie'>{t('zoneAsie')}</option>
+                  <option value='Amérique du Nord'>{t('zoneAmeriqueNord')}</option>
+                  <option value='Amérique du Sud'>{t('zoneAmeriqueSud')}</option>
+                  <option value='Afrique'>{t('zoneAfrique')}</option>
+                  <option value='Autre'>{t('zoneAutre')}</option>
                 </select>
               </div>
               <button onClick={exportCommandes} disabled={exporting}
                 style={{ width: '100%', padding: '12px', borderRadius: 4, border: 'none', background: exporting ? '#d4c5b0' : '#1a1a1a', color: exporting ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: exporting ? 'default' : 'pointer' }}>
-                {exporting ? 'Génération...' : '⬇ Exporter CSV'}
+                {exporting ? t('generationEnCours') : t('exporterCSV')}
               </button>
             </div>
           </div>
         )}
 
-        {activeTab === 'Royalties filatures' && (
+        {activeTab === 'royalties' && (
           <div>
-            {/* Barre filtre + export */}
             <div style={{ display: 'flex', gap: 10, marginBottom: 16, alignItems: 'center' }}>
               <select
-  value={royaltyFiltre}
-  onChange={e => setRoyaltyFiltre(e.target.value)}
-  style={{ padding: '8px 12px', borderRadius: 6, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none', minWidth: 200 }}
->
-  <option value="">Toutes</option>
-  {entreprises
-    .filter(e => e.type === 'filature')
-    .sort((a, b) => a.nom.localeCompare(b.nom))
-    .map(e => <option key={e.id} value={e.nom}>{e.nom}</option>)
-  }
-</select>
+                value={royaltyFiltre}
+                onChange={e => setRoyaltyFiltre(e.target.value)}
+                style={{ padding: '8px 12px', borderRadius: 6, border: '1.5px solid #d4c5b0', fontSize: 12, outline: 'none', minWidth: 200 }}
+              >
+                <option value="">{t('toutes')}</option>
+                {entreprises
+                  .filter(e => e.type === 'filature')
+                  .sort((a, b) => a.nom.localeCompare(b.nom))
+                  .map(e => <option key={e.id} value={e.nom}>{e.nom}</option>)
+                }
+              </select>
               <input
                 type="date"
                 value={royaltyDateDebut}
@@ -658,23 +671,21 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
                 disabled={exportingRoyalties}
                 style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: exportingRoyalties ? '#d4c5b0' : '#2d5016', color: '#fff', fontSize: 12, fontWeight: 700, cursor: exportingRoyalties ? 'default' : 'pointer' }}
               >
-                {exportingRoyalties ? 'Export...' : '⬇ Export Excel'}
+                {exportingRoyalties ? t('exportEnCours') : t('exportExcel')}
               </button>
-              {/* Compteur total */}
               <span style={{ fontSize: 12, color: '#8b7355', marginLeft: 'auto' }}>
                 {royalties.filter(r =>
                   (!royaltyFiltre || r.filature?.nom === royaltyFiltre) &&
                   (!royaltyDateDebut || (r.date_facture ?? '') >= royaltyDateDebut) &&
                   (!royaltyDateFin   || (r.date_facture ?? '') <= royaltyDateFin)
-                ).length} relevé(s)
+                ).length} {t('releves')}
               </span>
             </div>
 
-            {/* Tableau */}
             {royalties.length === 0 ? (
               <div style={{ textAlign: 'center', padding: 60, color: '#8b7355' }}>
-                <div style={{ fontSize: 14, fontWeight: 600 }}>Aucune royalty enregistrée</div>
-                <div style={{ fontSize: 12, marginTop: 4 }}>Les royalties apparaissent automatiquement à l'encaissement des factures.</div>
+                <div style={{ fontSize: 14, fontWeight: 600 }}>{t('aucuneRoyalty')}</div>
+                <div style={{ fontSize: 12, marginTop: 4 }}>{t('royaltiesAuto')}</div>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -696,29 +707,29 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
                     return (
                       <div key={i} style={{ background: '#fff', borderRadius: 8, border: `1.5px solid ${enRetard ? '#EF4444' : '#e8e3d8'}`, padding: '14px 18px', display: 'grid', gridTemplateColumns: '2fr 2fr 1fr 1fr 1fr 1fr auto', gap: 12, alignItems: 'center' }}>
                         <div>
-                          <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 2 }}>Filature</div>
+                          <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 2 }}>{t('rFilature')}</div>
                           <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>{r.filature?.nom ?? '-'}</div>
                         </div>
                         <div>
-                          <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 2 }}>Marque · Facture</div>
+                          <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 2 }}>{t('rMarqueFacture')}</div>
                           <div style={{ fontSize: 12, color: '#4a5568' }}>{r.marque?.nom ?? '-'} · {r.facture?.reference ?? '-'}</div>
                         </div>
                         <div>
-                          <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 2 }}>HT facture</div>
-                          <div style={{ fontSize: 12, fontWeight: 600 }}>{Number(r.montant_ht_facture).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</div>
+                          <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 2 }}>{t('rHTFacture')}</div>
+                          <div style={{ fontSize: 12, fontWeight: 600 }}>{Number(r.montant_ht_facture).toLocaleString(undefined, { style: 'currency', currency: 'EUR' })}</div>
                         </div>
                         <div>
-                          <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 2 }}>Royalty 1%</div>
-                          <div style={{ fontSize: 12, fontWeight: 700, color: '#2d5016' }}>{Number(r.montant_royalty).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</div>
+                          <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 2 }}>{t('rRoyalty')}</div>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: '#2d5016' }}>{Number(r.montant_royalty).toLocaleString(undefined, { style: 'currency', currency: 'EUR' })}</div>
                         </div>
                         <div>
-                          <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 2 }}>Total dû</div>
-                          <div style={{ fontSize: 12, fontWeight: 700, color: enRetard ? '#991B1B' : '#1a1a1a' }}>{Number(r.montant_total_du).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</div>
+                          <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 2 }}>{t('rTotalDu')}</div>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: enRetard ? '#991B1B' : '#1a1a1a' }}>{Number(r.montant_total_du).toLocaleString(undefined, { style: 'currency', currency: 'EUR' })}</div>
                         </div>
                         <div>
-                          <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 2 }}>Échéance</div>
+                          <div style={{ fontSize: 11, color: '#8b7355', marginBottom: 2 }}>{t('rEcheance')}</div>
                           <div style={{ fontSize: 11, color: enRetard ? '#991B1B' : '#4a5568', fontWeight: enRetard ? 700 : 400 }}>
-                            {r.date_echeance ? new Date(r.date_echeance).toLocaleDateString('fr-FR') : '-'}
+                            {r.date_echeance ? new Date(r.date_echeance).toLocaleDateString() : '-'}
                             {enRetard && ' ⚠'}
                           </div>
                         </div>
@@ -729,7 +740,7 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
                               onClick={() => marquerRoyaltyPayee(r.id)}
                               style={{ padding: '4px 8px', borderRadius: 4, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 10, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
                             >
-                              Marquer payé
+                              {t('marquerPaye')}
                             </button>
                           )}
                         </div>
@@ -740,14 +751,14 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
             )}
           </div>
         )}
-        
-        {activeTab === 'Sécurité' && (
+
+        {activeTab === 'security' && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '20px 22px' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 14 }}>Paramètres</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 14 }}>{t('parametres')}</div>
               {params.map((p, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '10px 0', borderBottom: i < params.length - 1 ? '1px solid #f5f3ef' : 'none' }}>
-                  <span style={{ flex: 1, fontSize: 12, fontWeight: 600 }}>{p.label}</span>
+                  <span style={{ flex: 1, fontSize: 12, fontWeight: 600 }}>{t('param_' + p.key)}</span>
                   <div onClick={() => setParams(prev => prev.map((x, j) => j === i ? { ...x, actif: !x.actif } : x))} style={{ width: 38, height: 20, borderRadius: 4, cursor: 'pointer', background: p.actif ? '#1a1a1a' : '#CBD5E1', position: 'relative', flexShrink: 0 }}>
                     <div style={{ position: 'absolute', top: 2, left: p.actif ? 20 : 2, width: 16, height: 16, borderRadius: '50%', background: '#fff', transition: 'left 0.2s' }} />
                   </div>
@@ -755,17 +766,17 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
               ))}
             </div>
             <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e8e3d8', padding: '20px 22px' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 14 }}>Journal d'audit récent</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 14 }}>{t('journalAudit')}</div>
               {audit.slice(0, 10).map((ev, i) => (
                 <div key={i} style={{ display: 'flex', gap: 10, padding: '8px 0', borderBottom: '1px solid #f5f3ef', fontSize: 11 }}>
                   <span style={{ color: ev.niveau === 'alert' ? '#8b3a3a' : '#8b7355', flexShrink: 0 }}>
                     {ev.niveau === 'alert' ? '!' : 'i'}
                   </span>
                   <span style={{ flex: 1, color: '#4a5568' }}>{ev.action}</span>
-                  <span style={{ color: '#CBD5E1' }}>{new Date(ev.created_at).toLocaleDateString('fr-FR')}</span>
+                  <span style={{ color: '#CBD5E1' }}>{new Date(ev.created_at).toLocaleDateString()}</span>
                 </div>
               ))}
-              {audit.length === 0 && <div style={{ fontSize: 12, color: '#8b7355', textAlign: 'center', padding: '20px' }}>Aucune entrée</div>}
+              {audit.length === 0 && <div style={{ fontSize: 12, color: '#8b7355', textAlign: 'center', padding: '20px' }}>{t('aucuneEntree')}</div>}
             </div>
           </div>
         )}
@@ -775,32 +786,32 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }} onClick={() => setSelectedUser(null)}>
           <div style={{ background: '#fff', borderRadius: 8, padding: '26px 30px', width: 460, boxShadow: '0 24px 64px rgba(0,0,0,0.15)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-              <span style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>Modifier les droits</span>
+              <span style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>{t('modalModifierDroits')}</span>
               <button onClick={() => setSelectedUser(null)} style={{ border: 'none', background: 'none', fontSize: 18, cursor: 'pointer' }}>x</button>
             </div>
             <div style={{ padding: '10px 14px', borderRadius: 8, background: '#fdf8ec', border: '1px solid #b8860b', fontSize: 12, color: '#b8860b', marginBottom: 16 }}>
-              Cette modification nécessite la validation d'un second administrateur avant d'être appliquée.
+              {t('modalValidationRequise')}
             </div>
             <div style={{ fontSize: 12, color: '#4a5568', marginBottom: 16 }}>
-              Utilisateur : <strong>{selectedUser.email}</strong>
+              {t('utilisateurColon')} <strong>{selectedUser.email}</strong>
             </div>
             <div style={{ marginBottom: 16 }}>
-              <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Nouveau role</label>
+              <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>{t('nouveauRole')}</label>
               <select value={demandeForm.role} onChange={e => setDemandeForm(f => ({ ...f, role: e.target.value }))} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 13, outline: 'none' }}>
                 {['admin', 'marque', 'filature', 'fournisseur'].map(r => <option key={r} value={r}>{r}</option>)}
               </select>
             </div>
             <div style={{ marginBottom: 20 }}>
-              <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>Entreprise associee</label>
+              <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>{t('entrepriseAssociee')}</label>
               <select value={demandeForm.entreprise_id} onChange={e => setDemandeForm(f => ({ ...f, entreprise_id: e.target.value }))} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #d4c5b0', fontSize: 13, outline: 'none' }}>
-                <option value="">Aucune</option>
+                <option value="">{t('aucune')}</option>
                 {entreprises.map(e => <option key={e.id} value={e.id}>{e.nom}</option>)}
               </select>
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => setSelectedUser(null)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#8b7355', fontSize: 13, cursor: 'pointer' }}>Annuler</button>
+              <button onClick={() => setSelectedUser(null)} style={{ flex: 1, padding: '10px', borderRadius: 4, border: '1.5px solid #e8e3d8', background: '#f5f3ef', color: '#8b7355', fontSize: 13, cursor: 'pointer' }}>{t('annuler')}</button>
               <button onClick={soumettreDemandeModification} disabled={sending} style={{ flex: 2, padding: '10px', borderRadius: 4, border: 'none', background: sending ? '#d4c5b0' : '#1a1a1a', color: sending ? '#8b7355' : '#fff', fontSize: 13, fontWeight: 700, cursor: sending ? 'default' : 'pointer' }}>
-                {sending ? 'Envoi...' : 'Soumettre la demande'}
+                {sending ? t('envoiEnCours') : t('soumettre')}
               </button>
             </div>
           </div>
