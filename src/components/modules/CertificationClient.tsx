@@ -110,6 +110,7 @@ export default function CertificationClient({
   const [selectedCommandeId, setSelectedCommandeId] = useState('')
   // State local pour filtrer les commandes après soumission sans recharger la page
   const [commandesDispos, setCommandesDispos] = useState<CommandeEligible[]>(commandesEligibles)
+  const [qrCode, setQrCode] = useState<{ url_publique: string; data_encodee: string; reference: string } | null>(null)
 
   const isAdmin = userRole === 'admin'
 
@@ -134,6 +135,21 @@ export default function CertificationClient({
     }
   }, [])
 
+  // Charge le QR code lié à la certification sélectionnée
+  useEffect(() => {
+    if (!selected?.id) {
+      setQrCode(null)
+      return
+    }
+    supabase
+      .from('qr_codes')
+      .select('url_publique, data_encodee, reference')
+      .eq('certification_id', selected.id)
+      .eq('actif', true)
+      .maybeSingle()
+      .then(({ data }) => setQrCode(data as any))
+  }, [selected?.id])
+  
   // --- Filature : demande de certification liée à une commande ---
   const demanderCertification = async () => {
     if (!selectedCommandeId) {
@@ -762,8 +778,32 @@ export default function CertificationClient({
                   <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 4 }}>{label}</div>
                   <div style={{ fontSize: 12, fontWeight: 600, color: '#1A202C' }}>{val}</div>
                 </div>
-              ))}
+             ))}
             </div>
+
+            {qrCode && (
+              <div style={{ marginTop: 16, padding: 16, borderRadius: 8, background: '#f5f3ef', border: '1px solid #e8e3d8' }}>
+                <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+                  <img
+                    src={qrCode.data_encodee}
+                    alt={"QR code"}
+                    style={{ width: 120, height: 120, borderRadius: 4, background: '#fff', padding: 6, border: '1px solid #e8e3d8' }}
+                  />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 10, color: '#8b7355', marginBottom: 4 }}>{"Page publique de traçabilité"}</div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: '#1A202C', marginBottom: 10, wordBreak: 'break-all' }}>{qrCode.reference}</div>
+                    
+                      href={qrCode.url_publique}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ display: 'inline-block', padding: '8px 14px', borderRadius: 4, border: 'none', background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, textDecoration: 'none' }}
+                    >
+                      {"Voir page publique →"}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )
