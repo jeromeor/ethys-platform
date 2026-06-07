@@ -925,8 +925,9 @@
       "entrepriseMaj": "Entreprise mise à jour",
       "profilMaj": "Profil mis à jour",
       "documentAjoute": "Document ajouté"
-    },
-    "annuaire": {
+    }
+  },
+  "annuaire": {
   "typeMarque": "Marque",
   "typeFilature": "Filature",
   "typeFournisseur": "Fournisseur",
