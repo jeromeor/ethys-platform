@@ -28,7 +28,7 @@ export default async function AdminPage() {
 
   const { data: entreprisesData } = await supabase
     .from('entreprises')
-    .select('id, nom, type, statut')
+    .select('id, nom, type, statut, ville, pays, siret, tva, email_contact, telephone, site_web, adresse_rue, code_postal, created_at')
     .order('nom')
 
   // Royalties avec noms filature et marque
