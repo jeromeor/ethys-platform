@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
+import AdminEntreprisesClient from '@/components/modules/AdminEntreprisesClient'
 
 interface Utilisateur {
   id: string
@@ -32,6 +33,16 @@ interface Entreprise {
   nom: string
   type: string
   statut: string
+  ville: string | null
+  pays: string | null
+  siret: string | null
+  tva: string | null
+  email_contact: string | null
+  telephone: string | null
+  site_web: string | null
+  adresse_rue: string | null
+  code_postal: string | null
+  created_at: string
 }
 
 interface Royalty {
@@ -82,7 +93,7 @@ const ROLE_COLORS: Record<string, [string, string]> = {
 }
 
 // IDs stables pour les onglets (ne pas traduire) - le label affiché passe par t()
-const TAB_IDS = ['users', 'pending', 'requests', 'export', 'royalties', 'security'] as const
+const TAB_IDS = ['users', 'pending', 'requests', 'companies', 'export', 'royalties', 'security'] as const
 
 export default function AdminClient({ utilisateurs: initial = [], audit = [], entreprises = [], royalties = [], currentUserId }: Props) {
   const t = useTranslations('admin')
@@ -115,6 +126,7 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
     users: t('tabUsers'),
     pending: t('tabPending'),
     requests: t('tabRequests'),
+    companies: t('tabCompanies'),
     export: t('tabExport'),
     royalties: t('tabRoyalties'),
     security: t('tabSecurity'),
@@ -777,8 +789,12 @@ export default function AdminClient({ utilisateurs: initial = [], audit = [], en
                 </div>
               ))}
               {audit.length === 0 && <div style={{ fontSize: 12, color: '#8b7355', textAlign: 'center', padding: '20px' }}>{t('aucuneEntree')}</div>}
-            </div>
+           </div>
           </div>
+        )}
+
+        {activeTab === 'companies' && (
+          <AdminEntreprisesClient entreprises={entreprises} />
         )}
       </div>
 
