@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
   const { certification_id, numero } = body
 
   const reference = `ETHYS-CERT-${numero.replace(/\//g, '-')}`
-  const urlPublique = `${request.nextUrl.origin}/tracabilite/${reference}`
+  const urlPublique = `https://www.ethys-textileloop.com/tracabilite/${reference}`
 
   const { data, error } = await supabase
     .from('qr_codes')
