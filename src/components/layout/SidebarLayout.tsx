@@ -166,7 +166,7 @@ setDemandesQrEnAttente(countQR ?? 0)
         </div>
 
         <nav style={{ flex: 1, padding: '2px 8px', display: 'flex', flexDirection: 'column', gap: 0 }}>
-          {navItems.filter(item => item.route !== '/admin' || profil?.role === 'admin').map(item => {
+          {navItems.filter(item => !item.route.startsWith('/admin') || profil?.role === 'admin').map(item => {
             const active = pathname === item.route || pathname.startsWith(item.route + '/')
             return (
               <button key={item.route} onClick={() => router.push(item.route)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '5px 10px', borderRadius: 6, border: 'none', cursor: 'pointer', background: active ? '#e8e3d8' : 'transparent', color: active ? '#1a1a1a' : '#4a5568', fontSize: 13, fontWeight: active ? 600 : 400, textAlign: 'left', width: '100%' }}>

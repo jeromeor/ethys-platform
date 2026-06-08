@@ -17,7 +17,7 @@ export default async function QRCodePage({ searchParams }: { searchParams: Promi
 
   const { data: lots } = await supabase
     .from('lots')
-    .select(`*, commande:commandes(reference, titre, marque:entreprises!commandes_marque_id_fkey(nom), filature:entreprises!commandes_filature_id_fkey(nom), fournisseur:entreprises!commandes_fournisseur_id_fkey(nom)), qr_codes(*)`)
+    .select(`*, commande:commandes(id, reference, titre, marque:entreprises!commandes_marque_id_fkey(nom), filature:entreprises!commandes_filature_id_fkey(id, nom), fournisseur:entreprises!commandes_fournisseur_id_fkey(nom)), qr_codes(*)`)
     .order('created_at', { ascending: false })
 
   // Filtre par filature_id si role filature, sinon toutes les certifications

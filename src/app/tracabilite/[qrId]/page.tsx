@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { getTranslations } from 'next-intl/server'
+import MapTraceabilite from '@/components/MapTraceabilite'
 
 export default async function TracabilitePage({ params }: { params: Promise<{ qrId: string }> }) {
   const { qrId } = await params
@@ -35,17 +36,27 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
 
     const { data: decl } = await supabase
       .from('declarations_ethys')
-      .select('*, entreprise:entreprises(nom, pays)')
+      .select('*, entreprise:entreprises(nom, pays, ville, latitude, longitude)')
       .eq('id', cert?.declaration_id)
       .single()
 
-    // Fallback sur les donnees encodees dans le QR code si decl est null
     const pctRecyclé = 51
     const pctVierge = 49
     const totalKg = Number(cert?.volume_total ?? 0)
     const volRecycle = Math.round(totalKg * 0.51)
     const volVierge = Math.round(totalKg * 0.49)
     const typeLabel = decl?.type_produit === 'fil' ? t('typeFil') : decl?.type_produit === 'tissu' ? t('typeTissu') : t('typeProduitFini')
+
+    const entDecl = decl?.entreprise as any
+    const certActeurs = [
+      entDecl?.latitude ? {
+        type: 'filature',
+        nom: entDecl?.nom || '-',
+        ville: entDecl?.ville || '',
+        latitude: Number(entDecl?.latitude),
+        longitude: Number(entDecl?.longitude),
+      } : null,
+    ].filter(Boolean)
 
     return (
       <div style={{ minHeight: '100vh', background: '#f5f3ef', fontFamily: "'Inter', system-ui, sans-serif" }}>
@@ -87,7 +98,11 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
             </div>
           </div>
         </div>
-        <div style={{ maxWidth: 480, margin: '0 auto', padding: '24px' }}><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
+        <div style={{ maxWidth: 480, margin: '0 auto', padding: '24px' }}>
+
+          <MapTraceabilite acteurs={certActeurs as any} />
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
           {[
             { key: 'entreprise', label: t('lblEntreprise'), value: (decl?.entreprise as any)?.nom ?? '-' },
             { key: 'pays', label: t('lblPays'), value: (decl?.entreprise as any)?.pays ?? '-' },
@@ -120,19 +135,54 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
 
   const { data: lot } = await supabase
     .from('lots')
-    .select('*, commande:commandes(reference, marque:entreprises!commandes_marque_id_fkey(nom), filature:entreprises!commandes_filature_id_fkey(nom), fournisseur:entreprises!commandes_fournisseur_id_fkey(nom))')
+    .select('*, commande:commandes(reference, marque:entreprises!commandes_marque_id_fkey(nom, ville, latitude, longitude), filature:entreprises!commandes_filature_id_fkey(nom, ville, latitude, longitude), fournisseur:entreprises!commandes_fournisseur_id_fkey(nom, ville, latitude, longitude))')
     .eq('id', qrCode.lot_id)
     .single()
+
+  // Recuperation de la certification ETHYS liee au lot (pour afficher la date d'attribution)
+  let certEthys: { date_emission: string } | null = null
+  if (lot?.certif_ethys_id) {
+    const { data } = await supabase
+      .from('certifications_ethys')
+      .select('date_emission')
+      .eq('id', lot.certif_ethys_id)
+      .single()
+    certEthys = data
+  }
 
   const commande = lot?.commande as any
   const filature = commande?.filature as Record<string, string>
   const fournisseur = commande?.fournisseur as Record<string, string>
   const marque = commande?.marque as Record<string, string>
-  const totalVolume = Number(lot?.volume_tonnes) ?? 0
-  const volumeRecyclé = Math.round(totalVolume * 0.51)
-  const volumeVierge = Math.round(totalVolume * 0.49)
+  const totalKg = Math.round((Number(lot?.volume_tonnes) ?? 0) * 1000)
+  const volumeRecycleKg = Math.round(totalKg * 0.51)
+  const volumeViergeKg = totalKg - volumeRecycleKg
   const pctRecyclé = 51
   const pctVierge = 49
+
+  const lotActeurs = [
+    fournisseur?.latitude ? {
+      type: 'coton',
+      nom: fournisseur.nom || '-',
+      ville: fournisseur.ville || '',
+      latitude: Number(fournisseur.latitude),
+      longitude: Number(fournisseur.longitude),
+    } : null,
+    filature?.latitude ? {
+      type: 'filature',
+      nom: filature.nom || '-',
+      ville: filature.ville || '',
+      latitude: Number(filature.latitude),
+      longitude: Number(filature.longitude),
+    } : null,
+    marque?.latitude ? {
+      type: 'marque',
+      nom: marque.nom || '-',
+      ville: marque.ville || '',
+      latitude: Number(marque.latitude),
+      longitude: Number(marque.longitude),
+    } : null,
+  ].filter(Boolean)
 
   return (
     <div style={{ minHeight: '100vh', background: '#f5f3ef', fontFamily: "'Inter', system-ui, sans-serif" }}>
@@ -153,12 +203,12 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
               <div style={{ flex: pctRecyclé, background: '#8b7355', borderRadius: 4, padding: '10px 8px', textAlign: 'center' }}>
                 <div style={{ fontSize: 22, fontWeight: 900, color: '#fff' }}>{pctRecyclé}%</div>
                 <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>{t('cotonRecycle')}</div>
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>{Math.round(volumeRecyclé * 1000).toLocaleString('fr-FR')} kg</div>
+                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>{volumeRecycleKg.toLocaleString('fr-FR')} kg</div>
               </div>
               <div style={{ flex: pctVierge, background: 'rgba(255,255,255,0.12)', borderRadius: 4, padding: '10px 8px', textAlign: 'center' }}>
                 <div style={{ fontSize: 22, fontWeight: 900, color: '#fff' }}>{pctVierge}%</div>
                 <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>{t('cotonVierge')}</div>
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>{Math.round(volumeVierge * 1000).toLocaleString('fr-FR')} kg</div>
+                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>{volumeViergeKg.toLocaleString('fr-FR')} kg</div>
               </div>
             </div>
             <div style={{ height: 6, background: 'rgba(255,255,255,0.12)', borderRadius: 2, overflow: 'hidden' }}>
@@ -173,18 +223,21 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
           </div>
         </div>
       </div>
-      <div style={{ maxWidth: 480, margin: '0 auto', padding: '24px' }}><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
+      <div style={{ maxWidth: 480, margin: '0 auto', padding: '24px' }}>
+
+        <MapTraceabilite acteurs={lotActeurs as any} />
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
         {[
-          { key: 'origine', label: t('lblOrigine'), value: String(lot?.origine ?? t('nonRenseigne')) },
           { key: 'filature', label: t('lblFilature'), value: filature?.nom ?? '-' },
           { key: 'certificationFil', label: t('lblCertificationFil'), value: String(lot?.certification ?? 'ETHYS') },
           { key: 'fournisseur', label: t('lblFournisseur'), value: fournisseur?.nom ?? '-' },
           { key: 'marque', label: t('lblMarque'), value: marque?.nom ?? '-' },
-          { key: 'volumeTotal', label: t('lblVolumeTotal'), value: Math.round(totalVolume * 1000).toLocaleString('fr-FR') + ' kg' },
+          { key: 'dateCertif', label: 'Date de certification ETHYS', value: certEthys?.date_emission ? new Date(certEthys.date_emission).toLocaleDateString('fr-FR') : '-' },
         ].map(({ key, label, value }) => (
           <div key={key} style={{ display: 'flex', gap: 14, alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #e8e3d8' }}>
             <div style={{ width: 36, height: 36, borderRadius: 8, background: '#f5f3ef', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 14 }}>
-              {key === 'certificationFil' ? 'E' : key === 'filature' ? 'F' : key === 'origine' ? 'O' : key === 'marque' ? 'M' : key === 'volumeTotal' ? 'V' : 'C'}
+              {key === 'certificationFil' ? 'E' : key === 'filature' ? 'F' : key === 'marque' ? 'M' : key === 'dateCertif' ? 'D' : 'C'}
             </div>
             <div>
               <div style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>{label}</div>
