@@ -152,14 +152,39 @@ export default function FacturationClient({ factures: initial, commandes, entrep
     if (!form.commande_id || !form.emetteur_id || !form.destinataire_id || !form.date_echeance) return
     setLoading(true)
 
+    // 1. Génération de la référence FAC-YYYY-NNN
+    const annee = new Date().getFullYear()
+    const { data: dernieres } = await supabase
+      .from('factures')
+      .select('reference')
+      .ilike('reference', 'FAC-' + annee + '-%')
+      .order('reference', { ascending: false })
+      .limit(1)
+
+    const dernierNum = dernieres?.[0]?.reference?.match(/(\d+)$/)?.[1]
+    const nouveauNum = dernierNum ? parseInt(dernierNum, 10) + 1 : 1
+    const reference = 'FAC-' + annee + '-' + String(nouveauNum).padStart(3, '0')
+
+    // 2. Calcul TVA et TTC (arrondis à 2 décimales)
+    const tvaPct = parseFloat(form.tva_pct) || 0
+    const montant_tva = Math.round(totalHT * tvaPct) / 100
+    const montant_ttc = Math.round((totalHT + montant_tva) * 100) / 100
+
+    // 3. Date d'émission = aujourd'hui (format YYYY-MM-DD)
+    const date_emission = new Date().toISOString().split('T')[0]
+
     const { data: facture, error } = await supabase
       .from('factures')
       .insert({
+        reference,
         commande_id: form.commande_id,
         emetteur_id: form.emetteur_id,
         destinataire_id: form.destinataire_id,
         montant_ht: totalHT,
-        tva_pct: parseFloat(form.tva_pct),
+        tva_pct: tvaPct,
+        montant_tva,
+        montant_ttc,
+        date_emission,
         date_echeance: form.date_echeance,
         statut: 'emise',
         notes: form.notes || null,
