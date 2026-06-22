@@ -137,6 +137,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
   // Filtres recherche
   const [searchFacture, setSearchFacture] = useState('')
   const [searchCommande, setSearchCommande] = useState('')
+  const [filterDestinataire, setFilterDestinataire] = useState('')
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
   const [activeTab, setActiveTab] = useState<'factures' | 'accords'>('factures')
@@ -225,11 +226,32 @@ export default function FacturationClient({ factures: initial, commandes, entrep
     return s + (parseFloat(l.quantite) || 0) * (parseFloat(l.prix_unitaire) || 0)
   }, 0)
 
-  // Filtre combiné : statut + recherche facture + recherche commande + dates
+  // Pré-filtre pour calculer les options des dropdowns N° facture et N° commande
+  // (on applique destinataire + dates, mais pas N° facture / N° commande eux-mêmes)
+  const facturesPourOptions = factures.filter(f => {
+    if (filterDestinataire && f.destinataire?.nom !== filterDestinataire) return false
+    if (dateFrom && f.date_emission && f.date_emission < dateFrom) return false
+    if (dateTo && f.date_emission && f.date_emission > dateTo) return false
+    return true
+  })
+
+  // Listes uniques pour les dropdowns
+  const destinatairesUniques = Array.from(
+    new Set(factures.map(f => f.destinataire?.nom).filter(Boolean) as string[])
+  ).sort()
+  const referencesFacturesOptions = Array.from(
+    new Set(facturesPourOptions.map(f => f.reference).filter(Boolean) as string[])
+  ).sort()
+  const referencesCommandesOptions = Array.from(
+    new Set(facturesPourOptions.map(f => f.commande?.reference).filter(Boolean) as string[])
+  ).sort()
+
+  // Filtre combiné : statut + N° facture + N° commande + destinataire + dates
   const filtrees = factures.filter(f => {
     if (filterStatut !== 'tous' && f.statut !== filterStatut) return false
-    if (searchFacture && !f.reference?.toLowerCase().includes(searchFacture.toLowerCase())) return false
-    if (searchCommande && !(f.commande?.reference ?? '').toLowerCase().includes(searchCommande.toLowerCase())) return false
+    if (searchFacture && f.reference !== searchFacture) return false
+    if (searchCommande && (f.commande?.reference ?? '') !== searchCommande) return false
+    if (filterDestinataire && f.destinataire?.nom !== filterDestinataire) return false
     if (dateFrom && f.date_emission && f.date_emission < dateFrom) return false
     if (dateTo && f.date_emission && f.date_emission > dateTo) return false
     return true
@@ -391,26 +413,39 @@ export default function FacturationClient({ factures: initial, commandes, entrep
           padding: '10px 22px', background: '#fff', borderBottom: '1px solid #e8e3d8',
           display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', flexShrink: 0
         }}>
-          <input
-            type="text"
+          <select
             value={searchFacture}
             onChange={e => setSearchFacture(e.target.value)}
-            placeholder="N° facture..."
             style={{
               padding: '6px 10px', borderRadius: 6, border: '1.5px solid #d4c5b0',
-              fontSize: 11, outline: 'none', width: 150
+              fontSize: 11, outline: 'none', minWidth: 160, background: '#fff', cursor: 'pointer'
             }}
-          />
-          <input
-            type="text"
+          >
+            <option value="">N° facture (tous)</option>
+            {referencesFacturesOptions.map(r => <option key={r} value={r}>{r}</option>)}
+          </select>
+          <select
             value={searchCommande}
             onChange={e => setSearchCommande(e.target.value)}
-            placeholder="N° commande..."
             style={{
               padding: '6px 10px', borderRadius: 6, border: '1.5px solid #d4c5b0',
-              fontSize: 11, outline: 'none', width: 150
+              fontSize: 11, outline: 'none', minWidth: 160, background: '#fff', cursor: 'pointer'
             }}
-          />
+          >
+            <option value="">N° commande (tous)</option>
+            {referencesCommandesOptions.map(r => <option key={r} value={r}>{r}</option>)}
+          </select>
+          <select
+            value={filterDestinataire}
+            onChange={e => setFilterDestinataire(e.target.value)}
+            style={{
+              padding: '6px 10px', borderRadius: 6, border: '1.5px solid #d4c5b0',
+              fontSize: 11, outline: 'none', minWidth: 160, background: '#fff', cursor: 'pointer'
+            }}
+          >
+            <option value="">Destinataire (tous)</option>
+            {destinatairesUniques.map(d => <option key={d} value={d}>{d}</option>)}
+          </select>
           <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
             <span style={{ fontSize: 11, color: '#8b7355' }}>Du</span>
             <input
@@ -433,9 +468,12 @@ export default function FacturationClient({ factures: initial, commandes, entrep
               }}
             />
           </div>
-          {(searchFacture || searchCommande || dateFrom || dateTo) && (
+          {(searchFacture || searchCommande || filterDestinataire || dateFrom || dateTo) && (
             <button
-              onClick={() => { setSearchFacture(''); setSearchCommande(''); setDateFrom(''); setDateTo('') }}
+              onClick={() => {
+                setSearchFacture(''); setSearchCommande(''); setFilterDestinataire('');
+                setDateFrom(''); setDateTo('')
+              }}
               style={{
                 padding: '6px 12px', borderRadius: 6, border: '1.5px solid #d4c5b0',
                 background: '#fff', color: '#8b3a3a', fontSize: 11, fontWeight: 600, cursor: 'pointer'
