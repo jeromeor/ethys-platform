@@ -93,11 +93,20 @@ export default function FacturationClient({ factures: initial, commandes, entrep
     annulee:    t('statuts.annulee'),
   }
 
+  // UUID de Textile Loop (émetteur unique de toutes les factures)
+  const TEXTILE_LOOP_UUID = 'a0000000-0000-0000-0000-000000000001'
+
   const [factures, setFactures] = useState<Facture[]>(initial)
   const [selected, setSelected] = useState<Facture | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [filterStatut, setFilterStatut] = useState('tous')
   const [loading, setLoading] = useState(false)
+
+  // Filtres recherche
+  const [searchFacture, setSearchFacture] = useState('')
+  const [searchCommande, setSearchCommande] = useState('')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
   const [activeTab, setActiveTab] = useState<'factures' | 'accords'>('factures')
   const [accords, setAccords] = useState<AccordCommercial[]>(accordsInitial)
   const [showAccordForm, setShowAccordForm] = useState(false)
@@ -119,10 +128,45 @@ export default function FacturationClient({ factures: initial, commandes, entrep
     date_echeance: '',
     tva_pct: '20',
     notes: '',
-    lignes: [{ description: '', quantite: '', prix_unitaire: '', unite: 'T' }]
+    lignes: [{ description: '', quantite: '', prix_unitaire: '', unite: 'kg' }]
   })
 
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }))
+
+  // Sélection d'une commande : auto-remplit émetteur, destinataire et 1ère ligne
+  const selectCommande = (commandeId: string) => {
+    if (!commandeId) {
+      setForm(f => ({
+        ...f,
+        commande_id: '',
+        emetteur_id: '',
+        destinataire_id: '',
+        lignes: [{ description: '', quantite: '', prix_unitaire: '', unite: 'kg' }]
+      }))
+      return
+    }
+    const cmd = commandes.find(c => c.id === commandeId)
+    if (!cmd) return
+
+    const destinataireId = cmd.marque?.id ?? ''
+    // 1 seul accord commercial possible par client
+    const accord = accords.find(a => a.entreprise_id === destinataireId)
+    const prix = accord ? accord.prix_base_kg : 0.60
+    const quantiteKg = (cmd.volume_total_tonnes || 0) * 1000
+
+    setForm(f => ({
+      ...f,
+      commande_id: commandeId,
+      emetteur_id: TEXTILE_LOOP_UUID,
+      destinataire_id: destinataireId,
+      lignes: [{
+        description: 'Fil ETHYS — ' + cmd.reference,
+        quantite: String(quantiteKg),
+        prix_unitaire: String(prix),
+        unite: 'kg'
+      }]
+    }))
+  }
 
   const updateLigne = (i: number, k: string, v: string) => {
     setForm(f => ({
@@ -133,16 +177,22 @@ export default function FacturationClient({ factures: initial, commandes, entrep
 
   const addLigne = () => setForm(f => ({
     ...f,
-    lignes: [...f.lignes, { description: '', quantite: '', prix_unitaire: '', unite: 'T' }]
+    lignes: [...f.lignes, { description: '', quantite: '', prix_unitaire: '', unite: 'kg' }]
   }))
 
   const totalHT = form.lignes.reduce((s, l) => {
     return s + (parseFloat(l.quantite) || 0) * (parseFloat(l.prix_unitaire) || 0)
   }, 0)
 
-  const filtrees = factures.filter(f =>
-    filterStatut === 'tous' || f.statut === filterStatut
-  )
+  // Filtre combiné : statut + recherche facture + recherche commande + dates
+  const filtrees = factures.filter(f => {
+    if (filterStatut !== 'tous' && f.statut !== filterStatut) return false
+    if (searchFacture && !f.reference?.toLowerCase().includes(searchFacture.toLowerCase())) return false
+    if (searchCommande && !(f.commande?.reference ?? '').toLowerCase().includes(searchCommande.toLowerCase())) return false
+    if (dateFrom && f.date_emission && f.date_emission < dateFrom) return false
+    if (dateTo && f.date_emission && f.date_emission > dateTo) return false
+    return true
+  })
 
   const totalCA = factures.filter(f => f.statut === 'payee').reduce((s, f) => s + f.montant_ttc, 0)
   const totalAttente = factures.filter(f => f.statut === 'en_attente').reduce((s, f) => s + f.montant_ttc, 0)
@@ -293,6 +343,68 @@ export default function FacturationClient({ factures: initial, commandes, entrep
         </div>
       </div>
 
+      {/* Barre filtres recherche */}
+      {activeTab === 'factures' && (
+        <div style={{
+          padding: '10px 22px', background: '#fff', borderBottom: '1px solid #e8e3d8',
+          display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', flexShrink: 0
+        }}>
+          <input
+            type="text"
+            value={searchFacture}
+            onChange={e => setSearchFacture(e.target.value)}
+            placeholder="N° facture..."
+            style={{
+              padding: '6px 10px', borderRadius: 6, border: '1.5px solid #d4c5b0',
+              fontSize: 11, outline: 'none', width: 150
+            }}
+          />
+          <input
+            type="text"
+            value={searchCommande}
+            onChange={e => setSearchCommande(e.target.value)}
+            placeholder="N° commande..."
+            style={{
+              padding: '6px 10px', borderRadius: 6, border: '1.5px solid #d4c5b0',
+              fontSize: 11, outline: 'none', width: 150
+            }}
+          />
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+            <span style={{ fontSize: 11, color: '#8b7355' }}>Du</span>
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={e => setDateFrom(e.target.value)}
+              style={{
+                padding: '6px 10px', borderRadius: 6, border: '1.5px solid #d4c5b0',
+                fontSize: 11, outline: 'none'
+              }}
+            />
+            <span style={{ fontSize: 11, color: '#8b7355' }}>au</span>
+            <input
+              type="date"
+              value={dateTo}
+              onChange={e => setDateTo(e.target.value)}
+              style={{
+                padding: '6px 10px', borderRadius: 6, border: '1.5px solid #d4c5b0',
+                fontSize: 11, outline: 'none'
+              }}
+            />
+          </div>
+          {(searchFacture || searchCommande || dateFrom || dateTo) && (
+            <button
+              onClick={() => { setSearchFacture(''); setSearchCommande(''); setDateFrom(''); setDateTo('') }}
+              style={{
+                padding: '6px 12px', borderRadius: 6, border: '1.5px solid #d4c5b0',
+                background: '#fff', color: '#8b3a3a', fontSize: 11, fontWeight: 600, cursor: 'pointer'
+              }}
+            >
+              ✕ Réinitialiser
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Onglet Accords commerciaux */}
       {activeTab === 'accords' && isAdmin && (
         <div style={{ flex: 1, overflow: 'auto', padding: '16px 22px' }}>
@@ -415,7 +527,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: '#f5f3ef' }}>
-                  {[t('table.reference'), t('table.emetteur'), t('table.destinataire'), t('table.montantTtc'), t('table.emission'), t('table.echeance'), t('table.statut'), ''].map((h, i) => (
+                  {[t('table.reference'), 'COMMANDE', t('table.emetteur'), t('table.destinataire'), t('table.montantTtc'), t('table.emission'), t('table.echeance'), t('table.statut'), ''].map((h, i) => (
                     <th key={i} style={{ padding: '10px 14px', fontSize: 11, fontWeight: 600, color: '#8b7355', textAlign: 'left', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{h}</th>
                   ))}
                 </tr>
@@ -431,6 +543,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
                       onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = 'transparent'}
                     >
                       <td style={{ padding: '12px 14px', fontSize: 12, fontWeight: 800, color: '#1a1a1a' }}>{f.reference}</td>
+                      <td style={{ padding: '12px 14px', fontSize: 12, fontWeight: 700, color: '#2d5016' }}>{f.commande?.reference ?? '—'}</td>
                       <td style={{ padding: '12px 14px', fontSize: 12, color: '#4a5568' }}>{f.emetteur?.nom ?? '—'}</td>
                       <td style={{ padding: '12px 14px', fontSize: 12, color: '#4a5568' }}>{f.destinataire?.nom ?? '—'}</td>
                       <td style={{ padding: '12px 14px', fontSize: 13, fontWeight: 800, color: '#1A202C' }}>{fmt(f.montant_ttc)}</td>
@@ -642,7 +755,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
 
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>{t('formFacture.commande')}</label>
-                <select value={form.commande_id} onChange={e => set('commande_id', e.target.value)} style={inputStyle}>
+                <select value={form.commande_id} onChange={e => selectCommande(e.target.value)} style={inputStyle}>
                   <option value="">{t('formFacture.selectionner')}</option>
                   {commandes.map(c => <option key={c.id} value={c.id}>{c.reference} — {c.marque?.nom}</option>)}
                 </select>
@@ -651,17 +764,25 @@ export default function FacturationClient({ factures: initial, commandes, entrep
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div>
                   <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>{t('formFacture.emetteur')}</label>
-                  <select value={form.emetteur_id} onChange={e => set('emetteur_id', e.target.value)} style={inputStyle}>
-                    <option value="">{t('formFacture.selectionner')}</option>
-                    {entreprises.map(e => <option key={e.id} value={e.id}>{e.nom}</option>)}
-                  </select>
+                  <div style={{
+                    ...inputStyle,
+                    background: '#f5f3ef', color: '#1a1a1a', fontWeight: 700,
+                    display: 'flex', alignItems: 'center', minHeight: 36
+                  }}>
+                    {form.emetteur_id ? 'TEXTILE LOOP' : '—'}
+                  </div>
                 </div>
                 <div>
                   <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>{t('formFacture.destinataire')}</label>
-                  <select value={form.destinataire_id} onChange={e => set('destinataire_id', e.target.value)} style={inputStyle}>
-                    <option value="">{t('formFacture.selectionner')}</option>
-                    {entreprises.map(e => <option key={e.id} value={e.id}>{e.nom}</option>)}
-                  </select>
+                  <div style={{
+                    ...inputStyle,
+                    background: '#f5f3ef', color: '#1a1a1a', fontWeight: 700,
+                    display: 'flex', alignItems: 'center', minHeight: 36
+                  }}>
+                    {form.destinataire_id
+                      ? (entreprises.find(e => e.id === form.destinataire_id)?.nom ?? '—')
+                      : '—'}
+                  </div>
                 </div>
               </div>
 
@@ -679,19 +800,43 @@ export default function FacturationClient({ factures: initial, commandes, entrep
               {/* Lignes */}
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 8 }}>{t('formFacture.lignes')}</label>
-                {form.lignes.map((l, i) => (
-                  <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 8, marginBottom: 8 }}>
-                    <input value={l.description} onChange={e => updateLigne(i, 'description', e.target.value)}
-                      placeholder={t('formFacture.phDescription')} style={inputStyle} />
-                    <input type="number" value={l.quantite} onChange={e => updateLigne(i, 'quantite', e.target.value)}
-                      placeholder={t('formFacture.phQte')} style={inputStyle} />
-                    <input type="number" value={l.prix_unitaire} onChange={e => updateLigne(i, 'prix_unitaire', e.target.value)}
-                      placeholder={t('formFacture.phPu')} style={inputStyle} />
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>
-                      {((parseFloat(l.quantite) || 0) * (parseFloat(l.prix_unitaire) || 0)).toLocaleString('fr-FR')} €
+                {form.lignes.map((l, i) => {
+                  // La 1ère ligne est auto-remplie depuis la commande et non modifiable
+                  const isAuto = i === 0
+                  const lockedStyle = isAuto
+                    ? { ...inputStyle, background: '#f5f3ef', color: '#1a1a1a', fontWeight: 600, cursor: 'not-allowed' }
+                    : inputStyle
+                  return (
+                    <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 8, marginBottom: 8 }}>
+                      <input
+                        value={l.description}
+                        onChange={e => updateLigne(i, 'description', e.target.value)}
+                        placeholder={t('formFacture.phDescription')}
+                        readOnly={isAuto}
+                        style={lockedStyle}
+                      />
+                      <input
+                        type="number"
+                        value={l.quantite}
+                        onChange={e => updateLigne(i, 'quantite', e.target.value)}
+                        placeholder={t('formFacture.phQte')}
+                        readOnly={isAuto}
+                        style={lockedStyle}
+                      />
+                      <input
+                        type="number"
+                        value={l.prix_unitaire}
+                        onChange={e => updateLigne(i, 'prix_unitaire', e.target.value)}
+                        placeholder={t('formFacture.phPu')}
+                        readOnly={isAuto}
+                        style={lockedStyle}
+                      />
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>
+                        {((parseFloat(l.quantite) || 0) * (parseFloat(l.prix_unitaire) || 0)).toLocaleString('fr-FR')} €
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
                 <button onClick={addLigne} style={{
                   width: '100%', padding: '7px', borderRadius: 8,
                   border: '2px dashed #f0f4ec', background: '#F0FDF4',
