@@ -23,6 +23,7 @@ interface Facture {
   montant_tva: number
   montant_ttc: number
   tva_pct: number
+  mention_tva: string | null
   date_emission: string
   date_echeance: string
   date_paiement: string | null
@@ -43,7 +44,7 @@ interface Commande {
   filature: { id: string; nom: string } | null
 }
 
-interface Entreprise { id: string; nom: string; type: string }
+interface Entreprise { id: string; nom: string; type: string; pays?: string | null }
 
 interface AccordCommercial {
   id: string
@@ -75,8 +76,39 @@ const STATUT_COLORS: Record<StatutFacture, [string, string, string]> = {
   annulee:    ['#f5f3ef', '#4a5568', '#8b7355'],
 }
 
-function fmt(n: number) {
+function fmt(n: number | null | undefined) {
+  if (n == null || isNaN(n)) return '—'
   return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(n)
+}
+
+// Liste des pays de l'UE (orthographes courantes acceptées)
+const PAYS_UE = [
+  'allemagne','autriche','belgique','bulgarie','chypre','croatie','danemark',
+  'espagne','estonie','finlande','grèce','grece','hongrie','irlande','italie',
+  'lettonie','lituanie','luxembourg','malte','pays-bas','pologne','portugal',
+  'république tchèque','republique tcheque','tchéquie','tchequie',
+  'roumanie','slovaquie','slovénie','slovenie','suède','suede'
+]
+
+// Détermine le taux TVA et la mention légale en fonction du pays du destinataire
+function calculerTva(pays: string | null | undefined): { pct: number; mention: string | null; regime: string } {
+  if (!pays) return { pct: 20, mention: null, regime: 'France' } // fallback FR
+  const p = pays.trim().toLowerCase()
+  if (p === 'france' || p === 'fr') {
+    return { pct: 20, mention: null, regime: 'France' }
+  }
+  if (PAYS_UE.includes(p)) {
+    return {
+      pct: 0,
+      mention: 'Autoliquidation TVA - Article 196 Directive 2006/112/CE',
+      regime: 'UE (autoliquidation)'
+    }
+  }
+  return {
+    pct: 0,
+    mention: 'Exonération de TVA - Article 262-I du CGI',
+    regime: 'Hors UE (export)'
+  }
 }
 
 export default function FacturationClient({ factures: initial, commandes, entreprises, accords: accordsInitial, profil, user }: Props) {
@@ -127,13 +159,14 @@ export default function FacturationClient({ factures: initial, commandes, entrep
     destinataire_id: '',
     date_echeance: '',
     tva_pct: '20',
+    mention_tva: '',
     notes: '',
     lignes: [{ description: '', quantite: '', prix_unitaire: '', unite: 'kg' }]
   })
 
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }))
 
-  // Sélection d'une commande : auto-remplit émetteur, destinataire et 1ère ligne
+  // Sélection d'une commande : auto-remplit émetteur, destinataire, 1ère ligne et TVA
   const selectCommande = (commandeId: string) => {
     if (!commandeId) {
       setForm(f => ({
@@ -141,6 +174,8 @@ export default function FacturationClient({ factures: initial, commandes, entrep
         commande_id: '',
         emetteur_id: '',
         destinataire_id: '',
+        tva_pct: '20',
+        mention_tva: '',
         lignes: [{ description: '', quantite: '', prix_unitaire: '', unite: 'kg' }]
       }))
       return
@@ -154,11 +189,17 @@ export default function FacturationClient({ factures: initial, commandes, entrep
     const prix = accord ? accord.prix_base_kg : 0.60
     const quantiteKg = (cmd.volume_total_tonnes || 0) * 1000
 
+    // Calcul TVA selon pays du destinataire
+    const destEntreprise = entreprises.find(e => e.id === destinataireId)
+    const { pct, mention } = calculerTva(destEntreprise?.pays)
+
     setForm(f => ({
       ...f,
       commande_id: commandeId,
       emetteur_id: TEXTILE_LOOP_UUID,
       destinataire_id: destinataireId,
+      tva_pct: String(pct),
+      mention_tva: mention ?? '',
       lignes: [{
         description: 'Fil ETHYS — ' + cmd.reference,
         quantite: String(quantiteKg),
@@ -234,6 +275,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
         tva_pct: tvaPct,
         montant_tva,
         montant_ttc,
+        mention_tva: form.mention_tva || null,
         date_emission,
         date_echeance: form.date_echeance,
         statut: 'emise',
@@ -793,9 +835,30 @@ export default function FacturationClient({ factures: initial, commandes, entrep
                 </div>
                 <div>
                   <label style={{ fontSize: 12, fontWeight: 600, color: '#4a5568', display: 'block', marginBottom: 6 }}>{t('formFacture.tva')}</label>
-                  <input type="number" value={form.tva_pct} onChange={e => set('tva_pct', e.target.value)} style={inputStyle} />
+                  <div style={{
+                    ...inputStyle,
+                    background: '#f5f3ef', color: '#1a1a1a', fontWeight: 700,
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 36
+                  }}>
+                    <span>{form.tva_pct}%</span>
+                    {form.destinataire_id && (() => {
+                      const destEnt = entreprises.find(e => e.id === form.destinataire_id)
+                      const { regime } = calculerTva(destEnt?.pays)
+                      return <span style={{ fontSize: 10, fontWeight: 600, color: '#8b7355' }}>{regime}</span>
+                    })()}
+                  </div>
                 </div>
               </div>
+
+              {form.mention_tva && (
+                <div style={{
+                  padding: '8px 12px', borderRadius: 6, background: '#fdf8ec',
+                  border: '1px solid #e8d8a8', fontSize: 11, color: '#8b6914',
+                  fontStyle: 'italic'
+                }}>
+                  <strong>Mention légale facture :</strong> {form.mention_tva}
+                </div>
+              )}
 
               {/* Lignes */}
               <div>
