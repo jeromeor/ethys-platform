@@ -1,4 +1,5 @@
 ﻿import { createServerClient } from '@supabase/ssr'
+import { getProfilUtilisateur } from '@/lib/data/profils'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
@@ -32,11 +33,7 @@ export async function proxy(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.redirect(new URL('/login', request.url))
 
-  const { data: profil } = await supabase
-    .from('profils_utilisateurs')
-    .select('prenom, nom, telephone, adresse_rue, adresse_ville, entreprise_id, email_valide, date_limite_completion, profil_complete_at')
-    .eq('id', user.id)
-    .single()
+  const { data: profil } = await getProfilUtilisateur(supabase, user.id)
 
   if (!profil) return NextResponse.redirect(new URL('/login', request.url))
 
