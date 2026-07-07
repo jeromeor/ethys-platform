@@ -1,4 +1,5 @@
 import { Resend } from 'resend'
+import { createClient } from '@/lib/supabase/server'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -22,6 +23,9 @@ const STATUT_COLORS: Record<string, string> = {
 
 export async function POST(req: Request) {
   try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     const { email, prenom, objet, newStatut } = await req.json()
 
     const couleur = STATUT_COLORS[newStatut] ?? '#374151'
