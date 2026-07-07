@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { getProfilUtilisateur } from '@/lib/data/profils'
 import { redirect } from 'next/navigation'
 import FacturationClient from '@/components/modules/FacturationClient'
 
@@ -30,11 +31,7 @@ export default async function FacturationPage() {
     .select('id, nom, type, pays')
     .order('nom')
 
-  const { data: profil } = await supabase
-    .from('profils_utilisateurs')
-    .select('role, entreprise_id')
-    .eq('id', user.id)
-    .single()
+  const { data: profil } = await getProfilUtilisateur(supabase, user.id)
 
   const { data: accords } = await supabase
     .from('accords_commerciaux')
