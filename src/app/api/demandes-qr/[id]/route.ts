@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import postgres from 'postgres'
+import { createClient } from '@/lib/supabase/server'
 
 const sql = postgres(process.env.DATABASE_URL!, { ssl: 'require' })
 
@@ -8,6 +9,9 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     const { id } = await params
     const body = await req.json()
 
