@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { getProfilUtilisateur } from '@/lib/data/profils'
 import { redirect } from 'next/navigation'
 import AdminClient from '@/components/modules/AdminClient'
 
@@ -7,11 +8,7 @@ export default async function AdminPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: profil } = await supabase
-    .from('profils_utilisateurs')
-    .select('role')
-    .eq('id', user.id)
-    .single()
+  const { data: profil } = await getProfilUtilisateur(supabase, user.id)
 
   if (profil?.role !== 'admin') redirect('/dashboard')
 
