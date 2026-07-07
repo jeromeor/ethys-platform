@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
+import Badge from "@/components/ui/Badge";
 
 type StatutFacture = 'brouillon' | 'emise' | 'en_attente' | 'payee' | 'en_retard' | 'annulee'
 
@@ -710,11 +711,11 @@ export default function FacturationClient({ factures: initial, commandes, entrep
                   <div style={{ fontSize: 26, fontWeight: 900, color: '#c2956e' }}>{fmt(selected.montant_ttc)}</div>
                   <div style={{ fontSize: 10, opacity: 0.65 }}>{t('detail.ttc')}</div>
                   <div style={{ marginTop: 6 }}>
-                    <span style={{
-                      padding: '3px 10px', borderRadius: 4, fontSize: 11, fontWeight: 700,
-                      background: STATUT_COLORS[selected.statut][0],
-                      color: STATUT_COLORS[selected.statut][1]
-                    }}>{STATUT_LABELS[selected.statut]}</span>
+                    <Badge
+                      label={STATUT_LABELS[selected.statut]}
+                      background={STATUT_COLORS[selected.statut][0]}
+                      color={STATUT_COLORS[selected.statut][1]}
+                    />
                   </div>
                 </div>
               </div>
