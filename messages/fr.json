@@ -679,6 +679,7 @@
     "qrCodeActif": "QR Code actif",
     "copiee": "Copiée !",
     "transfererMarque": "Transférer à une marque",
+    "dejaTransfere": "QR code déjà transféré",
     "genererQRConso": "Générer le QR Code consommateur",
     "transfert": {
       "titre": "Transférer le QR à une marque",
