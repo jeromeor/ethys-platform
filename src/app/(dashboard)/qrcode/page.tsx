@@ -46,6 +46,9 @@ export default async function QRCodePage({ searchParams }: { searchParams: Promi
   const certificationsEnrichies = certifications.map((cert: any) => {
     const filature = (entreprises ?? []).find(e => e.id === cert.filature_id)
     const qrCodes = (qrCodesCerts ?? []).filter(q => q.certification_id === cert.id)
+    const { data: transfertsQr } = await supabase
+    .from('transferts_qr')
+    .select('qr_code_id, created_at, marque:entreprises(nom)')
     return {
       ...cert,
       numero: cert.reference,
@@ -58,7 +61,8 @@ export default async function QRCodePage({ searchParams }: { searchParams: Promi
         filature_nom: filature?.nom ?? null,
         entreprise: filature ? { nom: filature.nom, pays: filature.pays } : null,
       },
-      qr_codes: qrCodes,
+     qr_codes: qrCodes,
+      transfert: (transfertsQr ?? []).find((tr: any) => tr.qr_code_id === qrCodes[0]?.id) ?? null,
     }
   })
 
