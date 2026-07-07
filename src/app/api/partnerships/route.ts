@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { createClient as createSessionClient } from '@/lib/supabase/server'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -8,6 +9,9 @@ const supabase = createClient(
 
 // GET — liste des partenaires acceptés de l'entreprise connectée
 export async function GET(req: NextRequest) {
+  const sessionSupabase = await createSessionClient()
+  const { data: { user } } = await sessionSupabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
   const entreprise_id = req.nextUrl.searchParams.get('entreprise_id')
   if (!entreprise_id) return NextResponse.json({ error: 'entreprise_id requis' }, { status: 400 })
 
@@ -27,6 +31,9 @@ export async function GET(req: NextRequest) {
 
 // POST — envoyer une demande de partenariat
 export async function POST(req: NextRequest) {
+  const sessionSupabase = await createSessionClient()
+  const { data: { user } } = await sessionSupabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
   const { requester_id, receiver_id } = await req.json()
   if (!requester_id || !receiver_id)
     return NextResponse.json({ error: 'requester_id et receiver_id requis' }, { status: 400 })
@@ -51,6 +58,9 @@ export async function POST(req: NextRequest) {
 
 // PATCH — accepter ou rejeter
 export async function PATCH(req: NextRequest) {
+  const sessionSupabase = await createSessionClient()
+  const { data: { user } } = await sessionSupabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
   const { partnership_id, status, actor_entreprise_id } = await req.json()
   if (!partnership_id || !status || !actor_entreprise_id)
     return NextResponse.json({ error: 'Champs manquants' }, { status: 400 })
