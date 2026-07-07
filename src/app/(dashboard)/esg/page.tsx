@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { getProfilUtilisateur } from '@/lib/data/profils'
 import { redirect } from 'next/navigation'
 import ESGClient from '@/components/modules/ESGClient'
 
@@ -7,11 +8,7 @@ export default async function ESGPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: profil } = await supabase
-    .from('profils_utilisateurs')
-    .select('*, entreprise:entreprises(*)')
-    .eq('id', user.id)
-    .single()
+  const { data: profil } = await getProfilUtilisateur(supabase, user.id)
 
   const { data: commandes } = await supabase
     .from('commandes')
