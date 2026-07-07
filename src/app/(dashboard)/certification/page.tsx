@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { getProfilUtilisateur } from '@/lib/data/profils'
 import CertificationClient from '@/components/modules/CertificationClient'
 import { redirect } from 'next/navigation'
 
@@ -7,11 +8,7 @@ export default async function CertificationPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: profil } = await supabase
-    .from('profils_utilisateurs')
-    .select('role, entreprise_id')
-    .eq('id', user.id)
-    .single()
+  const { data: profil } = await getProfilUtilisateur(supabase, user.id)
 
   const role = profil?.role ?? 'filature'
   const entrepriseId = profil?.entreprise_id ?? ''
