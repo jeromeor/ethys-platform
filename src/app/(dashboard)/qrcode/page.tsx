@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { getProfilUtilisateur } from '@/lib/data/profils'
 import QRCodeClient from '@/components/modules/QRCodeClient'
 import { redirect } from 'next/navigation'
 
@@ -9,11 +10,7 @@ export default async function QRCodePage({ searchParams }: { searchParams: Promi
 
   const params = await searchParams
 
-  const { data: profil } = await supabase
-    .from('profils_utilisateurs')
-    .select('role, entreprise_id')
-    .eq('id', user.id)
-    .single()
+  const { data: profil } = await getProfilUtilisateur(supabase, user.id)
 
   const { data: lots } = await supabase
     .from('lots')
