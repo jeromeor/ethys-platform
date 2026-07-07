@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-import { createClient as createSessionClient } from '@/lib/supabase/server'
+import { createClient as createSessionClient, createAdminClient } from '@/lib/supabase/server'
 
 export async function POST(request: NextRequest) {
   const sessionSupabase = await createSessionClient()
@@ -9,11 +8,8 @@ export async function POST(request: NextRequest) {
   const { filature_nom, declaration_id } = await request.json()
 
   // Client Supabase service role pour acces server-side
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
-
+  const supabase = createAdminClient()
+  
   // Recuperation de l'entreprise filature liee a la declaration
   const { data: declaration, error: errDecl } = await supabase
     .from('declarations_ethys')
