@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { getProfilUtilisateur } from '@/lib/data/profils'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import QRActivateRow from '@/components/QRActivateRow'
@@ -23,11 +24,7 @@ export default async function DashboardPage() {
     annulee: t('statut.annulee'),
   }[s] ?? s)
 
-  const { data: profil } = await supabase
-    .from('profils_utilisateurs')
-    .select('*, entreprise:entreprises(*)')
-    .eq('id', user.id)
-    .single()
+  const { data: profil } = await getProfilUtilisateur(supabase, user.id)
 
   const entrepriseId = profil?.entreprise_id ?? null
   const isAdmin = profil?.role === 'admin'
