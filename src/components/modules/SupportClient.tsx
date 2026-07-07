@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
+import { getProfilUtilisateur } from '@/lib/data/profils'
 
 interface Ticket {
   id: string
@@ -79,11 +80,7 @@ export default function SupportClient({ userId, isAdmin }: Props) {
     setSubmitting(true)
     setErrorMsg('')
 
-    const { data: profil } = await supabase
-      .from('profils_utilisateurs')
-      .select('entreprise_id, prenom, nom, email')
-      .eq('id', userId)
-      .single()
+    const { data: profil } = await getProfilUtilisateur(supabase, userId)
 
     const { data: refData } = await supabase.rpc('generate_ticket_reference', {
       p_entreprise_id: profil?.entreprise_id ?? null,
