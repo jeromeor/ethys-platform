@@ -45,7 +45,7 @@ export default async function QRCodePage({ searchParams }: { searchParams: Promi
 
   const { data: transfertsQr } = await supabase
     .from('transferts_qr')
-    .select('qr_code_id, created_at, marque:entreprises(nom)')
+    .select('qr_code_id, created_at, marque:entreprises!transferts_qr_marque_id_fkey(nom)')
   const certificationsEnrichies = certifications.map((cert: any) => {
     const filature = (entreprises ?? []).find(e => e.id === cert.filature_id)
     const qrCodes = (qrCodesCerts ?? []).filter(q => q.certification_id === cert.id)
