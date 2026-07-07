@@ -1,15 +1,12 @@
 import { createClient } from '@/lib/supabase/server'
+import { getProfilUtilisateur } from '@/lib/data/profils'
 import AnnuaireClient from '@/components/modules/AnnuaireClient'
 
 export default async function AnnuairePage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  const { data: profil } = await supabase
-    .from('profils_utilisateurs')
-    .select('role, entreprise_id')
-    .eq('id', user!.id)
-    .single()
+  const { data: profil } = await getProfilUtilisateur(supabase, user!.id)
 
   const { data: partenaires } = await supabase
     .from('entreprises')
