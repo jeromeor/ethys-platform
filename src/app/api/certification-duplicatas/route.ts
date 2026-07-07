@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { createClient as createSessionClient } from '@/lib/supabase/server'
 
 export async function POST(request: NextRequest) {
+  const sessionSupabase = await createSessionClient()
+  const { data: { user } } = await sessionSupabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
   const { filature_nom, declaration_id } = await request.json()
 
   // Client Supabase service role pour acces server-side
