@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Source_Sans_3 } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
+import QueryProvider from "@/lib/providers/QueryProvider";
 import "./globals.css";
 
 const inter = Inter({
@@ -33,7 +34,9 @@ export default async function RootLayout({
     <html lang={locale}>
       <body className={`${inter.variable} ${sourceSans.variable}`} style={{ margin: 0, fontFamily: "var(--font-inter), system-ui, sans-serif" }}>
         <NextIntlClientProvider>
-          {children}
+          <QueryProvider>
+            {children}
+          </QueryProvider>
         </NextIntlClientProvider>
       </body>
     </html>
