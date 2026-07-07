@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
+import { getProfilUtilisateur } from '@/lib/data/profils'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 
 const INDICATIFS = [
@@ -37,11 +38,7 @@ function OnboardingContent() {
     const chargerProfil = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
-      const { data } = await supabase
-        .from('profils_utilisateurs')
-        .select('prenom, nom, telephone, adresse_rue, adresse_code_postal, adresse_ville, adresse_pays')
-        .eq('id', user.id)
-        .single()
+      const { data } = await getProfilUtilisateur(supabase, user.id)
       if (data) setForm(f => ({ ...f, ...data }))
     }
     chargerProfil()
