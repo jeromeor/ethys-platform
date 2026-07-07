@@ -52,6 +52,7 @@ interface Certification {
     entreprise: { nom: string; pays: string } | null
   } | null
   qr_codes: QRCodeData[]
+  transfert: { marque: { nom: string } | null; created_at: string } | null
 }
 
 interface DemandeQr {
@@ -698,13 +699,21 @@ return (
                       {urlCopied ? t('copiee') : t('copierURL')}
                     </button>
                   </div>
-                  {/* Bouton transfert marque */}
-                  <button
-                    onClick={() => { setShowTransfert(true); setTransfertMessage(''); setTransfertMarqueId(''); setTransfertMarqueEmail(''); setTransfertNouvelleMarque(false) }}
-                    style={{ width: '100%', padding: '8px', borderRadius: 8, border: '1.5px solid #2d5016', background: '#f0f4ec', color: '#2d5016', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
-                  >
-                    {t('transfererMarque')}
-                  </button>
+                 {selectedCert.transfert ? (
+                    <div style={{ padding: '8px', borderRadius: 8, background: '#fff', border: '1.5px solid #d4c5b0', textAlign: 'center' }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: '#8b7355' }}>{t('dejaTransfere')}</div>
+                      <div style={{ fontSize: 11, color: '#1a1a1a', marginTop: 2 }}>
+                        {selectedCert.transfert.marque?.nom ?? '-'} · {new Date(selectedCert.transfert.created_at).toLocaleDateString('fr-FR')}
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => { setShowTransfert(true); setTransfertMessage(''); setTransfertMarqueId(''); setTransfertMarqueEmail(''); setTransfertNouvelleMarque(false) }}
+                      style={{ width: '100%', padding: '8px', borderRadius: 8, border: '1.5px solid #2d5016', background: '#f0f4ec', color: '#2d5016', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
+                    >
+                      {t('transfererMarque')}
+                    </button>
+                  )}
                 </div>
               ) : (
                 <button
