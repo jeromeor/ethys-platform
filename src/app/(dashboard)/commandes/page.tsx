@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic'
 import { createClient } from '@/lib/supabase/server'
+import { getProfilUtilisateur } from '@/lib/data/profils'
 import { redirect } from 'next/navigation'
 import CommandesClient from '@/components/modules/CommandesClient'
 
@@ -8,11 +9,7 @@ export default async function CommandesPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: profil } = await supabase
-    .from('profils_utilisateurs')
-    .select('*, entreprise:entreprises(*)')
-    .eq('id', user.id)
-    .single()
+  const { data: profil } = await getProfilUtilisateur(supabase, user.id)
 
   const entrepriseId = profil?.entreprise_id
   const role = profil?.role
