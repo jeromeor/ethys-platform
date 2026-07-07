@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import postgres from 'postgres'
+import { createClient } from '@/lib/supabase/server'
 
 const sql = postgres(process.env.DATABASE_URL!, { ssl: 'require' })
 
 export async function POST(req: NextRequest) {
   try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     const body = await req.json()
 
     const [row] = await sql`
@@ -35,6 +39,9 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     const { searchParams } = new URL(req.url)
     const dateDebut = searchParams.get('date_debut')
     const dateFin   = searchParams.get('date_fin')
