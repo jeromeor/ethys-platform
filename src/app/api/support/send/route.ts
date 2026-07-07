@@ -1,9 +1,13 @@
 import { Resend } from 'resend'
+import { createClient } from '@/lib/supabase/server'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(req: Request) {
   try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     const { objet, message, aPieceJointe, reference, prenom, nom, email } = await req.json()
 
     // Email interne vers Textile Loop (pas besoin de bilingue)
