@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
+import { getProfilUtilisateur } from '@/lib/data/profils'
 import { useRouter } from 'next/navigation'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 export default function EnAttentePage() {
@@ -14,11 +15,7 @@ export default function EnAttentePage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/login'); return }
       setEmail(user.email ?? '')
-      const { data: profil } = await supabase
-        .from('profils_utilisateurs')
-        .select('entreprise_id')
-        .eq('id', user.id)
-        .single()
+     const { data: profil } = await getProfilUtilisateur(supabase, user.id)
       if (profil?.entreprise_id) router.push('/dashboard')
     }
     check()
