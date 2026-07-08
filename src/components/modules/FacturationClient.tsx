@@ -396,17 +396,15 @@ export default function FacturationClient({ factures: initial, commandes, entrep
           ))}
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          {isAdmin && (
-            <button onClick={() => setActiveTab(activeTab === 'accords' ? 'factures' : 'accords')} style={{
-              padding: '7px 14px', borderRadius: 8, border: '1.5px solid #1a1a1a',
-              background: activeTab === 'accords' ? '#1a1a1a' : '#fff',
-              color: activeTab === 'accords' ? '#fff' : '#1a1a1a', fontSize: 12, fontWeight: 700, cursor: 'pointer'
-            }}>{t('boutons.accordsCommerciaux')}</button>
+        {isAdmin && (
+            <Button
+              label={t('boutons.accordsCommerciaux')}
+              variant="toggle"
+              active={activeTab === 'accords'}
+              onClick={() => setActiveTab(activeTab === 'accords' ? 'factures' : 'accords')}
+            />
           )}
-          <button onClick={() => setShowForm(true)} style={{
-            padding: '7px 14px', borderRadius: 8, border: 'none',
-            background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer'
-          }}>＋ {t('boutons.nouvelleFacture')}</button>
+          <Button label={'＋ ' + t('boutons.nouvelleFacture')} onClick={() => setShowForm(true)} />
         </div>
       </div>
 
