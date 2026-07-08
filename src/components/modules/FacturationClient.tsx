@@ -205,7 +205,9 @@ export default function FacturationClient({ factures: initial, commandes, entrep
               onClick={() => setActiveTab(activeTab === 'accords' ? 'factures' : 'accords')}
             />
           )}
-          <Button label={'＋ ' + t('boutons.nouvelleFacture')} onClick={() => setShowForm(true)} />
+         {isAdmin && (
+            <Button label={'＋ ' + t('boutons.nouvelleFacture')} onClick={() => setShowForm(true)} />
+          )}
         </div>
       </div>
 
