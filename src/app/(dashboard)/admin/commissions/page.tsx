@@ -31,5 +31,5 @@ export default async function CommissionsPage() {
     ORDER BY niveau, tranche_min
   `
 
-  return <CommissionsFilaturesClient filatures={filatures} defauts={defauts} />
+  return <CommissionsFilaturesClient filatures={filatures as any} defauts={defauts as any} />
 }
