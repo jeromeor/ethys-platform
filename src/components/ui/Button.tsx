@@ -2,26 +2,23 @@ type ButtonProps = {
   label: string;
   onClick: () => void;
   active?: boolean;
-  variant?: "primaire" | "secondaire";
+  variant?: "primaire" | "toggle";
 };
 
-export default function Button({ label, onClick, active = false, variant = "secondaire" }: ButtonProps) {
-  const isPrimaire = variant === "primaire";
+export default function Button({ label, onClick, active = false, variant = "primaire" }: ButtonProps) {
+  if (variant === "toggle") {
+    return (
+      <button onClick={onClick} style={{
+        padding: '7px 14px', borderRadius: 8, border: '1.5px solid #1a1a1a',
+        background: active ? '#1a1a1a' : '#fff',
+        color: active ? '#fff' : '#1a1a1a', fontSize: 12, fontWeight: 700, cursor: 'pointer'
+      }}>{label}</button>
+    );
+  }
   return (
-    <button
-      onClick={onClick}
-      style={{
-        padding: '8px 16px',
-        borderRadius: 6,
-        border: isPrimaire ? 'none' : '1px solid #e8e3d8',
-        background: active || isPrimaire ? '#1a1a1a' : '#fff',
-        color: active || isPrimaire ? '#fff' : '#4a5568',
-        fontSize: 12,
-        fontWeight: active ? 600 : 400,
-        cursor: 'pointer',
-      }}
-    >
-      {label}
-    </button>
+    <button onClick={onClick} style={{
+      padding: '7px 14px', borderRadius: 8, border: 'none',
+      background: '#1a1a1a', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer'
+    }}>{label}</button>
   );
 }
