@@ -498,7 +498,7 @@ export default function FacturationClient({ factures: initial, commandes, entrep
 
               {/* Actions */}
               <div style={{ display: 'flex', gap: 10 }}>
-                {selected.statut !== 'payee' && selected.statut !== 'annulee' && (
+               {isAdmin && selected.statut !== 'payee' && selected.statut !== 'annulee' && (
                   <button onClick={() => marquerPayee(selected.id)} style={{
                     flex: 2, padding: '10px', borderRadius: 4, border: 'none',
                     background: '#1a1a1a', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer'
