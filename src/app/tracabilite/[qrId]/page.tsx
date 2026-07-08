@@ -30,24 +30,19 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
   if (isCertification) {
     const { data: cert } = await supabase
       .from('certifications_ethys')
-      .select('*')
+      .select('*, filature:entreprises!certifications_ethys_filature_id_fkey(nom, pays, ville, latitude, longitude)')
       .eq('id', qrCode.certification_id)
       .single()
 
-    const { data: decl } = await supabase
-      .from('declarations_ethys')
-      .select('*, entreprise:entreprises(nom, pays, ville, latitude, longitude)')
-      .eq('id', cert?.declaration_id)
-      .single()
+    const decl: any = null
+    const entDecl = cert?.filature as any
 
     const pctRecyclé = 51
     const pctVierge = 49
-    const totalKg = Number(cert?.volume_total ?? 0)
+    const totalKg = Number(cert?.volume_recycle_kg ?? 0) + Number(cert?.volume_vierge_kg ?? 0)
     const volRecycle = Math.round(totalKg * 0.51)
     const volVierge = Math.round(totalKg * 0.49)
-    const typeLabel = decl?.type_produit === 'fil' ? t('typeFil') : decl?.type_produit === 'tissu' ? t('typeTissu') : t('typeProduitFini')
-
-    const entDecl = decl?.entreprise as any
+    const typeLabel = cert?.type_produit ?? t('typeProduitFini')
     const certActeurs = [
       entDecl?.latitude ? {
         type: 'filature',
@@ -77,12 +72,12 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
                 <div style={{ flex: pctRecyclé, background: '#8b7355', borderRadius: 4, padding: '10px 8px', textAlign: 'center' }}>
                   <div style={{ fontSize: 22, fontWeight: 900, color: '#fff' }}>{pctRecyclé}%</div>
                   <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>{t('cotonRecycle')}</div>
-                  <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>{Number(decl?.volume_recyclé_kg ?? 0).toLocaleString('fr-FR')} kg</div>
+                  <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>{Number(cert?.volume_recycle_kg ?? 0).toLocaleString('fr-FR')} kg</div>
                 </div>
                 <div style={{ flex: pctVierge, background: 'rgba(255,255,255,0.12)', borderRadius: 4, padding: '10px 8px', textAlign: 'center' }}>
                   <div style={{ fontSize: 22, fontWeight: 900, color: '#fff' }}>{pctVierge}%</div>
                   <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>{t('cotonVierge')}</div>
-                  <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>{Number(decl?.volume_vierge_kg ?? 0).toLocaleString('fr-FR')} kg</div>
+                  <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>{Number(cert?.volume_vierge_kg ?? 0).toLocaleString('fr-FR')} kg</div>
                 </div>
               </div>
               <div style={{ height: 6, background: 'rgba(255,255,255,0.12)', borderRadius: 2, overflow: 'hidden' }}>
@@ -104,14 +99,14 @@ export default async function TracabilitePage({ params }: { params: Promise<{ qr
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
           {[
-            { key: 'entreprise', label: t('lblEntreprise'), value: (decl?.entreprise as any)?.nom ?? '-' },
-            { key: 'pays', label: t('lblPays'), value: (decl?.entreprise as any)?.pays ?? '-' },
-            { key: 'filature', label: t('lblFilature'), value: decl?.filature_nom ?? '-' },
-            { key: 'paysFilature', label: t('lblPaysFilature'), value: decl?.filature_pays ?? '-' },
-            { key: 'provenance', label: t('lblProvenance'), value: decl?.provenance_pays ?? '-' },
+            { key: 'entreprise', label: t('lblEntreprise'), value: entDecl?.nom ?? '-' },
+            { key: 'pays', label: t('lblPays'), value: entDecl?.pays ?? '-' },
+            { key: 'filature', label: t('lblFilature'), value: entDecl?.nom ?? '-' },
+            { key: 'paysFilature', label: t('lblPaysFilature'), value: entDecl?.pays ?? '-' },
+            { key: 'provenance', label: t('lblProvenance'), value: '-' },
             { key: 'typeProduit', label: t('lblTypeProduit'), value: typeLabel },
-            { key: 'numeroCert', label: t('lblNumeroCert'), value: cert?.numero ?? '-' },
-            { key: 'dateEmission', label: t('lblDateEmission'), value: cert ? new Date(cert.date_émission).toLocaleDateString('fr-FR') : '-' },
+            { key: 'numeroCert', label: t('lblNumeroCert'), value: cert?.numero ?? cert?.reference ?? '-' },
+            { key: 'dateEmission', label: t('lblDateEmission'), value: cert?.date_emission ? new Date(cert.date_emission).toLocaleDateString('fr-FR') : '-' },
           ].map(({ key, label, value }) => (
             <div key={key} style={{ display: 'flex', gap: 14, alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #e8e3d8' }}>
               <div style={{ width: 36, height: 36, borderRadius: 8, background: key === 'numeroCert' ? '#f0f4ec' : '#f5f3ef', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>
