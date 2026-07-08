@@ -16,7 +16,7 @@ interface LigneFacture {
 interface Facture {
   id: string
   reference: string
-  statut: string
+  statut: 'brouillon' | 'emise' | 'en_attente' | 'payee' | 'en_retard' | 'annulee'
   montant_ht: number
   montant_tva: number
   montant_ttc: number
