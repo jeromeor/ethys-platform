@@ -7,11 +7,16 @@ type Niveau = "standard" | "partenaire" | "privilege";
 interface Filature {
   id: string;
   nom: string;
-  bareme_commissions_filatures: {
-    niveau: Niveau;
-    personnalise: boolean;
-    tranches_personnalisees: unknown;
-  }[];
+  niveau: Niveau | null;
+  personnalise: boolean | null;
+  tranches_personnalisees: unknown;
+}
+
+interface Tranche {
+  niveau: Niveau;
+  tranche_min: number;
+  tranche_max: number | null;
+  taux_eur_kg: number;
 }
 
 export default function CommissionsFilaturesClient({
@@ -19,12 +24,12 @@ export default function CommissionsFilaturesClient({
   defauts,
 }: {
   filatures: Filature[];
-  defauts: { niveau: Niveau; tranche_min: number; tranche_max: number | null; taux_eur_kg: number }[];
+  defauts: Tranche[];
 }) {
   const [filatureId, setFilatureId] = useState("");
   const [niveau, setNiveau] = useState<Niveau>("standard");
   const [personnalise, setPersonnalise] = useState(false);
-  const [tranches, setTranches] = useState(
+  const [tranches, setTranches] = useState<Tranche[]>(
     defauts.filter((d) => d.niveau === "standard")
   );
   const [message, setMessage] = useState("");
@@ -33,15 +38,23 @@ export default function CommissionsFilaturesClient({
   function handleFilatureChange(id: string) {
     setFilatureId(id);
     const f = filatures.find((f) => f.id === id);
-    const bareme = f?.bareme_commissions_filatures?.[0];
-    setNiveau(bareme?.niveau ?? "standard");
-    setPersonnalise(bareme?.personnalise ?? false);
+    const niveauActuel = f?.niveau ?? "standard";
+    setNiveau(niveauActuel);
+    setPersonnalise(f?.personnalise ?? false);
+
+    if (f?.personnalise && f.tranches_personnalisees) {
+      setTranches(f.tranches_personnalisees as Tranche[]);
+    } else {
+      setTranches(defauts.filter((d) => d.niveau === niveauActuel));
+    }
   }
 
   // Changement de niveau : recharge les tranches par défaut de ce niveau
   function handleNiveauChange(n: Niveau) {
     setNiveau(n);
-    setTranches(defauts.filter((d) => d.niveau === n));
+    if (!personnalise) {
+      setTranches(defauts.filter((d) => d.niveau === n));
+    }
   }
 
   async function handleSubmit() {
