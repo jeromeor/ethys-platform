@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import Badge from "@/components/ui/Badge";
 import AccordsCommerciaux from './AccordsCommerciaux'
+import Button from "@/components/ui/Button";
 
 type StatutFacture = 'brouillon' | 'emise' | 'en_attente' | 'payee' | 'en_retard' | 'annulee'
 
