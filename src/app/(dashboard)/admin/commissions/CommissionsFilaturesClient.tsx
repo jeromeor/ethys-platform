@@ -42,8 +42,17 @@ export default function CommissionsFilaturesClient({
     setNiveau(niveauActuel);
     setPersonnalise(f?.personnalise ?? false);
 
-    if (f?.personnalise && f.tranches_personnalisees) {
-      setTranches(f.tranches_personnalisees as Tranche[]);
+    let tranchesPerso = f?.tranches_personnalisees;
+    if (typeof tranchesPerso === "string") {
+      try {
+        tranchesPerso = JSON.parse(tranchesPerso);
+      } catch {
+        tranchesPerso = null;
+      }
+    }
+
+    if (f?.personnalise && Array.isArray(tranchesPerso)) {
+      setTranches(tranchesPerso as Tranche[]);
     } else {
       setTranches(defauts.filter((d) => d.niveau === niveauActuel));
     }
