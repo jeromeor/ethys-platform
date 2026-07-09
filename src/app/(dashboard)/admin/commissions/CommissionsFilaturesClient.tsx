@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { COLORS } from "@/lib/theme";
+import Button from "@/components/ui/Button";
 
 type Niveau = "standard" | "partenaire" | "privilege";
 
@@ -19,6 +21,12 @@ interface Tranche {
   taux_eur_kg: number;
 }
 
+const NIVEAUX_LABELS: Record<Niveau, string> = {
+  standard: "Standard",
+  partenaire: "Partenaire",
+  privilege: "Privilège",
+};
+
 export default function CommissionsFilaturesClient({
   filatures,
   defauts,
@@ -27,6 +35,7 @@ export default function CommissionsFilaturesClient({
   defauts: Tranche[];
 }) {
   const [filatureId, setFilatureId] = useState("");
+  const [filatureNom, setFilatureNom] = useState("");
   const [niveau, setNiveau] = useState<Niveau>("standard");
   const [personnalise, setPersonnalise] = useState(false);
   const [tranches, setTranches] = useState<Tranche[]>(
@@ -34,15 +43,21 @@ export default function CommissionsFilaturesClient({
   );
   const [message, setMessage] = useState("");
 
-  // Changement de filature sélectionnée : pré-remplit avec son barème actuel
-  function handleFilatureChange(id: string) {
-    setFilatureId(id);
-    const f = filatures.find((f) => f.id === id);
-    const niveauActuel = f?.niveau ?? "standard";
-    setNiveau(niveauActuel);
-    setPersonnalise(f?.personnalise ?? false);
+  // Sélection via le champ texte (autocomplétion native par datalist)
+  function handleFilatureInput(nom: string) {
+    setFilatureNom(nom);
+    const f = filatures.find((f) => f.nom === nom);
+    if (!f) {
+      setFilatureId("");
+      return;
+    }
 
-    let tranchesPerso = f?.tranches_personnalisees;
+    setFilatureId(f.id);
+    const niveauActuel = f.niveau ?? "standard";
+    setNiveau(niveauActuel);
+    setPersonnalise(f.personnalise ?? false);
+
+    let tranchesPerso = f.tranches_personnalisees;
     if (typeof tranchesPerso === "string") {
       try {
         tranchesPerso = JSON.parse(tranchesPerso);
@@ -51,14 +66,13 @@ export default function CommissionsFilaturesClient({
       }
     }
 
-    if (f?.personnalise && Array.isArray(tranchesPerso)) {
+    if (f.personnalise && Array.isArray(tranchesPerso)) {
       setTranches(tranchesPerso as Tranche[]);
     } else {
       setTranches(defauts.filter((d) => d.niveau === niveauActuel));
     }
   }
 
-  // Changement de niveau : recharge les tranches par défaut de ce niveau
   function handleNiveauChange(n: Niveau) {
     setNiveau(n);
     if (!personnalise) {
@@ -67,6 +81,7 @@ export default function CommissionsFilaturesClient({
   }
 
   async function handleSubmit() {
+    if (!filatureId) return;
     setMessage("");
     const res = await fetch("/api/commissions-filatures", {
       method: "POST",
@@ -87,27 +102,49 @@ export default function CommissionsFilaturesClient({
     }
   }
 
+  const labelStyle: React.CSSProperties = {
+    display: "block",
+    marginBottom: 6,
+    fontSize: 13,
+    fontWeight: 600,
+    color: COLORS.noir,
+  };
+
+  const inputStyle: React.CSSProperties = {
+    border: `1.5px solid ${COLORS.bordure}`,
+    borderRadius: 8,
+    padding: "10px 12px",
+    width: "100%",
+    fontSize: 14,
+    color: COLORS.noir,
+    background: "#fff",
+    marginBottom: 20,
+    boxSizing: "border-box",
+  };
+
   return (
-    <div className="p-6 max-w-2xl">
-      <h1 className="text-xl font-semibold mb-4">Commissions filatures</h1>
+    <div style={{ padding: 24, maxWidth: 640 }}>
+      <h1 style={{ fontSize: 20, fontWeight: 700, color: COLORS.noir, marginBottom: 20 }}>
+        Commissions filatures
+      </h1>
 
-      <label className="block mb-1">Filature</label>
-      <select
-        className="border p-2 w-full mb-4"
-        value={filatureId}
-        onChange={(e) => handleFilatureChange(e.target.value)}
-      >
-        <option value="">-- Sélectionner --</option>
+      <label style={labelStyle}>Filature</label>
+      <input
+        list="filatures-list"
+        style={inputStyle}
+        placeholder="Tape pour rechercher..."
+        value={filatureNom}
+        onChange={(e) => handleFilatureInput(e.target.value)}
+      />
+      <datalist id="filatures-list">
         {filatures.map((f) => (
-          <option key={f.id} value={f.id}>
-            {f.nom}
-          </option>
+          <option key={f.id} value={f.nom} />
         ))}
-      </select>
+      </datalist>
 
-      <label className="block mb-1">Niveau</label>
+      <label style={labelStyle}>Niveau</label>
       <select
-        className="border p-2 w-full mb-4"
+        style={inputStyle}
         value={niveau}
         onChange={(e) => handleNiveauChange(e.target.value as Niveau)}
       >
@@ -116,7 +153,7 @@ export default function CommissionsFilaturesClient({
         <option value="privilege">Privilège</option>
       </select>
 
-      <label className="flex items-center gap-2 mb-4">
+      <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20, fontSize: 13, color: COLORS.noir }}>
         <input
           type="checkbox"
           checked={personnalise}
@@ -126,38 +163,55 @@ export default function CommissionsFilaturesClient({
       </label>
 
       {personnalise && (
-        <div className="mb-4 space-y-2">
-          {tranches.map((t, i) => (
-            <div key={i} className="flex gap-2 items-center">
-              <span className="w-32">
-                {t.tranche_min} - {t.tranche_max ?? "∞"} t
-              </span>
-              <input
-                type="number"
-                step="0.0001"
-                className="border p-1 w-28"
-                value={t.taux_eur_kg}
-                onChange={(e) => {
-                  const copy = [...tranches];
-                  copy[i] = { ...copy[i], taux_eur_kg: parseFloat(e.target.value) };
-                  setTranches(copy);
-                }}
-              />
-              <span>€/kg</span>
-            </div>
-          ))}
-        </div>
+        <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: 24 }}>
+          <thead>
+            <tr>
+              <th style={{ textAlign: "left", padding: "8px 10px", background: COLORS.creme, color: COLORS.noir, fontSize: 12, fontWeight: 700, borderBottom: `2px solid ${COLORS.bordure}` }}>
+                Tranche
+              </th>
+              <th style={{ textAlign: "left", padding: "8px 10px", background: COLORS.creme, color: COLORS.noir, fontSize: 12, fontWeight: 700, borderBottom: `2px solid ${COLORS.bordure}` }}>
+                Taux €/kg
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {tranches.map((t, i) => (
+              <tr key={i} style={{ borderBottom: `1px solid ${COLORS.bordure}` }}>
+                <td style={{ padding: "10px" }}>
+                  {t.tranche_min} - {t.tranche_max ?? "∞"} t
+                </td>
+                <td style={{ padding: "10px" }}>
+                  <input
+                    type="number"
+                    step="0.0001"
+                    style={{
+                      border: `1.5px solid ${COLORS.bordure}`,
+                      borderRadius: 6,
+                      padding: "6px 8px",
+                      width: 110,
+                      fontSize: 13,
+                    }}
+                    value={t.taux_eur_kg}
+                    onChange={(e) => {
+                      const copy = [...tranches];
+                      copy[i] = { ...copy[i], taux_eur_kg: parseFloat(e.target.value) };
+                      setTranches(copy);
+                    }}
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
 
-      <button
-        onClick={handleSubmit}
-        disabled={!filatureId}
-        className="bg-black text-white px-4 py-2 rounded disabled:opacity-40"
-      >
-        Valider (admin)
-      </button>
+      <Button label="Valider" onClick={handleSubmit} />
 
-      {message && <p className="mt-3">{message}</p>}
+      {message && (
+        <p style={{ marginTop: 14, fontSize: 13, color: COLORS.vert, fontWeight: 600 }}>
+          {message}
+        </p>
+      )}
     </div>
   );
 }
