@@ -24,7 +24,6 @@ export default async function CommissionsPage() {
     WHERE e.type = 'filature'
     ORDER BY e.nom
   `
-
   const defauts = await sql`
     SELECT niveau, tranche_min, tranche_max, taux_eur_kg
     FROM bareme_defaut_niveaux
@@ -32,8 +31,9 @@ export default async function CommissionsPage() {
   `
 
   return (
-  <CommissionsFilaturesClient
-    filatures={JSON.parse(JSON.stringify(filatures))}
-    defauts={JSON.parse(JSON.stringify(defauts))}
-  />
-)
+    <CommissionsFilaturesClient
+      filatures={JSON.parse(JSON.stringify(filatures))}
+      defauts={JSON.parse(JSON.stringify(defauts))}
+    />
+  )
+}
