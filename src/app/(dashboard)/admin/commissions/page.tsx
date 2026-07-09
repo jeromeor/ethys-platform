@@ -31,5 +31,9 @@ export default async function CommissionsPage() {
     ORDER BY niveau, tranche_min
   `
 
-  return <CommissionsFilaturesClient filatures={filatures as any} defauts={defauts as any} />
-}
+  return (
+  <CommissionsFilaturesClient
+    filatures={JSON.parse(JSON.stringify(filatures))}
+    defauts={JSON.parse(JSON.stringify(defauts))}
+  />
+)
