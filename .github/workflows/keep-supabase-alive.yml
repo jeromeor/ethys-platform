@@ -2,7 +2,7 @@ name: Keep Supabase Alive
 
 on:
   schedule:
-    - cron: '0 9 */3 * *'
+    - cron: '0 9 * * *'
   workflow_dispatch:
 
 jobs:
@@ -14,4 +14,4 @@ jobs:
           curl -X GET "https://bksmaihkcprggetqkcwu.supabase.co/rest/v1/profils_utilisateurs?select=id&limit=1" \
             -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
             -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
-            -f
+            --fail-with-body
